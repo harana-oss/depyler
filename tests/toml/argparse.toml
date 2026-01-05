@@ -194,9 +194,10 @@ struct Args {
 }
 pub fn main() {
     let args = Args::parse();
-    let _cse_temp_0 = matches!(args.command, Commands::Clone { .. });
-    if _cse_temp_0 {
-        handle_clone(&args);
+    match args.command {
+        Commands::Clone { url } => {
+            handle_clone(&args);
+        }
     }
 }
 pub fn handle_clone(args: &Args) {
@@ -490,7 +491,7 @@ pub fn count_file(filepath: &Path) -> Stats {
         .collect::<Vec<String>>()
         .len() as i32;
     let chars = content.len() as i32;
-    return Stats::new(lines, words, chars, filepath.to_string());
+    return Stats::new(lines, words, chars, (filepath).to_string());
 }
 pub fn run() -> i32 {
     let args = Args::parse();
@@ -532,8 +533,7 @@ parser.add_argument("input")
 
 rust = '''
 use clap::Parser;
-pub const parser: serde_json::Value = clap::Parser();
-use serde_json;
+fn main() {}
 '''
 
 [[test]]
@@ -548,8 +548,7 @@ parser.add_argument("-v", "--verbose", action="store_true")
 
 rust = '''
 use clap::Parser;
-pub const parser: serde_json::Value = clap::Parser();
-use serde_json;
+fn main() {}
 '''
 
 [[test]]
@@ -584,14 +583,10 @@ impl ValueError {
     }
 }
 #[doc = "Argparse custom type validator."]
-#[doc = " Depyler: proven to terminate"]
 pub fn port_validator(value: String) -> i32 {
-    let _cse_temp_0 = value.parse::<i32>().unwrap();
-    let port = _cse_temp_0;
-    let _cse_temp_1 = port < 1;
-    let _cse_temp_2 = port > 65535;
-    let _cse_temp_3 = (_cse_temp_1) || (_cse_temp_2);
-    if _cse_temp_3 {
+    let port = value.parse::<i32>().unwrap();
+    let _cse_temp_0 = (port < 1) || (port > 65535);
+    if _cse_temp_0 {
         panic!("{}", "Port must be 1-65535".to_string());
     }
     return port;
@@ -610,8 +605,7 @@ def validator(value):
 
 rust = '''
 pub fn validator(value: String) -> i32 {
-    let _cse_temp_0 = value.parse::<i32>().unwrap();
-    let num = _cse_temp_0;
+    let num = value.parse::<i32>().unwrap();
     return num;
 }
 '''
@@ -724,23 +718,6 @@ def port_number(value):
 rust = '''
 use clap::Parser;
 #[derive(Debug, Clone)]
-pub struct ValueError {
-    message: String,
-}
-impl std::fmt::Display for ValueError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "value error: {}", self.message)
-    }
-}
-impl std::error::Error for ValueError {}
-impl ValueError {
-    pub fn new(message: impl Into<String>) -> Self {
-        Self {
-            message: message.into(),
-        }
-    }
-}
-#[derive(Debug, Clone)]
 pub struct ArgumentTypeError {
     message: String,
 }
@@ -791,23 +768,6 @@ def positive_int(value):
 
 rust = '''
 use clap::Parser;
-#[derive(Debug, Clone)]
-pub struct ValueError {
-    message: String,
-}
-impl std::fmt::Display for ValueError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "value error: {}", self.message)
-    }
-}
-impl std::error::Error for ValueError {}
-impl ValueError {
-    pub fn new(message: impl Into<String>) -> Self {
-        Self {
-            message: message.into(),
-        }
-    }
-}
 #[derive(Debug, Clone)]
 pub struct ArgumentTypeError {
     message: String,
@@ -873,7 +833,6 @@ impl ArgumentTypeError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn email_address(value: serde_json::Value) {
     let pattern = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$".to_string();
     if regex::Regex::new(pattern)
@@ -920,14 +879,10 @@ impl ArgumentTypeError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn validate_range(value: String) -> i32 {
-    let _cse_temp_0 = value.parse::<i32>().unwrap();
-    let num = _cse_temp_0;
-    let _cse_temp_1 = num < 0;
-    let _cse_temp_2 = num > 100;
-    let _cse_temp_3 = (_cse_temp_1) || (_cse_temp_2);
-    if _cse_temp_3 {
+    let num = value.parse::<i32>().unwrap();
+    let _cse_temp_0 = (num < 0) || (num > 100);
+    if _cse_temp_0 {
         panic!("{}", "Value must be 0-100");
     }
     return num;
@@ -966,7 +921,6 @@ impl ArgumentTypeError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn validate(value: serde_json::Value) {
     panic!("{}", "literal string");
     return value;
@@ -1005,7 +959,6 @@ impl ArgumentTypeError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn validate(value: serde_json::Value) {
     panic!("{}", format!("formatted {}", value));
     return value;
@@ -1045,7 +998,6 @@ impl ArgumentTypeError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn validate(value: serde_json::Value) {
     let msg = "error message".to_string();
     panic!("{}", msg);
@@ -1099,7 +1051,6 @@ struct Args {
     email: Option<String>,
 }
 #[doc = "Validator that returns the original string parameter."]
-#[doc = " Depyler: proven to terminate"]
 pub fn email_address(value: String) {
     if regex::Regex::new("^[a-z]+@[a-z]+\\.com$")
         .unwrap()
@@ -1159,12 +1110,9 @@ struct Args {
     port: Option<String>,
 }
 #[doc = "Validator that converts string to int."]
-#[doc = " Depyler: proven to terminate"]
 pub fn port_number(value: String) -> i32 {
-    let _cse_temp_0 = value.parse::<i32>().unwrap();
-    let port = _cse_temp_0;
-    let _cse_temp_1 = port < 1;
-    if _cse_temp_1 {
+    let port = value.parse::<i32>().unwrap();
+    if port < 1 {
         panic!("{}", "Port must be>= 1");
     }
     return port;
@@ -1276,14 +1224,10 @@ struct Args {
     percent: Option<String>,
 }
 #[doc = "Validator that converts to float and validates range."]
-#[doc = " Depyler: proven to terminate"]
 pub fn percentage_validator(value: String) -> f64 {
-    let _cse_temp_0 = (value) as f64;
-    let pct = _cse_temp_0;
-    let _cse_temp_1 = pct < 0.0;
-    let _cse_temp_2 = pct > 100.0;
-    let _cse_temp_3 = (_cse_temp_1) || (_cse_temp_2);
-    if _cse_temp_3 {
+    let pct = (value) as f64;
+    let _cse_temp_0 = (pct < 0.0) || (pct > 100.0);
+    if _cse_temp_0 {
         panic!("{}", "Percentage must be 0-100");
     }
     return pct;
@@ -1327,14 +1271,20 @@ struct Args {
 }
 pub fn main() {
     let args = Args::parse();
-    let _cse_temp_0 = matches!(args.command, Commands::Clone { .. });
-    if _cse_temp_0 {
-        handle_clone(&args);
+    match args.command {
+        Commands::Clone { url } => {
+            handle_clone(&args);
+        }
     }
 }
 pub fn handle_clone(args: &Args) {
     if let Commands::Clone { url } = &args.command {
         log::info!("{}", format!("Clone: {}", url));
+    }
+}
+fn main() {
+    if __name__ == "__main__" {
+        main();
     }
 }
 '''
@@ -1380,14 +1330,20 @@ struct Args {
 }
 pub fn main() {
     let args = Args::parse();
-    let _cse_temp_0 = matches!(args.command, Commands::Clone { .. });
-    if _cse_temp_0 {
-        handle_clone(&args);
+    match args.command {
+        Commands::Clone { url, branch } => {
+            handle_clone(&args);
+        }
     }
 }
 pub fn handle_clone(args: &Args) {
     if let Commands::Clone { branch, url } = &args.command {
         log::info!("{}", format!("Clone {}(branch: {})", url, branch));
+    }
+}
+fn main() {
+    if __name__ == "__main__" {
+        main();
     }
 }
 '''
@@ -1433,9 +1389,10 @@ struct Args {
 }
 pub fn main() {
     let args = Args::parse();
-    let _cse_temp_0 = matches!(args.command, Commands::Clone { .. });
-    if _cse_temp_0 {
-        handle_clone(&args);
+    match args.command {
+        Commands::Clone { url } => {
+            handle_clone(&args);
+        }
     }
 }
 pub fn handle_clone(args: &Args) {
@@ -1443,6 +1400,11 @@ pub fn handle_clone(args: &Args) {
         if args.verbose {
             log::info!("{}", format!("Verbose: Clone {}", url));
         }
+    }
+}
+fn main() {
+    if __name__ == "__main__" {
+        main();
     }
 }
 '''
@@ -1481,8 +1443,8 @@ rust = '''
 use clap::Parser;
 #[derive(clap::Subcommand)]
 enum Commands {
-    Push { remote: String },
     Clone { url: String },
+    Push { remote: String },
 }
 #[derive(Debug, clap::Parser)]
 struct Args {
@@ -1491,12 +1453,11 @@ struct Args {
 }
 pub fn main() {
     let args = Args::parse();
-    let _cse_temp_0 = matches!(args.command, Commands::Clone { .. });
-    if _cse_temp_0 {
-        handle_clone(&args);
-    } else {
-        let _cse_temp_1 = matches!(args.command, Commands::Push { .. });
-        if _cse_temp_1 {
+    match args.command {
+        Commands::Clone { url } => {
+            handle_clone(&args);
+        }
+        Commands::Push { remote } => {
             handle_push(&args);
         }
     }
@@ -1509,6 +1470,11 @@ pub fn handle_clone(args: &Args) {
 pub fn handle_push(args: &Args) {
     if let Commands::Push { remote } = &args.command {
         log::info!("{}", format!("Push to: {}", remote));
+    }
+}
+fn main() {
+    if __name__ == "__main__" {
+        main();
     }
 }
 '''
@@ -1530,23 +1496,6 @@ def validate_int(value: str) -> int:
 
 rust = '''
 use clap::Parser;
-#[derive(Debug, Clone)]
-pub struct ValueError {
-    message: String,
-}
-impl std::fmt::Display for ValueError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "value error: {}", self.message)
-    }
-}
-impl std::error::Error for ValueError {}
-impl ValueError {
-    pub fn new(message: impl Into<String>) -> Self {
-        Self {
-            message: message.into(),
-        }
-    }
-}
 #[derive(Debug, Clone)]
 pub struct ArgumentTypeError {
     message: String,
@@ -1608,7 +1557,6 @@ impl ArgumentTypeError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn email_address(value: String) -> String {
     let pattern = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$".to_string();
     if regex::Regex::new(pattern)
@@ -1652,15 +1600,15 @@ rust = '''
 use clap::Parser;
 #[derive(clap::Subcommand)]
 enum Commands {
-    #[doc = "Add item"]
-    Add {
-        #[doc = "Item name"]
-        name: String,
-    },
-    #[doc = "Remove item"]
+    #[command(about = "Remove item")]
     Remove {
         #[doc = "Item ID"]
         id: i32,
+    },
+    #[command(about = "Add item")]
+    Add {
+        #[doc = "Item name"]
+        name: String,
     },
 }
 #[derive(Debug, clap::Parser)]
@@ -1695,10 +1643,10 @@ rust = '''
 use clap::Parser;
 #[derive(Debug, clap::Parser)]
 struct Args {
-    #[arg(long, group = "verbosity")]
+    #[arg(long)]
     #[arg(action = clap::ArgAction::SetTrue)]
     verbose: bool,
-    #[arg(long, group = "verbosity")]
+    #[arg(long)]
     #[arg(action = clap::ArgAction::SetTrue)]
     quiet: bool,
 }
@@ -1735,7 +1683,7 @@ struct Args {
     optional: Option<String>,
     #[arg(long)]
     #[doc = "Zero or more"]
-    multiple: Vec<String>,
+    multiple: Option<Vec<String>>,
 }
 pub fn main() -> i32 {
     let args = Args::parse();
@@ -1762,10 +1710,11 @@ rust = '''
 use clap::Parser;
 #[derive(Debug, clap::Parser)]
 struct Args {
-    #[arg(long, value_parser = ["json", "xml", "csv"])]
+    #[arg(long)]
     #[arg(default_value = "json")]
+    #[arg(value_parser = ["json", "xml", "csv"])]
     format: String,
-    #[arg(long, value_parser = clap::value_parser!(i32).range(1..=3))]
+    #[arg(long)]
     level: Option<i32>,
 }
 pub fn main() -> i32 {
@@ -1799,16 +1748,8 @@ def main() -> int:
 rust = '''
 use clap::Parser;
 #[derive(clap::Subcommand)]
-enum RemoteCommands {
-    Add,
-    Remove,
-}
-#[derive(clap::Subcommand)]
 enum Commands {
-    Remote {
-        #[command(subcommand)]
-        remote_cmd: RemoteCommands,
-    },
+    Remote {},
 }
 #[derive(Debug, clap::Parser)]
 #[command(about = "Git-like CLI")]
@@ -1817,9 +1758,12 @@ struct Args {
     #[arg(action = clap::ArgAction::SetTrue)]
     version: bool,
     #[command(subcommand)]
-    command: Option<Commands>,
+    command: Commands,
 }
 pub fn main() -> i32 {
+    let remote_sub = remote_parser.add_subparsers();
+    remote_sub.add_parser("add");
+    remote_sub.add_parser("remove");
     let args = Args::parse();
     return 0;
 }
@@ -1850,13 +1794,13 @@ rust = '''
 use clap::Parser;
 #[derive(Debug, clap::Parser)]
 struct Args {
-    #[arg(short = 'i', long)]
+    #[arg(long)]
     #[doc = "Input file"]
     input: Option<String>,
     #[arg(long)]
     #[doc = "Input format"]
     format: Option<String>,
-    #[arg(short = 'o', long)]
+    #[arg(long)]
     #[doc = "Output file"]
     output: Option<String>,
 }

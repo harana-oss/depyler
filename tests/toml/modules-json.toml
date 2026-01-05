@@ -117,7 +117,6 @@ impl IndexError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn get_nested_value(s: String, key1: String, key2: String) {
     let data = serde_json::from_str::<serde_json::Value>(&s).unwrap();
     return data
@@ -162,7 +161,6 @@ impl IndexError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn get_name(s: String) -> String {
     let data = serde_json::from_str::<serde_json::Value>(&s).unwrap();
     return data.get("name").cloned().unwrap();
@@ -201,7 +199,6 @@ impl IndexError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn get_age(s: String) -> i32 {
     let data = serde_json::from_str::<serde_json::Value>(&s).unwrap();
     return data.get("age").cloned().unwrap();

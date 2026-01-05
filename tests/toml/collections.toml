@@ -43,7 +43,6 @@ impl IndexError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn work_with_lists() -> i32 {
     let mut numbers = vec![1, 2, 3, 4, 5];
     let first = numbers.clone().get(0usize).cloned().unwrap();
@@ -299,7 +298,6 @@ impl IndexError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn work_with_dicts() -> i32 {
     let mut scores = {
         let mut map = HashMap::new();
@@ -350,7 +348,6 @@ impl IndexError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn work_with_tuples() -> i32 {
     let point = (10, 20);
     let person = ("Alice", 30, true);

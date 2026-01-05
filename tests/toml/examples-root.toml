@@ -38,8 +38,6 @@ if __name__ == "__main__":
 '''
 
 rust = '''
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_annotated_assignments() {
     let mut counter: i32 = 0;
     let mut name: String = "".to_string();

@@ -22,19 +22,18 @@ print(MyClass.increment())
 print(MyClass.increment())
 """
 rust = """
-struct MyClass;
-
-static mut COUNT: i32 = 0;
-
+#[derive(Debug, Copy, Clone)]
+pub struct MyClass {}
 impl MyClass {
-    fn increment() -> i32 {
-        unsafe {
-            COUNT += 1;
-            COUNT
-        }
+    pub const count: i32 = 0;
+    pub fn new() -> Self {
+        Self {}
+    }
+    pub fn increment() {
+        cls.count += 1;
+        return Self::count;
     }
 }
-
 fn main() {
     log::info!("{}", MyClass::increment());
     log::info!("{}", MyClass::increment());
@@ -55,14 +54,17 @@ class Calculator:
 print(Calculator.add(5, 3))
 """
 rust = """
-struct Calculator;
-
+use serde_json;
+#[derive(Debug, Copy, Clone)]
+pub struct Calculator {}
 impl Calculator {
-    fn add(a: i32, b: i32) -> i32 {
-        a + b
+    pub fn new() -> Self {
+        Self {}
+    }
+    pub fn add(a: serde_json::Value, b: serde_json::Value) {
+        return a + b;
     }
 }
-
 fn main() {
     log::info!("{}", Calculator::add(5, 3));
 }
@@ -91,29 +93,65 @@ d = Date.from_string("2023-12-25")
 print(d)
 """
 rust = """
-struct Date {
-    year: i32,
-    month: i32,
-    day: i32,
+use serde_json;
+#[derive(Debug, Clone)]
+pub struct Date {
+    pub year: serde_json::Value,
+    pub month: serde_json::Value,
+    pub day: serde_json::Value,
 }
-
 impl Date {
-    fn new(year: i32, month: i32, day: i32) -> Self {
-        Date { year, month, day }
+    pub fn new(year: serde_json::Value, month: serde_json::Value, day: serde_json::Value) -> Self {
+        Self { year, month, day }
     }
-
-    fn from_string(date_string: &str) -> Self {
-        let parts: Vec<i32> = date_string.split('-').map(|s| s.parse().unwrap()).collect();
-        Date::new(parts[0], parts[1], parts[2])
+    pub fn from_string(date_string: serde_json::Value) {
+        let (mut year, mut month, mut day) = map(
+            int,
+            date_string
+                .split("-".to_string())
+                .map(|s| s.to_string())
+                .collect(),
+        );
+        return Self::new(year, month, day);
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "year" => Some(Box::new(self.year.clone()) as Box<dyn std::any::Any>),
+            "month" => Some(Box::new(self.month.clone()) as Box<dyn std::any::Any>),
+            "day" => Some(Box::new(self.day.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "year" => {
+                if let Some(v) = value.downcast_ref::<serde_json::Value>() {
+                    self.year = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "month" => {
+                if let Some(v) = value.downcast_ref::<serde_json::Value>() {
+                    self.month = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "day" => {
+                if let Some(v) = value.downcast_ref::<serde_json::Value>() {
+                    self.day = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
     }
 }
-
-impl std::fmt::Display for Date {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "{}-{}-{}", self.year, self.month, self.day)
-    }
-}
-
 fn main() {
     let d = Date::from_string("2023-12-25");
     log::info!("{}", d);
@@ -137,19 +175,20 @@ print(obj.get_value())
 print(MyClass.get_value())
 """
 rust = """
-struct MyClass;
-
+#[derive(Debug, Copy, Clone)]
+pub struct MyClass {}
 impl MyClass {
-    const VALUE: i32 = 100;
-
-    fn get_value() -> i32 {
-        Self::VALUE
+    pub const value: i32 = 100;
+    pub fn new() -> Self {
+        Self {}
+    }
+    pub fn get_value() {
+        return Self::value;
     }
 }
-
 fn main() {
-    let _obj = MyClass;
-    log::info!("{}", MyClass::get_value());
+    let obj = MyClass::new();
+    log::info!("{}", obj.get_value());
     log::info!("{}", MyClass::get_value());
 }
 """
@@ -172,21 +211,23 @@ print(Parent.who_am_i())
 print(Child.who_am_i())
 """
 rust = """
-struct Parent;
-struct Child;
-
+#[derive(Debug, Copy, Clone)]
+pub struct Parent {}
 impl Parent {
-    fn who_am_i() -> &'static str {
-        "Parent"
+    pub fn new() -> Self {
+        Self {}
+    }
+    pub fn who_am_i() {
+        return Self::__name__;
     }
 }
-
+#[derive(Debug, Copy, Clone)]
+pub struct Child {}
 impl Child {
-    fn who_am_i() -> &'static str {
-        "Child"
+    pub fn new() -> Self {
+        Self {}
     }
 }
-
 fn main() {
     log::info!("{}", Parent::who_am_i());
     log::info!("{}", Child::who_am_i());
@@ -211,14 +252,16 @@ class Math:
 print(Math.pi())
 """
 rust = """
-struct Math;
-
+#[derive(Debug, Copy, Clone)]
+pub struct Math {}
 impl Math {
-    fn pi() -> f64 {
-        3.14159
+    pub fn new() -> Self {
+        Self {}
+    }
+    pub fn pi() -> f64 {
+        return 3.14159;
     }
 }
-
 fn main() {
     log::info!("{}", Math::pi());
 }
@@ -237,14 +280,17 @@ class Math:
 print(Math.add(10, 20))
 """
 rust = """
-struct Math;
-
+use serde_json;
+#[derive(Debug, Copy, Clone)]
+pub struct Math {}
 impl Math {
-    fn add(a: i32, b: i32) -> i32 {
-        a + b
+    pub fn new() -> Self {
+        Self {}
+    }
+    pub fn add(a: serde_json::Value, b: serde_json::Value) {
+        return a + b;
     }
 }
-
 fn main() {
     log::info!("{}", Math::add(10, 20));
 }
@@ -264,16 +310,37 @@ print(StringUtils.is_palindrome("racecar"))
 print(StringUtils.is_palindrome("hello"))
 """
 rust = """
-struct StringUtils;
-
+use serde_json;
+#[derive(Debug, Copy, Clone)]
+pub struct StringUtils {}
 impl StringUtils {
-    fn is_palindrome(s: &str) -> bool {
-        let chars: Vec<char> = s.chars().collect();
-        let reversed: String = chars.iter().rev().collect();
-        s == reversed
+    pub fn new() -> Self {
+        Self {}
+    }
+    pub fn is_palindrome(s: serde_json::Value) -> bool {
+        return s == {
+            let base = &s;
+            let step: i64 = -1;
+            if step == 1 {
+                base.clone()
+            } else if step > 0 {
+                base.iter()
+                    .step_by(step as usize)
+                    .cloned()
+                    .collect::<Vec<_>>()
+            } else if step == -1 {
+                base.iter().rev().cloned().collect::<Vec<_>>()
+            } else {
+                let abs_step = (-step) as usize;
+                base.iter()
+                    .rev()
+                    .step_by(abs_step)
+                    .cloned()
+                    .collect::<Vec<_>>()
+            }
+        };
     }
 }
-
 fn main() {
     log::info!("{}", StringUtils::is_palindrome("racecar"));
     log::info!("{}", StringUtils::is_palindrome("hello"));
@@ -296,17 +363,20 @@ print(obj.multiply(3, 4))
 print(Math.multiply(3, 4))
 """
 rust = """
-struct Math;
-
+use serde_json;
+#[derive(Debug, Copy, Clone)]
+pub struct Math {}
 impl Math {
-    fn multiply(a: i32, b: i32) -> i32 {
-        a * b
+    pub fn new() -> Self {
+        Self {}
+    }
+    pub fn multiply(a: serde_json::Value, b: serde_json::Value) {
+        return a * b;
     }
 }
-
 fn main() {
-    let _obj = Math;
-    log::info!("{}", Math::multiply(3, 4));
+    let obj = Math::new();
+    log::info!("{}", obj.multiply(3, 4));
     log::info!("{}", Math::multiply(3, 4));
 }
 """
@@ -340,30 +410,45 @@ p = Person.from_birth_year("Alice", 1990)
 print(Person.get_species())
 """
 rust = """
-struct Person {
-    name: String,
+use serde_json;
+#[derive(Debug, Clone)]
+pub struct Person {
+    pub name: serde_json::Value,
 }
-
 impl Person {
-    const SPECIES: &'static str = "Homo sapiens";
-
-    fn new(name: &str) -> Self {
-        Person {
-            name: name.to_string(),
+    pub const species: String = "Homo sapiens".to_string();
+    pub fn new(name: serde_json::Value) -> Self {
+        Self { name }
+    }
+    pub fn get_species() {
+        return Self::species;
+    }
+    pub fn from_birth_year(name: serde_json::Value, year: serde_json::Value) {
+        let mut age = 2023 - year;
+        return Self::new(name);
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "name" => Some(Box::new(self.name.clone()) as Box<dyn std::any::Any>),
+            _ => None,
         }
     }
-
-    fn get_species() -> &'static str {
-        Self::SPECIES
-    }
-
-    fn from_birth_year(name: &str, _year: i32) -> Self {
-        Self::new(name)
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "name" => {
+                if let Some(v) = value.downcast_ref::<serde_json::Value>() {
+                    self.name = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
     }
 }
-
 fn main() {
-    let _p = Person::from_birth_year("Alice", 1990);
+    let p = Person::from_birth_year("Alice", 1990);
     log::info!("{}", Person::get_species());
 }
 """
@@ -386,18 +471,20 @@ print(Validator.is_valid_email("test@example.com"))
 print(Validator.is_valid_phone("1234567890"))
 """
 rust = """
-struct Validator;
-
+use serde_json;
+#[derive(Debug, Copy, Clone)]
+pub struct Validator {}
 impl Validator {
-    fn is_valid_email(email: &str) -> bool {
-        email.contains("@") && email.contains(".")
+    pub fn new() -> Self {
+        Self {}
     }
-
-    fn is_valid_phone(phone: &str) -> bool {
-        phone.len() == 10 && phone.chars().all(|c| c.is_digit(10))
+    pub fn is_valid_email(email: serde_json::Value) -> bool {
+        return email.contains_key(&"@".to_string()) && email.contains_key(&".".to_string());
+    }
+    pub fn is_valid_phone(phone: serde_json::Value) -> bool {
+        return phone.len() == 10 && !phone.is_empty() && phone.chars().all(|c| c.is_ascii_digit());
     }
 }
-
 fn main() {
     log::info!("{}", Validator::is_valid_email("test@example.com"));
     log::info!("{}", Validator::is_valid_phone("1234567890"));
@@ -429,17 +516,24 @@ class MyClass:
 print(MyClass.greet())
 """
 rust = """
-// Rust doesn't have decorators like Python
-// This demonstrates the concept with a wrapper function
-struct MyClass;
-
+use serde_json;
+#[derive(Debug, Copy, Clone)]
+pub struct MyClass {}
 impl MyClass {
-    fn greet() -> String {
-        let result = "hello";
-        result.to_uppercase()
+    pub fn new() -> Self {
+        Self {}
+    }
+    pub fn greet() -> String {
+        return "hello".to_string();
     }
 }
-
+pub fn uppercase_decorator(func: &serde_json::Value) {
+    fn wrapper() -> () {
+        let result = func(args);
+        return result.to_uppercase();
+    }
+    return wrapper;
+}
 fn main() {
     log::info!("{}", MyClass::greet());
 }
@@ -465,15 +559,24 @@ class Math:
 print(Math.add_five(10))
 """
 rust = """
-struct Math;
-
+use serde_json;
+#[derive(Debug, Copy, Clone)]
+pub struct Math {}
 impl Math {
-    fn add_five(x: i32) -> i32 {
-        let result = x + 5;
-        result * 2
+    pub fn new() -> Self {
+        Self {}
+    }
+    pub fn add_five(x: serde_json::Value) -> i32 {
+        return x + 5;
     }
 }
-
+pub fn double_decorator(func: &serde_json::Value) {
+    fn wrapper() -> () {
+        let result = func(args);
+        return result * 2;
+    }
+    return wrapper;
+}
 fn main() {
     log::info!("{}", Math::add_five(10));
 }
@@ -500,18 +603,20 @@ class Calculator:
 print(Calculator.add_and_double(5, 3))
 """
 rust = """
-struct Calculator;
-
+use serde_json;
+#[derive(Debug, Copy, Clone)]
+pub struct Calculator {}
 impl Calculator {
-    fn add(a: i32, b: i32) -> i32 {
-        a + b
+    pub fn new() -> Self {
+        Self {}
     }
-
-    fn add_and_double(a: i32, b: i32) -> i32 {
-        Self::add(a, b) * 2
+    pub fn add(a: serde_json::Value, b: serde_json::Value) {
+        return a + b;
+    }
+    pub fn add_and_double(a: serde_json::Value, b: serde_json::Value) -> i32 {
+        return Self::add(a, b) * 2;
     }
 }
-
 fn main() {
     log::info!("{}", Calculator::add_and_double(5, 3));
 }
@@ -535,23 +640,20 @@ class MyClass:
 print(MyClass.class_method())
 """
 rust = """
-struct MyClass;
-
+#[derive(Debug, Copy, Clone)]
+pub struct MyClass {}
 impl MyClass {
-    fn new() -> Self {
-        MyClass
+    pub fn new() -> Self {
+        Self {}
     }
-
-    fn instance_method(&self) -> &'static str {
-        "instance"
+    pub fn instance_method(&self) -> String {
+        return "instance".to_string();
     }
-
-    fn class_method() -> &'static str {
-        let obj = Self::new();
-        obj.instance_method()
+    pub fn class_method() {
+        let mut obj = Self::new();
+        return obj.instance_method();
     }
 }
-
 fn main() {
     log::info!("{}", MyClass::class_method());
 }
@@ -572,16 +674,19 @@ func = Utils.add
 print(func(5, 10))
 """
 rust = """
-struct Utils;
-
+use serde_json;
+#[derive(Debug, Copy, Clone)]
+pub struct Utils {}
 impl Utils {
-    fn add(a: i32, b: i32) -> i32 {
-        a + b
+    pub fn new() -> Self {
+        Self {}
+    }
+    pub fn add(a: serde_json::Value, b: serde_json::Value) {
+        return a + b;
     }
 }
-
 fn main() {
-    let func = Utils::add;
+    let func = Utils.add;
     log::info!("{}", func(5, 10));
 }
 """
@@ -604,18 +709,19 @@ print(type(descriptor).__name__)
 print(MyClass.method())
 """
 rust = """
-// Rust doesn't have descriptors
-// Associated functions are direct method calls
-struct MyClass;
-
+#[derive(Debug, Copy, Clone)]
+pub struct MyClass {}
 impl MyClass {
-    fn method() -> &'static str {
-        "MyClass"
+    pub fn new() -> Self {
+        Self {}
+    }
+    pub fn method() {
+        return Self::__name__;
     }
 }
-
 fn main() {
-    log::info!("classmethod");
+    let descriptor = MyClass.__dict__.get("method").cloned().unwrap();
+    log::info!("{}", std::any::type_name_of_val(&descriptor).__name__);
     log::info!("{}", MyClass::method());
 }
 """

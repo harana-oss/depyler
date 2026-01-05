@@ -770,7 +770,6 @@ impl ZeroDivisionError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn test() {
     let _cse_temp_0 = {
         let a = VALUE;

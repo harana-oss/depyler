@@ -385,8 +385,6 @@ impl IndexError {
     }
 }
 #[doc = "Generate sample data using normal distribution(simplified)"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn generate_sample_data(size: i32, mean: f64, stddev: f64) -> Vec<f64> {
     let mut data: Vec<f64> = vec![];
     for _i in 0..size {
@@ -498,7 +496,6 @@ pub fn calculate_statistics(
     Ok(stats)
 }
 #[doc = "Calculate quartiles using math and sorting"]
-#[doc = " Depyler: proven to terminate"]
 pub fn calculate_percentiles(
     data: &mut Vec<f64>,
 ) -> Result<HashMap<String, f64>, Box<dyn std::error::Error>> {
@@ -679,7 +676,6 @@ pub fn bin_data(
     Ok(bins)
 }
 #[doc = "Calculate Pearson correlation coefficient"]
-#[doc = " Depyler: proven to terminate"]
 pub fn calculate_correlation<'a, 'b>(
     x: &'a Vec<f64>,
     y: &'b Vec<f64>,
@@ -795,8 +791,6 @@ pub fn group_by_range<'a, 'b>(
     Ok(groups)
 }
 #[doc = "Monte Carlo simulation combining random + math + statistics"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn monte_carlo_simulation(
     num_trials: i32,
 ) -> Result<HashMap<String, f64>, Box<dyn std::error::Error>> {
@@ -811,8 +805,6 @@ pub fn monte_carlo_simulation(
     Ok(stats)
 }
 #[doc = "Main analysis pipeline combining all modules"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn analyze_dataset() -> Result<(), Box<dyn std::error::Error>> {
     log::info!("{}", "=== Comprehensive Data Analysis Demo ===");
     {
@@ -1022,7 +1014,6 @@ pub fn filter_even_numbers(numbers: &Vec<i32>) -> Result<Vec<i32>, ZeroDivisionE
     Ok(result)
 }
 #[doc = "Find duplicate numbers in list"]
-#[doc = " Depyler: verified panic-free"]
 pub fn find_duplicates(numbers: &Vec<i32>) -> Vec<i32> {
     let mut seen: Vec<i32> = vec![];
     let mut duplicates: Vec<i32> = vec![];
@@ -1067,7 +1058,6 @@ pub fn merge_sorted_lists<'a, 'b>(
     Ok(result)
 }
 #[doc = "Calculate running sum of list"]
-#[doc = " Depyler: verified panic-free"]
 pub fn calculate_running_sum(numbers: &Vec<i32>) -> Vec<i32> {
     if numbers.is_empty() {
         return vec![];
@@ -1081,7 +1071,6 @@ pub fn calculate_running_sum(numbers: &Vec<i32>) -> Vec<i32> {
     result
 }
 #[doc = "Rotate list left by specified positions"]
-#[doc = " Depyler: proven to terminate"]
 pub fn rotate_list_left(
     numbers: Vec<i32>,
     mut positions: i32,

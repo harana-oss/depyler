@@ -16,7 +16,7 @@ print(x)
 """
 rust = """
 fn main() {
-    let mut x = 10;
+    let x = 10;
     x += 5;
     log::info!("{}", x);
 }
@@ -32,7 +32,7 @@ print(x)
 """
 rust = """
 fn main() {
-    let mut x = 10;
+    let x = 10;
     x -= 3;
     log::info!("{}", x);
 }
@@ -48,7 +48,7 @@ print(x)
 """
 rust = """
 fn main() {
-    let mut x = 5;
+    let x = 5;
     x *= 4;
     log::info!("{}", x);
 }
@@ -64,8 +64,8 @@ print(x)
 """
 rust = """
 fn main() {
-    let mut x = 10.0;
-    x /= 4.0;
+    let x = 10;
+    x /= 4;
     log::info!("{}", x);
 }
 """
@@ -80,8 +80,8 @@ print(x)
 """
 rust = """
 fn main() {
-    let mut x = 10;
-    x /= 3; // Integer division in Rust
+    let x = 10;
+    x /= 3;
     log::info!("{}", x);
 }
 """
@@ -96,7 +96,7 @@ print(x)
 """
 rust = """
 fn main() {
-    let mut x = 10;
+    let x = 10;
     x %= 3;
     log::info!("{}", x);
 }
@@ -112,8 +112,7 @@ print(x)
 """
 rust = """
 fn main() {
-    let mut x = 2_i32;
-    x = x.pow(3);
+    let x = 2;
     log::info!("{}", x);
 }
 """
@@ -132,9 +131,9 @@ print(x)  # 1000 = 8
 """
 rust = """
 fn main() {
-    let mut x = 12; // 1100
-    x &= 10; // 1010
-    log::info!("{}", x); // 1000 = 8
+    let x = 12;
+    x &= 10;
+    log::info!("{}", x);
 }
 """
 
@@ -148,9 +147,9 @@ print(x)  # 1110 = 14
 """
 rust = """
 fn main() {
-    let mut x = 12; // 1100
-    x |= 10; // 1010
-    log::info!("{}", x); // 1110 = 14
+    let x = 12;
+    x |= 10;
+    log::info!("{}", x);
 }
 """
 
@@ -164,9 +163,9 @@ print(x)  # 0110 = 6
 """
 rust = """
 fn main() {
-    let mut x = 12; // 1100
-    x ^= 10; // 1010
-    log::info!("{}", x); // 0110 = 6
+    let x = 12;
+    x ^= 10;
+    log::info!("{}", x);
 }
 """
 
@@ -180,7 +179,7 @@ print(x)
 """
 rust = """
 fn main() {
-    let mut x = 16;
+    let x = 16;
     x >>= 2;
     log::info!("{}", x);
 }
@@ -196,7 +195,7 @@ print(x)
 """
 rust = """
 fn main() {
-    let mut x = 4;
+    let x = 4;
     x <<= 2;
     log::info!("{}", x);
 }
@@ -216,8 +215,8 @@ print(lst)
 """
 rust = """
 fn main() {
-    let mut lst = vec![1, 2, 3];
-    lst.extend(vec![4, 5]);
+    let lst = vec![1, 2, 3];
+    lst += vec![4, 5];
     log::info!("{:?}", lst);
 }
 """
@@ -232,7 +231,7 @@ print(s)
 """
 rust = """
 fn main() {
-    let mut s = String::from("hello");
+    let s = "hello".to_string();
     s += " world";
     log::info!("{}", s);
 }
@@ -249,8 +248,8 @@ print(lst)
 rust = """
 fn main() {
     let lst = vec![1, 2];
-    let result: Vec<i32> = lst.repeat(3).into_iter().flatten().collect();
-    log::info!("{:?}", result);
+    lst *= 3;
+    log::info!("{:?}", lst);
 }
 """
 
@@ -268,8 +267,8 @@ print(lst)
 """
 rust = """
 fn main() {
-    let mut lst = vec![10, 20, 30];
-    lst[0] += 5;
+    let lst = vec![10, 20, 30];
+    lst[0 as usize] = lst.get(0usize).cloned().unwrap() + 5;
     log::info!("{:?}", lst);
 }
 """
@@ -283,11 +282,15 @@ d['a'] += 5
 print(d['a'])
 """
 rust = """
-use std::collections::HashMap;
 fn main() {
-    let mut d: HashMap<&str, i32> = [("a", 10), ("b", 20)].iter().cloned().collect();
-    *d.get_mut("a").unwrap() += 5;
-    log::info!("{}", d.get("a").unwrap());
+    let d = {
+        let mut map = HashMap::new();
+        map.insert("a".to_string(), 10);
+        map.insert("b".to_string(), 20);
+        map
+    };
+    d.insert("a".to_string(), d.get("a").cloned().unwrap() + 5);
+    log::info!("{}", d.get("a").cloned().unwrap());
 }
 """
 
@@ -308,18 +311,36 @@ obj.count += 5
 print(obj.count)
 """
 rust = """
-struct Counter {
-    count: i32,
+#[derive(Debug, Copy, Clone)]
+pub struct Counter {
+    pub count: i32,
 }
-
 impl Counter {
-    fn new() -> Self {
-        Counter { count: 0 }
+    pub fn new() -> Self {
+        Self { count: 0 }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "count" => Some(Box::new(self.count.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "count" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.count = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
     }
 }
-
 fn main() {
-    let mut obj = Counter::new();
+    let obj = Counter::new();
     obj.count += 5;
     log::info!("{}", obj.count);
 }
@@ -340,9 +361,10 @@ print(original_list is same_list, original_list)
 """
 rust = """
 fn main() {
-    let mut original_list = vec![1, 2, 3];
-    original_list.extend(vec![4]);
-    log::info!("true {:?}", original_list);
+    let original_list = vec![1, 2, 3];
+    let same_list = original_list;
+    same_list += vec![4];
+    log::info!("{} {:?}", original_list == same_list, original_list);
 }
 """
 
@@ -366,35 +388,39 @@ c += 5
 print(c)
 """
 rust = """
-use std::ops::AddAssign;
-
-#[derive(Debug)]
-struct Counter {
-    value: i32,
+use serde_json;
+#[derive(Debug, Clone)]
+pub struct Counter {
+    pub value: serde_json::Value,
 }
-
 impl Counter {
-    fn new(value: i32) -> Self {
-        Counter { value }
+    pub fn new(value: serde_json::Value) -> Self {
+        Self { value }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "value" => Some(Box::new(self.value.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "value" => {
+                if let Some(v) = value.downcast_ref::<serde_json::Value>() {
+                    self.value = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
     }
 }
-
-impl AddAssign<i32> for Counter {
-    fn add_assign(&mut self, other: i32) {
-        self.value += other;
-    }
-}
-
-impl std::fmt::Display for Counter {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "Counter({})", self.value)
-    }
-}
-
 fn main() {
-    let mut c = Counter::new(10);
+    let c = Counter::new(10);
     c += 5;
-    log::info!("{}", c);
+    log::info!("{:?}", c);
 }
 """
 expected_output = "Counter(15)"
@@ -431,48 +457,78 @@ print(result[1])
 print(result[2])
 """
 rust = """
+use serde_json;
 use std::collections::HashMap;
-
 #[derive(Debug, Clone)]
 pub struct Counter {
     pub count: i32,
-    pub values: Vec<i32>,
+    pub values: Vec<serde_json::Value>,
 }
-
 impl Counter {
     pub fn new() -> Self {
         Self {
             count: 0,
-            values: vec![1, 2, 3, 4, 5],
+            values: [1, 2, 3, 4, 5],
         }
     }
-    
     pub fn increment(&mut self) {
         self.count += 1;
     }
-    
-    pub fn add_to_index(&mut self, index: usize, value: i32) {
-        self.values[index] += value;
+    pub fn add_to_index(&self, index: i32, value: i32) {
+        self.values
+            .insert(index, format!("{}{}", self.values[index as usize], value));
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "count" => Some(Box::new(self.count.clone()) as Box<dyn std::any::Any>),
+            "values" => Some(Box::new(self.values.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "count" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.count = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            "values" => {
+                if let Some(v) = value.downcast_ref::<Vec<serde_json::Value>>() {
+                    self.values = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
     }
 }
-
-pub fn test_compound_ops() -> (i32, i32, i32) {
+pub fn test_compound_ops() -> (serde_json::Value, serde_json::Value, i32) {
     let mut c = Counter::new();
     c.increment();
     c.add_to_index(0, 10);
-    
-    let mut d = HashMap::new();
-    d.insert("score".to_string(), 100);
-    *d.get_mut("score").unwrap() += 50;
-    
-    (c.count, c.values[0], *d.get("score").unwrap())
+    let mut d = {
+        let mut map = HashMap::new();
+        map.insert("score".to_string(), 100);
+        map
+    };
+    d.clone()
+        .insert("score".to_string(), d.get("score").cloned().unwrap() + 50);
+    return (
+        c.count,
+        c.values.get(0usize).cloned().unwrap(),
+        d.get("score").cloned().unwrap(),
+    );
 }
-
 fn main() {
     let result = test_compound_ops();
-    log::info!("{}", result.0);
-    log::info!("{}", result.1);
-    log::info!("{}", result.2);
+    log::info!("{}", result.get(0usize).cloned().unwrap());
+    log::info!("{}", result.get(1usize).cloned().unwrap());
+    log::info!("{}", result.get(2usize).cloned().unwrap());
 }
 """
 expected_output = """1

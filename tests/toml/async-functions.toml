@@ -20,12 +20,11 @@ result = asyncio.run(f())
 '''
 
 rust = '''
-async fn f() -> i32 {
-    42
-}
-
-// In Rust, would use runtime like tokio:
-// let result = tokio::runtime::Runtime::new().unwrap().block_on(f());
+pub const result: serde_json::Value = asyncio.run(f());
+    use serde_json;
+    pub async fn f() -> i32 {
+    return 42;
+    }
 '''
 
 
@@ -43,12 +42,11 @@ result = asyncio.run(f())
 '''
 
 rust = '''
-async fn f() -> i32 {
-    42
-}
-
-// In Rust, would use runtime like tokio:
-// let result = tokio::runtime::Runtime::new().unwrap().block_on(f());
+pub const result: serde_json::Value = asyncio.run(f());
+    use serde_json;
+    pub async fn f() -> i32 {
+    return 42;
+    }
 '''
 
 
@@ -64,9 +62,10 @@ result = f()  # Returns coroutine
 '''
 
 rust = '''
-async fn f() {
-    // Async function
-}
+pub const result: serde_json::Value = f();
+    use serde_json;
+    pub async fn f() {
+    }
 '''
 
 
@@ -91,20 +90,15 @@ print(f"Result: {result}")
 '''
 
 rust = '''
-use std::future::Future;
-use std::pin::Pin;
-
-async fn f() -> i32 {
-    42
+pub async fn f() -> i32 {
+    return 42;
+   
 }
-
-fn main() {
-    // f() returns a Future (Rust's equivalent to coroutine)
+fn main () {
     let coro = f();
-    // In practice, would use a runtime like tokio
-    log::info!("Async function returns Future type");
-    let result = true;
-}
+    let result = asyncio.run(coro);
+    log::info!("{}", format!("Result: {}", result));
+    }
 '''
 
 
@@ -127,19 +121,16 @@ asyncio.run(coro)
 '''
 
 rust = '''
-use std::future::Future;
-
-async fn f() -> i32 {
-    42
+pub async fn f() -> i32 {
+    return 42;
+   
 }
-
-fn main() {
-    // In Rust, async functions return impl Future
-    // Type checking is done at compile time
-    let _coro = f();
-    let result = true; // Type is verified by compiler
-    log::info!("Is coroutine (Future): {}", result);
-}
+fn main () {
+    let coro = f();
+    let result = true;
+    log::info!("{}", format!("Is coroutine: {}", result));
+    asyncio.run(coro);
+    }
 '''
 
 
@@ -159,16 +150,14 @@ print(f"Is coroutine function: {result}")
 '''
 
 rust = '''
-async fn f() -> i32 {
-    42
+pub async fn f() -> i32 {
+    return 42;
+   
 }
-
-fn main() {
-    // In Rust, async functions are identified at compile time
-    // No runtime inspection needed
-    let result = true; // Function signature includes async
-    log::info!("Is coroutine function: {}", result);
-}
+fn main () {
+    let result = inspect.iscoroutinefunction(f);
+    log::info!("{}", format!("Is coroutine function: {}", result));
+    }
 '''
 
 
@@ -188,9 +177,10 @@ result = f()  # Returns coroutine
 '''
 
 rust = '''
-async fn f() {
-    // Async function
-}
+pub const result: serde_json::Value = f();
+    use serde_json;
+    pub async fn f() {
+    }
 '''
 
 
@@ -208,15 +198,20 @@ result = True
 '''
 
 rust = '''
-    struct MyClass;
-
-    impl MyClass {
-        async fn fetch() -> i32 {
-            42
-        }
-    }
-
-    let result = true;
+pub const result: bool = true;
+    #[derive(Debug, Copy, Clone)] pub struct MyClass {
+   
+}
+impl MyClass {
+    pub fn new() -> Self {
+    Self {
+   
+}
+} pub async fn fetch() -> i32 {
+    return 42;
+   
+}
+}
 '''
 
 
@@ -232,9 +227,10 @@ result = f()  # Returns coroutine
 '''
 
 rust = '''
-async fn f() {
-    // Async function
-}
+pub const result: serde_json::Value = f();
+    use serde_json;
+    pub async fn f() {
+    }
 '''
 
 
@@ -254,9 +250,10 @@ result = f()  # Returns coroutine
 '''
 
 rust = '''
-async fn f() {
-    // Async function
-}
+pub const result: serde_json::Value = f();
+    use serde_json;
+    pub async fn f() {
+    }
 '''
 
 
@@ -272,9 +269,10 @@ result = f()  # Returns coroutine
 '''
 
 rust = '''
-async fn f() {
-    // Async function
-}
+pub const result: serde_json::Value = f();
+    use serde_json;
+    pub async fn f() {
+    }
 '''
 
 
@@ -302,22 +300,17 @@ result = asyncio.run(main())
 '''
 
 rust = '''
-async fn f() -> i32 {
-    42
+pub const result: serde_json::Value = asyncio.run(main ());
+    use serde_json;
+    pub async fn f() -> i32 {
+    return 42;
+   
 }
-
-async fn main_async() -> i32 {
-    // Return value obtained via await
+pub async fn main () -> String {
     let result = f().await;
-    log::info!("Awaited result: {}", result);
-    result
-}
-
-// Would use a runtime like tokio:
-// #[tokio::main]
-// async fn main() {
-//     let result = main_async().await;
-// }
+    log::info!("{}", format!("Awaited result: {}", result));
+    return result;
+    }
 '''
 
 
@@ -335,12 +328,11 @@ result = asyncio.run(f())
 '''
 
 rust = '''
-async fn f() -> i32 {
-    42
-}
-
-// In Rust, would use runtime like tokio:
-// let result = tokio::runtime::Runtime::new().unwrap().block_on(f());
+pub const result: serde_json::Value = asyncio.run(f());
+    use serde_json;
+    pub async fn f() -> i32 {
+    return 42;
+    }
 '''
 
 
@@ -356,9 +348,10 @@ result = f()  # Returns coroutine
 '''
 
 rust = '''
-async fn f() {
-    // Async function
-}
+pub const result: serde_json::Value = f();
+    use serde_json;
+    pub async fn f() {
+    }
 '''
 
 
@@ -378,9 +371,10 @@ result = f()  # Returns coroutine
 '''
 
 rust = '''
-async fn f() {
-    // Async function
-}
+pub const result: serde_json::Value = f();
+    use serde_json;
+    pub async fn f() {
+    }
 '''
 
 
@@ -406,24 +400,18 @@ result = asyncio.run(outer())
 '''
 
 rust = '''
-async fn outer() -> i32 {
+pub const result: serde_json::Value = asyncio.run(outer());
+    use serde_json;
+    pub async fn outer() -> String {
     let x = 10;
-
-    async fn inner_impl(x: i32) -> i32 {
-        // async function with closure over variables
-        x + 20
-    }
-
-    let result = inner_impl(x).await;
-    log::info!("Closure result: {}", result);
-    result
+    async fn inner() -> () {
+    return format!("{}{}", x, 20);
+   
 }
-
-// Would use a runtime like tokio:
-// #[tokio::main]
-// async fn main() {
-//     let result = outer().await;
-// }
+let result = inner().await;
+    log::info!("{}", format!("Closure result: {}", result));
+    return result;
+    }
 '''
 
 
@@ -443,9 +431,10 @@ result = f()  # Returns coroutine
 '''
 
 rust = '''
-async fn f() {
-    // Async function
-}
+pub const result: serde_json::Value = f();
+    use serde_json;
+    pub async fn f() {
+    }
 '''
 
 
@@ -461,9 +450,10 @@ result = f()  # Returns coroutine
 '''
 
 rust = '''
-async fn f() {
-    // Async function
-}
+pub const result: serde_json::Value = f();
+    use serde_json;
+    pub async fn f() {
+    }
 '''
 
 
@@ -486,23 +476,42 @@ result = True
 '''
 
 rust = '''
-    struct Example {
-        value: i32,
-    }
-
-    impl Example {
-        fn new(value: i32) -> Self {
-            Self { value }
-        }
-
-        async fn create(value: i32) -> Self {
-            Self::new(value)
-        }
-    }
-
+use serde_json;
+#[derive(Debug, Clone)] pub struct Example {
+    pub value: serde_json::Value
+}
+impl Example {
+    pub fn new(value: serde_json::Value) -> Self {
+    Self {
+    value
+}
+} pub async fn create(value: serde_json::Value) {
+    return Self::new(value);
+   
+}
+pub fn _get_field(&self, name: & str) -> Option<Box<dyn std::any::Any>>{
+    match name {
+    "value" =>Some(Box::new(self.value.clone()) as Box<dyn std::any::Any>), _ =>None
+}
+} pub fn _set_field(&mut self, name: & str, value: & dyn std::any::Any) -> bool {
+    match name {
+    "value" =>{
+    if let Some(v) = value.downcast_ref::<serde_json::Value>() {
+    self.value = v.clone();
+    true
+}
+else {
+    false
+}
+}, _ =>false
+}
+}
+}
+fn main () {
     let result = Example::new(42);
-    assert_eq!(result.value, 42);
-    let result = true;
+    assert!(result.value.clone() == 42);
+    result = true;
+    }
 '''
 
 
@@ -520,14 +529,10 @@ result = True
 '''
 
 rust = '''
-    // Rust async blocks provide similar functionality
-    // async || { } is nightly only
-    // Use async fn or async blocks instead
-    async fn async_closure() -> i32 {
-        42
+pub const result: bool = true;
+    pub async fn async_closure() -> i32 {
+    return 42;
     }
-
-    let result = true;
 '''
 
 
@@ -566,34 +571,31 @@ async def main() -> None:
 '''
 
 rust = '''
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub async fn fetch_data(url: String) -> String {
     async_sleep(1).await;
-    format!("Data from {:?}", url)
+    return format!("Data from {}", url);
+   
 }
-#[doc = " Depyler: verified panic-free"]
-pub async fn process_urls(urls: &Vec<String>) -> Vec<String> {
-    let mut results = vec![];
+pub async fn process_urls(urls: & Vec<String>) -> Vec<String>{
+    let mut results = vec! [];
     for _url in urls.iter().cloned() {
-        let data = fetch_data(url).await;
-        results.push(data);
-    }
-    results
+    let data = fetch_data(url).await;
+    results.push(data);
+   
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
-pub async fn async_sleep(seconds: i32) {}
-#[doc = " Depyler: verified panic-free"]
-pub async fn main() {
-    let urls = vec![
-        "http://api.example.com".to_string(),
-        "http://api2.example.com".to_string(),
-    ];
-    let mut results = process_urls(&urls).await;
+return results;
+   
+}
+pub async fn async_sleep(seconds: i32) {
+   
+}
+pub async fn main () {
+    let urls = vec! ["http://api.example.com".to_string(), "http://api2.example.com".to_string()];
+    let results = process_urls(& urls).await;
     for result in results.iter().cloned() {
-        log::info!("{}", result);
-    }
+    log::info!("{}", result);
+   
+}
 }
 '''
 
@@ -631,40 +633,62 @@ class AsyncDataProcessor:
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
-pub struct AsyncCounter {
-    pub value: i32,
+#[derive(Debug, Copy, Clone)] pub struct AsyncCounter {
+    pub value: i32
 }
 impl AsyncCounter {
     pub fn new(start: i32) -> Self {
-        Self { value: 0 }
-    }
-    pub async fn increment(&mut self) -> i32 {
-        self._simulate_delay().await;
-        self.value = self.value + 1;
-        return self.value;
-    }
-    pub async fn get_value(&self) -> i32 {
-        return self.value;
-    }
-    pub async fn _simulate_delay(&self) {
-        {}
-    }
+    Self {
+    value: start
 }
-#[derive(Debug, Clone)]
-pub struct AsyncDataProcessor {}
+} pub async fn increment(&mut self) -> i32 {
+    self._simulate_delay().await;
+    self.value += 1;
+    return self.value.clone();
+   
+}
+pub async fn get_value(&self) -> i32 {
+    return self.value.clone();
+   
+}
+pub async fn _simulate_delay(&self) {
+    {
+}
+} pub fn _get_field(&self, name: & str) -> Option<Box<dyn std::any::Any>>{
+    match name {
+    "value" =>Some(Box::new(self.value.clone()) as Box<dyn std::any::Any>), _ =>None
+}
+} pub fn _set_field(&mut self, name: & str, value: & dyn std::any::Any) -> bool {
+    match name {
+    "value" =>{
+    if let Some(v) = value.downcast_ref::<i32>() {
+    self.value = v.clone();
+    true
+}
+else {
+    false
+}
+}, _ =>false
+}
+}
+}
+#[derive(Debug, Copy, Clone)] pub struct AsyncDataProcessor {
+   
+}
 impl AsyncDataProcessor {
     pub fn new() -> Self {
-        Self {}
-    }
-    pub async fn process(&self, data: String) -> String {
-        self._async_work().await;
-        return data.to_uppercase();
-    }
-    pub async fn _async_work(&self) {
-        {}
-    }
+    Self {
+   
 }
+} pub async fn process(&self, data: String) -> String {
+    self._async_work().await;
+    return data.to_uppercase();
+   
+}
+pub async fn _async_work(&self) {
+    {
+}
+} }
 '''
 
 [[test]]
@@ -683,15 +707,12 @@ async def call_async() -> int:
 '''
 
 rust = '''
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub async fn simple_async() -> i32 {
-    42
+    return 42;
+   
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub async fn call_async() -> i32 {
     let result = simple_async().await;
-    result
-}
+    return result;
+    }
 '''

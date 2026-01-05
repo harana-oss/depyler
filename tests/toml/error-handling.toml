@@ -190,7 +190,6 @@ impl ValueError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn validate_positive(x: i32) -> i32 {
     let _cse_temp_0 = x < 0;
     if _cse_temp_0 {
@@ -212,7 +211,6 @@ def require_int(x: int) -> int:
 '''
 
 rust = '''
-#[doc = " Depyler: proven to terminate"]
 pub fn require_int(x: i32) -> i32 {
     let _cse_temp_0 = x == 0;
     if _cse_temp_0 {
@@ -251,7 +249,6 @@ impl ValueError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn check_bounds(x: i32, low: i32, high: i32) -> i32 {
     let _cse_temp_0 = x < low;
     let _cse_temp_1 = x > high;
@@ -293,7 +290,6 @@ def fail() -> int:
 '''
 
 rust = '''
-#[doc = " Depyler: proven to terminate"]
 pub fn fail() -> i32 {
     panic!("{}", RuntimeError::new("failed"));
 }
@@ -346,7 +342,6 @@ impl ZeroDivisionError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn divide_safe(a: i32, b: i32) -> i32 {
     let _cse_temp_0 = b == 0;
     if _cse_temp_0 {
@@ -677,7 +672,6 @@ impl ValueError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn validate_positive(n: i32) -> i32 {
     let _cse_temp_0 = n < 0;
     if _cse_temp_0 {
@@ -717,7 +711,6 @@ impl ValueError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn check_positive(x: i32) -> Result<i32, ValueError> {
     let _cse_temp_0 = x < 0;
     if _cse_temp_0 {
@@ -757,7 +750,6 @@ impl ValueError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn validate_range(x: i32) -> Result<i32, ValueError> {
     let _cse_temp_0 = x < 0;
     let _cse_temp_1 = x > 100;
@@ -1005,7 +997,6 @@ impl ZeroDivisionError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn divide(a: i32, b: i32) -> i32 {
     let _cse_temp_0 = b == 0;
     if _cse_temp_0 {
@@ -1053,7 +1044,6 @@ impl ZeroDivisionError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn compute(x: i32) -> i32 {
     return {
         let a = 100;
@@ -1100,7 +1090,6 @@ impl IndexError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn get_item(items: &Vec<serde_json::Value>, index: i32) -> i32 {
     let _cse_temp_0 = items.clone().len() as i32;
     let _cse_temp_1 = index >= _cse_temp_0;
@@ -1139,7 +1128,6 @@ impl IndexError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn access_list(data: Vec<serde_json::Value>) -> i32 {
     panic!("{}", "invalid index");
 }
@@ -1174,7 +1162,6 @@ impl ValueError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn validate(x: i32) -> i32 {
     let _cse_temp_0 = x < 0;
     if _cse_temp_0 {
@@ -1213,7 +1200,6 @@ impl ValueError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn check_range(n: i32) -> i32 {
     let _cse_temp_0 = n > 100;
     if _cse_temp_0 {
@@ -1291,7 +1277,6 @@ impl ValueError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn complex_operation(a: i32, b: i32, items: &Vec<serde_json::Value>) -> i32 {
     let _cse_temp_0 = b == 0;
     if _cse_temp_0 {
@@ -1375,7 +1360,6 @@ impl ValueError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn validate_positive(n: i32) -> i32 {
     let _cse_temp_0 = n <= 0;
     if _cse_temp_0 {
@@ -1433,7 +1417,6 @@ impl ValueError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn nested(x: i32, y: i32) -> i32 {
     let _cse_temp_0 = x == 0;
     if _cse_temp_0 {
@@ -1508,7 +1491,6 @@ impl ValueError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn process_items(items: &Vec<serde_json::Value>) -> i32 {
     let mut total = 0;
     for i in 0..items.clone().len() as i32 {
@@ -1552,7 +1534,6 @@ impl ValueError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn conditional_error(x: i32, strict: bool) -> i32 {
     let _cse_temp_0 = x < 0;
     let _cse_temp_1 = (strict) && (_cse_temp_0);
@@ -1954,7 +1935,6 @@ impl ValueError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn validate_positive(x: i32) -> i32 {
     let _cse_temp_0 = x < 0;
     if _cse_temp_0 {
@@ -1993,7 +1973,6 @@ impl IndexError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn check_bounds(x: i32, max_val: i32) -> i32 {
     let _cse_temp_0 = x > max_val;
     if _cse_temp_0 {
@@ -2034,7 +2013,6 @@ impl ValueError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn validate_range(x: i32) -> i32 {
     let _cse_temp_0 = x < 0;
     if _cse_temp_0 {
@@ -2077,7 +2055,6 @@ impl ZeroDivisionError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn divide_safe(a: i32, b: i32) -> i32 {
     let _cse_temp_0 = b == 0;
     if _cse_temp_0 {
@@ -2118,7 +2095,6 @@ impl ValueError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn complex_validation(x: i32, y: i32) -> i32 {
     let _cse_temp_0 = x > 0;
     if _cse_temp_0 {
@@ -2203,7 +2179,6 @@ impl ValueError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn process_or_fail(x: i32) -> i32 {
     let _cse_temp_0 = x * 2;
     let y = _cse_temp_0;
@@ -2283,7 +2258,6 @@ impl ValueError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn validate_input(x: i32) -> i32 {
     let _cse_temp_0 = x < 0;
     if _cse_temp_0 {
@@ -2330,7 +2304,6 @@ impl ValueError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn check_minimum(x: i32, min_val: i32) -> i32 {
     let _cse_temp_0 = x < min_val;
     if _cse_temp_0 {
@@ -2372,7 +2345,6 @@ impl ValueError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn categorize_or_fail(x: i32) -> String {
     let _cse_temp_0 = x < 0;
     if _cse_temp_0 {
@@ -2529,7 +2501,6 @@ impl ValueError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn validate_single(x: i32) -> i32 {
     let _cse_temp_0 = x < 0;
     if _cse_temp_0 {
@@ -2570,7 +2541,6 @@ impl ValueError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn check_bounds(x: i32, low: i32, high: i32) -> i32 {
     if x < low {
         panic!("{}", "below minimum");
@@ -2679,7 +2649,6 @@ impl ValueError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn validate_range(x: i32, max_val: i32) -> i32 {
     if x > max_val {
         panic!("{}", format!("value {} exceeds maximum {}", x, max_val));

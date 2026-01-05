@@ -18,8 +18,11 @@ def process(value: object) -> int:
 '''
 
 rust = '''
-pub fn process(value: i32) -> i32 {
-    return value * 2;
+pub fn process(value: &object) -> i32 {
+    if true {
+        return value.clone() * 2;
+    }
+    return 0;
 }
 '''
 
@@ -35,8 +38,11 @@ def get_length(value: object) -> int:
 '''
 
 rust = '''
-pub fn get_length(value: &str) -> i32 {
-    return value.len() as i32;
+pub fn get_length(value: &object) -> i32 {
+    if true {
+        return value.len() as i32 as i32;
+    }
+    return 0;
 }
 '''
 
@@ -52,8 +58,11 @@ def sum_if_list(value: object) -> int:
 '''
 
 rust = '''
-pub fn sum_if_list(value: Vec<i32>) -> i32 {
-    return value.iter().sum::<i32>();
+pub fn sum_if_list(value: &object) -> i32 {
+    if true {
+        return value.clone().iter().sum::<i32>();
+    }
+    return 0;
 }
 '''
 
@@ -73,18 +82,39 @@ def unbox(obj: object) -> int:
 '''
 
 rust = '''
+#[derive(Debug, Copy, Clone)]
 pub struct Box {
     pub value: i32,
 }
-
 impl Box {
     pub fn new(value: i32) -> Self {
         Self { value }
     }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "value" => Some(Box::new(self.value.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "value" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.value = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
 }
-
-pub fn unbox(obj: &Box) -> i32 {
-    return obj.value;
+pub fn unbox(obj: &object) -> i32 {
+    if true {
+        return obj.value;
+    }
+    return 0;
 }
 '''
 
@@ -100,8 +130,11 @@ def to_int(value: object) -> int:
 '''
 
 rust = '''
-pub fn to_int(value: f64) -> i32 {
-    return value as i32;
+pub fn to_int(value: &object) -> i32 {
+    if true {
+        return (value.clone()) as i32;
+    }
+    return 0;
 }
 '''
 
@@ -126,12 +159,12 @@ def process_ints(items: list) -> int:
 '''
 
 rust = '''
-pub fn is_int_list(value: &Vec<i32>) -> bool {
-    return true;
+use serde_json;
+pub fn is_int_list(value: &Vec<serde_json::Value>) -> bool {
+    return value.iter().cloned().map(|x| true).all(|x| x);
 }
-
-pub fn process_ints(items: Vec<i32>) -> i32 {
-    if is_int_list(&items) {
+pub fn process_ints(items: &Vec<serde_json::Value>) -> i32 {
+    if is_int_list(items) {
         return items.iter().sum::<i32>();
     }
     return 0;
@@ -159,22 +192,39 @@ def process_valid(data: object) -> int:
 '''
 
 rust = '''
+#[derive(Debug, Copy, Clone)]
 pub struct ValidData {
     pub value: i32,
 }
-
 impl ValidData {
     pub fn new(value: i32) -> Self {
         Self { value }
     }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "value" => Some(Box::new(self.value.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "value" => {
+                if let Some(v) = value.downcast_ref::<i32>() {
+                    self.value = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
 }
-
-pub fn is_valid(data: &ValidData) -> bool {
-    return data.value >= 0;
+pub fn is_valid(data: &object) -> bool {
+    return (true) && (data.value >= 0);
 }
-
-pub fn process_valid(data: &ValidData) -> i32 {
-    if is_valid(data) {
+pub fn process_valid(data: object) -> i32 {
+    if is_valid(&data) {
         return data.value;
     }
     return -1;
@@ -199,6 +249,7 @@ def ensure_int(value: int) -> int:
 
 rust = '''
 pub fn ensure_int(value: i32) -> i32 {
+    assert_type(value, int);
     return value * 2;
 }
 '''
@@ -217,6 +268,7 @@ def ensure_list(items: list[int]) -> list[int]:
 
 rust = '''
 pub fn ensure_list(items: Vec<i32>) -> Vec<i32> {
+    assert_type(&items, list.get(int as usize).cloned().unwrap());
     return items;
 }
 '''
@@ -239,16 +291,46 @@ def process_union(value: Union[int, str]) -> str:
 '''
 
 rust = '''
-pub enum IntOrStr {
-    Int(i32),
-    Str(String),
+#[derive(Debug, Clone, PartialEq)]
+pub enum IntOrStringUnion {
+    Integer(i32),
+    Text(String),
 }
-
-pub fn process_union(value: IntOrStr) -> String {
-    match value {
-        IntOrStr::Int(i) => return i.to_string(),
-        IntOrStr::Str(s) => return s,
+impl From<i32> for IntOrStringUnion {
+    fn from(value: i32) -> Self {
+        IntOrStringUnion::Integer(value)
     }
+}
+impl From<String> for IntOrStringUnion {
+    fn from(value: String) -> Self {
+        IntOrStringUnion::Text(value)
+    }
+}
+impl IntOrStringUnion {
+    pub fn is_integer(&self) -> bool {
+        matches!(self, IntOrStringUnion::Integer(_))
+    }
+    pub fn is_text(&self) -> bool {
+        matches!(self, IntOrStringUnion::Text(_))
+    }
+    pub fn as_integer(&self) -> Option<&i32> {
+        match self {
+            IntOrStringUnion::Integer(value) => Some(value),
+            _ => None,
+        }
+    }
+    pub fn as_text(&self) -> Option<&String> {
+        match self {
+            IntOrStringUnion::Text(value) => Some(value),
+            _ => None,
+        }
+    }
+}
+pub fn process_union(value: &IntOrStringUnion) -> String {
+    if true {
+        return (value.clone()).to_string();
+    }
+    return value.clone();
 }
 '''
 
@@ -269,17 +351,65 @@ def describe(value: Union[int, str, float]) -> str:
 '''
 
 rust = '''
-pub enum Value {
-    Int(i32),
-    Str(String),
+#[derive(Debug, Clone, PartialEq)]
+pub enum FloatOrIntOrStringUnion {
     Float(f64),
+    Integer(i32),
+    Text(String),
 }
-
-pub fn describe(value: Value) -> String {
-    match value {
-        Value::Int(_) => return "integer".to_string(),
-        Value::Str(_) => return "string".to_string(),
-        Value::Float(_) => return "float".to_string(),
+impl From<f64> for FloatOrIntOrStringUnion {
+    fn from(value: f64) -> Self {
+        FloatOrIntOrStringUnion::Float(value)
+    }
+}
+impl From<i32> for FloatOrIntOrStringUnion {
+    fn from(value: i32) -> Self {
+        FloatOrIntOrStringUnion::Integer(value)
+    }
+}
+impl From<String> for FloatOrIntOrStringUnion {
+    fn from(value: String) -> Self {
+        FloatOrIntOrStringUnion::Text(value)
+    }
+}
+impl FloatOrIntOrStringUnion {
+    pub fn is_float(&self) -> bool {
+        matches!(self, FloatOrIntOrStringUnion::Float(_))
+    }
+    pub fn is_integer(&self) -> bool {
+        matches!(self, FloatOrIntOrStringUnion::Integer(_))
+    }
+    pub fn is_text(&self) -> bool {
+        matches!(self, FloatOrIntOrStringUnion::Text(_))
+    }
+    pub fn as_float(&self) -> Option<&f64> {
+        match self {
+            FloatOrIntOrStringUnion::Float(value) => Some(value),
+            _ => None,
+        }
+    }
+    pub fn as_integer(&self) -> Option<&i32> {
+        match self {
+            FloatOrIntOrStringUnion::Integer(value) => Some(value),
+            _ => None,
+        }
+    }
+    pub fn as_text(&self) -> Option<&String> {
+        match self {
+            FloatOrIntOrStringUnion::Text(value) => Some(value),
+            _ => None,
+        }
+    }
+}
+pub fn describe(value: &FloatOrIntOrStringUnion) -> String {
+    if true {
+        return "integer".to_string();
+    } else {
+        if true {
+            return "string".to_string();
+        } else {
+            return "float".to_string();
+        }
     }
 }
 '''
@@ -298,16 +428,46 @@ def handle(result: Union[int, str]) -> int:
 '''
 
 rust = '''
-pub enum IntOrStr {
-    Int(i32),
-    Str(String),
+#[derive(Debug, Clone, PartialEq)]
+pub enum IntOrStringUnion {
+    Integer(i32),
+    Text(String),
 }
-
-pub fn handle(result: IntOrStr) -> i32 {
-    match result {
-        IntOrStr::Int(i) => return i,
-        IntOrStr::Str(s) => return s.len() as i32,
+impl From<i32> for IntOrStringUnion {
+    fn from(value: i32) -> Self {
+        IntOrStringUnion::Integer(value)
     }
+}
+impl From<String> for IntOrStringUnion {
+    fn from(value: String) -> Self {
+        IntOrStringUnion::Text(value)
+    }
+}
+impl IntOrStringUnion {
+    pub fn is_integer(&self) -> bool {
+        matches!(self, IntOrStringUnion::Integer(_))
+    }
+    pub fn is_text(&self) -> bool {
+        matches!(self, IntOrStringUnion::Text(_))
+    }
+    pub fn as_integer(&self) -> Option<&i32> {
+        match self {
+            IntOrStringUnion::Integer(value) => Some(value),
+            _ => None,
+        }
+    }
+    pub fn as_text(&self) -> Option<&String> {
+        match self {
+            IntOrStringUnion::Text(value) => Some(value),
+            _ => None,
+        }
+    }
+}
+pub fn handle(result: &IntOrStringUnion) -> i32 {
+    if true {
+        return result.clone();
+    }
+    return result.len() as i32 as i32;
 }
 '''
 
@@ -329,9 +489,9 @@ def unwrap_or(value: Optional[int], default: int) -> int:
 '''
 
 rust = '''
-pub fn unwrap_or(value: Option<i32>, default: i32) -> i32 {
-    if let Some(v) = value {
-        return v;
+pub fn unwrap_or(value: &Option<i32>, default: i32) -> i32 {
+    if value.is_some() {
+        return value.as_ref().unwrap().clone();
     }
     return default;
 }
@@ -351,7 +511,7 @@ def process_optional(value: Optional[int]) -> int:
 '''
 
 rust = '''
-pub fn process_optional(value: Option<i32>) -> i32 {
+pub fn process_optional(value: &Option<i32>) -> i32 {
     if value.is_none() {
         return 0;
     }
@@ -377,21 +537,37 @@ def get_value(c: Optional[Container]) -> int:
 '''
 
 rust = '''
+#[derive(Debug, Copy, Clone)]
 pub struct Container {
     pub value: Option<i32>,
 }
-
 impl Container {
     pub fn new(value: Option<i32>) -> Self {
         Self { value }
     }
-}
-
-pub fn get_value(c: Option<&Container>) -> i32 {
-    if let Some(container) = c {
-        if let Some(v) = container.value {
-            return v;
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "value" => Some(Box::new(self.value.clone()) as Box<dyn std::any::Any>),
+            _ => None,
         }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "value" => {
+                if let Some(v) = value.downcast_ref::<Option<i32>>() {
+                    self.value = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
+    }
+}
+pub fn get_value(c: &Option<Container>) -> i32 {
+    if (c.is_some()) && (c.as_ref().unwrap().value.is_some()) {
+        return c.as_ref().unwrap().value;
     }
     return 0;
 }
@@ -411,9 +587,9 @@ def safe_len(s: Optional[str]) -> int:
 '''
 
 rust = '''
-pub fn safe_len(s: Option<&str>) -> i32 {
-    if let Some(string) = s {
-        return string.len() as i32;
+pub fn safe_len(s: &Option<String>) -> i32 {
+    if s.is_some() {
+        return s.as_ref().unwrap().len() as i32 as i32;
     }
     return 0;
 }
@@ -433,10 +609,10 @@ def value_or_zero(x: Optional[int]) -> int:
 '''
 
 rust = '''
-pub fn value_or_zero(x: Option<i32>) -> i32 {
-    match x {
-        Some(v) if v != 0 => return v,
-        _ => return 0,
+pub fn value_or_zero(x: &Option<i32>) -> i32 {
+    if x.is_some_and(|n| n != 0) {
+        return x.as_ref().unwrap().clone();
     }
+    return 0;
 }
 '''

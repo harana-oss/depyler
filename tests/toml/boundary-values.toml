@@ -62,7 +62,6 @@ impl IndexError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn negative_one_test(arr: &Vec<serde_json::Value>) -> i32 {
     let last_index = -1;
     if !arr.clone().is_empty() {
@@ -346,7 +345,6 @@ impl ZeroDivisionError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn modulo_boundary_test(n: i32) -> i32 {
     let mod_one = if n != 0 { n % 1 } else { 0 };
     let mod_two = n % 2;
@@ -488,7 +486,6 @@ impl IndexError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn container_access_test() -> i32 {
     let items = vec![1, 2, 3, 4, 5];
     let first = items.clone().get(0usize).cloned().unwrap();
@@ -728,7 +725,6 @@ impl ZeroDivisionError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn nested_control(n: i32) -> i32 {
     let mut result = 0;
     for i in 0..n {
@@ -777,7 +773,6 @@ impl ZeroDivisionError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn all_operators(a: i32, b: i32) -> bool {
     let add = a + b;
     let sub = a - b;
@@ -852,7 +847,6 @@ impl ZeroDivisionError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn all_operators(a: i32, b: i32) -> bool {
     let add = a + b;
     let sub = a - b;

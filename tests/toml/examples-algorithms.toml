@@ -118,7 +118,6 @@ pub fn binary_search(arr: &Vec<i32>, target: i32) -> Result<i32, Box<dyn std::er
     Ok(-1)
 }
 #[doc = "Linear search for comparison"]
-#[doc = " Depyler: proven to terminate"]
 pub fn linear_search(arr: &Vec<i32>, target: i32) -> Result<i32, IndexError> {
     for i in 0..arr.len() as i32 {
         if arr.get(i as usize).cloned().unwrap_or_default() == target {
@@ -205,8 +204,6 @@ impl IndexError {
     }
 }
 #[doc = "Classic recursive fibonacci - demonstrates recursion"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn fibonacci_recursive(n: i32) -> i32 {
     let _cse_temp_0 = n <= 1;
     if _cse_temp_0 {
@@ -215,7 +212,6 @@ pub fn fibonacci_recursive(n: i32) -> i32 {
     fibonacci_recursive(n - 1) + fibonacci_recursive(n - 2)
 }
 #[doc = "Memoized fibonacci - demonstrates optimization patterns"]
-#[doc = " Depyler: proven to terminate"]
 pub fn fibonacci_memoized(n: i32, mut memo: HashMap<i32, i32>) -> Result<i32, IndexError> {
     if memo.is_none() {
         memo = {
@@ -239,8 +235,6 @@ pub fn fibonacci_memoized(n: i32, mut memo: HashMap<i32, i32>) -> Result<i32, In
     Ok(result)
 }
 #[doc = "Iterative fibonacci - demonstrates loops and efficiency"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn fibonacci_iterative(n: i32) -> i32 {
     let _cse_temp_0 = n <= 1;
     if _cse_temp_0 {

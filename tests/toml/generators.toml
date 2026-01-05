@@ -210,7 +210,6 @@ impl ZeroDivisionError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 #[doc = " Generator state struct"]
 #[derive(Debug)]
 struct EvenNumbersState {

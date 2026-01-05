@@ -108,7 +108,6 @@ impl ValueError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn divide(a: i32, b: i32) -> f64 {
     let _cse_temp_0 = b == 0;
     if _cse_temp_0 {
@@ -127,8 +126,6 @@ async def fetch_data(url: str) -> str:
 '''
 
 rust = '''
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub async fn fetch_data(url: String) -> String {
     return "data".to_string();
 }
@@ -260,7 +257,6 @@ impl ZeroDivisionError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn safe_divide(a: i32, b: i32) -> f64 {
     let _cse_temp_0 = b == 0;
     if _cse_temp_0 {
@@ -333,7 +329,6 @@ impl ZeroDivisionError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn calculate_average(a: i32, b: i32) -> f64 {
     return (a + b as f64) / 2.0;
 }
@@ -393,7 +388,6 @@ impl IndexError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn get_item(items: &Vec<i32>, idx: i32, unused: String) -> i32 {
     return items.get(idx as usize).cloned().unwrap();
 }
@@ -1440,7 +1434,6 @@ impl IndexError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn bubble_sort(mut arr: Vec<i32>) -> Vec<i32> {
     let _cse_temp_0 = arr.clone().len() as i32;
     let n = _cse_temp_0;
@@ -1555,7 +1548,6 @@ impl ZeroDivisionError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn safe_divide(a: i32, b: i32) -> i32 {
     let _cse_temp_0 = b == 0;
     if _cse_temp_0 {
@@ -1649,7 +1641,6 @@ impl IndexError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn is_valid_email(email: String) -> bool {
     let _cse_temp_0 = !email.contains(&"@");
     if _cse_temp_0 {

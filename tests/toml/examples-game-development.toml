@@ -385,8 +385,6 @@ impl IndexError {
     }
 }
 #[doc = "Roll multiple dice and return sum"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn roll_dice(num_dice: i32, num_sides: i32) -> i32 {
     let mut total: i32 = 0;
     for _i in 0..num_dice {
@@ -396,7 +394,6 @@ pub fn roll_dice(num_dice: i32, num_sides: i32) -> i32 {
     total
 }
 #[doc = "Simulate dice rolls and collect distribution"]
-#[doc = " Depyler: proven to terminate"]
 pub fn simulate_dice_rolls(
     num_dice: i32,
     num_sides: i32,
@@ -421,8 +418,6 @@ pub fn simulate_dice_rolls(
     Ok(results)
 }
 #[doc = "Simulate sequence of coin flips"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn coin_flip_sequence(num_flips: i32) -> Vec<String> {
     let mut flips: Vec<String> = vec![];
     for _i in 0..num_flips {
@@ -436,7 +431,6 @@ pub fn coin_flip_sequence(num_flips: i32) -> Vec<String> {
     flips
 }
 #[doc = "Count longest streaks in sequence"]
-#[doc = " Depyler: proven to terminate"]
 pub fn count_streaks(sequence: &Vec<String>) -> Result<HashMap<String, i32>, IndexError> {
     let _cse_temp_0 = sequence.len() as i32;
     let _cse_temp_1 = _cse_temp_0 == 0;
@@ -488,7 +482,6 @@ pub fn count_streaks(sequence: &Vec<String>) -> Result<HashMap<String, i32>, Ind
     Ok(streaks)
 }
 #[doc = "Estimate pi using Monte Carlo method"]
-#[doc = " Depyler: proven to terminate"]
 pub fn monte_carlo_pi_estimation(num_samples: i32) -> Result<(f64, f64), ZeroDivisionError> {
     let mut inside_circle: i32 = 0;
     for _i in 0..num_samples {
@@ -510,8 +503,6 @@ pub fn monte_carlo_pi_estimation(num_samples: i32) -> Result<(f64, f64), ZeroDiv
     Ok((pi_estimate, error))
 }
 #[doc = "Simulate 2D random walk"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn simulate_random_walk(num_steps: i32) -> (i32, i32) {
     let mut x: i32 = 0;
     let mut y: i32 = 0;
@@ -536,7 +527,6 @@ pub fn simulate_random_walk(num_steps: i32) -> (i32, i32) {
     (x, y)
 }
 #[doc = "Calculate Euclidean distance from origin"]
-#[doc = " Depyler: proven to terminate"]
 pub fn calculate_walk_distance(position: (i32, i32)) -> Result<f64, IndexError> {
     let mut x: i32 = position.0;
     let mut y: i32 = position.1;
@@ -544,7 +534,6 @@ pub fn calculate_walk_distance(position: (i32, i32)) -> Result<f64, IndexError> 
     Ok(distance)
 }
 #[doc = "Simulate queue/service system"]
-#[doc = " Depyler: verified panic-free"]
 pub fn simulate_queue_system(
     num_customers: i32,
     service_time_range: (i32, i32),
@@ -589,7 +578,6 @@ pub fn simulate_queue_system(
     stats
 }
 #[doc = "Simulate card game results"]
-#[doc = " Depyler: proven to terminate"]
 pub fn simulate_card_game(num_games: i32) -> Result<HashMap<String, i32>, IndexError> {
     let mut results: HashMap<String, i32> = {
         let mut map = HashMap::new();
@@ -617,7 +605,6 @@ pub fn simulate_card_game(num_games: i32) -> Result<HashMap<String, i32>, IndexE
     Ok(results)
 }
 #[doc = "Calculate win rate from game results"]
-#[doc = " Depyler: proven to terminate"]
 pub fn calculate_win_rate(
     results: &mut HashMap<String, i32>,
 ) -> Result<f64, Box<dyn std::error::Error>> {
@@ -636,8 +623,6 @@ pub fn calculate_win_rate(
     Ok(win_rate)
 }
 #[doc = "Simulate population growth with randomness"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn simulate_population_growth(
     initial_population: i32,
     growth_rate: f64,
@@ -717,8 +702,6 @@ pub fn analyze_population_trend(
     Ok(analysis)
 }
 #[doc = "Run comprehensive simulation suite"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn run_simulations() -> Result<(), Box<dyn std::error::Error>> {
     log::info!("{}", "=== Comprehensive Simulation Demo ===");
     {

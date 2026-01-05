@@ -249,7 +249,6 @@ def find_first_positive(items: list[int]) -> int:
 '''
 
 rust = '''
-#[doc = " Depyler: verified panic-free"]
 pub fn find_first_positive(items: &Vec<i32>) -> i32 {
     for item in items.iter().cloned() {
         if item > 0 {
@@ -565,7 +564,6 @@ impl ZeroDivisionError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn average_values(d: &HashMap<String, i32>) -> f64 {
     let _cse_temp_0 = d.clone().len() as i32;
     let _cse_temp_1 = _cse_temp_0 == 0;

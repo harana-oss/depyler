@@ -975,8 +975,6 @@ def test_set_comprehension() -> Set[int]:
 rust = '''
 use std::collections::HashSet;
 #[doc = "Test basic set creation and operations"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_set_creation() -> HashSet<i32> {
     let s1 = {
         let mut set = HashSet::new();
@@ -996,8 +994,6 @@ pub fn test_set_creation() -> HashSet<i32> {
     s1
 }
 #[doc = "Test set operators"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_set_operators() -> HashSet<i32> {
     let s1 = {
         let mut set = HashSet::new();
@@ -1035,8 +1031,6 @@ pub fn test_set_operators() -> HashSet<i32> {
     union
 }
 #[doc = "Test set mutation methods"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_set_methods() -> HashSet<i32> {
     let mut s = {
         let mut set = HashSet::new();
@@ -1053,8 +1047,6 @@ pub fn test_set_methods() -> HashSet<i32> {
     s
 }
 #[doc = "Test set comprehension"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_set_comprehension() -> HashSet<i32> {
     let squares = (0..5).map(|x| x * x).collect::<HashSet<_>>();
     let even_squares = (0..10)
@@ -1079,8 +1071,6 @@ def test_simple_set():
 rust = '''
 use std::collections::HashSet;
 #[doc = "Test just set literal"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_simple_set() -> HashSet<i32> {
     let s = {
         let mut set = HashSet::new();
@@ -1116,8 +1106,6 @@ rust = '''
 use serde_json;
 use std::collections::HashSet;
 #[doc = "Test frozenset functionality"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_frozenset() -> (serde_json::Value, serde_json::Value, serde_json::Value) {
     let fs1 = std::sync::Arc::new(HashSet::<i32>::new());
     let fs2 = std::sync::Arc::new(vec![1, 2, 3].into_iter().collect::<HashSet<_>>());
@@ -1154,8 +1142,6 @@ def test_set_with_duplicates():
 
 rust = '''
 use std::collections::HashSet;
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_set_creation() -> HashSet<i32> {
     let s1 = HashSet::<i32>::new();
     let s2 = {
@@ -1179,8 +1165,6 @@ pub fn test_set_creation() -> HashSet<i32> {
         .collect::<HashSet<_>>();
     s2
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_set_with_duplicates() -> HashSet<i32> {
     let s = {
         let mut set = HashSet::new();
@@ -1231,14 +1215,10 @@ def test_set_comp_with_expression() -> Set[int]:
 rust = '''
 use std::collections::HashSet;
 #[doc = "Basic set comprehension"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_simple_set_comp() -> HashSet<i32> {
     (0..5).map(|x| x * 2).collect::<HashSet<_>>()
 }
 #[doc = "Set comprehension with condition"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_set_comp_with_condition() -> HashSet<i32> {
     (0..10)
         .filter(|x| x % 2 == 0)
@@ -1246,8 +1226,6 @@ pub fn test_set_comp_with_condition() -> HashSet<i32> {
         .collect::<HashSet<_>>()
 }
 #[doc = "Set comprehension from list"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_set_comp_from_list() -> HashSet<String> {
     let words = vec![
         "hello".to_string(),
@@ -1262,8 +1240,6 @@ pub fn test_set_comp_from_list() -> HashSet<String> {
         .collect::<HashSet<_>>()
 }
 #[doc = "Set comprehension with complex expression"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_set_comp_complex_expr() -> HashSet<i32> {
     let numbers = vec![1, 2, 3, 4, 5];
     numbers
@@ -1274,8 +1250,6 @@ pub fn test_set_comp_complex_expr() -> HashSet<i32> {
         .collect::<HashSet<_>>()
 }
 #[doc = "Set comprehension with expression"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_set_comp_with_expression() -> HashSet<i32> {
     (0..5)
         .filter(|x| x > 0)
@@ -1323,8 +1297,6 @@ def test_set_pop() -> int:
 
 rust = '''
 use std::collections::HashSet;
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_set_add() -> HashSet<i32> {
     let mut s = {
         let mut set = HashSet::new();
@@ -1337,8 +1309,6 @@ pub fn test_set_add() -> HashSet<i32> {
     s.insert(3);
     s
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_set_remove() -> HashSet<String> {
     let mut s = {
         let mut set = HashSet::new();
@@ -1352,8 +1322,6 @@ pub fn test_set_remove() -> HashSet<String> {
     };
     s
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_set_discard() -> HashSet<i32> {
     let mut s = {
         let mut set = HashSet::new();
@@ -1368,8 +1336,6 @@ pub fn test_set_discard() -> HashSet<i32> {
     s.remove(&10);
     s
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_set_clear() -> bool {
     let mut s = {
         let mut set = HashSet::new();
@@ -1381,8 +1347,6 @@ pub fn test_set_clear() -> bool {
     s.clear();
     s.len() as i32 == 0
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_set_pop() -> i32 {
     let mut s = {
         let mut set = HashSet::new();
@@ -1446,8 +1410,6 @@ def test_set_symmetric_difference() -> Set[int]:
 
 rust = '''
 use std::collections::HashSet;
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn create_sets() -> (HashSet<i32>, HashSet<i32>) {
     let s1 = {
         let mut set = HashSet::new();
@@ -1469,8 +1431,6 @@ pub fn create_sets() -> (HashSet<i32>, HashSet<i32>) {
     };
     (s1, s2)
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_set_intersection() -> HashSet<i32> {
     let s1 = {
         let mut set = HashSet::new();
@@ -1497,8 +1457,6 @@ pub fn test_set_intersection() -> HashSet<i32> {
     let result = _cse_temp_0;
     result
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_set_union() -> HashSet<i32> {
     let s1 = {
         let mut set = HashSet::new();
@@ -1521,8 +1479,6 @@ pub fn test_set_union() -> HashSet<i32> {
     let result = _cse_temp_0;
     result
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_set_difference() -> HashSet<i32> {
     let s1 = {
         let mut set = HashSet::new();
@@ -1546,8 +1502,6 @@ pub fn test_set_difference() -> HashSet<i32> {
         .collect::<std::collections::HashSet<_>>();
     result
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_set_symmetric_difference() -> HashSet<i32> {
     let s1 = {
         let mut set = HashSet::new();
@@ -1605,8 +1559,6 @@ def test_all_set_features() -> Set[int]:
 
 rust = '''
 use std::collections::HashSet;
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_all_set_features() -> HashSet<i32> {
     let mut s1 = {
         let mut set = HashSet::new();
@@ -1708,8 +1660,6 @@ def test_set_method() -> Set[str]:
 
 rust = '''
 use std::collections::HashSet;
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_simple_set() -> HashSet<i32> {
     let s1 = {
         let mut set = HashSet::new();
@@ -1732,8 +1682,6 @@ pub fn test_simple_set() -> HashSet<i32> {
     let result = _cse_temp_0;
     result
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_set_method() -> HashSet<String> {
     let mut fruits = {
         let mut set = HashSet::new();

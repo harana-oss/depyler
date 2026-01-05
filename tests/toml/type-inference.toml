@@ -116,7 +116,6 @@ impl ZeroDivisionError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn half(x: f64) -> f64 {
     return x / 2.0;
 }
@@ -283,7 +282,6 @@ impl IndexError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn first(items: &Vec<i32>) -> i32 {
     return items.get(0usize).cloned().unwrap();
 }
@@ -317,7 +315,6 @@ impl IndexError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn get_value(d: &HashMap<String, i32>, key: String) -> i32 {
     return d.get(&key).cloned().unwrap();
 }
@@ -843,7 +840,6 @@ impl IndexError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn get_value(data: &HashMap<serde_json::Value, serde_json::Value>, key: String) -> i32 {
     let _cse_temp_0 = data.clone().get(&key.clone()).is_some();
     if _cse_temp_0 {
@@ -1082,7 +1078,6 @@ impl IndexError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn first_element<T: Clone>(items: &Vec<T>) -> T {
     return items.get(0usize).cloned().unwrap();
 }
@@ -1150,7 +1145,6 @@ impl IndexError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn get_value<V: Clone, K: Clone>(mapping: &HashMap<K, V>, key: &K) -> V {
     return mapping.get(&key).cloned().unwrap();
 }
@@ -1617,7 +1611,6 @@ impl ValueError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn may_fail(x: i32) -> i32 {
     let _cse_temp_0 = x < 0;
     if _cse_temp_0 {

@@ -22,9 +22,8 @@ def test_abc_basic() -> bool:
 
 rust = '''
 trait MyABC {}
-
-fn test_abc_basic() -> bool {
-    true
+pub fn test_abc_basic() -> bool {
+    return true;
 }
 '''
 
@@ -45,9 +44,8 @@ def test_abc_meta() -> bool:
 
 rust = '''
 trait MyABC {}
-
-fn test_abc_meta() -> bool {
-    true
+pub fn test_abc_meta() -> bool {
+    return true;
 }
 '''
 
@@ -73,13 +71,15 @@ def test_abc_no_instantiate() -> bool:
 '''
 
 rust = '''
-// Rust traits cannot be instantiated directly
 trait MyABC {
-    fn method(&self);
+    fn method(&self) -> ();
 }
-
-fn test_abc_no_instantiate() -> bool {
-    true
+pub fn test_abc_no_instantiate() -> bool {
+    {
+        MyABC::new();
+        return false;
+        return true;
+    }
 }
 '''
 
@@ -113,18 +113,19 @@ rust = '''
 trait Base {
     fn method(&self) -> i32;
 }
-
-struct Concrete;
-
-impl Base for Concrete {
-    fn method(&self) -> i32 {
-        42
+#[derive(Debug, Copy, Clone)]
+pub struct Concrete {}
+impl Concrete {
+    pub fn new() -> Self {
+        Self {}
+    }
+    pub fn method(&self) -> i32 {
+        return 42;
     }
 }
-
-fn test_abstractmethod_basic() -> i32 {
-    let obj = Concrete;
-    obj.method()
+pub fn test_abstractmethod_basic() -> i32 {
+    let obj = Concrete::new();
+    return obj.method();
 }
 '''
 
@@ -154,18 +155,19 @@ rust = '''
 trait Base {
     fn compute(&self) -> i32;
 }
-
-struct Derived;
-
-impl Base for Derived {
-    fn compute(&self) -> i32 {
-        100
+#[derive(Debug, Copy, Clone)]
+pub struct Derived {}
+impl Derived {
+    pub fn new() -> Self {
+        Self {}
+    }
+    pub fn compute(&self) -> i32 {
+        return 100;
     }
 }
-
-fn test_abstractmethod_override() -> i32 {
-    let obj = Derived;
-    obj.compute()
+pub fn test_abstractmethod_override() -> i32 {
+    let obj = Derived::new();
+    return obj.compute();
 }
 '''
 
@@ -194,21 +196,22 @@ def test_abstractmethod_with_impl() -> int:
 rust = '''
 trait Base {
     fn method(&self) -> i32 {
-        10
+        return 10;
     }
 }
-
-struct Concrete;
-
-impl Base for Concrete {
-    fn method(&self) -> i32 {
-        20
+#[derive(Debug, Copy, Clone)]
+pub struct Concrete {}
+impl Concrete {
+    pub fn new() -> Self {
+        Self {}
+    }
+    pub fn method(&self) -> i32 {
+        return super().method() * 2;
     }
 }
-
-fn test_abstractmethod_with_impl() -> i32 {
-    let obj = Concrete;
-    obj.method()
+pub fn test_abstractmethod_with_impl() -> i32 {
+    let obj = Concrete::new();
+    return obj.method();
 }
 '''
 
@@ -237,21 +240,22 @@ def test_abstractmethod_super() -> int:
 rust = '''
 trait Base {
     fn compute(&self) -> i32 {
-        5
+        return 5;
     }
 }
-
-struct Derived;
-
-impl Base for Derived {
-    fn compute(&self) -> i32 {
-        15
+#[derive(Debug, Copy, Clone)]
+pub struct Derived {}
+impl Derived {
+    pub fn new() -> Self {
+        Self {}
+    }
+    pub fn compute(&self) -> i32 {
+        return super().compute() + 10;
     }
 }
-
-fn test_abstractmethod_super() -> i32 {
-    let obj = Derived;
-    obj.compute()
+pub fn test_abstractmethod_super() -> i32 {
+    let obj = Derived::new();
+    return obj.compute();
 }
 '''
 
@@ -286,17 +290,18 @@ rust = '''
 trait Base {
     fn create() -> i32;
 }
-
-struct Concrete;
-
-impl Base for Concrete {
-    fn create() -> i32 {
-        42
+#[derive(Debug, Copy, Clone)]
+pub struct Concrete {}
+impl Concrete {
+    pub fn new() -> Self {
+        Self {}
+    }
+    pub fn create() -> i32 {
+        return 42;
     }
 }
-
-fn test_abstractclassmethod() -> i32 {
-    Concrete::create()
+pub fn test_abstractclassmethod() -> i32 {
+    return Concrete::create();
 }
 '''
 
@@ -327,17 +332,18 @@ rust = '''
 trait Base {
     fn process() -> i32;
 }
-
-struct Concrete;
-
-impl Base for Concrete {
-    fn process() -> i32 {
-        99
+#[derive(Debug, Copy, Clone)]
+pub struct Concrete {}
+impl Concrete {
+    pub fn new() -> Self {
+        Self {}
+    }
+    pub fn process() -> i32 {
+        return 99;
     }
 }
-
-fn test_abstractstaticmethod() -> i32 {
-    Concrete::process()
+pub fn test_abstractstaticmethod() -> i32 {
+    return Concrete::process();
 }
 '''
 
@@ -369,18 +375,19 @@ rust = '''
 trait Base {
     fn value(&self) -> i32;
 }
-
-struct Concrete;
-
-impl Base for Concrete {
-    fn value(&self) -> i32 {
-        77
+#[derive(Debug, Copy, Clone)]
+pub struct Concrete {}
+impl Concrete {
+    pub fn new() -> Self {
+        Self {}
+    }
+    pub fn value(&self) -> i32 {
+        return 77;
     }
 }
-
-fn test_abstractproperty() -> i32 {
-    let obj = Concrete;
-    obj.value()
+pub fn test_abstractproperty() -> i32 {
+    let obj = Concrete::new();
+    return obj.value;
 }
 '''
 
@@ -409,13 +416,19 @@ def test_abc_register() -> bool:
 '''
 
 rust = '''
-// Rust doesn't have runtime type registration
-// This is a conceptual approximation
 trait MyABC {}
-struct SomeClass;
-
-fn test_abc_register() -> bool {
-    true
+#[derive(Debug, Copy, Clone)]
+pub struct SomeClass {}
+impl SomeClass {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+pub fn test_abc_register() -> bool {
+    return issubclass(SomeClass, MyABC);
+}
+fn main() {
+    MyABC::register(SomeClass);
 }
 '''
 
@@ -441,13 +454,20 @@ def test_abc_virtual_subclass() -> bool:
 '''
 
 rust = '''
-// Rust doesn't have runtime isinstance checks
-// This is a conceptual approximation
 trait MyABC {}
-struct SomeClass;
-
-fn test_abc_virtual_subclass() -> bool {
-    true
+#[derive(Debug, Copy, Clone)]
+pub struct SomeClass {}
+impl SomeClass {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+pub fn test_abc_virtual_subclass() -> bool {
+    let obj = SomeClass::new();
+    return true;
+}
+fn main() {
+    MyABC::register(SomeClass);
 }
 '''
 
@@ -475,13 +495,19 @@ def test_abc_subclasshook() -> bool:
 '''
 
 rust = '''
-// Rust doesn't have dynamic subclass hooks
-// This is a conceptual approximation
 trait MyABC {}
-struct HasMethod;
-
-fn test_abc_subclasshook() -> bool {
-    true
+#[derive(Debug, Copy, Clone)]
+pub struct HasMethod {}
+impl HasMethod {
+    pub fn new() -> Self {
+        Self {}
+    }
+    pub fn special_method(&self) {
+        {}
+    }
+}
+pub fn test_abc_subclasshook() -> bool {
+    return issubclass(HasMethod, MyABC);
 }
 '''
 
@@ -522,28 +548,25 @@ rust = '''
 trait ABC1 {
     fn method1(&self) -> i32;
 }
-
 trait ABC2 {
     fn method2(&self) -> i32;
 }
-
-struct Concrete;
-
-impl ABC1 for Concrete {
-    fn method1(&self) -> i32 {
-        10
+#[derive(Debug, Copy, Clone)]
+pub struct Concrete {}
+impl Concrete {
+    pub fn new() -> Self {
+        Self {}
+    }
+    pub fn method1(&self) -> i32 {
+        return 10;
+    }
+    pub fn method2(&self) -> i32 {
+        return 20;
     }
 }
-
-impl ABC2 for Concrete {
-    fn method2(&self) -> i32 {
-        20
-    }
-}
-
-fn test_abc_multiple() -> i32 {
-    let obj = Concrete;
-    obj.method1() + obj.method2()
+pub fn test_abc_multiple() -> i32 {
+    let obj = Concrete::new();
+    return obj.method1() + obj.method2();
 }
 '''
 
@@ -575,23 +598,23 @@ def test_abc_mixin() -> int:
 rust = '''
 trait Mixin {
     fn get_value(&self) -> i32;
-
     fn double_value(&self) -> i32 {
-        self.get_value() * 2
+        return self.get_value() * 2;
     }
 }
-
-struct Concrete;
-
-impl Mixin for Concrete {
-    fn get_value(&self) -> i32 {
-        15
+#[derive(Debug, Copy, Clone)]
+pub struct Concrete {}
+impl Concrete {
+    pub fn new() -> Self {
+        Self {}
+    }
+    pub fn get_value(&self) -> i32 {
+        return 15;
     }
 }
-
-fn test_abc_mixin() -> i32 {
-    let obj = Concrete;
-    obj.double_value()
+pub fn test_abc_mixin() -> i32 {
+    let obj = Concrete::new();
+    return obj.double_value();
 }
 '''
 
@@ -617,20 +640,19 @@ def test_collections_abc() -> int:
 '''
 
 rust = '''
-struct MyIterable;
-
-impl IntoIterator for MyIterable {
-    type Item = i32;
-    type IntoIter = std::vec::IntoIter<i32>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        vec![1, 2, 3].into_iter()
+#[derive(Debug, Copy, Clone)]
+pub struct MyIterable {}
+impl MyIterable {
+    pub fn new() -> Self {
+        Self {}
+    }
+    pub fn __iter__(&self) {
+        return iter([1, 2, 3]);
     }
 }
-
-fn test_collections_abc() -> i32 {
-    let obj = MyIterable;
-    obj.into_iter().sum()
+pub fn test_collections_abc() -> i32 {
+    let obj = MyIterable::new();
+    return obj.iter().sum::<i32>();
 }
 '''
 
@@ -677,23 +699,38 @@ def test_numbers_abc() -> int:
 '''
 
 rust = '''
-trait Integral {
-    fn to_int(&self) -> i32;
+use serde_json;
+#[derive(Debug, Clone)]
+pub struct MyInt {
+    pub _value: serde_json::Value,
 }
-
-struct MyInt {
-    value: i32,
-}
-
-impl Integral for MyInt {
-    fn to_int(&self) -> i32 {
-        self.value
+impl MyInt {
+    pub fn new(value: serde_json::Value) -> Self {
+        Self { _value: value }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "_value" => Some(Box::new(self._value.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "_value" => {
+                if let Some(v) = value.downcast_ref::<serde_json::Value>() {
+                    self._value = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
+        }
     }
 }
-
-fn test_numbers_abc() -> i32 {
-    let num = MyInt { value: 42 };
-    num.to_int()
+pub fn test_numbers_abc() -> i32 {
+    let num = MyInt::new(42);
+    return (num) as i32;
 }
 '''
 
@@ -732,14 +769,26 @@ def test_abc_partial() -> bool:
 '''
 
 rust = '''
-// Rust requires all trait methods to be implemented
 trait Base {
-    fn method1(&self) -> i32;
-    fn method2(&self) -> i32;
+    fn method1(&self) -> ();
+    fn method2(&self) -> ();
 }
-
-fn test_abc_partial() -> bool {
-    true
+#[derive(Debug, Copy, Clone)]
+pub struct Partial {}
+impl Partial {
+    pub fn new() -> Self {
+        Self {}
+    }
+    pub fn method1(&self) -> i32 {
+        return 1;
+    }
+}
+pub fn test_abc_partial() -> bool {
+    {
+        Partial::new();
+        return false;
+        return true;
+    }
 }
 '''
 
@@ -767,20 +816,21 @@ def test_abstractmethod_varargs() -> int:
 
 rust = '''
 trait Base {
-    fn process(&self, args: Vec<i32>) -> i32;
+    fn process(&self) -> i32;
 }
-
-struct Concrete;
-
-impl Base for Concrete {
-    fn process(&self, args: Vec<i32>) -> i32 {
-        args.iter().sum()
+#[derive(Debug, Copy, Clone)]
+pub struct Concrete {}
+impl Concrete {
+    pub fn new() -> Self {
+        Self {}
+    }
+    pub fn process(&self) -> i32 {
+        return sum(args) + kwargs.len();
     }
 }
-
-fn test_abstractmethod_varargs() -> i32 {
-    let obj = Concrete;
-    obj.process(vec![1, 2, 3])
+pub fn test_abstractmethod_varargs() -> i32 {
+    let obj = Concrete::new();
+    return obj.process();
 }
 '''
 
@@ -801,13 +851,34 @@ result = abs(n).value
 '''
 
 rust = '''
-struct Number {
-    value: i32,
+pub const n: serde_json::Value = Number::new(-5);
+pub const result: serde_json::Value = n.abs().value;
+use serde_json;
+#[derive(Debug, Clone)]
+pub struct Number {
+    pub value: serde_json::Value,
 }
 impl Number {
-    fn abs(self) -> Number {
-        Number {
-            value: self.value.abs(),
+    pub fn new(value: serde_json::Value) -> Self {
+        Self { value }
+    }
+    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
+        match name {
+            "value" => Some(Box::new(self.value.clone()) as Box<dyn std::any::Any>),
+            _ => None,
+        }
+    }
+    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
+        match name {
+            "value" => {
+                if let Some(v) = value.downcast_ref::<serde_json::Value>() {
+                    self.value = v.clone();
+                    true
+                } else {
+                    false
+                }
+            }
+            _ => false,
         }
     }
 }

@@ -21,3 +21,9 @@ applyTo: '**/*.rs'
 
 1. Do not create markdown files unless specifically asked.
 2. Do not add unnecessary comments when the code is self-explanatory. Only add comments that clarify complex logic.
+
+## Summary
+
+1. Do not produce summary longer than 2 sentences.
+2. Do not include summary at all if the changes are trivial.
+3. Do not include findings or code.

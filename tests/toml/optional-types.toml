@@ -1282,7 +1282,6 @@ impl Container {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn get_first(c: &Container) -> i32 {
     return c
         .items
@@ -1358,7 +1357,6 @@ impl Config {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn get_setting(c: &Config, key: String) -> i32 {
     return c
         .settings
@@ -1944,7 +1942,6 @@ impl Container {
         Self {}
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn find_container(containers: &Vec<Container>, idx: i32) -> Option<Container> {
     let _cse_temp_0 = containers.clone().len() as i32;
     let _cse_temp_1 = idx < _cse_temp_0;
@@ -2382,7 +2379,6 @@ impl State {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn test_function(state: &State) {
     let mut extra_time_stats: Option<PeriodStatistic> = None;
     if state.is_some() {

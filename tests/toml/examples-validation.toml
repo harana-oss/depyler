@@ -101,7 +101,6 @@ rust = '''
 use std as sys;
 use std::collections::HashMap;
 #[doc = "Test binary search implementation."]
-#[doc = " Depyler: verified panic-free"]
 pub fn test_binary_search() {
     let test_cases = vec![
         (vec![1, 3, 5, 7, 9], 5, 2),
@@ -114,18 +113,14 @@ pub fn test_binary_search() {
         (vec![42], 41, -1),
     ];
     log::info!("{}", "Testing binary_search...");
-    for (_arr, _target, _expected) in test_cases.iter().cloned() {
+    for (arr, target, expected) in test_cases.iter().cloned() {
         log::info!(
             "{}",
-            format!(
-                "  ✓ binary_search({:?}, {:?}) = {:?}",
-                arr, target, expected
-            )
+            format!("  ✓ binary_search({:?}, {}) = {}", arr, target, expected)
         );
     }
 }
 #[doc = "Test sum calculation."]
-#[doc = " Depyler: verified panic-free"]
 pub fn test_calculate_sum() {
     let test_cases = vec![
         (vec![1, 2, 3, 4, 5], 15),
@@ -135,21 +130,20 @@ pub fn test_calculate_sum() {
         (vec![-1, -2, -3], -6),
     ];
     log::info!("{}", "\nTesting calculate_sum...");
-    for (_numbers, _expected) in test_cases.iter().cloned() {
+    for (numbers, expected) in test_cases.iter().cloned() {
         log::info!(
             "{}",
-            format!("  ✓ calculate_sum({:?}) = {:?}", numbers, expected)
+            format!("  ✓ calculate_sum({:?}) = {}", numbers, expected)
         );
     }
 }
 #[doc = "Test config processing."]
-#[doc = " Depyler: verified panic-free"]
 pub fn test_process_config() {
     let test_cases = vec![
         (
             {
                 let mut map = HashMap::new();
-                map.insert("debug".to_string(), "true");
+                map.insert("debug".to_string(), "true".to_string());
                 map
             },
             "true",
@@ -157,7 +151,7 @@ pub fn test_process_config() {
         (
             {
                 let mut map = HashMap::new();
-                map.insert("verbose".to_string(), "yes");
+                map.insert("verbose".to_string(), "yes".to_string());
                 map
             },
             None,
@@ -172,15 +166,15 @@ pub fn test_process_config() {
         (
             {
                 let mut map = HashMap::new();
-                map.insert("debug".to_string(), "false");
-                map.insert("level".to_string(), "info");
+                map.insert("debug".to_string(), "false".to_string());
+                map.insert("level".to_string(), "info".to_string());
                 map
             },
             "false",
         ),
     ];
     log::info!("{}", "\nTesting process_config...");
-    for (_config, _expected) in test_cases.iter().cloned() {
+    for (config, expected) in test_cases.iter().cloned() {
         log::info!(
             "{}",
             format!("  ✓ process_config({:?}) = {:?}", config, expected)
@@ -188,7 +182,6 @@ pub fn test_process_config() {
     }
 }
 #[doc = "Test number classification."]
-#[doc = " Depyler: verified panic-free"]
 pub fn test_classify_number() {
     let test_cases = vec![
         (0, "zero"),
@@ -198,10 +191,10 @@ pub fn test_classify_number() {
         (-1, "negative"),
     ];
     log::info!("{}", "\nTesting classify_number...");
-    for (_n, _expected) in test_cases.iter().cloned() {
+    for (n, expected) in test_cases.iter().cloned() {
         log::info!(
             "{}",
-            format!("  ✓ classify_number({:?}) = {:?}", n, expected)
+            format!("  ✓ classify_number({}) = {:?}", n, expected)
         );
     }
 }
@@ -229,14 +222,11 @@ async def process_batch(items: list[str]) -> list[str]:
 
 rust = '''
 #[doc = "Fetch data asynchronously."]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub async fn fetch_data(url: String) -> String {
     let result = async_fetch(url).await;
     result
 }
 #[doc = "Process items asynchronously."]
-#[doc = " Depyler: verified panic-free"]
 pub async fn process_batch(items: &Vec<String>) -> Vec<String> {
     let mut results = vec![];
     for _item in items.iter().cloned() {
@@ -275,23 +265,17 @@ def process_file(input_file: str, output_file: str) -> None:
 
 rust = '''
 #[doc = "Read file using with statement."]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn read_file(filename: String) -> String {
     let f = std::fs::File::open(filename)?;
     let content = f.read();
     content
 }
 #[doc = "Write file using with statement."]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn write_file(filename: String, content: &str) {
     let f = std::fs::File::create(filename)?;
     f.write(content);
 }
 #[doc = "Process file with multiple with statements."]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn process_file(input_file: String, output_file: String) {
     let fin = std::fs::File::open(input_file)?;
     let data = fin.read();
@@ -572,13 +556,10 @@ impl VerifiedStack {
     }
 }
 #[doc = "Pure function - no side effects"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn add(a: i32, b: i32) -> i32 {
     a + b
 }
 #[doc = "Safe array access with bounds checking"]
-#[doc = " Depyler: proven to terminate"]
 pub fn safe_access(items: &Vec<i32>, index: i32) -> Result<Option<i32>, IndexError> {
     let _cse_temp_0 = 0 <= index;
     let _cse_temp_1 = items.len() as i32;
@@ -590,14 +571,10 @@ pub fn safe_access(items: &Vec<i32>, index: i32) -> Result<Option<i32>, IndexErr
     Ok(None)
 }
 #[doc = "Thread-safe counter increment"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn concurrent_counter(current: i32, increment: i32) -> i32 {
     current + increment
 }
 #[doc = "Guaranteed to terminate for non-negative inputs"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn factorial(n: i32) -> i32 {
     let _cse_temp_0 = n <= 0;
     if _cse_temp_0 {
@@ -610,7 +587,6 @@ pub fn factorial(n: i32) -> i32 {
     result
 }
 #[doc = "Division that never panics"]
-#[doc = " Depyler: proven to terminate"]
 pub fn safe_divide(a: i32, b: i32) -> Result<Option<f64>, ZeroDivisionError> {
     let _cse_temp_0 = b == 0;
     if _cse_temp_0 {
@@ -640,8 +616,6 @@ pub fn find_max(numbers: &Vec<i32>) -> Result<Option<i32>, IndexError> {
     Ok(Some(max_val))
 }
 #[doc = "Fibonacci with formal contracts"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn fibonacci(n: i32) -> i32 {
     let _cse_temp_0 = n <= 1;
     if _cse_temp_0 {
@@ -650,8 +624,6 @@ pub fn fibonacci(n: i32) -> i32 {
     fibonacci(n - 1) + fibonacci(n - 2)
 }
 #[doc = "Demonstrate verified functions"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn main() {
     log::info!("{}", "=== Verification Demo ===");
     let mut result = add(5, 3);

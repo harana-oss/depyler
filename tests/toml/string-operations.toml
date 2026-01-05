@@ -246,7 +246,6 @@ impl IndexError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn get_last_char(s: String) -> String {
     return {
         let base = &s;
@@ -1320,7 +1319,6 @@ impl IndexError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn get_value(d: &HashMap<String, i32>, key: String) -> i32 {
     return d.get(&key).cloned().unwrap();
 }
@@ -1628,7 +1626,6 @@ impl IndexError {
     }
 }
 #[doc = "Reverse a string"]
-#[doc = " Depyler: proven to terminate"]
 pub fn reverse_string(s: &str) -> Result<String, IndexError> {
     let mut result = "".to_string();
     for i in {
@@ -1657,7 +1654,6 @@ pub fn reverse_string(s: &str) -> Result<String, IndexError> {
     Ok(result)
 }
 #[doc = "Count vowels in string"]
-#[doc = " Depyler: verified panic-free"]
 pub fn count_vowels(s: &str) -> i32 {
     let vowels = "aeiouAEIOU";
     let mut count = 0;
@@ -1709,8 +1705,6 @@ pub fn is_palindrome_simple(s: &str) -> Result<bool, Box<dyn std::error::Error>>
     Ok(true)
 }
 #[doc = "Count words in text"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn count_words(text: &str) -> i32 {
     if text.is_empty() {
         return 0;
@@ -1722,7 +1716,6 @@ pub fn count_words(text: &str) -> i32 {
     words.len() as i32 as i32
 }
 #[doc = "Capitalize first letter of each word"]
-#[doc = " Depyler: verified panic-free"]
 pub fn capitalize_words(text: &str) -> String {
     if text.is_empty() {
         return "".to_string();
@@ -1941,7 +1934,6 @@ pub fn word_frequency(text: &str) -> Result<HashMap<String, i32>, IndexError> {
     Ok(frequency)
 }
 #[doc = "Group words that are anagrams of each other"]
-#[doc = " Depyler: verified panic-free"]
 pub fn find_anagrams(words: &Vec<String>) -> Vec<Vec<String>> {
     let mut groups: HashMap<String, Vec<String>> = {
         let map = HashMap::new();
@@ -2479,7 +2471,6 @@ impl IndexError {
     }
 }
 #[doc = "Tokenize text into words using string operations"]
-#[doc = " Depyler: verified panic-free"]
 pub fn tokenize_text(text: &str) -> Vec<String> {
     let mut cleaned: String = STR_EMPTY.to_string();
     let punctuation: String = ".,!?;:\"'()[]{}—-".to_string();
@@ -2607,7 +2598,6 @@ pub fn analyze_character_distribution(text: &str) -> Result<HashMap<String, i32>
     Ok(distribution)
 }
 #[doc = "Extract sentences using simple pattern matching"]
-#[doc = " Depyler: verified panic-free"]
 pub fn extract_sentences(text: &str) -> Vec<String> {
     let mut sentences: Vec<String> = vec![];
     let mut current_sentence: String = STR_EMPTY.to_string();
@@ -2667,7 +2657,6 @@ pub fn calculate_readability_metrics(
     Ok(metrics)
 }
 #[doc = "Group words by length using collections pattern"]
-#[doc = " Depyler: verified panic-free"]
 pub fn group_words_by_length(words: &Vec<String>) -> HashMap<i32, Vec<String>> {
     let mut groups: HashMap<i32, Vec<String>> = {
         let map = HashMap::new();
@@ -2747,8 +2736,6 @@ pub fn find_word_patterns(words: &Vec<String>) -> Result<HashMap<String, Vec<Str
     Ok(patterns)
 }
 #[doc = "Create n-grams from word list"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn create_ngrams(words: &Vec<String>, n: i32) -> Vec<String> {
     let mut ngrams: Vec<String> = vec![];
     for i in 0..(words.len() as i32).saturating_sub(n) + 1 {
@@ -2876,8 +2863,6 @@ pub fn analyze_vowel_consonant_ratio(
     Ok(result)
 }
 #[doc = "Main text processing pipeline"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn process_text_pipeline() -> Result<(), Box<dyn std::error::Error>> {
     log::info!("{}", "=== Comprehensive Text Processing Demo ===");
     let sample_text: String = "\n    The quick brown fox jumps over the lazy dog. This is a sample text\n    for demonstrating text processing capabilities. Python is amazing!\n    We can analyze words, count frequencies, and find patterns easily.\n    ".to_string();

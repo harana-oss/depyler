@@ -250,7 +250,6 @@ impl IndexError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn get_first_arg() -> String {
     let _cse_temp_0 = std::env::args().collect::<Vec<String>>().len() as i32;
     let _cse_temp_1 = _cse_temp_0 > 1;

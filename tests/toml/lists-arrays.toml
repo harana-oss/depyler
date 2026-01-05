@@ -229,7 +229,6 @@ impl IndexError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn get_item(items: &Vec<i32>, i: i32) -> i32 {
     return items.get(i as usize).cloned().unwrap();
 }
@@ -262,7 +261,6 @@ impl IndexError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn get_last(items: &Vec<i32>) -> i32 {
     return items.last().cloned().unwrap();
 }
@@ -618,7 +616,6 @@ impl IndexError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn get_string(items: &Vec<String>, index: i32) -> String {
     return items.get(index as usize).cloned().unwrap();
 }
@@ -652,7 +649,6 @@ impl IndexError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn get_row(matrix: &Vec<Vec<i32>>, row: i32) -> Vec<i32> {
     return matrix.get(row as usize).cloned().unwrap();
 }
@@ -686,7 +682,6 @@ impl IndexError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn get_last(items: &Vec<String>) -> String {
     return items.last().cloned().unwrap();
 }

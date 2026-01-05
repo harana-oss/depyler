@@ -43,7 +43,6 @@ impl IndexError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn test_array_functions() -> Result<i32, IndexError> {
     let z1 = vec![0; 5 as usize];
     let o1 = vec![1; 10 as usize];
@@ -113,8 +112,6 @@ def test_nested_arrays():
 '''
 
 rust = '''
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_array_literals() -> (Vec<i32>, Vec<i32>, Vec<bool>, Vec<i32>) {
     let arr1 = vec![1, 2, 3, 4, 5];
     let arr2 = vec![0, 0, 0, 0];
@@ -122,8 +119,6 @@ pub fn test_array_literals() -> (Vec<i32>, Vec<i32>, Vec<bool>, Vec<i32>) {
     let arr4 = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
     (arr1, arr2, arr3, arr4)
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_array_multiplication() -> ([i32; 10], [i32; 5], [i32; 8], [i32; 10], [i32; 5]) {
     let _cse_temp_0 = [0; 10];
     let zeros = _cse_temp_0;
@@ -137,16 +132,12 @@ pub fn test_array_multiplication() -> ([i32; 10], [i32; 5], [i32; 8], [i32; 10],
     let reverse_ones = _cse_temp_4;
     (zeros, ones, pattern, reverse_zeros, reverse_ones)
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_array_init_functions() -> (Vec<i32>, Vec<i32>, Vec<i32>) {
     let z = vec![0; 10 as usize];
     let o = vec![1; 5 as usize];
     let f = vec![42; 8 as usize];
     (z, o, f)
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_large_arrays() -> (Vec<i32>, Vec<i32>, [i32; 10]) {
     let _cse_temp_0 = vec![0; 50];
     let large = _cse_temp_0;
@@ -157,8 +148,6 @@ pub fn test_large_arrays() -> (Vec<i32>, Vec<i32>, [i32; 10]) {
     let dynamic = _cse_temp_2;
     (large, very_large, dynamic)
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_nested_arrays() -> (Vec<Vec<i32>>, Vec<Vec<i32>>) {
     let matrix = vec![vec![0, 0], vec![0, 0], vec![0, 0]];
     let identity = vec![vec![1, 0, 0], vec![0, 1, 0], vec![0, 0, 1]];
@@ -206,7 +195,6 @@ impl IndexError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn test_arrays() -> Result<i32, IndexError> {
     let arr1 = vec![1, 2, 3, 4, 5];
     let arr2 = vec![0, 0, 0, 0];
@@ -691,15 +679,11 @@ impl SimplePriorityQueue {
     }
 }
 #[doc = "Test creating array with type code"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_array_creation() -> Vec<i32> {
     let arr: Vec<i32> = vec![1, 2, 3, 4, 5];
     arr
 }
 #[doc = "Test appending to array"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_array_append() -> Vec<i32> {
     let mut arr: Vec<i32> = vec![1, 2, 3];
     arr.push(4);
@@ -707,8 +691,6 @@ pub fn test_array_append() -> Vec<i32> {
     arr
 }
 #[doc = "Test extending array"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_array_extend() -> Vec<i32> {
     let mut arr: Vec<i32> = vec![1, 2, 3];
     let extension: Vec<i32> = vec![4, 5, 6];
@@ -716,16 +698,12 @@ pub fn test_array_extend() -> Vec<i32> {
     arr
 }
 #[doc = "Test inserting into array"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_array_insert() -> Vec<i32> {
     let mut arr: Vec<i32> = vec![1, 2, 4, 5];
     arr.insert(2 as usize, 3);
     arr
 }
 #[doc = "Test removing from array"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_array_remove() -> Vec<i32> {
     let mut arr: Vec<i32> = vec![1, 2, 3, 4, 5];
     if let Some(pos) = arr.iter().position(|x| x == &3) {
@@ -736,16 +714,12 @@ pub fn test_array_remove() -> Vec<i32> {
     arr
 }
 #[doc = "Test popping from array"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_array_pop() -> () {
     let mut arr: Vec<i32> = vec![1, 2, 3, 4, 5];
     let popped: i32 = arr.pop().unwrap_or_default();
     (popped, arr)
 }
 #[doc = "Test finding index in array"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_array_index() -> i32 {
     let mut arr: Vec<i32> = vec![10, 20, 30, 40, 50];
     let idx: i32 = arr
@@ -756,30 +730,23 @@ pub fn test_array_index() -> i32 {
     idx
 }
 #[doc = "Test counting in array"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_array_count() -> i32 {
     let mut arr: Vec<i32> = vec![1, 2, 2, 3, 2, 4];
     let count: i32 = arr.iter().filter(|x| **x == 2).count() as i32 as i32;
     count
 }
 #[doc = "Test reversing array"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_array_reverse() -> Vec<i32> {
     let mut arr: Vec<i32> = vec![1, 2, 3, 4, 5];
     arr.reverse();
     arr
 }
 #[doc = "Test converting array to list"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_array_tolist() -> Vec<i32> {
     let mut arr: Vec<i32> = vec![1, 2, 3, 4, 5];
     arr.clone()
 }
 #[doc = "Test FIFO queue operations"]
-#[doc = " Depyler: verified panic-free"]
 pub fn test_queue_fifo() -> Vec<i32> {
     let mut q: SimpleQueue = SimpleQueue::new();
     q.put(1);
@@ -793,7 +760,6 @@ pub fn test_queue_fifo() -> Vec<i32> {
     results
 }
 #[doc = "Test LIFO stack operations"]
-#[doc = " Depyler: verified panic-free"]
 pub fn test_stack_lifo() -> Vec<i32> {
     let mut s: SimpleStack = SimpleStack::new();
     s.push(1);
@@ -807,8 +773,6 @@ pub fn test_stack_lifo() -> Vec<i32> {
     results
 }
 #[doc = "Test queue size tracking"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_queue_size() -> i32 {
     let mut q: SimpleQueue = SimpleQueue::new();
     q.put(1);
@@ -818,8 +782,6 @@ pub fn test_queue_size() -> i32 {
     size
 }
 #[doc = "Test stack peek operation"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_stack_peek() -> i32 {
     let mut s: SimpleStack = SimpleStack::new();
     s.push(1);
@@ -829,7 +791,6 @@ pub fn test_stack_peek() -> i32 {
     top
 }
 #[doc = "Test priority queue"]
-#[doc = " Depyler: verified panic-free"]
 pub fn test_priority_queue() -> Vec<String> {
     let mut pq: SimplePriorityQueue = SimplePriorityQueue::new();
     pq.put(3, "low".to_string());
@@ -843,7 +804,6 @@ pub fn test_priority_queue() -> Vec<String> {
     results
 }
 #[doc = "Test circular buffer implementation"]
-#[doc = " Depyler: verified panic-free"]
 pub fn test_circular_buffer(size: i32) -> Vec<i32> {
     let mut buffer: Vec<i32> = vec![];
     let max_size: i32 = size;
@@ -861,8 +821,6 @@ pub fn test_circular_buffer(size: i32) -> Vec<i32> {
     buffer
 }
 #[doc = "Simulate double-ended queue"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_deque_simulation() -> Vec<i32> {
     let mut deque: Vec<i32> = vec![];
     deque.push(1);
@@ -882,8 +840,6 @@ pub fn test_deque_simulation() -> Vec<i32> {
     deque
 }
 #[doc = "Run all array and queue tests"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_all_array_queue_features() {
     let mut arr: Vec<i32> = test_array_creation();
     let appended: Vec<i32> = test_array_append();
@@ -948,8 +904,6 @@ impl Logger {
         return self.messages.len();
     }
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_logger() -> i32 {
     let logger = Logger::new();
     let count = logger.log("Hello".to_string());

@@ -479,7 +479,6 @@ def noop_loop(items: list[int]):
 '''
 
 rust = '''
-#[doc = " Depyler: verified panic-free"]
 pub fn noop_loop(items: &Vec<i32>) {
     for _item in items.iter().cloned() {}
 }
@@ -601,7 +600,6 @@ def sum_list(numbers: list[int]) -> int:
 '''
 
 rust = '''
-#[doc = " Depyler: verified panic-free"]
 pub fn sum_list(numbers: &Vec<i32>) -> i32 {
     let mut total = 0;
     for num in numbers.iter().cloned() {
@@ -791,7 +789,6 @@ def nested_count(outer: list[int], inner: list[int]) -> int:
 
 rust = '''
 #[doc = "Nested loops with unused outer variable."]
-#[doc = " Depyler: verified panic-free"]
 pub fn nested_count(outer: &Vec<i32>, inner: &Vec<i32>) -> i32 {
     let mut count = 0;
     for _x in outer.iter().cloned() {

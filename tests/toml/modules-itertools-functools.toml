@@ -135,7 +135,6 @@ def group_by_first_char(words: list[str]) -> dict[str, list[str]]:
 rust = '''
 use itertools::group_by;
 use std::collections::HashMap;
-#[doc = " Depyler: verified panic-free"]
 pub fn group_by_first_char(words: Vec<String>) -> HashMap<String, Vec<String>> {
     let mut result = {
         let map = HashMap::new();

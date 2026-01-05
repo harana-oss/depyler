@@ -61,7 +61,6 @@ impl ValueError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn safe_divide(a: i32, b: i32) -> i32 {
     let _cse_temp_0 = b == 0;
     if _cse_temp_0 {
@@ -173,7 +172,6 @@ impl ValueError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn validate_range(x: i32, min_val: i32, max_val: i32) -> i32 {
     let _cse_temp_0 = x < min_val || x > max_val;
     if _cse_temp_0 {

@@ -98,8 +98,6 @@ impl ZeroDivisionError {
     }
 }
 #[doc = "Calculate factorial using iteration"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn factorial(n: i32) -> i32 {
     let _cse_temp_0 = n <= 1;
     if _cse_temp_0 {
@@ -145,7 +143,6 @@ pub fn is_prime(n: i32) -> Result<bool, ZeroDivisionError> {
     Ok(true)
 }
 #[doc = "Calculate sum of squares"]
-#[doc = " Depyler: verified panic-free"]
 pub fn sum_of_squares(numbers: &Vec<i32>) -> i32 {
     let mut total = 0;
     for num in numbers.iter().cloned() {
@@ -258,7 +255,6 @@ impl ZeroDivisionError {
     }
 }
 #[doc = "Test floor division with positive operands"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_floor_division_positive() -> Result<i32, ZeroDivisionError> {
     let a = 7;
     let b = 3;
@@ -278,7 +274,6 @@ pub fn test_floor_division_positive() -> Result<i32, ZeroDivisionError> {
     Ok(result)
 }
 #[doc = "Test floor division with negative dividend"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_floor_division_negative() -> Result<i32, ZeroDivisionError> {
     let a = -7;
     let b = 3;
@@ -298,7 +293,6 @@ pub fn test_floor_division_negative() -> Result<i32, ZeroDivisionError> {
     Ok(result)
 }
 #[doc = "Test floor division with negative divisor"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_floor_division_negative_divisor() -> Result<i32, ZeroDivisionError> {
     let a = 7;
     let b = -3;
@@ -318,7 +312,6 @@ pub fn test_floor_division_negative_divisor() -> Result<i32, ZeroDivisionError> 
     Ok(result)
 }
 #[doc = "Test floor division with both operands negative"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_floor_division_both_negative() -> Result<i32, ZeroDivisionError> {
     let a = -7;
     let b = -3;
@@ -338,7 +331,6 @@ pub fn test_floor_division_both_negative() -> Result<i32, ZeroDivisionError> {
     Ok(result)
 }
 #[doc = "Test floor division with exact result"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_floor_division_exact() -> Result<i32, ZeroDivisionError> {
     let a = 9;
     let b = 3;
@@ -358,7 +350,6 @@ pub fn test_floor_division_exact() -> Result<i32, ZeroDivisionError> {
     Ok(result)
 }
 #[doc = "Test floor division with zero remainder edge case"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_floor_division_zero_remainder() -> Result<i32, ZeroDivisionError> {
     let a = -9;
     let b = 3;
@@ -592,8 +583,6 @@ impl ZeroDivisionError {
     }
 }
 #[doc = "Demonstrate power operator with different cases"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn power_examples(base: i32, exponent: i32) -> i32 {
     let _cse_temp_0 = (2 as i32)
         .checked_pow(3 as u32)
@@ -622,7 +611,6 @@ pub fn power_examples(base: i32, exponent: i32) -> i32 {
     result1 + result2 + result3
 }
 #[doc = "Demonstrate floor division with Python semantics"]
-#[doc = " Depyler: proven to terminate"]
 pub fn floor_division_examples(dividend: i32, divisor: i32) -> Result<i32, ZeroDivisionError> {
     let _cse_temp_0 = {
         let a = 17;
@@ -692,7 +680,6 @@ pub fn floor_division_examples(dividend: i32, divisor: i32) -> Result<i32, ZeroD
     Ok(result1 + result2 + result3 + result4 + result5)
 }
 #[doc = "Combine power and floor division"]
-#[doc = " Depyler: proven to terminate"]
 pub fn combined_operations(a: i32, b: i32) -> Result<i32, ZeroDivisionError> {
     let _cse_temp_0 = {
         if 2 >= 0 && (2 as i64) <= (u32::MAX as i64) {
@@ -854,8 +841,6 @@ impl ZeroDivisionError {
         }
     }
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_integer_power() -> (i32, i32, i32, i32) {
     let _cse_temp_0 = (2 as i32)
         .checked_pow(3 as u32)
@@ -883,7 +868,6 @@ pub fn test_integer_power() -> (i32, i32, i32, i32) {
     let d = _cse_temp_3;
     (a, b, c, d)
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn test_float_power() -> Result<(f64, f64, f64, i32), ZeroDivisionError> {
     let _cse_temp_0 = (2.5 as f64).powf(2 as f64);
     let a = _cse_temp_0;
@@ -897,8 +881,6 @@ pub fn test_float_power() -> Result<(f64, f64, f64, i32), ZeroDivisionError> {
     let d = _cse_temp_3;
     Ok((a, b, c, d))
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_negative_exponent() -> (i32, i32, i32) {
     let _cse_temp_0 = (2 as f64).powf(-1 as f64);
     let a = _cse_temp_0;
@@ -908,8 +890,6 @@ pub fn test_negative_exponent() -> (i32, i32, i32) {
     let c = _cse_temp_2;
     (a, b, c)
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_large_powers() -> (i32, i32, i32) {
     let _cse_temp_0 = (2 as i32)
         .checked_pow(10 as u32)
@@ -925,8 +905,6 @@ pub fn test_large_powers() -> (i32, i32, i32) {
     let c = _cse_temp_2;
     (a, b, c)
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_mixed_operations() -> (i32, i32, i32, i32) {
     let _cse_temp_0 = (3 as i32)
         .checked_pow(2 as u32)
@@ -948,8 +926,6 @@ pub fn test_mixed_operations() -> (i32, i32, i32, i32) {
     (a, b, c, d)
 }
 #[doc = "Test power with function parameters"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn compute_power(base: i32, exp: i32) -> i32 {
     {
         if exp >= 0 && (exp as i64) <= (u32::MAX as i64) {
@@ -993,8 +969,6 @@ impl ZeroDivisionError {
         }
     }
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_power(x: i32) -> i32 {
     {
         if 2 >= 0 && (2 as i64) <= (u32::MAX as i64) {
@@ -1006,7 +980,6 @@ pub fn test_power(x: i32) -> i32 {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn test_floor_div(x: i32, y: i32) -> Result<i32, ZeroDivisionError> {
     Ok({
         let a = x;
@@ -1173,7 +1146,6 @@ impl IndexError {
     }
 }
 #[doc = "Calculate arithmetic mean"]
-#[doc = " Depyler: proven to terminate"]
 pub fn mean(numbers: Vec<f64>) -> Result<f64, ZeroDivisionError> {
     if numbers.is_empty() {
         return Ok(0.0);
@@ -1181,7 +1153,6 @@ pub fn mean(numbers: Vec<f64>) -> Result<f64, ZeroDivisionError> {
     Ok((numbers.iter().sum::<f64>() as f64) / (numbers.len() as i32 as f64))
 }
 #[doc = "Calculate median value"]
-#[doc = " Depyler: proven to terminate"]
 pub fn median(numbers: Vec<f64>) -> Result<f64, Box<dyn std::error::Error>> {
     if numbers.is_empty() {
         return Ok(0.0);
@@ -1312,7 +1283,6 @@ pub fn variance(numbers: Vec<f64>) -> Result<f64, ZeroDivisionError> {
     Ok((sum_squared_diff as f64) / ((numbers.len() as i32).saturating_sub(1) as f64))
 }
 #[doc = "Calculate sample standard deviation"]
-#[doc = " Depyler: proven to terminate"]
 pub fn standard_deviation(numbers: Vec<f64>) -> Result<f64, ZeroDivisionError> {
     let var = variance(numbers)?;
     let _cse_temp_0 = var == 0.0;
@@ -1327,7 +1297,6 @@ pub fn standard_deviation(numbers: Vec<f64>) -> Result<f64, ZeroDivisionError> {
     Ok(x)
 }
 #[doc = "Calculate Pearson correlation coefficient"]
-#[doc = " Depyler: proven to terminate"]
 pub fn correlation(mut x: Vec<f64>, y: Vec<f64>) -> Result<f64, Box<dyn std::error::Error>> {
     let _cse_temp_0 = x.len() as i32;
     let _cse_temp_1 = y.len() as i32;

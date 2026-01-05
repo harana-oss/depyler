@@ -98,7 +98,6 @@ impl ZeroDivisionError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn divide(a: f64, b: f64) -> f64 {
     return a / b;
 }
@@ -131,7 +130,6 @@ impl ZeroDivisionError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn floor_div(a: i32, b: i32) -> i32 {
     return {
         let a = a;
@@ -224,7 +222,6 @@ impl ZeroDivisionError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn modulo(a: i32, b: i32) -> i32 {
     return a % b;
 }
@@ -786,7 +783,6 @@ impl ZeroDivisionError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn test_floordiv(a: i32, b: i32) -> i32 {
     return {
         let a = a;
@@ -830,7 +826,6 @@ impl ZeroDivisionError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn test_floordiv() -> i32 {
     return {
         let a = -7;
@@ -874,7 +869,6 @@ impl ZeroDivisionError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn test_floordiv() -> i32 {
     return {
         let a = 7;
@@ -918,7 +912,6 @@ impl ZeroDivisionError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn test_floordiv() -> i32 {
     return {
         let a = -7;
@@ -962,7 +955,6 @@ impl ZeroDivisionError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn test_floordiv(a: i32, b: i32) -> i32 {
     return {
         let a = a;

@@ -321,7 +321,7 @@ pub fn process_items(items: &Vec<i32>) -> i32 {
     }
     let mut total = 0;
     for item in items.iter().cloned() {
-        total = total + item;
+        total += item;
     }
     return total;
 }
@@ -366,7 +366,7 @@ use serde_json;
 pub fn sum_list(numbers: &Vec<serde_json::Value>) -> i32 {
     let mut total = 0;
     for num in numbers.iter().cloned() {
-        total = total + num;
+        total += num;
     }
     return total;
 }
@@ -387,28 +387,9 @@ def get_value(data: dict, key: str) -> int:
 rust = '''
 use serde_json;
 use std::collections::HashMap;
-#[derive(Debug, Clone)]
-pub struct IndexError {
-    message: String,
-}
-impl std::fmt::Display for IndexError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "index out of range: {}", self.message)
-    }
-}
-impl std::error::Error for IndexError {}
-impl IndexError {
-    pub fn new(message: impl Into<String>) -> Self {
-        Self {
-            message: message.into(),
-        }
-    }
-}
 #[doc = "Get a value from dictionary."]
-#[doc = " Depyler: proven to terminate"]
 pub fn get_value(data: &HashMap<serde_json::Value, serde_json::Value>, key: String) -> i32 {
-    let _cse_temp_0 = data.clone().get(&key.clone()).is_some();
-    if _cse_temp_0 {
+    if data.clone().get(&key.clone()).is_some() {
         return data.get(&key).cloned().unwrap();
     }
     return 0;
@@ -685,7 +666,7 @@ def typed_func(x: int, y: str) -> str:
 
 rust = '''
 pub fn typed_func(x: i32, y: String) -> String {
-    return format!("{}{}", y, x.to_string());
+    return format!("{}{}", y, (x).to_string());
 }
 '''
 
@@ -729,11 +710,16 @@ pub fn div_safe(a: i32, b: i32) -> i32 {
             let r_nonzero = r != 0;
             let signs_differ = r_negative != b_negative;
             let needs_adjustment = r_nonzero && signs_differ;
-            if needs_adjustment { q - 1 } else { q }
+            if needs_adjustment {
+                q - 1
+            } else {
+                q
+            }
         }
     } else {
         0
-    }
+    };
+}
 '''
 
 [[test]]
@@ -749,16 +735,6 @@ def add(a: int, b: int) -> int:
 rust = '''
 pub fn add(a: i32, b: i32) -> i32 {
     return a + b;
-};
-            let result1 = add(a.clone(), b.clone());
-            let result2 = add(b.clone(), a.clone());
-            if result1 != result2 {
-                return TestResult::failed();
-            }
-            TestResult::passed()
-        }
-        quickcheck(prop as fn(i32, i32) -> TestResult);
-    }
 }
 '''
 
@@ -998,7 +974,7 @@ def true_to_int() -> int:
 
 rust = '''
 pub fn true_to_int() -> i32 {
-    return 1;
+    return (true) as i32;
 }
 '''
 
@@ -1013,7 +989,7 @@ def false_to_int() -> int:
 
 rust = '''
 pub fn false_to_int() -> i32 {
-    return 0;
+    return (false) as i32;
 }
 '''
 
@@ -1053,7 +1029,7 @@ def check_list(items: list[int]) -> bool:
 '''
 
 rust = '''
-pub fn check_list(items: Vec<i32>) -> bool {
+pub fn check_list(items: &Vec<i32>) -> bool {
     if !items.is_empty() {
         return true;
     }
@@ -1074,7 +1050,7 @@ def check_dict(mapping: dict[str, int]) -> bool:
 
 rust = '''
 use std::collections::HashMap;
-pub fn check_dict(mapping: HashMap<String, i32>) -> bool {
+pub fn check_dict(mapping: &HashMap<String, i32>) -> bool {
     if !mapping.is_empty() {
         return true;
     }

@@ -2038,8 +2038,6 @@ impl Counter {
         return Counter::new(val);
     }
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_counter() -> (serde_json::Value, serde_json::Value) {
     let mut c = Counter::new();
     c.increment();
@@ -2235,8 +2233,6 @@ impl Point {
         return (self.x * self.x + self.y * self.y as f64).powf(0.5 as f64);
     }
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_point() -> (serde_json::Value, serde_json::Value) {
     let mut p1 = Point::new(0, 0);
     let p2 = Point::new(3, 4);
@@ -2286,8 +2282,6 @@ impl Point {
         return self.x * self.x + self.y * self.y;
     }
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_property() -> i32 {
     let p = Point::new(3, 4);
     let m = p.magnitude;
@@ -2355,8 +2349,6 @@ impl Point {
         return (dx * dx + dy * dy as f64).powf(0.5 as f64);
     }
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_point() -> i32 {
     let mut p1 = Point::new(0, 0);
     let p2 = Point::new(3, 4);
@@ -2399,8 +2391,6 @@ impl Counter {
         self.count = self.count + 1;
     }
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_counter() -> i32 {
     let mut c = Counter::new(0);
     c.increment();

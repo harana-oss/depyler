@@ -206,7 +206,6 @@ def sum_list(items: list[int]) -> int:
 '''
 
 rust = '''
-#[doc = " Depyler: verified panic-free"]
 pub fn sum_list(items: &Vec<i32>) -> i32 {
     let mut total = 0;
     for item in items.iter().cloned() {
@@ -252,7 +251,6 @@ def count_down(n: int) -> int:
 '''
 
 rust = '''
-#[doc = " Depyler: verified panic-free"]
 pub fn count_down(n: i32) -> i32 {
     let mut count = n;
     while count > 0 {
@@ -996,7 +994,6 @@ impl ValueError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn raise_error() {
     panic!("{}", "invalid value");
 }
@@ -1074,7 +1071,6 @@ def count_down(n: int) -> int:
 '''
 
 rust = '''
-#[doc = " Depyler: verified panic-free"]
 pub fn count_down(mut n: i32) -> i32 {
     while n > 0 {
         n = n - 1;
@@ -2264,7 +2260,6 @@ impl ValueError {
         }
     }
 }
-#[doc = " Depyler: verified panic-free"]
 pub fn complex_exceptions(values: &Vec<i32>) -> i32 {
     let mut total = 0;
     for _val in values.iter().cloned() {
@@ -2361,7 +2356,6 @@ impl ZeroDivisionError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn is_even(x: i32) -> bool {
     return x % 2 == 0;
 }
@@ -2550,7 +2544,6 @@ impl ZeroDivisionError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn test() -> i32 {
     let mut x = 10;
     let _cse_temp_0 = {
@@ -2637,7 +2630,6 @@ impl ZeroDivisionError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn test() -> i32 {
     let mut count = 0;
     for i in 0..10 {
@@ -2732,7 +2724,6 @@ impl ZeroDivisionError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn is_even(n: i32) -> bool {
     return n % 2 == 0;
 }
@@ -2774,7 +2765,6 @@ def maybe_find(items: list[int], target: int) -> Optional[int]:
 '''
 
 rust = '''
-#[doc = " Depyler: verified panic-free"]
 pub fn maybe_find(items: &Vec<i32>, target: i32) -> Option<i32> {
     for item in items.iter().cloned() {
         if item == target {
@@ -3120,7 +3110,6 @@ impl IndexError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn test() -> i32 {
     let mut items: Vec<i32> = vec![1, 2, 3];
     items.insert((0) as usize, 99);
@@ -3159,7 +3148,6 @@ impl IndexError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn test() {
     let mut freq: HashMap<String, i32> = {
         let map = HashMap::new();
@@ -3313,7 +3301,6 @@ def test_while():
 '''
 
 rust = '''
-#[doc = " Depyler: verified panic-free"]
 pub fn test_while() -> i32 {
     let mut x = 10;
     while x > 0 {
@@ -3508,8 +3495,6 @@ impl ZeroDivisionError {
     }
 }
 #[doc = "Test basic break statement"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_simple_break() {
     for i in 0..10 {
         if i == 5 {
@@ -3519,7 +3504,6 @@ pub fn test_simple_break() {
     }
 }
 #[doc = "Test basic continue statement"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_simple_continue() -> Result<(), ZeroDivisionError> {
     for i in 0..10 {
         if i % 2 == 0 {
@@ -3529,8 +3513,6 @@ pub fn test_simple_continue() -> Result<(), ZeroDivisionError> {
     }
 }
 #[doc = "Test break in nested loops"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_nested_break() {
     for i in 0..3 {
         for j in 0..3 {
@@ -3542,7 +3524,6 @@ pub fn test_nested_break() {
     }
 }
 #[doc = "Test break in while loop"]
-#[doc = " Depyler: verified panic-free"]
 pub fn test_while_break() {
     let mut i = 0;
     while true {
@@ -3579,8 +3560,6 @@ def get_field_goal() -> int:
 '''
 
 rust = '''
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn get_field_goal() -> i32 {
     const FIELD_GOAL: i32 = 600;
     FIELD_GOAL
@@ -3619,7 +3598,6 @@ def test_generator() -> int:
 
 rust = '''
 #[doc = "A simple generator that yields numbers"]
-#[doc = " Depyler: verified panic-free"]
 #[doc = " Generator state struct"]
 #[derive(Debug)]
 struct SimpleGeneratorState {
@@ -3659,7 +3637,6 @@ impl Iterator for SimpleGeneratorState {
     }
 }
 #[doc = "Generate Fibonacci numbers"]
-#[doc = " Depyler: verified panic-free"]
 #[doc = " Generator state struct"]
 #[derive(Debug)]
 struct FibonacciGeneratorState {
@@ -3701,8 +3678,6 @@ impl Iterator for FibonacciGeneratorState {
     }
 }
 #[doc = "Test generator usage"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_generator() -> i32 {
     42
 }
@@ -3791,7 +3766,6 @@ impl Range {
     }
 }
 #[doc = "Test custom iterator"]
-#[doc = " Depyler: verified panic-free"]
 pub fn test_custom_iterator() -> i32 {
     let mut r = Range::new(0, 5);
     let mut total = 0;
@@ -3803,7 +3777,6 @@ pub fn test_custom_iterator() -> i32 {
     total
 }
 #[doc = "Test for loop with iterator"]
-#[doc = " Depyler: verified panic-free"]
 pub fn test_for_with_iterator() -> i32 {
     let mut r = Range::new(0, 5);
     let mut total = 0;
@@ -3828,8 +3801,6 @@ def test_simple_break():
 
 rust = '''
 #[doc = "Test basic break statement"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_simple_break() {
     for i in 0..5 {
         if i == 3 {
@@ -3854,8 +3825,6 @@ def test_simple_continue():
 
 rust = '''
 #[doc = "Test basic continue statement"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_simple_continue() {
     for i in 0..5 {
         if i == 2 {
@@ -3942,8 +3911,6 @@ impl FileManager {
     }
 }
 #[doc = "Test basic with statement"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_simple_with() -> i32 {
     let _context = FileManager::new("test.txt".to_string().to_string());
     let fm = _context.__enter__();
@@ -3951,8 +3918,6 @@ pub fn test_simple_with() -> i32 {
     result
 }
 #[doc = "Test with built-in open"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_with_builtin() -> i32 {
     let f = std::fs::File::create("test.txt".to_string())?;
     f.write("Hello, World!".to_string());

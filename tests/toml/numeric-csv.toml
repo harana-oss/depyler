@@ -296,7 +296,6 @@ impl ZeroDivisionError {
         }
     }
 }
-#[doc = " Depyler: proven to terminate"]
 pub fn divide_fractions(a: &Fraction, b: &Fraction) -> Fraction {
     return a / b;
 }

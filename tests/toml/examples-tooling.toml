@@ -354,21 +354,16 @@ impl ZeroDivisionError {
     }
 }
 #[doc = "Simple addition with inline hint."]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 #[inline]
 pub fn add_numbers(a: i32, b: i32) -> i32 {
     a + b
 }
 #[doc = "Performance-critical multiplication with aggressive inlining."]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 #[inline(always)]
 pub fn multiply_fast(x: i32, y: i32) -> i32 {
     x * y
 }
 #[doc = "Calculate checksum - result must be used."]
-#[doc = " Depyler: verified panic-free"]
 #[must_use]
 pub fn calculate_checksum(data: &Vec<i32>) -> i32 {
     let mut checksum = 0;
@@ -378,8 +373,6 @@ pub fn calculate_checksum(data: &Vec<i32>) -> i32 {
     checksum
 }
 #[doc = "Error handler - rarely executed."]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 #[cold]
 pub fn handle_panic(message: String) {
     log::info!("{}", format!("PANIC: {}", message));
@@ -535,8 +528,6 @@ impl IndexError {
     }
 }
 #[doc = "Calculate fibonacci number recursively"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn fibonacci(n: i32) -> i32 {
     let _cse_temp_0 = n <= 1;
     if _cse_temp_0 {
@@ -545,8 +536,6 @@ pub fn fibonacci(n: i32) -> i32 {
     fibonacci(n - 1) + fibonacci(n - 2)
 }
 #[doc = "Calculate factorial iteratively"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn factorial(n: i32) -> i32 {
     let mut result = 1;
     for i in 2..n + 1 {
@@ -568,8 +557,6 @@ pub fn find_max(numbers: &Vec<serde_json::Value>) -> Result<i32, IndexError> {
     Ok(max_val)
 }
 #[doc = "Main function demonstrating various algorithms"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn main() {
     log::info!("{}", format!("Fibonacci(10) = {:?}", fibonacci(10)));
     log::info!("{}", format!("Factorial(5) = {:?}", factorial(5)));
@@ -1936,7 +1923,6 @@ impl IndexError {
     }
 }
 #[doc = "Shows accumulator pattern."]
-#[doc = " Depyler: verified panic-free"]
 pub fn accumulator_example(items: &serde_json::Value) -> Vec<serde_json::Value> {
     let mut result = vec![];
     for item in items.iter().cloned() {
@@ -1945,7 +1931,6 @@ pub fn accumulator_example(items: &serde_json::Value) -> Vec<serde_json::Value> 
     result
 }
 #[doc = "Shows inefficient string building."]
-#[doc = " Depyler: verified panic-free"]
 pub fn string_concat_example(values: &serde_json::Value) -> String {
     let mut output = "";
     for val in values.iter().cloned() {
@@ -1954,7 +1939,6 @@ pub fn string_concat_example(values: &serde_json::Value) -> String {
     output
 }
 #[doc = "Shows range(len()) antipattern."]
-#[doc = " Depyler: proven to terminate"]
 pub fn enumerate_example(data: &serde_json::Value) -> Result<(), IndexError> {
     for i in 0..data.len() as i32 {
         log::info!(
@@ -1965,7 +1949,6 @@ pub fn enumerate_example(data: &serde_json::Value) -> Result<(), IndexError> {
     }
 }
 #[doc = "Shows while True pattern."]
-#[doc = " Depyler: verified panic-free"]
 pub fn while_true_example() -> i32 {
     let mut count = 0;
     while true {
@@ -2014,8 +1997,6 @@ impl Counter {
         return self.value;
     }
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_counter() -> i32 {
     let mut c = Counter::new(10);
     let result = c.increment(5);
@@ -2098,8 +2079,6 @@ def loop_invariant_expressions(items: list) -> int:
 rust = '''
 use serde_json;
 #[doc = "Multiple uses of the same complex expression."]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn repeated_complex_expressions(a: i32, b: i32, c: i32) -> i32 {
     let _cse_temp_0 = a + b * c;
     let x = _cse_temp_0 + 10;
@@ -2109,8 +2088,6 @@ pub fn repeated_complex_expressions(a: i32, b: i32, c: i32) -> i32 {
     x + y + z
 }
 #[doc = "Repeated calls to pure functions."]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn repeated_function_calls(n: i32) -> i32 {
     let _cse_temp_0 = n - 10.abs();
     let _cse_temp_1 = _cse_temp_0 > 5;
@@ -2124,8 +2101,6 @@ pub fn repeated_function_calls(n: i32) -> i32 {
     result + n - 10.abs()
 }
 #[doc = "Nested common subexpressions."]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn nested_expressions(x: i32, y: i32) -> i32 {
     let _cse_temp_0 = x * y;
     let _cse_temp_1 = _cse_temp_0 * 2;
@@ -2138,8 +2113,6 @@ pub fn nested_expressions(x: i32, y: i32) -> i32 {
     a + b + c + d
 }
 #[doc = "CSE across conditional branches."]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn conditional_cse(flag: bool, a: i32, b: i32) -> i32 {
     let _cse_temp_0 = a * b;
     let _cse_temp_1 = _cse_temp_0 + a - b;
@@ -2153,7 +2126,6 @@ pub fn conditional_cse(flag: bool, a: i32, b: i32) -> i32 {
     result + base
 }
 #[doc = "Expressions that don't change in loops."]
-#[doc = " Depyler: verified panic-free"]
 pub fn loop_invariant_expressions(items: &Vec<serde_json::Value>) -> i32 {
     let x = 10;
     let y = 20;
@@ -2274,8 +2246,6 @@ impl IndexError {
     }
 }
 #[doc = "Calculate fibonacci number recursively."]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn fibonacci(n: i32) -> i32 {
     let _cse_temp_0 = n <= 1;
     if _cse_temp_0 {
@@ -2341,8 +2311,6 @@ pub fn binary_search(arr: &Vec<i32>, target: i32) -> Result<i32, Box<dyn std::er
     }
     Ok(-1)
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn test_functions() -> Result<(), Box<dyn std::error::Error>> {
     let result = fibonacci(10);
     log::info!("{}", format!("Fibonacci(10) = {:?}", result));
@@ -2414,7 +2382,6 @@ impl IndexError {
     }
 }
 #[doc = "Calculate sum of numbers."]
-#[doc = " Depyler: verified panic-free"]
 pub fn calculate_sum(numbers: &Vec<i32>) -> i32 {
     let mut total = 0;
     for num in numbers.iter().cloned() {
@@ -2436,8 +2403,6 @@ pub fn find_max(values: &Vec<i32>) -> Result<i32, IndexError> {
     Ok(max_val)
 }
 #[doc = "Process data and return statistics."]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn process_data(data: Vec<i32>) -> HashMap<String, i32> {
     let result = {
         let mut map = HashMap::new();
@@ -2556,8 +2521,6 @@ impl MathUtils {
     }
 }
 #[doc = "Calculate the nth Fibonacci number.\n    \n    Uses recursion with memoization for efficiency.\n    "]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn calculate_fibonacci(n: i32) -> i32 {
     let _cse_temp_0 = n <= 1;
     if _cse_temp_0 {
@@ -2674,28 +2637,20 @@ def large_function(x: int, y: int, z: int) -> int:
 rust = '''
 use serde_json;
 #[doc = "Trivial function - should be inlined."]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn square(x: i32) -> i32 {
     x * x
 }
 #[doc = "Another trivial function."]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn add_one(n: i32) -> i32 {
     n + 1
 }
 #[doc = "Should inline the square calls."]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn compute_distance_squared(x1: i32, y1: i32, x2: i32, y2: i32) -> i32 {
     let dx = x2 - x1;
     let dy = y2 - y1;
     square(dx) + square(dy)
 }
 #[doc = "Called only once - should be inlined."]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn process_single_use(value: i32) -> i32 {
     let _cse_temp_0 = value * 2;
     let temp = _cse_temp_0;
@@ -2703,8 +2658,6 @@ pub fn process_single_use(value: i32) -> i32 {
     result
 }
 #[doc = "Main function that uses other functions."]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn main_computation(a: i32, b: i32) -> i32 {
     let step1 = process_single_use(a);
     let step2 = add_one(step1);
@@ -2713,8 +2666,6 @@ pub fn main_computation(a: i32, b: i32) -> i32 {
     distance
 }
 #[doc = "Recursive function - should NOT be inlined."]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn recursive_factorial(n: i32) -> i32 {
     let _cse_temp_0 = n <= 1;
     if _cse_temp_0 {
@@ -2723,7 +2674,6 @@ pub fn recursive_factorial(n: i32) -> i32 {
     n * recursive_factorial(n - 1)
 }
 #[doc = "Contains loop - may not be inlined depending on config."]
-#[doc = " Depyler: verified panic-free"]
 pub fn has_loop(items: &Vec<serde_json::Value>) -> i32 {
     let mut total = 0;
     for item in items.iter().cloned() {
@@ -2732,8 +2682,6 @@ pub fn has_loop(items: &Vec<serde_json::Value>) -> i32 {
     total
 }
 #[doc = "Large function - should NOT be inlined."]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn large_function(x: i32, y: i32, z: i32) -> i32 {
     let a = x + y;
     let b = y + z;
@@ -2849,7 +2797,6 @@ impl IndexError {
     }
 }
 #[doc = "Compute the sum of a list of numbers."]
-#[doc = " Depyler: verified panic-free"]
 pub fn compute_sum(numbers: &Vec<i32>) -> i32 {
     let mut total = 0;
     for num in numbers.iter().cloned() {
@@ -2888,7 +2835,6 @@ pub fn binary_search(arr: &Vec<i32>, target: i32) -> Result<i32, Box<dyn std::er
     Ok(-1)
 }
 #[doc = "Process strings with concatenation."]
-#[doc = " Depyler: verified panic-free"]
 pub fn process_strings(strings: &Vec<String>) -> String {
     let mut result = "";
     for s in strings.iter().cloned() {
@@ -2897,7 +2843,6 @@ pub fn process_strings(strings: &Vec<String>) -> String {
     result.trim().to_string()
 }
 #[doc = "Function with frequent dictionary lookups."]
-#[doc = " Depyler: verified panic-free"]
 pub fn lookup_values<'b, 'a>(data: &'a HashMap<String, i32>, keys: &'b Vec<String>) -> Vec<i32> {
     let mut results = vec![];
     for key in keys.iter().cloned() {
@@ -2930,14 +2875,10 @@ def multiply(x: int, y: int) -> int:
 
 rust = '''
 #[doc = "Add two numbers."]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn add_numbers(a: i32, b: i32) -> i32 {
     a + b
 }
 #[doc = "Multiply two numbers."]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn multiply(x: i32, y: i32) -> i32 {
     let _cse_temp_0 = x * y;
     let result = _cse_temp_0;
@@ -3060,7 +3001,6 @@ def default_value():
 rust = '''
 use serde_json;
 #[doc = "Pattern: accumulator - should suggest iterator methods."]
-#[doc = " Depyler: verified panic-free"]
 pub fn accumulator_pattern(items: &serde_json::Value) -> Vec<serde_json::Value> {
     let mut result = vec![];
     for item in items.iter().cloned() {
@@ -3071,8 +3011,6 @@ pub fn accumulator_pattern(items: &serde_json::Value) -> Vec<serde_json::Value> 
     result
 }
 #[doc = "Pattern: returning None for errors - should suggest Result."]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn error_with_none(value: serde_json::Value) {
     if !validate(value) {
         return;
@@ -3084,16 +3022,12 @@ pub fn error_with_none(value: serde_json::Value) {
     ()
 }
 #[doc = "Pattern: mutating parameters - should suggest ownership patterns."]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn mutating_parameter(mut data: serde_json::Value) -> i32 {
     data.push(42);
     data.sort();
     data
 }
 #[doc = "Pattern: runtime type checking - should suggest enums."]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn type_checking_pattern(value: &str) -> String {
     if true {
         value.to_uppercase()
@@ -3106,7 +3040,6 @@ pub fn type_checking_pattern(value: &str) -> String {
     }
 }
 #[doc = "Pattern: string concatenation - should suggest efficient methods."]
-#[doc = " Depyler: verified panic-free"]
 pub fn inefficient_string_building(items: &serde_json::Value) -> String {
     let mut result = "";
     for item in items.iter().cloned() {
@@ -3115,8 +3048,6 @@ pub fn inefficient_string_building(items: &serde_json::Value) -> String {
     result
 }
 #[doc = "Pattern: range(len()) - should suggest enumerate."]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn enumerate_pattern(items: &serde_json::Value) {
     for _i in 0..items.len() as i32 {
         log::info!(
@@ -3130,7 +3061,6 @@ pub fn enumerate_pattern(items: &serde_json::Value) {
     }
 }
 #[doc = "Pattern: filter + map in loop - should suggest filter_map."]
-#[doc = " Depyler: verified panic-free"]
 pub fn filter_map_pattern(data: &mut serde_json::Value) -> Vec<serde_json::Value> {
     let mut output = vec![];
     for x in data.iter().cloned() {
@@ -3141,7 +3071,6 @@ pub fn filter_map_pattern(data: &mut serde_json::Value) -> Vec<serde_json::Value
     output
 }
 #[doc = "Pattern: while True - should suggest loop."]
-#[doc = " Depyler: verified panic-free"]
 pub fn while_true_pattern() -> i32 {
     let mut counter = 0;
     while true {
@@ -3153,8 +3082,6 @@ pub fn while_true_pattern() -> i32 {
     counter
 }
 #[doc = "Pattern: None checking - should suggest pattern matching."]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn none_checking_pattern(optional_value: serde_json::Value) -> i32 {
     if optional_value.is_some() {
         process(optional_value)
@@ -3162,23 +3089,15 @@ pub fn none_checking_pattern(optional_value: serde_json::Value) -> i32 {
         default_value()
     }
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn validate(x: &serde_json::Value) -> bool {
     x > 0
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn process_data(x: &serde_json::Value) -> i32 {
     x * 2
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn process(x: serde_json::Value) -> i32 {
     x
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn default_value() -> i32 {
     0
 };
@@ -3237,8 +3156,6 @@ impl ZeroDivisionError {
     }
 }
 #[doc = "Demonstrates constant propagation and dead code elimination"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn compute_constants() -> i32 {
     let x = 5;
     let y = 10;
@@ -3249,8 +3166,6 @@ pub fn compute_constants() -> i32 {
     result
 }
 #[doc = "Example that won't be fully optimized(recursive)"]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn fibonacci(n: i32) -> i32 {
     let _cse_temp_0 = n <= 1;
     if _cse_temp_0 {
@@ -3259,7 +3174,6 @@ pub fn fibonacci(n: i32) -> i32 {
     fibonacci(n - 1) + fibonacci(n - 2)
 }
 #[doc = "More constant folding examples"]
-#[doc = " Depyler: proven to terminate"]
 pub fn simple_math() -> Result<f64, ZeroDivisionError> {
     let a = 3.14;
     let b = 2.0;
@@ -3395,7 +3309,6 @@ impl IndexError {
     }
 }
 #[doc = "String concatenation in loop - O(n²) complexity."]
-#[doc = " Depyler: verified panic-free"]
 pub fn string_concat_in_loop(items: &serde_json::Value) -> String {
     let mut result = "";
     for item in items.iter().cloned() {
@@ -3404,7 +3317,6 @@ pub fn string_concat_in_loop(items: &serde_json::Value) -> String {
     result
 }
 #[doc = "Deeply nested loops - O(n³) complexity."]
-#[doc = " Depyler: proven to terminate"]
 pub fn nested_loops_cubic(matrix: &serde_json::Value) -> Result<i32, IndexError> {
     let mut total = 0;
     for i in 0..matrix.len() as i32 {
@@ -3435,7 +3347,6 @@ pub fn nested_loops_cubic(matrix: &serde_json::Value) -> Result<i32, IndexError>
     Ok(total)
 }
 #[doc = "Expensive operations in loop."]
-#[doc = " Depyler: verified panic-free"]
 pub fn repeated_expensive_computation(data: serde_json::Value) -> Vec<serde_json::Value> {
     let mut results = vec![];
     for item in data.iter().cloned() {
@@ -3449,7 +3360,6 @@ pub fn repeated_expensive_computation(data: serde_json::Value) -> Vec<serde_json
     results
 }
 #[doc = "Inefficient list operations."]
-#[doc = " Depyler: verified panic-free"]
 pub fn inefficient_list_operations(items: &mut serde_json::Value) {
     while items.len() as i32 > 0 {
         if let Some(pos) = items
@@ -3463,8 +3373,6 @@ pub fn inefficient_list_operations(items: &mut serde_json::Value) {
     }
 }
 #[doc = "Creating large objects in loops."]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn large_list_in_loop(n: serde_json::Value) -> Vec<serde_json::Value> {
     let mut results = vec![];
     for _i in 0..n {
@@ -3474,7 +3382,6 @@ pub fn large_list_in_loop(n: serde_json::Value) -> Vec<serde_json::Value> {
     results
 }
 #[doc = "Linear search in nested loop - O(n²)."]
-#[doc = " Depyler: verified panic-free"]
 pub fn linear_search_in_loop<'a, 'b>(
     items: &'a mut serde_json::Value,
     targets: &'b serde_json::Value,
@@ -3493,7 +3400,6 @@ pub fn linear_search_in_loop<'a, 'b>(
     found
 }
 #[doc = "Expensive math operations in loop."]
-#[doc = " Depyler: verified panic-free"]
 pub fn power_in_tight_loop(values: &serde_json::Value) -> Vec<serde_json::Value> {
     let mut results = vec![];
     for x in values.iter().cloned() {
@@ -3503,14 +3409,12 @@ pub fn power_in_tight_loop(values: &serde_json::Value) -> Vec<serde_json::Value>
     results
 }
 #[doc = "Using range(len()) instead of enumerate."]
-#[doc = " Depyler: proven to terminate"]
 pub fn range_len_antipattern(items: &mut serde_json::Value) -> Result<(), IndexError> {
     for i in 0..items.len() as i32 {
         process_item(i, items.get(i as usize).cloned().unwrap_or_default());
     }
 }
 #[doc = "Computing aggregates repeatedly."]
-#[doc = " Depyler: verified panic-free"]
 pub fn aggregate_in_nested_loop(matrix: &serde_json::Value) -> i32 {
     let mut result = 0;
     for row in matrix.iter().cloned() {
@@ -3522,16 +3426,12 @@ pub fn aggregate_in_nested_loop(matrix: &serde_json::Value) -> i32 {
     result
 }
 #[doc = "Large parameters passed by value."]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn large_parameter_by_value<'a, 'b>(
     huge_list: &'a Vec<serde_json::Value>,
     huge_dict: &'b HashMap<serde_json::Value, serde_json::Value>,
 ) -> i32 {
     huge_list.len() as i32 + huge_dict.len() as i32 as i32
 }
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn process_item(idx: serde_json::Value, item: serde_json::Value) {}
 '''
 
@@ -3690,8 +3590,6 @@ impl IndexError {
     }
 }
 #[doc = "Recursive Fibonacci - will be identified as hot path."]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn fibonacci_recursive(n: i32) -> i32 {
     let _cse_temp_0 = n <= 1;
     if _cse_temp_0 {
@@ -3700,8 +3598,6 @@ pub fn fibonacci_recursive(n: i32) -> i32 {
     fibonacci_recursive(n - 1) + fibonacci_recursive(n - 2)
 }
 #[doc = "Iterative Fibonacci - more efficient."]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn fibonacci_iterative(n: i32) -> i32 {
     let _cse_temp_0 = n <= 1;
     if _cse_temp_0 {
@@ -3714,7 +3610,6 @@ pub fn fibonacci_iterative(n: i32) -> i32 {
     b
 }
 #[doc = "Process a list with nested loops - O(n²) complexity."]
-#[doc = " Depyler: proven to terminate"]
 pub fn process_list(items: &Vec<i32>) -> Result<i32, IndexError> {
     let mut total = 0;
     for i in 0..items.len() as i32 {
@@ -3731,8 +3626,6 @@ pub fn process_list(items: &Vec<i32>) -> Result<i32, IndexError> {
     Ok(total)
 }
 #[doc = "String concatenation in loop - inefficient pattern."]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn string_concatenation_in_loop(n: i32) -> String {
     let mut result = "";
     for _i in 0..n {
@@ -3741,8 +3634,6 @@ pub fn string_concatenation_in_loop(n: i32) -> String {
     result
 }
 #[doc = "Function with many allocations."]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn allocate_many_lists(n: i32) -> Vec<Vec<i32>> {
     let mut results = vec![];
     for i in 0..n {
@@ -3755,7 +3646,6 @@ pub fn allocate_many_lists(n: i32) -> Vec<Vec<i32>> {
     results
 }
 #[doc = "Function with many type checks that Rust can optimize away."]
-#[doc = " Depyler: verified panic-free"]
 pub fn type_check_heavy(values: &Vec<object>) -> i32 {
     let mut count = 0;
     for value in values.iter().cloned() {
@@ -3776,7 +3666,6 @@ pub fn type_check_heavy(values: &Vec<object>) -> i32 {
     count
 }
 #[doc = "Matrix multiplication - triple nested loop."]
-#[doc = " Depyler: proven to terminate"]
 pub fn matrix_multiply<'b, 'a>(
     a: &'a mut Vec<Vec<f64>>,
     b: &'b mut Vec<Vec<f64>>,
@@ -3827,14 +3716,10 @@ pub fn matrix_multiply<'b, 'a>(
     Ok(result)
 }
 #[doc = "Simple function for baseline comparison."]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn simple_function(x: i32, y: i32) -> i32 {
     x + y
 }
 #[doc = "Main entry point with various function calls."]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     for i in 0..5 {
         fibonacci_recursive(i);
@@ -3935,8 +3820,6 @@ def hot_loop():
 
 rust = '''
 #[doc = "Recursive Fibonacci - will be identified as hot path."]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn fibonacci_recursive(n: i32) -> i32 {
     let _cse_temp_0 = n <= 1;
     if _cse_temp_0 {
@@ -3945,7 +3828,6 @@ pub fn fibonacci_recursive(n: i32) -> i32 {
     fibonacci_recursive(n - 1) + fibonacci_recursive(n - 2)
 }
 #[doc = "Process a list with nested loops - O(n²) complexity."]
-#[doc = " Depyler: verified panic-free"]
 pub fn process_list(items: &Vec<i32>) -> i32 {
     let mut total = 0;
     for i in items.iter().cloned() {
@@ -3958,8 +3840,6 @@ pub fn process_list(items: &Vec<i32>) -> i32 {
     total
 }
 #[doc = "String concatenation in loop - inefficient pattern."]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn string_concatenation_in_loop(n: i32) -> String {
     let mut result = "";
     for i in 0..n {
@@ -3969,7 +3849,6 @@ pub fn string_concatenation_in_loop(n: i32) -> String {
     result
 }
 #[doc = "Function with many type checks that Rust can optimize away."]
-#[doc = " Depyler: verified panic-free"]
 pub fn type_check_heavy(values: &Vec<object>) -> i32 {
     let mut count = 0;
     for value in values.iter().cloned() {
@@ -3985,14 +3864,10 @@ pub fn type_check_heavy(values: &Vec<object>) -> i32 {
     count
 }
 #[doc = "Simple function for baseline comparison."]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn simple_function(x: i32, y: i32) -> i32 {
     x + y
 }
 #[doc = "Function with hot nested loops."]
-#[doc = " Depyler: verified panic-free"]
-#[doc = " Depyler: proven to terminate"]
 pub fn hot_loop() -> i32 {
     let mut total = 0;
     for i in 0..100 {
