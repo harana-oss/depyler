@@ -4,11 +4,11 @@
 
 | ID | Issue | Severity | Status |
 |----|-------|----------|--------|
-| 0346 | Classmethod parameter type inference | HIGH | Open |
-| 0347 | Walrus operator scope in compound conditions | HIGH | Open |
-| 0348 | Try-except generates unreachable code / Some() wrapping | HIGH | Open |
+| 0346 | Classmethod parameter type inference | HIGH | **Fixed 2026-01-06** |
+| 0347 | Walrus operator scope in compound conditions | HIGH | **Fixed 2026-01-05** |
+| 0348 | Try-except generates unreachable code / Some() wrapping | HIGH | **Fixed 2026-01-05** |
 | 0349 | Dict.get() double unwrap | MEDIUM | **Fixed 2026-01-05** |
-| 0354 | ABC missing `impl Trait for Struct` blocks | HIGH | Open |
+| 0354 | ABC missing `impl Trait for Struct` blocks | HIGH | **Partially Fixed 2026-01-06** |
 | 0356 | Async/await generates invalid Python API calls | MEDIUM | Open |
 | 0359 | Function argument type inference defaults to serde_json::Value | HIGH | Open |
 
@@ -20,7 +20,47 @@
 
 **Files**: `tests/toml/class-methods.toml`
 
+**Status**: ✅ **FIXED** (2026-01-06)
+
 **Issue**: Classmethod parameters infer as `serde_json::Value` instead of concrete types.
+
+**Example**:
+```python
+class Calculator:
+    @classmethod
+    def add(cls, a, b):
+        return a + b
+```
+
+Generated (BEFORE):
+```rust
+pub fn add(a: serde_json::Value, b: serde_json::Value) {
+    return a + b;
+}
+```
+
+Generated (AFTER):
+```rust
+pub fn add(a: i32, b: i32) {
+    return a + b;
+}
+```
+
+**Root Cause**: When method parameters lacked type annotations, `ast_bridge.rs` would set them to `Type::Unknown` (line 948), which the TypeMapper would then convert to `serde_json::Value`. There was no type inference step for method parameters.
+
+**Fix**: Modified `ast_bridge.rs` to add parameter type inference for class methods:
+1. Added `infer_method_parameter_types()` function that uses the existing `TypeHintProvider` to analyze method bodies for usage patterns
+2. TypeHintProvider detects numeric operations (like `a + b`), string methods, container operations, etc.
+3. For simple concrete types (Int, Float, String, Bool), we accept any confidence level since these are common patterns
+4. Applied to both regular methods and async methods after HIR conversion
+
+**Limitation**: Parameters used only as pass-through arguments (e.g., passed to another function without direct operations) still default to `serde_json::Value`. This would require inter-procedural type inference to resolve.
+
+**Files Modified**:
+- `crates/depyler-core/src/ast_bridge.rs` (added type inference for method parameters, ~40 lines)
+- `tests/toml/class-methods.toml` (updated 7 test expectations)
+
+**Tests**: All 19 class-methods tests pass ✅
 
 **Secondary Issue**: Class variables generate as `pub const` which can't be mutated. Need `AtomicI32`, `RwLock`, or `lazy_static` for true class variable mutation.
 
@@ -30,13 +70,15 @@
 
 **Files**: `tests/toml/walrus-operator.toml`
 
+**Status**: ✅ **FIXED** (2026-01-05)
+
 **Issue**: Multiple walrus operators in compound conditions scope variables incorrectly:
 ```python
 if (a := x * 2) > 5 and (b := y * 2) > 15:
     print(f"a={a}, b={b}")
 ```
 
-Generates:
+Generated (BEFORE):
 ```rust
 let _cse_temp_0 = ({
     let a = x * 2;  // ❌ scoped to block
@@ -50,15 +92,35 @@ if _cse_temp_0 {
 }
 ```
 
-**Fix**: Hoist walrus-assigned variables BEFORE the condition block.
+Generated (AFTER):
+```rust
+let a = x * 2;  // ✅ Hoisted before if
+let b = y * 2;  // ✅ Hoisted before if
+if (a > 5) && (b > 15) {
+    log::info!("{}", format!("a={}, b={}", a, b));  // ✅ a, b accessible
+}
+```
 
-**Also**: Walrus in list/generator comprehensions scope variables incorrectly.
+**Root Cause**: The optimizer's Common Subexpression Elimination (CSE) was extracting if-conditions containing `NamedExpr` (walrus operators) into temporary variables before the `codegen_if_stmt` function could properly extract and hoist the walrus assignments. The CSE pass would convert walrus operators into block-scoped expressions `{ let x = expr; x }`, making the variables inaccessible outside those blocks.
+
+**Fix**: Modified `optimizer.rs` to skip CSE extraction for expressions containing `NamedExpr`:
+1. Added `contains_named_expr()` helper function that recursively checks if an expression tree contains any walrus operators
+2. Updated `should_extract_for_cse()` to return `false` when the expression contains walrus operators, allowing the existing walrus extraction logic in `codegen_if_stmt()` (lines 1720-1731) to handle them correctly
+
+**Files Modified**:
+- `crates/depyler-core/src/optimizer.rs` (added `contains_named_expr()`, updated `should_extract_for_cse()`)
+
+**Tests**: All 9 walrus operator tests pass ✅
+
+**Note**: Walrus operators in list/generator comprehensions still have scoping issues - this is a separate problem requiring special handling in comprehension codegen. While loops with walrus operators work correctly, but have unrelated mutation tracking issues.
 
 ---
 
 ### DEPYLER-0348: Try-Except Safe Functions
 
-**Files**: `tests/toml/result-types.toml`
+**Files**: `tests/toml/result-types.toml`, `tests/toml/exceptions.toml`
+
+**Status**: ✅ **FIXED** (2026-01-05)
 
 **Issue 1**: Try-except with IndexError generates unreachable code:
 ```python
@@ -69,10 +131,15 @@ def safe_get(items: list[int], index: int) -> int:
         return -1
 ```
 
-Generates:
+Generated (BEFORE):
 ```rust
 return items.get(index as usize).cloned().unwrap();  // Always returns or panics
 return -1;  // ❌ Unreachable
+```
+
+Generated (AFTER):
+```rust
+return items.get(index as usize).cloned().unwrap_or(-1);  // ✅ Fixed
 ```
 
 **Issue 2**: `safe_parse` wraps return in `Some()` when function returns `int`:
@@ -84,7 +151,7 @@ def safe_parse(s: str) -> int:
         return 0
 ```
 
-Generates:
+Generated (BEFORE):
 ```rust
 pub fn safe_parse(s: String) -> i32 {
     match s.parse::<i32>() {
@@ -94,13 +161,38 @@ pub fn safe_parse(s: String) -> i32 {
 }
 ```
 
-**Fix**: Use `.get()` with proper fallback for IndexError. Return values directly, not wrapped in Some().
+Generated (AFTER):
+```rust
+pub fn safe_parse(s: String) -> i32 {
+    match s.parse::<i32>() {
+        Ok(__parsed_value) => __parsed_value,  // ✅ Returns i32
+        Err(_) => 0,
+    }
+}
+```
+
+**Root Cause**: 
+1. IndexError: The `codegen_try_stmt` function had no special handling for `try { return items[index] } except IndexError { return default }` pattern, falling back to sequential statement generation which created unreachable code.
+2. ValueError/Some(): The special case handler for `int()` parse was incorrectly wrapping return values in `Some()`, treating them as Option types when they shouldn't be.
+
+**Fix**: 
+1. Added special case handling in `codegen_try_stmt` (stmt_gen.rs ~4820-4838) to detect IndexError handlers and generate `.unwrap_or(default)` instead of sequential statements.
+2. Removed `Some()` wrapping in `codegen_try_stmt` (stmt_gen.rs ~4653-4683) - now returns raw values directly in both Ok and Err branches.
+
+**Files Modified**:
+- `crates/depyler-core/src/rust_gen/stmt_gen.rs` (lines 4653-4683, 4820-4838)
+- `tests/toml/result-types.toml` (2 test expectations updated)
+- `tests/toml/exceptions.toml` (3 test expectations updated)
+
+**Tests**: All 25 exception tests pass ✅, all 18 result-types tests pass ✅
 
 ---
 
 ### DEPYLER-0354: ABC Trait Generation
 
 **Files**: `tests/toml/abc.toml`
+
+**Status**: ✅ **PARTIALLY FIXED** (2026-01-06)
 
 **Issue 1**: ABC classes don't generate `impl Trait for Struct` blocks:
 ```python
@@ -114,19 +206,76 @@ class Concrete(Base):
         return 42
 ```
 
-Generates struct and trait separately but missing:
+Generated (BEFORE):
 ```rust
-impl Base for Concrete { ... }  // ❌ Never generated
+trait Base {
+    fn method(&self) -> i32;
+}
+#[derive(Debug, Copy, Clone)]
+pub struct Concrete {}
+impl Concrete {
+    pub fn new() -> Self {
+        Self {}
+    }
+    pub fn method(&self) -> i32 {  // ❌ Method in wrong impl block
+        return 42;
+    }
+}
+// ❌ Missing: impl Base for Concrete { ... }
 ```
+
+Generated (AFTER):
+```rust
+trait Base {
+    fn method(&self) -> i32;
+}
+#[derive(Debug, Copy, Clone)]
+pub struct Concrete {}
+impl Concrete {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+impl Base for Concrete {  // ✅ Trait implementation generated
+    fn method(&self) -> i32 {
+        return 42;
+    }
+}
+```
+
+**Root Cause**: The `convert_class_to_struct()` function in `direct_rules.rs` was generating all methods in `impl Struct` blocks, with no awareness of trait inheritance. When a class inherited from an ABC, it didn't generate the required `impl Trait for Struct` block.
+
+**Fix**: Modified `convert_classes_to_rust()` in `rust_gen.rs` and `convert_class_to_struct()` in `direct_rules.rs`:
+1. Build a map of ABC classes when processing all classes
+2. Pass this map to `convert_class_to_struct()`
+3. When a class inherits from an ABC, generate `impl Trait for Struct` blocks with methods that implement trait requirements
+4. Skip trait methods when adding to `impl Struct` to avoid duplication
+
+**Files Modified**:
+- `crates/depyler-core/src/rust_gen.rs` (added ABC class map building)
+- `crates/depyler-core/src/direct_rules.rs` (updated `convert_class_to_struct()` signature and logic, ~100 lines added)
+
+**Tests**: Basic ABC inheritance now compiles and runs correctly ✅
 
 **Issue 2**: Invalid `super()` calls:
 ```rust
 return super().method() * 2;  // ❌ Not valid Rust
 ```
 
+**Status**: ⚠️ **Known Limitation**
+
+`super().method()` in Python gets converted to `self.method()` which causes infinite recursion in Rust when the method is overridden. Proper fix would require calling the trait's default implementation, but Rust doesn't have a direct equivalent to Python's `super()` for trait methods.
+
+Possible solutions (not yet implemented):
+- Wrapper methods that call trait defaults
+- Manual code generation for trait delegation
+- Use of explicit trait qualification `<Self as Trait>::method(self)`
+
+This is a fundamental difference between Python's inheritance model and Rust's trait system.
+
 **Issue 3**: `ABC.register()` generates undefined function calls.
 
-**Fix**: Generate proper `impl Trait for Struct` blocks. Map `super()` to trait default implementations.
+**Status**: ⚠️ **Not Fixed** - ABC.register() is a runtime registration system that doesn't have a Rust equivalent. Would need compile-time trait bounds instead.
 
 ---
 

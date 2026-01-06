@@ -30,7 +30,7 @@ impl MyClass {
         Self {}
     }
     pub fn increment() {
-        cls.count += 1;
+        Self::count += 1;
         return Self::count;
     }
 }
@@ -54,14 +54,13 @@ class Calculator:
 print(Calculator.add(5, 3))
 """
 rust = """
-use serde_json;
 #[derive(Debug, Copy, Clone)]
 pub struct Calculator {}
 impl Calculator {
     pub fn new() -> Self {
         Self {}
     }
-    pub fn add(a: serde_json::Value, b: serde_json::Value) {
+    pub fn add(a: i32, b: i32) {
         return a + b;
     }
 }
@@ -280,14 +279,13 @@ class Math:
 print(Math.add(10, 20))
 """
 rust = """
-use serde_json;
 #[derive(Debug, Copy, Clone)]
 pub struct Math {}
 impl Math {
     pub fn new() -> Self {
         Self {}
     }
-    pub fn add(a: serde_json::Value, b: serde_json::Value) {
+    pub fn add(a: i32, b: i32) {
         return a + b;
     }
 }
@@ -363,14 +361,13 @@ print(obj.multiply(3, 4))
 print(Math.multiply(3, 4))
 """
 rust = """
-use serde_json;
 #[derive(Debug, Copy, Clone)]
 pub struct Math {}
 impl Math {
     pub fn new() -> Self {
         Self {}
     }
-    pub fn multiply(a: serde_json::Value, b: serde_json::Value) {
+    pub fn multiply(a: i32, b: i32) {
         return a * b;
     }
 }
@@ -423,7 +420,7 @@ impl Person {
     pub fn get_species() {
         return Self::species;
     }
-    pub fn from_birth_year(name: serde_json::Value, year: serde_json::Value) {
+    pub fn from_birth_year(name: serde_json::Value, year: i32) {
         let mut age = 2023 - year;
         return Self::new(name);
     }
@@ -566,7 +563,7 @@ impl Math {
     pub fn new() -> Self {
         Self {}
     }
-    pub fn add_five(x: serde_json::Value) -> i32 {
+    pub fn add_five(x: i32) -> i32 {
         return x + 5;
     }
 }
@@ -610,7 +607,7 @@ impl Calculator {
     pub fn new() -> Self {
         Self {}
     }
-    pub fn add(a: serde_json::Value, b: serde_json::Value) {
+    pub fn add(a: i32, b: i32) {
         return a + b;
     }
     pub fn add_and_double(a: serde_json::Value, b: serde_json::Value) -> i32 {
@@ -674,14 +671,13 @@ func = Utils.add
 print(func(5, 10))
 """
 rust = """
-use serde_json;
 #[derive(Debug, Copy, Clone)]
 pub struct Utils {}
 impl Utils {
     pub fn new() -> Self {
         Self {}
     }
-    pub fn add(a: serde_json::Value, b: serde_json::Value) {
+    pub fn add(a: i32, b: i32) {
         return a + b;
     }
 }
@@ -727,3 +723,72 @@ fn main() {
 """
 expected_output = """classmethod
 MyClass"""
+
+[[test]]
+name = "classmethod_cls_augmented_assignment"
+description = "DEPYLER-0346 fix: cls.attr += value generates Self::attr += value (not undefined cls)"
+python = """
+class MyClass:
+    count = 0
+    
+    @classmethod
+    def increment(cls):
+        cls.count += 1
+        return cls.count
+
+print(MyClass.increment())
+print(MyClass.increment())
+"""
+rust = """
+#[derive(Debug, Copy, Clone)]
+pub struct MyClass {}
+impl MyClass {
+    pub const count: i32 = 0;
+    pub fn new() -> Self {
+        Self {}
+    }
+    pub fn increment() {
+        Self::count += 1;
+        return Self::count;
+    }
+}
+fn main() {
+    log::info!("{}", MyClass::increment());
+    log::info!("{}", MyClass::increment());
+}
+"""
+expected_output = """1
+2"""
+
+[[test]]
+name = "classmethod_cls_regular_assignment"
+description = "DEPYLER-0346 fix: cls.attr = value generates Self::attr = value (not undefined cls)"
+python = """
+class MyClass:
+    count = 0
+    
+    @classmethod
+    def reset(cls):
+        cls.count = 0
+        return cls.count
+
+print(MyClass.reset())
+"""
+rust = """
+#[derive(Debug, Copy, Clone)]
+pub struct MyClass {}
+impl MyClass {
+    pub const count: i32 = 0;
+    pub fn new() -> Self {
+        Self {}
+    }
+    pub fn reset() {
+        Self::count = 0;
+        return Self::count;
+    }
+}
+fn main() {
+    log::info!("{}", MyClass::reset());
+}
+"""
+expected_output = "0"

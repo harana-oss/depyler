@@ -1,4 +1,5 @@
 use crate::hir::*;
+use crate::type_hints::TypeHintProvider;
 use anyhow::{Result, bail};
 use depyler_annotations::{AnnotationExtractor, AnnotationParser, TranspilationAnnotations};
 use rustpython_ast::{self as ast};
@@ -980,7 +981,7 @@ impl AstBridge {
         };
         let body = convert_body(filtered_body)?;
 
-        Ok(Some(HirMethod {
+        let mut hir_method = HirMethod {
             name,
             params,
             ret_type,
@@ -991,7 +992,61 @@ impl AstBridge {
             is_async,
             is_abstract,
             docstring,
-        }))
+        };
+
+        // Infer parameter types if any parameters have Type::Unknown
+        self.infer_method_parameter_types(&mut hir_method);
+
+        Ok(Some(hir_method))
+    }
+
+    /// Infer parameter types from method body usage
+    fn infer_method_parameter_types(&self, method: &mut HirMethod) {
+        // Check if any parameters need type inference
+        let needs_inference = method.params.iter().any(|p| matches!(p.ty, Type::Unknown));
+        if !needs_inference {
+            return;
+        }
+
+        // Convert HirMethod to HirFunction for type inference
+        let temp_function = HirFunction {
+            name: method.name.clone(),
+            params: method.params.clone(),
+            ret_type: method.ret_type.clone(),
+            body: method.body.clone(),
+            properties: FunctionProperties::default(),
+            annotations: Default::default(),
+            docstring: method.docstring.clone(),
+        };
+
+        // Use type hint provider to analyze usage patterns
+        let mut hint_provider = TypeHintProvider::new();
+        if let Ok(hints) = hint_provider.analyze_function(&temp_function) {
+            // Update parameter types with inferred types
+            for param in &mut method.params {
+                if matches!(param.ty, Type::Unknown) {
+                    // Find hint for this parameter
+                    for hint in &hints {
+                        if let crate::type_hints::HintTarget::Parameter(param_name) = &hint.target {
+                            if param_name == &param.name {
+                                // For class/instance methods, be more lenient and accept any confidence level
+                                // if the type is a simple concrete type (Int, Float, String, Bool)
+                                let is_simple_type = matches!(
+                                    hint.suggested_type,
+                                    Type::Int | Type::Float | Type::String | Type::Bool
+                                );
+                                if is_simple_type {
+                                    param.ty = hint.suggested_type.clone();
+                                } else if hint.confidence >= crate::type_hints::Confidence::High {
+                                    param.ty = hint.suggested_type.clone();
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     fn convert_async_method(
@@ -1107,7 +1162,7 @@ impl AstBridge {
         };
         let body = convert_body(filtered_body)?;
 
-        Ok(Some(HirMethod {
+        let mut hir_method = HirMethod {
             name,
             params,
             ret_type,
@@ -1118,7 +1173,12 @@ impl AstBridge {
             is_async: true,
             is_abstract,
             docstring,
-        }))
+        };
+
+        // Infer parameter types if any parameters have Type::Unknown
+        self.infer_method_parameter_types(&mut hir_method);
+
+        Ok(Some(hir_method))
     }
 
     fn extract_class_docstring(&self, body: &[ast::Stmt]) -> Option<String> {
