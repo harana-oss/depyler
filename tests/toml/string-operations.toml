@@ -331,7 +331,7 @@ def repeat_string(s: str, n: int) -> str:
 rust = '''
 pub fn repeat_string(s: String, n: i32) -> String {
     return s.repeat(n as usize);
-};
+}
 '''
 
 [[test]]
@@ -430,7 +430,8 @@ pub fn get_last_n_chars(s: String, n: i32) -> String {
             start_idx.min(len) as usize
         };
         base.chars().skip(actual_start).collect::<String>()
-    }
+    };
+}
 '''
 
 [[test]]
@@ -454,7 +455,8 @@ pub fn get_all_but_last_n(s: String, n: i32) -> String {
             stop_idx.min(len) as usize
         };
         base.chars().take(actual_stop).collect::<String>()
-    }
+    };
+}
 '''
 
 [[test]]
@@ -481,7 +483,8 @@ pub fn reverse_string(s: String) -> String {
             let abs_step = step.abs() as usize;
             base.chars().rev().step_by(abs_step).collect::<String>()
         }
-    }
+    };
+}
 '''
 
 [[test]]
@@ -518,7 +521,8 @@ pub fn substring(s: String, start: i32, stop: i32) -> String {
         } else {
             String::new()
         }
-    }
+    };
+}
 '''
 
 [[test]]
@@ -636,7 +640,7 @@ pub fn helper(s: String) -> String {
 }
 pub fn test(name: String) -> String {
     return helper(format!("Hello {}", name));
-};
+}
 '''
 
 [[test]]
@@ -804,7 +808,7 @@ def expand_tabs(s: str) -> str:
 rust = '''
 pub fn expand_tabs(s: String) -> String {
     return s.expandtabs();
-};
+}
 '''
 
 [[test]]
@@ -999,7 +1003,7 @@ def greet(name: str) -> str:
 rust = '''
 pub fn greet(name: String) -> String {
     return name;
-};
+}
 '''
 
 [[test]]
@@ -1198,7 +1202,7 @@ def repeat_string(s: str, n: int) -> str:
 rust = '''
 pub fn repeat_string(s: String, n: i32) -> String {
     return s.repeat(n as usize);
-};
+}
 '''
 
 [[test]]
@@ -1258,7 +1262,7 @@ def process_names(names: list[str]) -> list[str]:
 rust = '''
 pub fn process_names(names: Vec<String>) -> Vec<String> {
     return names;
-};
+}
 '''
 
 [[test]]
@@ -1306,7 +1310,7 @@ def normalize(s: str) -> str:
 rust = '''
 pub fn normalize(s: String) -> String {
     return s.trim().to_lowercase();
-};
+}
 '''
 
 [[test]]
