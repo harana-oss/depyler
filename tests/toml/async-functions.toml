@@ -20,7 +20,8 @@ result = asyncio.run(f())
 '''
 
 rust = '''
-pub const result: serde_json::Value = asyncio.run(f());
+pub const result: serde_json::Value = {
+    f() };
     use serde_json;
     pub async fn f() -> i32 {
     return 42;
@@ -42,7 +43,8 @@ result = asyncio.run(f())
 '''
 
 rust = '''
-pub const result: serde_json::Value = asyncio.run(f());
+pub const result: serde_json::Value = {
+    f() };
     use serde_json;
     pub async fn f() -> i32 {
     return 42;
@@ -96,7 +98,8 @@ pub async fn f() -> i32 {
 }
 fn main () {
     let coro = f();
-    let result = asyncio.run(coro);
+    let result = {
+    coro };
     log::info!("{}", format!("Result: {}", result));
     }
 '''
@@ -129,7 +132,8 @@ fn main () {
     let coro = f();
     let result = true;
     log::info!("{}", format!("Is coroutine: {}", result));
-    asyncio.run(coro);
+    {
+    coro };
     }
 '''
 
@@ -155,7 +159,7 @@ pub async fn f() -> i32 {
    
 }
 fn main () {
-    let result = inspect.iscoroutinefunction(f);
+    let result = true;
     log::info!("{}", format!("Is coroutine function: {}", result));
     }
 '''
@@ -300,7 +304,8 @@ result = asyncio.run(main())
 '''
 
 rust = '''
-pub const result: serde_json::Value = asyncio.run(main ());
+pub const result: serde_json::Value = {
+    main () };
     use serde_json;
     pub async fn f() -> i32 {
     return 42;
@@ -328,7 +333,8 @@ result = asyncio.run(f())
 '''
 
 rust = '''
-pub const result: serde_json::Value = asyncio.run(f());
+pub const result: serde_json::Value = {
+    f() };
     use serde_json;
     pub async fn f() -> i32 {
     return 42;
@@ -400,7 +406,8 @@ result = asyncio.run(outer())
 '''
 
 rust = '''
-pub const result: serde_json::Value = asyncio.run(outer());
+pub const result: serde_json::Value = {
+    outer() };
     use serde_json;
     pub async fn outer() -> String {
     let x = 10;
