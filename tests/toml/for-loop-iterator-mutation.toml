@@ -24,7 +24,6 @@ def update_scores(state: State) -> None:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Player {
@@ -74,7 +73,6 @@ def print_names(state: State) -> int:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Player {
@@ -166,7 +164,6 @@ def add_to_all(data: Data, value: int) -> None:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Container {
@@ -219,7 +216,6 @@ def increment_all(grid: Grid) -> None:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Cell {

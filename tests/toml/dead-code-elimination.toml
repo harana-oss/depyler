@@ -65,7 +65,6 @@ def resize(b: Box, new_size: int) -> None:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Box {

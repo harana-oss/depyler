@@ -19,7 +19,6 @@ def get_data(state: State) -> int:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct State {
@@ -55,7 +54,6 @@ def get_nested(state: State) -> int:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Inner {
@@ -96,7 +94,6 @@ def process(state: Data, other: Data) -> int:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Data {
@@ -143,7 +140,6 @@ def get_length(state: State) -> int:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct State {
@@ -187,7 +183,6 @@ def get_deep(a: A) -> int:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct D {
@@ -247,7 +242,6 @@ def add_coords(p1: Point, p2: Point) -> int:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Point {

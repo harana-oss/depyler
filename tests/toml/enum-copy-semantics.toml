@@ -22,7 +22,6 @@ def process_color(c: Color) -> int:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'enum'()"]
 use serde_json;
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Color {
@@ -56,7 +55,6 @@ def check_status(s: Status) -> bool:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'enum'()"]
 use serde_json;
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Status {
@@ -89,7 +87,6 @@ def use_point_twice(p: Point) -> int:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Point {
@@ -133,7 +130,6 @@ def get_delta(d: Direction) -> tuple[int, int]:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'enum'()"]
 use serde_json;
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Direction {

@@ -2830,7 +2830,6 @@ def use_unknown():
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'unknown_module'()"]
 pub fn use_unknown() -> i32 {
     return 42;
 }

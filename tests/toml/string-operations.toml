@@ -256,7 +256,8 @@ pub fn get_last_char(s: String) -> String {
             idx as usize
         };
         base.chars().nth(actual_idx).map(|c| c.to_string()).unwrap()
-    }
+    };
+}
 '''
 
 [[test]]

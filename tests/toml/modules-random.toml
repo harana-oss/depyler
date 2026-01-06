@@ -218,7 +218,6 @@ def random_bytes(n: int) -> bytes:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'secrets'()"]
 use rand::Rng;
 use rand::prelude::*;
 pub fn random_bytes(n: i32) -> bytes {
@@ -241,7 +240,6 @@ def random_hex(n: int) -> str:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'secrets'()"]
 use rand::Rng;
 use rand::prelude::*;
 pub fn random_hex(n: i32) -> String {
@@ -264,7 +262,6 @@ def secure_pick(items: list[str]) -> str:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'secrets'()"]
 use rand::Rng;
 use rand::prelude::*;
 use rand::seq::SliceRandom;
@@ -285,7 +282,6 @@ def secure_int(exclusive_max: int) -> int:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'secrets'()"]
 use rand::Rng;
 use rand::prelude::*;
 pub fn secure_int(exclusive_max: i32) -> i32 {

@@ -205,8 +205,10 @@ impl Concrete {
     pub fn new() -> Self {
         Self {}
     }
-    pub fn method(&self) -> i32 {
-        return super().method() * 2;
+}
+impl Base for Concrete {
+    fn method(&self) -> i32 {
+        return <Self as Base>::method(self) * 2;
     }
 }
 pub fn test_abstractmethod_with_impl() -> i32 {
@@ -249,8 +251,10 @@ impl Derived {
     pub fn new() -> Self {
         Self {}
     }
-    pub fn compute(&self) -> i32 {
-        return super().compute() + 10;
+}
+impl Base for Derived {
+    fn compute(&self) -> i32 {
+        return <Self as Base>::compute(self) + 10;
     }
 }
 pub fn test_abstractmethod_super() -> i32 {

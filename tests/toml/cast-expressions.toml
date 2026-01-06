@@ -20,7 +20,6 @@ def cast_to_float(state: State, cond: bool) -> float:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct State {
@@ -54,7 +53,6 @@ def cast_to_int(data: Data, cond: bool) -> int:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Data {

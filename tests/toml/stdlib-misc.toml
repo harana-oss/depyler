@@ -18,7 +18,6 @@ def generate_uuid1() -> str:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'uuid'()"]
 pub fn generate_uuid1() -> String {
     return {
         use uuid::Uuid;
@@ -38,7 +37,6 @@ def generate_uuid4() -> str:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'uuid'()"]
 pub fn generate_uuid4() -> String {
     return {
         use uuid::Uuid;
@@ -64,7 +62,6 @@ def generate_time_uuid() -> str:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'uuid'()"]
 pub fn generate_time_uuid() -> String {
     let id = {
         use uuid::Uuid;
@@ -86,7 +83,6 @@ def create_random_uuid() -> str:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'uuid'()"]
 pub fn create_random_uuid() -> String {
     return {
         use uuid::Uuid;
@@ -110,7 +106,6 @@ def generate_two_uuids() -> tuple:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'uuid'()"]
 pub fn generate_two_uuids() -> (String, String) {
     let id1 = {
         use uuid::Uuid;
@@ -136,7 +131,6 @@ def create_item_with_id() -> dict:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'uuid'()"]
 use std::collections::HashMap;
 pub fn create_item_with_id() -> HashMap<String, String> {
     return HashMap::from([
@@ -265,7 +259,6 @@ def calculate_mean(data: list[float]) -> float:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'statistics'()"]
 pub fn calculate_mean(data: &Vec<f64>) -> f64 {
     return {
         let data = data;
@@ -285,7 +278,6 @@ def calculate_median(data: list[float]) -> float:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'statistics'()"]
 pub fn calculate_median(data: &Vec<f64>) -> f64 {
     return {
         let mut sorted = data.clone();
@@ -312,7 +304,6 @@ def calculate_mode(data: list[int]) -> int:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'statistics'()"]
 use std::collections::HashMap;
 pub fn calculate_mode(data: &Vec<i32>) -> i32 {
     return {
@@ -337,7 +328,6 @@ def calculate_stdev(data: list[float]) -> float:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'statistics'()"]
 pub fn calculate_stdev(data: &Vec<f64>) -> f64 {
     return {
         let data = data;
@@ -366,7 +356,6 @@ def calculate_variance(data: list[float]) -> float:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'statistics'()"]
 pub fn calculate_variance(data: &Vec<f64>) -> f64 {
     return {
         let data = data;
@@ -397,7 +386,6 @@ def test_shallow_copy() -> int:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'copy'()"]
 pub fn test_shallow_copy() -> i32 {
     let original = vec![1, 2, 3];
     let mut copied = (original.clone()).clone();
@@ -421,7 +409,6 @@ def test_dict_copy() -> int:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'copy'()"]
 use std::collections::HashMap;
 pub fn test_dict_copy() -> i32 {
     let original = {
@@ -451,7 +438,6 @@ def test_deep_copy() -> int:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'copy'()"]
 #[derive(Debug, Clone)]
 pub struct IndexError {
     message: String,

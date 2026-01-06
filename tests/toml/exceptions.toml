@@ -143,8 +143,8 @@ def convert_to_int(s: str) -> int:
 rust = '''
 pub fn convert_to_int(s: String) -> i32 {
     match s.parse::<i32>() {
-        Ok(__parsed_value) => Some(__parsed_value),
-        Err(_) => Some(0),
+        Ok(__parsed_value) => __parsed_value,
+        Err(_) => 0,
     }
 }
 '''
@@ -291,8 +291,8 @@ def process(data: str) -> int:
 rust = '''
 pub fn process(data: String) -> i32 {
     match data.parse::<i32>() {
-        Ok(__parsed_value) => Some(__parsed_value),
-        Err(_) => Some(0),
+        Ok(__parsed_value) => __parsed_value,
+        Err(_) => 0,
     }
 }
 '''
@@ -711,10 +711,7 @@ pub fn get_first(items: &Vec<i32>) -> i32 {
     return items.get(0usize).cloned().unwrap();
 }
 pub fn safe_get(items: &Vec<i32>, index: i32) -> i32 {
-    {
-        return items.get(index as usize).cloned().unwrap();
-        return -1;
-    }
+    return items.get(index as usize).cloned().unwrap_or(-1);
 }
 fn main() {
     let items = vec![10, 20, 30];

@@ -912,10 +912,37 @@ impl Optimizer {
         }
     }
 
+    fn contains_named_expr(&self, expr: &HirExpr) -> bool {
+        match expr {
+            HirExpr::NamedExpr { .. } => true,
+            HirExpr::Binary { left, right, .. } => {
+                self.contains_named_expr(left) || self.contains_named_expr(right)
+            }
+            HirExpr::Unary { operand, .. } => self.contains_named_expr(operand),
+            HirExpr::Call { args, .. } => args.iter().any(|arg| self.contains_named_expr(arg)),
+            HirExpr::MethodCall { object, args, .. } => {
+                self.contains_named_expr(object)
+                    || args.iter().any(|arg| self.contains_named_expr(arg))
+            }
+            HirExpr::IfExpr { test, body, orelse } => {
+                self.contains_named_expr(test)
+                    || self.contains_named_expr(body)
+                    || self.contains_named_expr(orelse)
+            }
+            _ => false,
+        }
+    }
+
     /// Check if an expression should be extracted for CSE.
     /// This is more conservative than is_complex_expr - only extract expressions that will
     /// actually be reused or are truly expensive to compute.
     fn should_extract_for_cse(&self, expr: &HirExpr) -> bool {
+        // Don't extract expressions containing walrus operators (NamedExpr).
+        // The codegen_if_stmt and codegen_while_stmt functions handle walrus hoisting themselves.
+        if self.contains_named_expr(expr) {
+            return false;
+        }
+
         match expr {
             // Don't extract simple comparisons, they're better inline
             HirExpr::Binary { op, left, right } => {

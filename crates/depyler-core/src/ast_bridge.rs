@@ -298,7 +298,7 @@ impl AstBridge {
         let mut properties = FunctionAnalyzer::analyze(&filtered_body);
         properties.is_async = is_async;
 
-        Ok(HirFunction {
+        let mut hir_function = HirFunction {
             name,
             params: params.into(),
             ret_type,
@@ -306,7 +306,12 @@ impl AstBridge {
             properties,
             annotations,
             docstring,
-        })
+        };
+
+        // Infer parameter types if any parameters have Type::Unknown
+        self.infer_function_parameter_types(&mut hir_function);
+
+        Ok(hir_function)
     }
 
     fn convert_async_function(&self, func: ast::StmtAsyncFunctionDef) -> Result<HirFunction> {
@@ -322,7 +327,7 @@ impl AstBridge {
         let mut properties = FunctionAnalyzer::analyze(&filtered_body);
         properties.is_async = true;
 
-        Ok(HirFunction {
+        let mut hir_function = HirFunction {
             name,
             params: params.into(),
             ret_type,
@@ -330,7 +335,12 @@ impl AstBridge {
             properties,
             annotations,
             docstring,
-        })
+        };
+
+        // Infer parameter types if any parameters have Type::Unknown
+        self.infer_function_parameter_types(&mut hir_function);
+
+        Ok(hir_function)
     }
 
     fn extract_function_annotations(
@@ -1030,6 +1040,47 @@ impl AstBridge {
                         if let crate::type_hints::HintTarget::Parameter(param_name) = &hint.target {
                             if param_name == &param.name {
                                 // For class/instance methods, be more lenient and accept any confidence level
+                                // if the type is a simple concrete type (Int, Float, String, Bool)
+                                let is_simple_type = matches!(
+                                    hint.suggested_type,
+                                    Type::Int | Type::Float | Type::String | Type::Bool
+                                );
+                                if is_simple_type {
+                                    param.ty = hint.suggested_type.clone();
+                                } else if hint.confidence >= crate::type_hints::Confidence::High {
+                                    param.ty = hint.suggested_type.clone();
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /// Infer parameter types from function body usage
+    fn infer_function_parameter_types(&self, function: &mut HirFunction) {
+        // Check if any parameters need type inference
+        let needs_inference = function
+            .params
+            .iter()
+            .any(|p| matches!(p.ty, Type::Unknown));
+        if !needs_inference {
+            return;
+        }
+
+        // Use type hint provider to analyze usage patterns
+        let mut hint_provider = TypeHintProvider::new();
+        if let Ok(hints) = hint_provider.analyze_function(function) {
+            // Update parameter types with inferred types
+            for param in &mut function.params {
+                if matches!(param.ty, Type::Unknown) {
+                    // Find hint for this parameter
+                    for hint in &hints {
+                        if let crate::type_hints::HintTarget::Parameter(param_name) = &hint.target {
+                            if param_name == &param.name {
+                                // For standalone functions, be lenient and accept any confidence level
                                 // if the type is a simple concrete type (Int, Float, String, Bool)
                                 let is_simple_type = matches!(
                                     hint.suggested_type,

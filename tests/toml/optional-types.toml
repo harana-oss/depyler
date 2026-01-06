@@ -278,7 +278,6 @@ def get_name(p: Person) -> str:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Person {
     pub name: Option<String>,
@@ -350,7 +349,6 @@ def get_value(c: Counter) -> int:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Counter {
     pub value: Option<i32>,
@@ -402,7 +400,6 @@ def get_display(p: Person) -> str:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Person {
     pub nickname: Option<String>,
@@ -503,7 +500,6 @@ def get_prefix(c: Config) -> str:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Config {
     pub prefix: Option<String>,
@@ -558,7 +554,6 @@ def is_missing(p: Person) -> bool:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Person {
     pub age: Option<i32>,
@@ -609,7 +604,6 @@ def has_age(p: Person) -> bool:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Person {
     pub age: Option<i32>,
@@ -696,7 +690,6 @@ def check_name(p: Person) -> bool:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Person {
     pub name: Option<String>,
@@ -752,7 +745,6 @@ def is_adult(p: Person) -> bool:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Person {
     pub age: Option<i32>,
@@ -808,7 +800,6 @@ def increment(c: Counter) -> None:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Counter {
     pub value: Option<i32>,
@@ -860,7 +851,6 @@ def decrement(c: Counter) -> None:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Counter {
     pub value: Option<i32>,
@@ -912,7 +902,6 @@ def double(n: Numbers) -> None:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Numbers {
     pub factor: Option<i32>,
@@ -964,7 +953,6 @@ def negate(n: Numbers) -> int:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Numbers {
     pub value: Option<i32>,
@@ -1015,7 +1003,6 @@ def invert(f: Flags) -> bool:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Flags {
     pub active: Option<bool>,
@@ -1083,7 +1070,6 @@ def count_items(c: Container) -> int:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Container {
     pub items: Option<Vec<i32>>,
@@ -1134,7 +1120,6 @@ def upper_name(p: Person) -> str:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Person {
     pub name: Option<String>,
@@ -1185,7 +1170,6 @@ def add_item(c: Container, item: int) -> None:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Container {
     pub items: Option<Vec<i32>>,
@@ -1236,7 +1220,6 @@ def get_first(c: Container) -> int:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 #[derive(Debug, Clone)]
 pub struct IndexError {
     message: String,
@@ -1311,7 +1294,6 @@ def get_setting(c: Config, key: str) -> int:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 #[derive(Debug, Clone)]
 pub struct IndexError {
     message: String,

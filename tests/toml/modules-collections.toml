@@ -353,7 +353,6 @@ def create_heap(items: list) -> None:
 
 rust = '''
 use serde_json;
-#[doc = "// NOTE: Map Python module 'heapq'()"]
 pub fn create_heap(items: &Vec<serde_json::Value>) {
     {
         let heap = &mut (items);
@@ -395,7 +394,6 @@ def push_item(heap: list, item: int) -> None:
 
 rust = '''
 use serde_json;
-#[doc = "// NOTE: Map Python module 'heapq'()"]
 pub fn push_item(heap: &Vec<serde_json::Value>, item: i32) {
     {
         let heap = &mut (heap);
@@ -426,7 +424,6 @@ def pop_min(heap: list) -> int:
 
 rust = '''
 use serde_json;
-#[doc = "// NOTE: Map Python module 'heapq'()"]
 pub fn pop_min(heap: &Vec<serde_json::Value>) -> i32 {
     return {
         let heap = &mut (heap);
@@ -473,7 +470,6 @@ def get_largest(n: int, items: list) -> list:
 
 rust = '''
 use serde_json;
-#[doc = "// NOTE: Map Python module 'heapq'()"]
 pub fn get_largest(n: i32, items: &Vec<serde_json::Value>) -> Vec<serde_json::Value> {
     return {
         let n = n as usize;
@@ -496,7 +492,6 @@ def get_smallest(n: int, items: list) -> list:
 
 rust = '''
 use serde_json;
-#[doc = "// NOTE: Map Python module 'heapq'()"]
 pub fn get_smallest(n: i32, items: &Vec<serde_json::Value>) -> Vec<serde_json::Value> {
     return {
         let n = n as usize;
@@ -519,7 +514,6 @@ def find_insert_left(a: list, x: int) -> int:
 
 rust = '''
 use serde_json;
-#[doc = "// NOTE: Map Python module 'bisect'()"]
 pub fn find_insert_left(a: &Vec<serde_json::Value>, x: i32) -> i32 {
     return {
         let arr = a;
@@ -549,7 +543,6 @@ def find_insert_right(a: list, x: int) -> int:
 
 rust = '''
 use serde_json;
-#[doc = "// NOTE: Map Python module 'bisect'()"]
 pub fn find_insert_right(a: &Vec<serde_json::Value>, x: i32) -> i32 {
     return {
         let arr = a;
@@ -580,7 +573,6 @@ def insert_left(a: list, x: int) -> None:
 
 rust = '''
 use serde_json;
-#[doc = "// NOTE: Map Python module 'bisect'()"]
 pub fn insert_left(a: &Vec<serde_json::Value>, x: i32) {
     {
         let arr = &mut (a);
@@ -611,7 +603,6 @@ def insert_right(a: list, x: int) -> None:
 
 rust = '''
 use serde_json;
-#[doc = "// NOTE: Map Python module 'bisect'()"]
 pub fn insert_right(a: &Vec<serde_json::Value>, x: i32) {
     {
         let arr = &mut (a);

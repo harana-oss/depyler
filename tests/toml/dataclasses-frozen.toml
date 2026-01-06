@@ -23,7 +23,6 @@ result = (p.x, p.y)
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 pub const p: serde_json::Value = Point::new(1, 2);
 pub const result: (serde_json::Value, serde_json::Value) = (p.x, p.y);
 use serde_json;
@@ -88,7 +87,6 @@ except:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 pub const p: serde_json::Value = Point::new(1, 2);
 use serde_json;
 #[derive(Debug, Clone)]
@@ -152,7 +150,6 @@ except:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 pub const p: serde_json::Value = Point::new(1, 2);
 use serde_json;
 #[derive(Debug, Clone)]
@@ -216,7 +213,6 @@ result = hash(p)
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 pub const p: serde_json::Value = Point::new(1, 2);
 pub const result: serde_json::Value = {
     use std::collections::hash_map::DefaultHasher;
@@ -284,7 +280,6 @@ result = d[p]
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 pub const p: serde_json::Value = Point::new(1, 2);
 lazy_static! {
     pub static ref d: HashMap<serde_json::Value, String> = {
@@ -354,7 +349,6 @@ result = len(s)
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 pub const p1: serde_json::Value = Point::new(1, 2);
 pub const p2: serde_json::Value = Point::new(3, 4);
 pub const result: serde_json::Value = s.clone().len() as i32;
@@ -426,7 +420,6 @@ result = hash(p1) == hash(p2)
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 pub const p1: serde_json::Value = Point::new(1, 2);
 pub const p2: serde_json::Value = Point::new(1, 2);
 pub const result: serde_json::Value = {
@@ -505,7 +498,6 @@ result = (p2.x, p2.y)
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 pub const p: serde_json::Value = Point::new(1, 2);
 pub const p2: serde_json::Value = replace(p, 10);
 pub const result: (serde_json::Value, serde_json::Value) = (p2.x, p2.y);
@@ -568,7 +560,6 @@ result = (p.x, p2.x)
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 pub const p: serde_json::Value = Point::new(1, 2);
 pub const p2: serde_json::Value = replace(p, 10);
 pub const result: (serde_json::Value, serde_json::Value) = (p.x, p2.x);
@@ -631,7 +622,6 @@ result = (p2.x, p2.y)
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 pub const p: serde_json::Value = Point::new(0, 0);
 pub const p2: serde_json::Value = replace(replace(p, 1), 2);
 pub const result: (serde_json::Value, serde_json::Value) = (p2.x, p2.y);
@@ -697,7 +687,6 @@ result = len(c.items)
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 pub const c: serde_json::Value = Container::new(vec![1, 2, 3]);
 pub const result: serde_json::Value = c.items.len() as i32;
 use serde_json;
@@ -748,7 +737,6 @@ result = o.inner.value
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 pub const o: serde_json::Value = Outer::new(Inner::new(42));
 pub const result: serde_json::Value = o.inner.value;
 use serde_json;
@@ -823,7 +811,6 @@ result = len(p.coords)
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 pub const p: serde_json::Value = Point::new((1, 2, 3));
 pub const result: serde_json::Value = p.coords.len() as i32;
 use serde_json;
@@ -879,7 +866,6 @@ result = (p.x, p.y, p.z)
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 pub const p: serde_json::Value = Point3D::new(1, 2, 3);
 pub const result: (serde_json::Value, serde_json::Value, serde_json::Value) = (p.x, p.y, p.z);
 use serde_json;
@@ -973,7 +959,6 @@ except:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Point2D {
     pub x: i32,
@@ -1035,7 +1020,6 @@ result = (p.x, p.y, p.z)
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 pub const p: serde_json::Value = Point3D::new(1, 2, 3);
 pub const result: (serde_json::Value, serde_json::Value, serde_json::Value) = (p.x, p.y, p.z);
 use serde_json;
@@ -1131,7 +1115,6 @@ result = p.x
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 pub const p: serde_json::Value = Point::new(5, 10);
 pub const result: serde_json::Value = p.x;
 use serde_json;
@@ -1196,7 +1179,6 @@ result = r.area
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 pub const r: serde_json::Value = Rectangle::new(3, 4);
 pub const result: serde_json::Value = r.area;
 use serde_json;
@@ -1264,7 +1246,6 @@ result = Point.count
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 pub const result: serde_json::Value = Point.count;
 use serde_json;
 #[derive(Debug, Clone)]
@@ -1326,7 +1307,6 @@ result = p1 == p2
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 pub const p1: serde_json::Value = Point::new(1, 2);
 pub const p2: serde_json::Value = Point::new(1, 2);
 pub const result: serde_json::Value = p1 == p2;
@@ -1388,7 +1368,6 @@ result = repr(p)
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 pub const p: serde_json::Value = Point::new(1, 2);
 pub const result: serde_json::Value = format!("{:?}", p);
 use serde_json;

@@ -48,7 +48,7 @@ struct InferenceContext {
     constraints: Vec<TypeConstraint>,
     /// Usage patterns
     usage_patterns: HashMap<String, Vec<UsagePattern>>,
-    /// Loop variable sources 
+    /// Loop variable sources
     /// Maps loop variable → iterable variable (e.g., "item" → "items")
     loop_var_sources: HashMap<String, String>,
 }
@@ -599,12 +599,41 @@ impl TypeHintProvider {
                     self.record_usage_pattern(var, UsagePattern::Numeric);
                 }
             }
+            BinOp::Gt | BinOp::Lt | BinOp::GtEq | BinOp::LtEq => {
+                // Comparison operators with integer literals suggest numeric type
+                self.infer_int_from_comparison(left, right);
+
+                if let HirExpr::Var(var) = left {
+                    self.record_usage_pattern(var, UsagePattern::Numeric);
+                }
+                if let HirExpr::Var(var) = right {
+                    self.record_usage_pattern(var, UsagePattern::Numeric);
+                }
+            }
             _ => {}
         }
 
         self.analyze_expr(left)?;
         self.analyze_expr(right)?;
         Ok(())
+    }
+
+    fn infer_int_from_comparison(&mut self, left: &HirExpr, right: &HirExpr) {
+        use crate::hir::Literal;
+
+        // Check if left is var and right is int literal (e.g., x > 0)
+        if let (HirExpr::Var(var), HirExpr::Literal(Literal::Int(_))) = (left, right) {
+            // Add multiple constraints for higher confidence
+            self.add_compatible_constraint(var, Type::Int);
+            self.add_compatible_constraint(var, Type::Int);
+        }
+
+        // Check if right is var and left is int literal (e.g., 0 < x)
+        if let (HirExpr::Literal(Literal::Int(_)), HirExpr::Var(var)) = (left, right) {
+            // Add multiple constraints for higher confidence
+            self.add_compatible_constraint(var, Type::Int);
+            self.add_compatible_constraint(var, Type::Int);
+        }
     }
 
     fn infer_int_from_arithmetic(&mut self, left: &HirExpr, right: &HirExpr) {

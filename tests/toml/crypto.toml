@@ -300,7 +300,6 @@ def create_hmac(key: bytes, msg: bytes) -> str:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'hmac'()"]
 use sha2 as hashlib;
 pub fn create_hmac(key: &bytes, msg: &bytes) -> String {
     return {
@@ -326,7 +325,6 @@ def create_hmac_md5(key: bytes, msg: bytes) -> str:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'hmac'()"]
 use sha2 as hashlib;
 pub fn create_hmac_md5(key: &bytes, msg: &bytes) -> String {
     return {
@@ -354,7 +352,6 @@ def create_hmac_sha1(key: bytes, msg: bytes) -> str:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'hmac'()"]
 use sha2 as hashlib;
 pub fn create_hmac_sha1(key: &bytes, msg: &bytes) -> String {
     return {
@@ -381,7 +378,6 @@ def safe_compare(a: bytes, b: bytes) -> bool:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'hmac'()"]
 pub fn safe_compare(a: &bytes, b: &bytes) -> bool {
     return {
         use subtle::ConstantTimeEq;
@@ -401,7 +397,6 @@ def safe_compare_strings(a: str, b: str) -> bool:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'hmac'()"]
 pub fn safe_compare_strings(a: String, b: String) -> bool {
     return {
         use subtle::ConstantTimeEq;
@@ -439,7 +434,6 @@ def bytes_to_hex(data: bytes) -> bytes:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'binascii'()"]
 pub fn bytes_to_hex(data: &bytes) -> bytes {
     return hex::encode(data).into_bytes();
 }
@@ -457,7 +451,6 @@ def hex_to_bytes(hex_str: str) -> bytes:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'binascii'()"]
 pub fn hex_to_bytes(hex_str: String) -> bytes {
     return hex::decode(hex_str).expect("Invalid hex string");
 }
@@ -475,7 +468,6 @@ def bytes_to_base64(data: bytes) -> bytes:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'binascii'()"]
 pub fn bytes_to_base64(data: &bytes) -> bytes {
     return {
         let mut result = base64::engine::general_purpose::STANDARD.encode(data);
@@ -496,7 +488,6 @@ def base64_to_bytes(data: bytes) -> bytes:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'binascii'()"]
 pub fn base64_to_bytes(data: &bytes) -> bytes {
     return base64::engine::general_purpose::STANDARD
         .decode(data)
@@ -516,7 +507,6 @@ def calculate_crc32(data: bytes) -> int:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'binascii'()"]
 pub fn calculate_crc32(data: &bytes) -> i32 {
     return {
         use crc32fast::Hasher;

@@ -51,7 +51,6 @@ def create_deque() -> deque:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'collections'()"]
 use std::collections::VecDeque;
 pub fn create_deque() -> VecDeque<i32> {
     let mut d: VecDeque<i32> = VecDeque::new();
@@ -72,7 +71,6 @@ def get_random() -> int:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'random'()"]
 use rand::Rng;
 use rand::prelude::*;
 pub fn get_random() -> i32 {
@@ -92,7 +90,6 @@ def parse_json(s: str) -> dict[str, int]:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'json'()"]
 use serde_json;
 use std::collections::HashMap;
 pub fn parse_json(s: String) -> HashMap<String, i32> {

@@ -129,7 +129,6 @@ def wait_seconds(seconds: float) -> None:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'time'()"]
 pub fn wait_seconds(seconds: f64) {
     std::thread::sleep(std::time::Duration::from_secs_f64(seconds));
 }
@@ -147,7 +146,6 @@ def get_timestamp() -> float:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'time'()"]
 pub fn get_timestamp() -> f64 {
     return std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)

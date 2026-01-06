@@ -1575,6 +1575,14 @@ fn convert_classes_to_rust(
     ctx: &mut CodeGenContext,
 ) -> Result<Vec<proc_macro2::TokenStream>> {
     let mut class_items = Vec::new();
+
+    // First pass: Build map of ABC classes for trait implementation
+    let abc_classes: std::collections::HashMap<String, &HirClass> = classes
+        .iter()
+        .filter(|c| c.is_abc)
+        .map(|c| (c.name.clone(), c))
+        .collect();
+
     for class in classes {
         // Scan field types for import needs
         for field in &class.fields {
@@ -1609,7 +1617,7 @@ fn convert_classes_to_rust(
         } else if class.is_abc {
             crate::direct_rules::convert_class_to_trait(class, type_mapper)?
         } else {
-            crate::direct_rules::convert_class_to_struct(class, type_mapper)?
+            crate::direct_rules::convert_class_to_struct(class, type_mapper, &abc_classes)?
         };
         for item in items {
             let tokens = item.to_token_stream();

@@ -86,8 +86,6 @@ def rebuild_sin_bin_players(state: State, team: Team) -> None:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
-#[doc = "// NOTE: Map Python module 'enum'()"]
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Team {
     #[default]
@@ -296,7 +294,6 @@ class State:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 use std::collections::HashSet;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct State {
@@ -384,7 +381,6 @@ def process_play(state: State, player_index: int) -> None:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Team {
     pub name: String,
@@ -495,7 +491,6 @@ class ComplexState:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 use std::collections::HashMap;
 use std::collections::HashSet;
 #[derive(Debug, Clone, PartialEq, Default)]

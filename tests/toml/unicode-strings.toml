@@ -78,7 +78,6 @@ def normalize_nfc(s: str) -> str:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'unicodedata'()"]
 pub fn normalize_nfc(s: String) -> String {
     return unicodedata.normalize("NFC", s);
 };
@@ -96,7 +95,6 @@ def normalize_nfd(s: str) -> str:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'unicodedata'()"]
 pub fn normalize_nfd(s: String) -> String {
     return unicodedata.normalize("NFD", s);
 };
@@ -114,7 +112,6 @@ def normalize_nfkc(s: str) -> str:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'unicodedata'()"]
 pub fn normalize_nfkc(s: String) -> String {
     return unicodedata.normalize("NFKC", s);
 };
@@ -132,7 +129,6 @@ def normalize_nfkd(s: str) -> str:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'unicodedata'()"]
 pub fn normalize_nfkd(s: String) -> String {
     return unicodedata.normalize("NFKD", s);
 };
@@ -150,7 +146,6 @@ def get_category(c: str) -> str:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'unicodedata'()"]
 pub fn get_category(c: String) -> String {
     return unicodedata.category(c);
 }
@@ -168,7 +163,6 @@ def get_name(c: str) -> str:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'unicodedata'()"]
 pub fn get_name(c: String) -> String {
     return unicodedata.name(c);
 }
@@ -186,7 +180,6 @@ def lookup_char(name: str) -> str:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'unicodedata'()"]
 pub fn lookup_char(name: String) -> String {
     return unicodedata.lookup(name);
 }
@@ -343,7 +336,6 @@ def compare_normalized(s1: str, s2: str) -> bool:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'unicodedata'()"]
 pub fn compare_normalized(s1: String, s2: String) -> bool {
     return unicodedata.normalize("NFC", s1) == unicodedata.normalize("NFC", s2);
 };
@@ -362,7 +354,6 @@ def locale_compare(s1: str, s2: str) -> int:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'locale'()"]
 pub fn locale_compare(s1: String, s2: String) -> i32 {
     locale.setlocale(locale.LC_ALL, "");
     return locale.strcoll(s1, s2);

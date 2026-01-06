@@ -18,7 +18,6 @@ def match_pattern(filename: str, pattern: str) -> bool:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'fnmatch'()"]
 pub fn match_pattern(filename: String, pattern: String) -> bool {
     return {
         let pattern_str = pattern;
@@ -45,7 +44,6 @@ def match_case_sensitive(filename: str, pattern: str) -> bool:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'fnmatch'()"]
 pub fn match_case_sensitive(filename: String, pattern: String) -> bool {
     return {
         let pattern_str = pattern;
@@ -73,7 +71,6 @@ def filter_files(names: list, pattern: str) -> list:
 
 rust = '''
 use serde_json;
-#[doc = "// NOTE: Map Python module 'fnmatch'()"]
 pub fn filter_files(names: &Vec<serde_json::Value>, pattern: String) -> Vec<serde_json::Value> {
     return {
         let pattern_str = pattern;
@@ -103,7 +100,6 @@ def translate_pattern(pattern: str) -> str:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'fnmatch'()"]
 pub fn translate_pattern(pattern: String) -> String {
     return {
         let pattern_str = pattern;

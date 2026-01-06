@@ -133,8 +133,8 @@ def safe_parse(s: str) -> int:
 rust = '''
 pub fn safe_parse(s: String) -> i32 {
     match s.parse::<i32>() {
-        Ok(__parsed_value) => Some(__parsed_value),
-        Err(_) => Some(0),
+        Ok(__parsed_value) => __parsed_value,
+        Err(_) => 0,
     }
 }
 '''
@@ -154,8 +154,8 @@ def parse_with_fallback(s: str, fallback: int) -> int:
 rust = '''
 pub fn parse_with_fallback(s: String, fallback: i32) -> i32 {
     match s.parse::<i32>() {
-        Ok(__parsed_value) => Some(__parsed_value),
-        Err(_) => Some(fallback),
+        Ok(__parsed_value) => __parsed_value,
+        Err(_) => fallback,
     }
 }
 '''

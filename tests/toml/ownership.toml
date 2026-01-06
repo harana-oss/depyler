@@ -421,7 +421,6 @@ def get_items(state: State) -> list[int]:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct State {
     pub items: Vec<i32>,
@@ -471,7 +470,6 @@ def get_data(state: State) -> dict[str, int]:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 use std::collections::HashMap;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct State {
@@ -559,7 +557,6 @@ def build_list(state: State, n: int) -> list[str]:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct State {
     pub template: String,
@@ -626,7 +623,6 @@ def setup_player() -> list[Statistics]:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Statistics {
     pub value: i32,

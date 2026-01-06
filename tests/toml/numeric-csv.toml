@@ -114,7 +114,6 @@ def create_decimal(value: str) -> Decimal:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'decimal'()"]
 pub fn create_decimal(value: String) -> Decimal {
     return rust_decimal::Decimal::from_str(&(value).to_string()).unwrap();
 }
@@ -132,7 +131,6 @@ def decimal_from_float(value: float) -> Decimal:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'decimal'()"]
 pub fn decimal_from_float(value: f64) -> Decimal {
     return rust_decimal::Decimal::from_str(&(value).to_string()).unwrap();
 }
@@ -150,7 +148,6 @@ def add_decimals(a: Decimal, b: Decimal) -> Decimal:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'decimal'()"]
 pub fn add_decimals(a: &Decimal, b: &Decimal) -> Decimal {
     return a + b;
 };
@@ -168,7 +165,6 @@ def multiply_decimals(a: Decimal, b: Decimal) -> Decimal:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'decimal'()"]
 pub fn multiply_decimals(a: &Decimal, b: &Decimal) -> Decimal {
     return a * b;
 };
@@ -186,7 +182,6 @@ def create_fraction(num: int, denom: int) -> Fraction:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'fractions'()"]
 pub fn create_fraction(num: i32, denom: i32) -> Fraction {
     return num::rational::Ratio::new(num, denom);
 }
@@ -204,7 +199,6 @@ def parse_fraction(s: str) -> Fraction:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'fractions'()"]
 pub fn parse_fraction(s: String) -> Fraction {
     return num::rational::Ratio::approximate_float(s as f64).unwrap();
 }
@@ -222,7 +216,6 @@ def add_fractions(a: Fraction, b: Fraction) -> Fraction:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'fractions'()"]
 pub fn add_fractions(a: &Fraction, b: &Fraction) -> Fraction {
     return a + b;
 };
@@ -240,7 +233,6 @@ def multiply_fractions(a: Fraction, b: Fraction) -> Fraction:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'fractions'()"]
 pub fn multiply_fractions(a: &Fraction, b: &Fraction) -> Fraction {
     return a * b;
 };
@@ -258,7 +250,6 @@ def divide_fractions(a: Fraction, b: Fraction) -> Fraction:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'fractions'()"]
 #[derive(Debug, Clone)]
 pub struct ZeroDivisionError {
     message: String,

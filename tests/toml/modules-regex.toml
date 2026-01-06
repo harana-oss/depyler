@@ -280,7 +280,6 @@ def find_python_files(directory: str) -> list[str]:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'glob'()"]
 pub fn find_python_files(directory: String) -> Vec<String> {
     return glob.glob(format!("{}/*.py", directory));
 }
@@ -298,7 +297,6 @@ def find_all_python_files(directory: str) -> list[str]:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'glob'()"]
 pub fn find_all_python_files(directory: String) -> Vec<String> {
     return glob.glob(format!("{}/**/*.py", directory));
 }
@@ -316,7 +314,6 @@ def matches_pattern(filename: str, pattern: str) -> bool:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'fnmatch'()"]
 pub fn matches_pattern(filename: String, pattern: String) -> bool {
     return {
         let pattern_str = pattern;
@@ -343,7 +340,6 @@ def filter_py_files(files: list[str]) -> list[str]:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'fnmatch'()"]
 pub fn filter_py_files(files: &Vec<String>) -> Vec<String> {
     return {
         let pattern_str = "*.py";

@@ -4651,7 +4651,8 @@ pub(crate) fn codegen_try_stmt(
     ctx: &mut CodeGenContext,
 ) -> Result<proc_macro2::TokenStream> {
     // Special case: try { return int(str_var) } except ValueError { return literal }
-    // Generate: match str_var.parse::<i32>() { Ok(n) => Some(n), Err(_) => literal }
+    // Generate: match str_var.parse::<i32>() { Ok(n) => n, Err(_) => literal }
+    // OR if return type is Option: match str_var.parse::<i32>() { Ok(n) => Some(n), Err(_) => None }
     if body.len() == 1 && handlers.len() == 1 && handlers[0].name.is_none() && finalbody.is_none() {
         if let HirStmt::Return(Some(HirExpr::Call { func, args, .. })) = &body[0] {
             if func == "int" && args.len() == 1 {
@@ -4660,6 +4661,10 @@ pub(crate) fn codegen_try_stmt(
                     // Generate the parse expression
                     let arg_expr = args[0].to_rust_expr(ctx)?;
 
+                    // Check if the function returns Option<T>
+                    let is_option_return =
+                        matches!(&ctx.current_return_type, Some(Type::Optional(_)));
+
                     // Generate the handler return value
                     let handler_value_expr = if let Some(expr) = handler_ret_expr {
                         expr
@@ -4667,34 +4672,27 @@ pub(crate) fn codegen_try_stmt(
                         // return None - handler returns None literal
                         return Ok(quote! {
                             match #arg_expr.parse::<i32>() {
-                                Ok(__parsed_value) => Some(__parsed_value),
-                                Err(_) => None
+                                Ok(__parsed_value) => __parsed_value,
+                                Err(_) => 0
                             }
                         });
-                    };
-
-                    // Check if handler value is already wrapped in Some() or is None
-                    let needs_wrapping = match handler_value_expr {
-                        HirExpr::Literal(Literal::None) => false, // None doesn't need wrapping
-                        HirExpr::Call { func, .. } if func == "Some" => false, // Already wrapped
-                        _ => true,                                // Need to wrap in Some()
                     };
 
                     let handler_value = handler_value_expr.to_rust_expr(ctx)?;
 
-                    if needs_wrapping {
-                        // Wrap both branches in Some()
+                    if is_option_return {
+                        // Function returns Option<T> - wrap in Some()
                         return Ok(quote! {
                             match #arg_expr.parse::<i32>() {
                                 Ok(__parsed_value) => Some(__parsed_value),
-                                Err(_) => Some(#handler_value)
+                                Err(_) => #handler_value
                             }
                         });
                     } else {
-                        // Handler is None or already wrapped
+                        // Function returns T - return raw values
                         return Ok(quote! {
                             match #arg_expr.parse::<i32>() {
-                                Ok(__parsed_value) => Some(__parsed_value),
+                                Ok(__parsed_value) => __parsed_value,
                                 Err(_) => #handler_value
                             }
                         });
@@ -4831,6 +4829,31 @@ pub(crate) fn codegen_try_stmt(
                         }
                     });
                 }
+            }
+        }
+    }
+
+    // Check if handler catches IndexError (either explicitly or via bare except:)
+    let has_index_error_handler = handlers
+        .iter()
+        .any(|h| h.exception_type.as_deref() == Some("IndexError") || h.exception_type.is_none());
+
+    if has_index_error_handler && body.len() == 1 && handlers.len() == 1 && finalbody.is_none() {
+        if let HirStmt::Return(Some(HirExpr::Index { base, index })) = &body[0] {
+            // Pattern: try { return items[index] } except IndexError { return default_value }
+            // Generate: items.get(index as usize).cloned().unwrap_or(default_value)
+
+            // Generate handler body - should be a simple return with a literal
+            if let HirStmt::Return(Some(default_expr)) = &handlers[0].body[0] {
+                let base_expr = base.to_rust_expr(ctx)?;
+                let index_expr = index.to_rust_expr(ctx)?;
+                let default_value = default_expr.to_rust_expr(ctx)?;
+
+                ctx.exit_exception_scope();
+
+                return Ok(quote! {
+                    return #base_expr.get(#index_expr as usize).cloned().unwrap_or(#default_value);
+                });
             }
         }
     }
@@ -5950,6 +5973,15 @@ fn codegen_match_stmt(
     cases: &[MatchCase],
     ctx: &mut CodeGenContext,
 ) -> Result<proc_macro2::TokenStream> {
+    // Check if any case has a mapping pattern - requires special handling
+    let has_mapping = cases
+        .iter()
+        .any(|case| matches!(case.pattern, HirPattern::Mapping { .. }));
+
+    if has_mapping {
+        return codegen_match_stmt_with_mapping(subject, cases, ctx);
+    }
+
     let subject_expr = subject.to_rust_expr(ctx)?;
 
     let arms: Vec<proc_macro2::TokenStream> = cases
@@ -5962,6 +5994,221 @@ fn codegen_match_stmt(
             #(#arms)*
         }
     })
+}
+
+/// Generate match statement with mapping patterns
+/// Converts dict pattern matching to tuple-based .get() matching
+fn codegen_match_stmt_with_mapping(
+    subject: &HirExpr,
+    cases: &[MatchCase],
+    ctx: &mut CodeGenContext,
+) -> Result<proc_macro2::TokenStream> {
+    let subject_expr = subject.to_rust_expr(ctx)?;
+
+    // Collect all unique keys from all mapping patterns
+    let mut all_keys = Vec::new();
+    for case in cases {
+        if let HirPattern::Mapping { keys, .. } = &case.pattern {
+            for key in keys {
+                // Only add if not already present
+                if !all_keys
+                    .iter()
+                    .any(|k: &HirExpr| format!("{:?}", k) == format!("{:?}", key))
+                {
+                    all_keys.push(key.clone());
+                }
+            }
+        }
+    }
+
+    // If we have multiple keys across cases, generate tuple match
+    if all_keys.len() > 1 {
+        let get_calls: Vec<proc_macro2::TokenStream> = all_keys
+            .iter()
+            .map(|key| {
+                let key_expr = key.to_rust_expr(ctx)?;
+                Ok(quote! { #subject_expr.get(&#key_expr) })
+            })
+            .collect::<Result<Vec<_>>>()?;
+
+        let arms: Vec<proc_macro2::TokenStream> = cases
+            .iter()
+            .map(|case| codegen_match_arm_mapping(case, &all_keys, ctx))
+            .collect::<Result<Vec<_>>>()?;
+
+        Ok(quote! {
+            match (#(#get_calls),*) {
+                #(#arms)*
+            }
+        })
+    } else if all_keys.len() == 1 {
+        // Single key - simpler match on single .get()
+        let key_expr = all_keys[0].to_rust_expr(ctx)?;
+
+        let arms: Vec<proc_macro2::TokenStream> = cases
+            .iter()
+            .map(|case| codegen_match_arm_mapping(case, &all_keys, ctx))
+            .collect::<Result<_>>()?;
+
+        Ok(quote! {
+            match #subject_expr.get(&#key_expr) {
+                #(#arms)*
+            }
+        })
+    } else {
+        // No keys found - fallback to regular match
+        let arms: Vec<proc_macro2::TokenStream> = cases
+            .iter()
+            .map(|case| codegen_match_arm(case, ctx))
+            .collect::<Result<Vec<_>>>()?;
+
+        Ok(quote! {
+            match #subject_expr {
+                #(#arms)*
+            }
+        })
+    }
+}
+
+/// Generate match arm for mapping patterns
+fn codegen_match_arm_mapping(
+    case: &MatchCase,
+    all_keys: &[HirExpr],
+    ctx: &mut CodeGenContext,
+) -> Result<proc_macro2::TokenStream> {
+    let body_stmts: Vec<proc_macro2::TokenStream> = case
+        .body
+        .iter()
+        .map(|stmt| stmt.to_rust_tokens(ctx))
+        .collect::<Result<Vec<_>>>()?;
+
+    match &case.pattern {
+        HirPattern::Mapping { keys, patterns, .. } => {
+            if all_keys.len() > 1 {
+                // Multi-key tuple pattern
+                let tuple_patterns: Vec<proc_macro2::TokenStream> = all_keys
+                    .iter()
+                    .map(|key| {
+                        // Find if this key is in the case's keys
+                        if let Some(pos) = keys
+                            .iter()
+                            .position(|k| format!("{:?}", k) == format!("{:?}", key))
+                        {
+                            let pat = &patterns[pos];
+                            codegen_pattern_for_option(pat)
+                        } else {
+                            // This key is not matched in this case - use wildcard
+                            Ok(quote! { _ })
+                        }
+                    })
+                    .collect::<Result<Vec<_>>>()?;
+
+                if let Some(guard) = &case.guard {
+                    let guard_expr = guard.to_rust_expr(ctx)?;
+                    Ok(quote! {
+                        (#(#tuple_patterns),*) if #guard_expr => {
+                            #(#body_stmts)*
+                        }
+                    })
+                } else {
+                    Ok(quote! {
+                        (#(#tuple_patterns),*) => {
+                            #(#body_stmts)*
+                        }
+                    })
+                }
+            } else {
+                // Single key pattern
+                let pattern = if !patterns.is_empty() {
+                    codegen_pattern_for_option(&patterns[0])?
+                } else {
+                    quote! { Some(_) }
+                };
+
+                if let Some(guard) = &case.guard {
+                    let guard_expr = guard.to_rust_expr(ctx)?;
+                    Ok(quote! {
+                        #pattern if #guard_expr => {
+                            #(#body_stmts)*
+                        }
+                    })
+                } else {
+                    Ok(quote! {
+                        #pattern => {
+                            #(#body_stmts)*
+                        }
+                    })
+                }
+            }
+        }
+        HirPattern::Wildcard => {
+            // Wildcard pattern - match anything
+            if all_keys.len() > 1 {
+                Ok(quote! {
+                    _ => {
+                        #(#body_stmts)*
+                    }
+                })
+            } else {
+                Ok(quote! {
+                    _ => {
+                        #(#body_stmts)*
+                    }
+                })
+            }
+        }
+        _ => {
+            // Non-mapping pattern in a mapping context - shouldn't happen often
+            let pattern = codegen_pattern(&case.pattern)?;
+            if let Some(guard) = &case.guard {
+                let guard_expr = guard.to_rust_expr(ctx)?;
+                Ok(quote! {
+                    #pattern if #guard_expr => {
+                        #(#body_stmts)*
+                    }
+                })
+            } else {
+                Ok(quote! {
+                    #pattern => {
+                        #(#body_stmts)*
+                    }
+                })
+            }
+        }
+    }
+}
+
+/// Convert a pattern to one wrapped in Some() for Option matching
+fn codegen_pattern_for_option(pattern: &HirPattern) -> Result<proc_macro2::TokenStream> {
+    match pattern {
+        HirPattern::As {
+            pattern: Some(inner),
+            name: Some(n),
+        } => {
+            // case {'key': value as x}: -> Some(&value) (binding to variable)
+            let ident = format_ident!("{}", n);
+            Ok(quote! { Some(&#ident) })
+        }
+        HirPattern::As {
+            pattern: None,
+            name: Some(n),
+        } => {
+            // Just a binding
+            let ident = format_ident!("{}", n);
+            Ok(quote! { Some(&#ident) })
+        }
+        HirPattern::Value(expr) => {
+            // Match a specific value
+            let lit = expr_to_pattern_literal(expr)?;
+            Ok(quote! { Some(&#lit) })
+        }
+        HirPattern::Wildcard => Ok(quote! { Some(_) }),
+        _ => {
+            // For other patterns, wrap in Some
+            let inner_pat = codegen_pattern(pattern)?;
+            Ok(quote! { Some(&#inner_pat) })
+        }
+    }
 }
 
 fn codegen_match_arm(

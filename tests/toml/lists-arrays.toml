@@ -369,7 +369,6 @@ def add_if_missing(items: list[Value], item: Value) -> None:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Value {
     pub x: i32,

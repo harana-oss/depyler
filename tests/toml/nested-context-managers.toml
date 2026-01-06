@@ -351,7 +351,6 @@ def use_resources(count: int):
 
 rust = '''
 use serde_json;
-#[doc = "// NOTE: Map Python module 'contextlib'()"]
 #[derive(Debug, Clone)]
 pub struct Resource {}
 impl Resource {
@@ -470,7 +469,6 @@ def conditional_context(use_real: bool):
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'contextlib'()"]
 pub fn conditional_context(use_real: bool) {
     let cm = if use_real {
         std::fs::File::open("file.txt")?

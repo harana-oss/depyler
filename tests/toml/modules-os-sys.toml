@@ -336,7 +336,6 @@ def get_os():
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'platform'()"]
 pub fn get_os() {
     return std::env::consts::OS.to_string();
 }
@@ -354,7 +353,6 @@ def get_arch():
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'platform'()"]
 pub fn get_arch() {
     return std::env::consts::ARCH.to_string();
 }
@@ -588,7 +586,6 @@ def run_command(cmd: list[str]) -> int:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'subprocess'()"]
 pub fn run_command(cmd: &Vec<String>) -> i32 {
     let result = std::process::Command::new(&cmd[0])
         .args(&cmd[1..])
@@ -611,7 +608,6 @@ def run_with_output(cmd: list[str]) -> str:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'subprocess'()"]
 pub fn run_with_output(cmd: &Vec<String>) -> String {
     let result = std::process::Command::new(&cmd[0])
         .args(&cmd[1..])
@@ -634,7 +630,6 @@ def run_in_dir(cmd: list[str], directory: str) -> int:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'subprocess'()"]
 pub fn run_in_dir(cmd: &Vec<String>, directory: String) -> i32 {
     let result = std::process::Command::new(&cmd[0])
         .args(&cmd[1..])
@@ -658,7 +653,6 @@ def run_checked(cmd: list[str]) -> int:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'subprocess'()"]
 pub fn run_checked(cmd: &Vec<String>) -> i32 {
     let result = std::process::Command::new(&cmd[0])
         .args(&cmd[1..])

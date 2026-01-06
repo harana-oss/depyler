@@ -20,7 +20,6 @@ def create_point(x: int, y: int) -> Point:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Point {
@@ -54,7 +53,6 @@ def make_square(size: int) -> Rectangle:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Rectangle {
@@ -87,7 +85,6 @@ def create_pair(a: int, b: int) -> tuple[Item, Item]:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Item {
@@ -120,7 +117,6 @@ def default_config() -> Config:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Config {
@@ -157,7 +153,6 @@ def create_nested(v: int) -> Outer:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Inner {

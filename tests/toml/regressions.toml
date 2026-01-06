@@ -464,7 +464,6 @@ def test_shallow_copy() -> int:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'copy'()"]
 pub fn test_shallow_copy() -> i32 {
     let original = vec![1, 2, 3];
     let mut copied = (original.clone()).clone();
@@ -488,7 +487,6 @@ def test_dict_copy() -> int:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'copy'()"]
 use std::collections::HashMap;
 pub fn test_dict_copy() -> i32 {
     let original = {
@@ -518,7 +516,6 @@ def test_deep_copy() -> int:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'copy'()"]
 #[derive(Debug, Clone)]
 pub struct IndexError {
     message: String,
@@ -920,7 +917,6 @@ class State:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Scores {
     pub conversions: i32,
@@ -1999,7 +1995,6 @@ def end_of_game_output_event(state: State) -> None:
 '''
 
 rust = '''
-#[doc = "// NOTE: Map Python module 'dataclasses'()"]
 pub const FIRST_HALF_INDEX: i32 = 0;
 pub const SECOND_HALF_INDEX: i32 = 1;
 #[derive(Debug, Clone)]
