@@ -2148,12 +2148,26 @@ fn generate_type_alias_tokens(
 /// Generate a main() function wrapping module-level statements
 fn generate_main_function(
     statements: &[HirStmt],
+    type_aliases: &[TypeAlias],
     ctx: &mut CodeGenContext,
 ) -> Result<proc_macro2::TokenStream> {
     use context::RustCodeGen;
 
     // Analyze which variables need to be mutable (empty params for main function)
     analyze_mutable_vars(statements, ctx, &[]);
+
+    // Generate type aliases (as local types in main function)
+    let mut type_alias_tokens = Vec::new();
+    for type_alias in type_aliases {
+        let name_ident = syn::Ident::new(&type_alias.name, proc_macro2::Span::call_site());
+        let rust_type = ctx.type_mapper.map_type(&type_alias.target_type);
+        let target_type_syn = type_gen::rust_type_to_syn(&rust_type)?;
+
+        // Generate type alias without 'pub' modifier (local to function)
+        type_alias_tokens.push(quote! {
+            type #name_ident = #target_type_syn;
+        });
+    }
 
     // Convert all statements to Rust
     let mut stmt_tokens = Vec::new();
@@ -2164,6 +2178,7 @@ fn generate_main_function(
 
     Ok(quote! {
         fn main() {
+            #(#type_alias_tokens)*
             #(#stmt_tokens)*
         }
     })
@@ -2452,8 +2467,11 @@ pub fn generate_rust_file(
     // Add module-level constants
     items.extend(generate_constant_tokens(&module.constants, &mut ctx)?);
 
-    // Add type aliases
-    items.extend(generate_type_alias_tokens(&module.type_aliases, &ctx)?);
+    // Add type aliases only if there are no module-level statements
+    // (If there are statements, type aliases will be added inside main function)
+    if module.statements.is_empty() {
+        items.extend(generate_type_alias_tokens(&module.type_aliases, &ctx)?);
+    }
 
     // Add collection imports if needed
     items.extend(generate_conditional_imports(&ctx));
@@ -2483,7 +2501,7 @@ pub fn generate_rust_file(
 
     // Add module-level statements wrapped in a main() function if there are any
     if !module.statements.is_empty() {
-        let main_fn = generate_main_function(&module.statements, &mut ctx)?;
+        let main_fn = generate_main_function(&module.statements, &module.type_aliases, &mut ctx)?;
         items.push(main_fn);
     }
 

@@ -183,9 +183,17 @@ impl AstBridge {
                     | ast::Stmt::ImportFrom(_)
                     | ast::Stmt::Assign(_)
                     | ast::Stmt::AnnAssign(_)
-                    | ast::Stmt::TypeAlias(_)
             )
         });
+
+        // Also check if there are any type aliases - if so, treat as having executable statements
+        // so that type aliases and their usage are both put in the main function
+        let has_type_aliases = module.body.iter().any(|stmt| {
+            matches!(stmt, ast::Stmt::TypeAlias(_))
+                || matches!(stmt, ast::Stmt::Assign(assign) if Self::looks_like_type_alias(assign))
+        });
+
+        let has_executable_statements = has_executable_statements || has_type_aliases;
 
         for stmt in module.body {
             match stmt {
@@ -431,6 +439,20 @@ impl AstBridge {
         }
 
         TranspilationAnnotations::default()
+    }
+
+    /// Check if an assignment looks like a type alias (static method for early detection)
+    fn looks_like_type_alias(assign: &ast::StmtAssign) -> bool {
+        // Single target assignment
+        if assign.targets.len() != 1 {
+            return false;
+        }
+
+        // Check if RHS is a type expression
+        matches!(
+            assign.value.as_ref(),
+            ast::Expr::Name(_) | ast::Expr::Subscript(_) | ast::Expr::Call(_)
+        )
     }
 
     fn try_convert_type_alias(&self, assign: &ast::StmtAssign) -> Result<Option<TypeAlias>> {
