@@ -294,6 +294,13 @@ fn build_derive_attributes(class: &HirClass) -> Vec<syn::Attribute> {
     // Check if the struct has no instance fields (only class constants)
     let has_instance_fields = class.fields.iter().any(|f| !f.is_class_var);
 
+    // Check if this class will have a Drop implementation
+    // Drop and Copy are mutually exclusive in Rust
+    let has_drop_impl = class
+        .methods
+        .iter()
+        .any(|m| m.name == "__del__" || m.name == "close");
+
     // Check if all instance fields are Copy-able
     let all_fields_copyable = class
         .fields
@@ -309,14 +316,16 @@ fn build_derive_attributes(class: &HirClass) -> Vec<syn::Attribute> {
             "PartialEq".to_string(),
             "Default".to_string(),
         ];
-        if all_fields_copyable {
+        // Only add Copy if fields are copyable AND there's no Drop implementation
+        if all_fields_copyable && !has_drop_impl {
             d.insert(1, "Copy".to_string()); // Insert after Debug, before Clone
         }
         d
     } else if !has_instance_fields {
         // Empty struct (only class constants like IntEnum) can implement Copy
         vec!["Debug".to_string(), "Copy".to_string(), "Clone".to_string()]
-    } else if all_fields_copyable {
+    } else if all_fields_copyable && !has_drop_impl {
+        // Only add Copy if fields are copyable AND there's no Drop implementation
         vec!["Debug".to_string(), "Copy".to_string(), "Clone".to_string()]
     } else {
         vec!["Debug".to_string(), "Clone".to_string()]
@@ -529,14 +538,19 @@ pub fn convert_class_to_struct(
     }
 
     // Generate _get_field method for dynamic attribute access
-    if let Some(get_field_method) = generate_get_field_method(class, type_mapper)? {
-        impl_items.push(syn::ImplItem::Fn(get_field_method));
-    }
+    // Only generate if the class actually uses dynamic attribute access (getattr/setattr with variable names)
+    // For now, we don't generate these methods as they add unnecessary boilerplate
+    // They would only be needed if the code uses getattr(obj, variable_name) or setattr(obj, variable_name, value)
+    // where variable_name is not a string literal.
+    // TODO: Implement analysis to detect when these methods are actually needed
+    // if let Some(get_field_method) = generate_get_field_method(class, type_mapper)? {
+    //     impl_items.push(syn::ImplItem::Fn(get_field_method));
+    // }
 
     // Generate _set_field method for dynamic attribute mutation
-    if let Some(set_field_method) = generate_set_field_method(class, type_mapper)? {
-        impl_items.push(syn::ImplItem::Fn(set_field_method));
-    }
+    // if let Some(set_field_method) = generate_set_field_method(class, type_mapper)? {
+    //     impl_items.push(syn::ImplItem::Fn(set_field_method));
+    // }
 
     // Only generate impl block if there are methods
     if !impl_items.is_empty() {
@@ -1076,16 +1090,24 @@ fn generate_drop_impl(
     // Find __del__ method
     let del_method = class.methods.iter().find(|m| m.name == "__del__");
 
-    if del_method.is_none() {
-        return Ok(None);
-    }
+    // If there's a __del__ method, use its body
+    let body = if let Some(del_method) = del_method {
+        let empty_field_types = HashMap::new();
+        convert_block_with_context(&del_method.body, type_mapper, false, &empty_field_types)?
+    } else {
+        // Check if there's a close() method
+        let close_method = class.methods.iter().find(|m| m.name == "close");
 
-    let del_method = del_method.unwrap();
-
-    // Convert __del__ body to Rust
-    let empty_field_types = HashMap::new();
-    let body =
-        convert_block_with_context(&del_method.body, type_mapper, false, &empty_field_types)?;
+        if let Some(_) = close_method {
+            // Generate a simple Drop that calls self.close()
+            parse_quote! {{
+                self.close();
+            }}
+        } else {
+            // No __del__ or close() method
+            return Ok(None);
+        }
+    };
 
     // Create Drop trait implementation
     let drop_impl = syn::Item::Impl(syn::ItemImpl {

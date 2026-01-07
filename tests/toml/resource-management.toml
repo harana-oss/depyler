@@ -17,10 +17,8 @@ def read_file_safe(path: str) -> str:
 '''
 
 rust = '''
-use std::fs;
-
-pub fn read_file_safe(path: &str) -> String {
-    return fs::read_to_string(path).unwrap_or_default();
+pub fn read_file_safe(path: String) -> String {
+    return std::fs::read_to_string(path).unwrap_or_default();
 }
 '''
 
@@ -39,10 +37,8 @@ def write_file_safe(path: str, content: str) -> bool:
 '''
 
 rust = '''
-use std::fs;
-
-pub fn write_file_safe(path: &str, content: &str) -> bool {
-    match fs::write(path, content) {
+pub fn write_file_safe(path: String, content: String) -> bool {
+    match std::fs::write(path, content) {
         Ok(_) => return true,
         Err(_) => return false,
     }
@@ -63,10 +59,8 @@ def count_lines(path: str) -> int:
 '''
 
 rust = '''
-use std::fs;
-
-pub fn count_lines(path: &str) -> i32 {
-    match fs::read_to_string(path) {
+pub fn count_lines(path: String) -> i32 {
+    match std::fs::read_to_string(path) {
         Ok(content) => return content.lines().count() as i32,
         Err(_) => return 0,
     }
@@ -97,12 +91,12 @@ class Connection:
 '''
 
 rust = '''
+#[derive(Debug, Clone)]
 pub struct Connection {
     pub host: String,
     pub port: i32,
     pub connected: bool,
 }
-
 impl Connection {
     pub fn new(host: String, port: i32) -> Self {
         Self {
@@ -111,12 +105,10 @@ impl Connection {
             connected: false,
         }
     }
-
     pub fn connect(&mut self) -> bool {
         self.connected = true;
         return true;
     }
-
     pub fn disconnect(&mut self) {
         self.connected = false;
     }
@@ -140,24 +132,21 @@ class AutoCloser:
 '''
 
 rust = '''
+#[derive(Debug, Clone)]
 pub struct AutoCloser {
     pub open: bool,
 }
-
 impl AutoCloser {
     pub fn new() -> Self {
         Self { open: true }
     }
-
     pub fn close(&mut self) {
         self.open = false;
     }
-
     pub fn is_open(&self) -> bool {
         return self.open;
     }
 }
-
 impl Drop for AutoCloser {
     fn drop(&mut self) {
         self.close();
@@ -187,20 +176,18 @@ class TempFile:
 '''
 
 rust = '''
+#[derive(Debug, Clone)]
 pub struct TempFile {
     pub name: String,
     pub exists: bool,
 }
-
 impl TempFile {
     pub fn new(name: String) -> Self {
         Self { name, exists: true }
     }
-
     pub fn delete(&mut self) {
         self.exists = false;
     }
-
     pub fn is_valid(&self) -> bool {
         return self.exists;
     }
@@ -257,25 +244,28 @@ class Inner:
 '''
 
 rust = '''
+#[derive(Debug, Clone)]
 pub struct Inner {
     pub closed: bool,
 }
-
 impl Inner {
     pub fn new() -> Self {
         Self { closed: false }
     }
-
     pub fn close(&mut self) {
         self.closed = true;
     }
 }
-
+impl Drop for Inner {
+    fn drop(&mut self) {
+        self.close();
+    }
+}
+#[derive(Debug, Clone)]
 pub struct Outer {
     pub inner: Option<Inner>,
     pub closed: bool,
 }
-
 impl Outer {
     pub fn new() -> Self {
         Self {
@@ -283,16 +273,19 @@ impl Outer {
             closed: false,
         }
     }
-
     pub fn set_inner(&mut self, inner: Inner) {
         self.inner = Some(inner);
     }
-
     pub fn close(&mut self) {
         if let Some(ref mut inner) = self.inner {
             inner.close();
         }
         self.closed = true;
+    }
+}
+impl Drop for Outer {
+    fn drop(&mut self) {
+        self.close();
     }
 }
 '''
@@ -320,29 +313,27 @@ class ResourceStack:
 '''
 
 rust = '''
+use serde_json;
+#[derive(Debug, Clone)]
 pub struct ResourceStack {
-    pub resources: Vec<String>,
+    pub resources: Vec<serde_json::Value>,
 }
-
 impl ResourceStack {
     pub fn new() -> Self {
         Self { resources: vec![] }
     }
-
     pub fn push(&mut self, name: String) {
         self.resources.push(name);
     }
-
     pub fn pop(&mut self) -> String {
         if self.resources.len() > 0 {
             return self.resources.pop().unwrap();
         }
-        return String::new();
+        return "".to_string();
     }
-
     pub fn cleanup_all(&mut self) {
         while self.resources.len() > 0 {
-            self.resources.pop();
+            self.resources.pop().unwrap();
         }
     }
 }
@@ -372,15 +363,14 @@ class SafeResource:
 '''
 
 rust = '''
+#[derive(Debug, Copy, Clone)]
 pub struct SafeResource {
     pub acquired: bool,
 }
-
 impl SafeResource {
     pub fn new() -> Self {
         Self { acquired: true }
     }
-
     pub fn release(&mut self) -> bool {
         if self.acquired {
             self.acquired = false;
@@ -388,7 +378,6 @@ impl SafeResource {
         }
         return false;
     }
-
     pub fn is_acquired(&self) -> bool {
         return self.acquired;
     }

@@ -883,6 +883,7 @@ impl AstBridge {
             is_abc,
             docstring,
             annotations,
+            needs_dynamic_field_access: false,
         }))
     }
 

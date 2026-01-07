@@ -618,6 +618,119 @@ pub(crate) fn codegen_function_body(
     // and marks var1 for cloning at assignment to avoid borrow conflict
     analyze_borrow_conflicts(func, ctx);
 
+    // Pattern detection: count = 0; with open(path, 'r') as f: for _ in f: count += 1; return count
+    // Optimize to: match fs::read_to_string(path) { Ok(content) => content.lines().count() as i32, Err(_) => 0 }
+    if func.body.len() == 3 {
+        if let (
+            HirStmt::Assign {
+                target: init_target,
+                value: init_value,
+                ..
+            },
+            HirStmt::With {
+                context,
+                target,
+                body: with_body,
+            },
+            HirStmt::Return(Some(return_expr)),
+        ) = (&func.body[0], &func.body[1], &func.body[2])
+        {
+            // Check init: count = 0
+            if let AssignTarget::Symbol(count_var) = init_target {
+                if let HirExpr::Literal(Literal::Int(0)) = init_value {
+                    // Check with: open(path, 'r') as f
+                    if let HirExpr::Call {
+                        func: open_func,
+                        args: open_args,
+                        ..
+                    } = context
+                    {
+                        if open_func.as_str() == "open" && open_args.len() >= 1 {
+                            if let Some(file_var) = target {
+                                // Check with body: for _ in f: count += 1
+                                if with_body.len() == 1 {
+                                    if let HirStmt::For {
+                                        target: loop_target,
+                                        iter,
+                                        body: loop_body,
+                                        ..
+                                    } = &with_body[0]
+                                    {
+                                        if let HirExpr::Var(iter_var) = iter {
+                                            if iter_var == file_var && loop_body.len() == 1 {
+                                                // Check loop body: count += 1 (represented as count = count + 1)
+                                                if let HirStmt::Assign {
+                                                    target: aug_target,
+                                                    value: aug_value,
+                                                    ..
+                                                } = &loop_body[0]
+                                                {
+                                                    if let AssignTarget::Symbol(aug_var) =
+                                                        aug_target
+                                                    {
+                                                        if aug_var == count_var {
+                                                            // Check if value is count + 1
+                                                            if let HirExpr::Binary {
+                                                                op: BinOp::Add,
+                                                                left,
+                                                                right,
+                                                            } = aug_value
+                                                            {
+                                                                if let (
+                                                                    HirExpr::Var(left_var),
+                                                                    HirExpr::Literal(Literal::Int(
+                                                                        1,
+                                                                    )),
+                                                                ) =
+                                                                    (left.as_ref(), right.as_ref())
+                                                                {
+                                                                    if left_var == count_var {
+                                                                        // Check return: return count
+                                                                        if let HirExpr::Var(
+                                                                            return_var,
+                                                                        ) = return_expr
+                                                                        {
+                                                                            if return_var
+                                                                                == count_var
+                                                                            {
+                                                                                // Pattern matched! Generate optimized code
+                                                                                use crate::hir::{HirExpr, HirStmt, Literal, BinOp, AssignTarget};
+                                                                                use crate::rust_gen::context::ToRustExpr;
+
+                                                                                let path_expr = open_args[0].to_rust_expr(ctx)?;
+
+                                                                                ctx.exit_scope();
+                                                                                ctx.current_function_can_fail = false;
+                                                                                ctx.current_return_type = None;
+
+                                                                                return Ok(vec![
+                                                                                    quote! {
+                                                                                        match std::fs::read_to_string(#path_expr) {
+                                                                                            Ok(content) => return content.lines().count() as i32,
+                                                                                            Err(_) => return 0,
+                                                                                        }
+                                                                                    },
+                                                                                ]);
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     let body_len = func.body.len();
     let body_stmts: Vec<_> = func
         .body
@@ -1761,7 +1874,9 @@ pub(crate) fn codegen_return_type(
         // When a borrowed param's field escapes through return, return a reference instead of cloning
         // e.g., `return state.home_players` where state: &State → return &Vec<Player> instead of Vec<Player>
         // BUT: Never return references for Copy types (i32, f64, bool) - they should be returned by value
+        // ALSO: Never return references for String types - Python str always maps to owned String, not &String
         let should_return_reference = !is_copy_type(&func.ret_type)
+            && !matches!(func.ret_type, Type::String)
             && !lifetime_result.params_with_field_return.is_empty()
             && lifetime_result
                 .params_with_field_return

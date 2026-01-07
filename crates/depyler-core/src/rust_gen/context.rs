@@ -119,6 +119,9 @@ pub struct CodeGenContext<'a> {
 
     pub stdlib_mappings: crate::stdlib_mappings::StdlibMappings,
 
+    /// Track classes that need _get_field/_set_field methods for dynamic attribute access
+    pub classes_needing_dynamic_access: HashSet<String>,
+
     /// Track parameters in the current function that are &mut references
     pub current_func_mut_ref_params: HashSet<String>,
 

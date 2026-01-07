@@ -271,6 +271,8 @@ pub struct HirClass {
     pub is_abc: bool,
     pub docstring: Option<String>,
     pub annotations: TranspilationAnnotations,
+    /// Set to true if the class uses dynamic attribute access (getattr/setattr with variable names)
+    pub needs_dynamic_field_access: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

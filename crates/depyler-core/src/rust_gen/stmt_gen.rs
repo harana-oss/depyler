@@ -1246,6 +1246,44 @@ pub(crate) fn codegen_with_stmt(
     body: &[HirStmt],
     ctx: &mut CodeGenContext,
 ) -> Result<proc_macro2::TokenStream> {
+    use crate::hir::HirExpr;
+    use crate::hir::HirStmt;
+
+    // Pattern detection: with open(path, 'r') as f: return f.read()
+    // Optimize to: fs::read_to_string(path).unwrap_or_default()
+    if let HirExpr::Call { func, args, .. } = context {
+        if func.as_str() == "open" && !args.is_empty() {
+            if let Some(var_name) = target {
+                // Check if body is a single return statement with f.read()
+                if body.len() == 1 {
+                    if let HirStmt::Return(Some(return_expr)) = &body[0] {
+                        if let HirExpr::MethodCall {
+                            object,
+                            method,
+                            args: method_args,
+                            ..
+                        } = return_expr
+                        {
+                            if let HirExpr::Var(obj_name) = &**object {
+                                if obj_name == var_name
+                                    && method == "read"
+                                    && method_args.is_empty()
+                                {
+                                    // Pattern matched! Optimize to fs::read_to_string
+                                    let path_expr = args[0].to_rust_expr(ctx)?;
+                                    return Ok(quote! {
+                                        return std::fs::read_to_string(#path_expr).unwrap_or_default();
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Default non-optimized path
     // Convert context expression
     let context_expr = context.to_rust_expr(ctx)?;
 
@@ -4702,6 +4740,52 @@ pub(crate) fn codegen_try_stmt(
         }
     }
 
+    // Pattern: try { if cond: raise ValueError("msg"); return True } except ValueError { return False }
+    // Optimize to: if cond { return false; } return true;
+    if body.len() == 2 && handlers.len() == 1 && finalbody.is_none() && handlers[0].name.is_none() {
+        // Check if first statement is: if cond: raise ValueError("msg")
+        if let HirStmt::If {
+            condition,
+            then_body: if_body,
+            else_body: orelse,
+        } = &body[0]
+        {
+            if orelse.is_none() && if_body.len() == 1 {
+                if let HirStmt::Raise {
+                    exception: Some(exc_expr),
+                    ..
+                } = &if_body[0]
+                {
+                    // Check if it's raising ValueError or similar
+                    let exc_type = extract_exception_type(exc_expr);
+                    if let Some(handler_exc) = &handlers[0].exception_type {
+                        if exc_type == *handler_exc || handler_exc.is_empty() {
+                            // Check if second statement in try is return <value>
+                            if let HirStmt::Return(Some(ok_val)) = &body[1] {
+                                // Check if handler returns a simple value
+                                if handlers[0].body.len() == 1 {
+                                    if let HirStmt::Return(Some(err_val)) = &handlers[0].body[0] {
+                                        // Pattern matched! Generate optimized if-else
+                                        let cond = condition.to_rust_expr(ctx)?;
+                                        let err_value = err_val.to_rust_expr(ctx)?;
+                                        let ok_value = ok_val.to_rust_expr(ctx)?;
+
+                                        return Ok(quote! {
+                                            if #cond {
+                                                return #err_value;
+                                            }
+                                            return #ok_value;
+                                        });
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     // Pattern: try { return int(str_var) } except ValueError { return literal }
     // We can optimize this to: s.parse::<i32>().unwrap_or(literal)
     // Those need proper match with Err(e) binding
@@ -4858,6 +4942,82 @@ pub(crate) fn codegen_try_stmt(
         }
     }
 
+    // Check if handler catches IOError or OSError (file operations)
+    let has_io_error_handler = handlers.iter().any(|h| {
+        matches!(
+            h.exception_type.as_deref(),
+            Some("IOError") | Some("OSError") | None
+        )
+    });
+
+    // Pattern: try { with open(path, 'w') as f: f.write(content); return True } except IOError { return False }
+    // Optimize to: match fs::write(path, content) { Ok(_) => return true, Err(_) => return false }
+    if has_io_error_handler && body.len() == 2 && handlers.len() == 1 && finalbody.is_none() {
+        if let (
+            HirStmt::With {
+                context,
+                target,
+                body: with_body,
+            },
+            HirStmt::Return(Some(ok_value)),
+        ) = (&body[0], &body[1])
+        {
+            // Check if it's an open() call
+            if let HirExpr::Call { func, args, .. } = context {
+                if func.as_str() == "open" && args.len() >= 2 {
+                    // Check mode is 'w' or "w"
+                    if let HirExpr::Literal(Literal::String(mode)) = &args[1] {
+                        if mode == "w" || mode == "wb" {
+                            // Check if with body is single statement: f.write(content)
+                            if let Some(var_name) = target {
+                                if with_body.len() == 1 {
+                                    if let HirStmt::Expr(HirExpr::MethodCall {
+                                        object,
+                                        method,
+                                        args: write_args,
+                                        ..
+                                    }) = &with_body[0]
+                                    {
+                                        if let HirExpr::Var(obj_name) = &**object {
+                                            if obj_name == var_name
+                                                && method == "write"
+                                                && write_args.len() == 1
+                                            {
+                                                // Pattern matched! Check handler returns a simple value
+                                                if handlers[0].body.len() == 1 {
+                                                    if let HirStmt::Return(Some(err_value)) =
+                                                        &handlers[0].body[0]
+                                                    {
+                                                        let path_expr =
+                                                            args[0].to_rust_expr(ctx)?;
+                                                        let content_expr =
+                                                            write_args[0].to_rust_expr(ctx)?;
+                                                        let ok_val = ok_value.to_rust_expr(ctx)?;
+                                                        let err_val =
+                                                            err_value.to_rust_expr(ctx)?;
+
+                                                        ctx.exit_exception_scope();
+
+                                                        return Ok(quote! {
+                                                            match std::fs::write(#path_expr, #content_expr) {
+                                                                Ok(_) => return #ok_val,
+                                                                Err(_) => return #err_val,
+                                                            }
+                                                        });
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     // Convert try body to statements
     // Save and temporarily disable is_final_statement so return statements
     // in try blocks get the explicit 'return' keyword (needed for proper exception handling)
@@ -4922,10 +5082,8 @@ pub(crate) fn codegen_try_stmt(
         // Try/finally without except
         if let Some(finally_code) = finally_stmts {
             Ok(quote! {
-                {
-                    #(#try_stmts)*
-                    #finally_code
-                }
+                #(#try_stmts)*
+                #finally_code
             })
         } else {
             // Just try block

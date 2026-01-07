@@ -1567,6 +1567,112 @@ fn analyze_mutable_vars(stmts: &[HirStmt], ctx: &mut CodeGenContext, params: &[H
         );
     }
 }
+/// Topologically sort classes based on field dependencies
+///
+/// Classes that are referenced in other classes' fields must be defined first.
+/// For example, if `Outer` has a field of type `Inner`, then `Inner` must be
+/// defined before `Outer` in Rust.
+fn topologically_sort_classes<'a>(classes: &'a [HirClass]) -> Vec<&'a HirClass> {
+    use std::collections::{HashMap, HashSet};
+
+    // Build a map of class names to classes
+    let class_map: HashMap<&str, &HirClass> =
+        classes.iter().map(|c| (c.name.as_str(), c)).collect();
+
+    // Build dependency graph: for each class, track which classes it depends on
+    // (i.e., which classes are referenced in its fields)
+    let mut depends_on: HashMap<&str, HashSet<&str>> = HashMap::new();
+
+    for class in classes {
+        let mut deps = HashSet::new();
+
+        // Check field types for dependencies on other classes
+        for field in &class.fields {
+            fn extract_custom_types<'a>(ty: &'a Type, result: &mut Vec<&'a str>) {
+                match ty {
+                    Type::Custom(name) => result.push(name.as_str()),
+                    Type::Optional(inner) => extract_custom_types(inner, result),
+                    Type::List(inner) => extract_custom_types(inner, result),
+                    Type::Set(inner) => extract_custom_types(inner, result),
+                    Type::Dict(k, v) => {
+                        extract_custom_types(k, result);
+                        extract_custom_types(v, result);
+                    }
+                    _ => {}
+                }
+            }
+
+            let mut custom_types = Vec::new();
+            extract_custom_types(&field.field_type, &mut custom_types);
+
+            for dep_name in custom_types {
+                // Only add as dependency if it's another class in this module
+                if class_map.contains_key(dep_name) && dep_name != class.name.as_str() {
+                    deps.insert(dep_name);
+                }
+            }
+        }
+
+        depends_on.insert(class.name.as_str(), deps);
+    }
+
+    // Topological sort using DFS
+    let mut result = Vec::new();
+    let mut visited = HashSet::new();
+    let mut visiting = HashSet::new();
+
+    fn visit<'a>(
+        class_name: &'a str,
+        depends_on: &HashMap<&'a str, HashSet<&'a str>>,
+        class_map: &HashMap<&'a str, &'a HirClass>,
+        visited: &mut HashSet<&'a str>,
+        visiting: &mut HashSet<&'a str>,
+        result: &mut Vec<&'a HirClass>,
+    ) -> bool {
+        if visited.contains(class_name) {
+            return true;
+        }
+
+        if visiting.contains(class_name) {
+            // Cycle detected
+            return false;
+        }
+
+        visiting.insert(class_name);
+
+        // Visit dependencies first
+        if let Some(deps) = depends_on.get(class_name) {
+            for dep in deps {
+                if !visit(dep, depends_on, class_map, visited, visiting, result) {
+                    return false;
+                }
+            }
+        }
+
+        visiting.remove(class_name);
+        visited.insert(class_name);
+        result.push(class_map[class_name]);
+
+        true
+    }
+
+    // Visit all classes
+    for class in classes {
+        if !visit(
+            class.name.as_str(),
+            &depends_on,
+            &class_map,
+            &mut visited,
+            &mut visiting,
+            &mut result,
+        ) {
+            // Cycle detected - fall back to original order
+            return classes.iter().collect();
+        }
+    }
+
+    result
+}
 
 /// Convert Python classes to Rust structs or enums
 fn convert_classes_to_rust(
@@ -1583,7 +1689,10 @@ fn convert_classes_to_rust(
         .map(|c| (c.name.clone(), c))
         .collect();
 
-    for class in classes {
+    // Topologically sort classes so dependencies come first
+    let sorted_classes = topologically_sort_classes(classes);
+
+    for class in sorted_classes {
         // Scan field types for import needs
         for field in &class.fields {
             match &field.field_type {
@@ -2180,9 +2289,10 @@ pub fn generate_rust_file(
         current_subcommand_fields: None, // Subcommand field extraction
         validator_functions: HashSet::new(), // Track argparse validator functions
         stdlib_mappings: crate::stdlib_mappings::StdlibMappings::new(), // Stdlib API mappings
-        current_func_mut_ref_params: HashSet::new(), // Track &mut ref params in current function
-        current_func_ref_params: HashSet::new(), // Track & ref params in current function
-        shadowed_ref_params: HashSet::new(), // Track vars that shadow ref params
+        classes_needing_dynamic_access: HashSet::new(), // Track classes needing _get_field/_set_field
+        current_func_mut_ref_params: HashSet::new(),    // Track &mut ref params in current function
+        current_func_ref_params: HashSet::new(),        // Track & ref params in current function
+        shadowed_ref_params: HashSet::new(),            // Track vars that shadow ref params
         function_param_names: std::collections::HashMap::new(), // Track function parameter names
         function_param_types: std::collections::HashMap::new(), // Track function parameter types
         var_usage_counts: std::collections::HashMap::new(), // Variable usage counts for clone analysis

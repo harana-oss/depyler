@@ -2915,6 +2915,39 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
     }
 
+    /// Helper to mark a class as needing dynamic field access methods (_get_field/_set_field)
+    /// when getattr/setattr is used with dynamic attribute names.
+    fn mark_class_needs_dynamic_access(&mut self, obj_expr: &HirExpr) {
+        // Try to determine the class name from the object expression
+        let class_name = match obj_expr {
+            // self → current class (tracked in context, but we can infer from var_types if needed)
+            HirExpr::Var(var_name) => {
+                if let Some(Type::Custom(class_name)) = self.ctx.var_types.get(var_name) {
+                    Some(class_name.clone())
+                } else {
+                    None
+                }
+            }
+            // Method call or attribute that has a custom type
+            HirExpr::Attribute { value, .. } | HirExpr::MethodCall { object: value, .. } => {
+                if let HirExpr::Var(var_name) = value.as_ref() {
+                    if let Some(Type::Custom(class_name)) = self.ctx.var_types.get(var_name) {
+                        Some(class_name.clone())
+                    } else {
+                        None
+                    }
+                } else {
+                    None
+                }
+            }
+            _ => None,
+        };
+
+        if let Some(class_name) = class_name {
+            self.ctx.classes_needing_dynamic_access.insert(class_name);
+        }
+    }
+
     //
     /// getattr(obj, name) → obj.name
     /// getattr(obj, name, default) → obj.name (default is ignored in static Rust)
@@ -2937,6 +2970,9 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             }
             // Dynamic attribute name (f-string) - generate _get_field() call
             HirExpr::FString { parts } => {
+                // Mark the class as needing dynamic field access
+                self.mark_class_needs_dynamic_access(&hir_args[0]);
+                
                 let key_expr = self.convert_fstring(parts)?;
                 if hir_args.len() == 3 {
                     let default_expr = hir_args[2].to_rust_expr(self.ctx)?;
@@ -2951,6 +2987,9 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             }
             // Variable containing the attribute name - generate _get_field() call
             HirExpr::Var(_) => {
+                // Mark the class as needing dynamic field access
+                self.mark_class_needs_dynamic_access(&hir_args[0]);
+                
                 let key_expr = hir_args[1].to_rust_expr(self.ctx)?;
                 if hir_args.len() == 3 {
                     let default_expr = hir_args[2].to_rust_expr(self.ctx)?;
@@ -3037,6 +3076,9 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             }
             // Dynamic attribute name (f-string) - generate _set_field() call
             HirExpr::FString { parts } => {
+                // Mark the class as needing dynamic field access
+                self.mark_class_needs_dynamic_access(&hir_args[0]);
+                
                 let key_expr = self.convert_fstring(parts)?;
                 Ok(parse_quote! {
                     {
@@ -3046,6 +3088,9 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             }
             // Variable containing the attribute name - generate _set_field() call
             HirExpr::Var(_) => {
+                // Mark the class as needing dynamic field access
+                self.mark_class_needs_dynamic_access(&hir_args[0]);
+                
                 let key_expr = hir_args[1].to_rust_expr(self.ctx)?;
                 Ok(parse_quote! {
                     {

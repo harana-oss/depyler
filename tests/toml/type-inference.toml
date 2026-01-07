@@ -536,7 +536,7 @@ rust = '''
 pub fn sum_list(items: &Vec<i32>) -> i32 {
     let mut total = 0;
     for item in items.iter().cloned() {
-        total = total + item;
+        total += item;
     }
     return total;
 }
@@ -798,7 +798,7 @@ use serde_json;
 pub fn sum_list(numbers: &Vec<serde_json::Value>) -> i32 {
     let mut total = 0;
     for num in numbers.iter().cloned() {
-        total = total + num;
+        total += num;
     }
     return total;
 }
@@ -1874,7 +1874,7 @@ rust = '''
 pub fn sum_list(numbers: &Vec<i32>) -> i32 {
     let mut total = 0;
     for n in numbers.iter().cloned() {
-        total = total + n;
+        total += n;
     }
     return total;
 }
