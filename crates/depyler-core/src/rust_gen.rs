@@ -2152,6 +2152,9 @@ fn generate_main_function(
 ) -> Result<proc_macro2::TokenStream> {
     use context::RustCodeGen;
 
+    // Analyze which variables need to be mutable (empty params for main function)
+    analyze_mutable_vars(statements, ctx, &[]);
+
     // Convert all statements to Rust
     let mut stmt_tokens = Vec::new();
     for stmt in statements {

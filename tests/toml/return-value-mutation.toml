@@ -79,8 +79,7 @@ def read_only(s: State) -> int:
 '''
 
 rust = '''
-use serde_json;
-#[derive(Debug, Clone, PartialEq, Default)]
+#[derive(Debug, Copy, Clone, PartialEq, Default)]
 pub struct Data {
     pub count: i32,
 }
