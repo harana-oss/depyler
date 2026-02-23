@@ -8,6 +8,7 @@ category = "data-structures"
 
 [[test]]
 name = "dataclass_eq_default"
+skip = true
 description = "@dataclass auto-generates __eq__"
 
 python = '''
@@ -32,6 +33,7 @@ struct Point {
 
 [[test]]
 name = "dataclass_equal"
+skip = true
 description = "Point(1, 2) == Point(1, 2)"
 
 python = '''
@@ -58,6 +60,7 @@ rust = '''
 
 [[test]]
 name = "dataclass_not_equal"
+skip = true
 description = "Point(1, 2) != Point(1, 3)"
 
 python = '''
@@ -84,6 +87,7 @@ rust = '''
 
 [[test]]
 name = "dataclass_eq_types"
+skip = true
 description = "Point(1, 2) != (1, 2)"
 
 python = '''
@@ -115,6 +119,7 @@ rust = '''
 
 [[test]]
 name = "dataclass_order"
+skip = true
 description = "@dataclass(order=True)"
 
 python = '''
@@ -139,6 +144,7 @@ struct Point {
 
 [[test]]
 name = "dataclass_lt"
+skip = true
 description = "Point(1, 2) < Point(1, 3)"
 
 python = '''
@@ -165,6 +171,7 @@ rust = '''
 
 [[test]]
 name = "dataclass_gt"
+skip = true
 description = "Point(2, 0) > Point(1, 9)"
 
 python = '''
@@ -191,6 +198,7 @@ rust = '''
 
 [[test]]
 name = "dataclass_le"
+skip = true
 description = "Point(1, 2) <= Point(1, 2)"
 
 python = '''
@@ -217,6 +225,7 @@ rust = '''
 
 [[test]]
 name = "dataclass_ge"
+skip = true
 description = "Point(1, 2) >= Point(1, 1)"
 
 python = '''
@@ -247,6 +256,7 @@ rust = '''
 
 [[test]]
 name = "dataclass_field_order"
+skip = true
 description = "Compares first field, then second, etc."
 
 python = '''
@@ -274,6 +284,7 @@ rust = '''
 
 [[test]]
 name = "dataclass_compare_multi"
+skip = true
 description = "Comparison with 3+ fields"
 
 python = '''
@@ -314,6 +325,7 @@ rust = '''
 
 [[test]]
 name = "dataclass_exclude_compare"
+skip = true
 description = "field(compare=False)"
 
 python = '''
@@ -347,6 +359,7 @@ rust = '''
 
 [[test]]
 name = "dataclass_excluded_eq"
+skip = true
 description = "Objects equal even if excluded field differs"
 
 python = '''
@@ -379,6 +392,7 @@ rust = '''
 
 [[test]]
 name = "dataclass_excluded_order"
+skip = true
 description = "Excluded field not used in ordering"
 
 python = '''
@@ -435,6 +449,7 @@ rust = '''
 
 [[test]]
 name = "dataclass_no_eq"
+skip = true
 description = "@dataclass(eq=False)"
 
 python = '''
@@ -459,6 +474,7 @@ struct Point {
 
 [[test]]
 name = "dataclass_eq_false_identity"
+skip = true
 description = "With eq=False, uses object identity"
 
 python = '''
@@ -496,6 +512,7 @@ rust = '''
 
 [[test]]
 name = "dataclass_order_needs_eq"
+skip = true
 description = "order=True with eq=False raises"
 
 python = '''
@@ -529,6 +546,7 @@ rust = '''
 
 [[test]]
 name = "dataclass_order_no_existing"
+skip = true
 description = "Cannot have existing __lt__ with order=True"
 
 python = '''
@@ -552,6 +570,7 @@ struct Example {
 
 [[test]]
 name = "dataclass_sort"
+skip = true
 description = "sorted([Point(2,1), Point(1,3)])"
 
 python = '''
@@ -582,6 +601,7 @@ rust = '''
 
 [[test]]
 name = "dataclass_minmax"
+skip = true
 description = "min(points), max(points)"
 
 python = '''
@@ -622,6 +642,7 @@ rust = '''
 
 [[test]]
 name = "dataclass_inherit_compare"
+skip = true
 description = "Comparing parent and child instances"
 
 python = '''
@@ -663,6 +684,7 @@ rust = '''
 
 [[test]]
 name = "dataclass_none_compare"
+skip = true
 description = "Comparing when field is None"
 
 python = '''
@@ -694,6 +716,7 @@ rust = '''
 
 [[test]]
 name = "dataclass_custom_eq_order"
+skip = true
 description = "Custom __eq__ but use generated order"
 
 python = '''

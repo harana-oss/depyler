@@ -1,9 +1,0 @@
-  imports-relative.toml :: relative_beyond_top
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− // from ... in top-level raises
-−     // In Rust: This would be a compile error
-−     let result = true;
-+ pub const result: bool = true;
-────────────────────────────────────────────────────────────

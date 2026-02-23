@@ -1,9 +1,0 @@
-  constant-type-inference.toml :: binary_add_int_type
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-  pub fn add_ints() -> i32 {
-−     return 1 + 2;
-+     return 3;
-  }
-────────────────────────────────────────────────────────────

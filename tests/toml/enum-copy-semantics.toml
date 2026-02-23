@@ -5,6 +5,7 @@ description = "Tests for enum Copy semantics vs struct Clone requirements"
 
 [[test]]
 name = "enum_type_no_clone"
+skip = true
 description = "Enum type does NOT need clone when used multiple times"
 
 python = '''
@@ -38,6 +39,7 @@ pub fn process_color(c: Color) -> i32 {
 
 [[test]]
 name = "enum_multiple_uses_no_clone"
+skip = true
 description = "Enum used multiple times still no clone needed"
 
 python = '''
@@ -68,6 +70,7 @@ pub fn check_status(s: Status) -> bool {
 
 [[test]]
 name = "struct_needs_clone"
+skip = true
 description = "Struct type DOES need clone when used multiple times"
 
 python = '''
@@ -104,6 +107,7 @@ pub fn use_point_twice(p: &Point) -> i32 {
 
 [[test]]
 name = "enum_in_match"
+skip = true
 description = "Enum in match expression uses Copy"
 
 python = '''

@@ -1,8 +1,0 @@
-  match-guards.toml :: guard_sequence
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− // case [x, y, z] if sum([x,y,z]) > 10: ...
-−     let result = true; // Placeholder
-+ pub const result: bool = true;
-────────────────────────────────────────────────────────────

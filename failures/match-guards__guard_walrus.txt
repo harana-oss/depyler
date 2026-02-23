@@ -1,8 +1,0 @@
-  match-guards.toml :: guard_walrus
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− // case x if (y := compute(x)) > 0: use y
-−     let result = true; // Placeholder
-+ pub const result: bool = true;
-────────────────────────────────────────────────────────────

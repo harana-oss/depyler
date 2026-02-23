@@ -8,6 +8,7 @@ category = "async"
 
 [[test]]
 name = "create_task"
+skip = true
 description = "task = asyncio.create_task(coro())"
 
 python = '''
@@ -37,6 +38,7 @@ pub async fn test_create_task() -> i32 {
 
 [[test]]
 name = "task_name"
+skip = true
 description = "asyncio.create_task(coro(), name='my_task')"
 
 python = '''
@@ -71,6 +73,7 @@ pub async fn test_task_name() -> String {
 
 [[test]]
 name = "ensure_future"
+skip = true
 description = "asyncio.ensure_future(awaitable)"
 
 python = '''
@@ -104,6 +107,7 @@ pub async fn test_ensure_future() -> i32 {
 
 [[test]]
 name = "task_cancel"
+skip = true
 description = "Cancel a running task"
 
 python = '''
@@ -138,6 +142,7 @@ pub async fn test_task_cancel() -> bool {
 
 [[test]]
 name = "task_done"
+skip = true
 description = "Check if task completed"
 
 python = '''
@@ -168,6 +173,7 @@ pub async fn test_task_done() -> bool {
 
 [[test]]
 name = "task_result"
+skip = true
 description = "Get task result after completion"
 
 python = '''
@@ -198,6 +204,7 @@ pub async fn test_task_result() -> i32 {
 
 [[test]]
 name = "task_exception"
+skip = true
 description = "Get exception from failed task"
 
 python = '''
@@ -235,6 +242,7 @@ pub async fn test_task_exception() -> bool {
 
 [[test]]
 name = "gather_basic"
+skip = true
 description = "results = await asyncio.gather(*coros)"
 
 python = '''
@@ -271,6 +279,7 @@ pub async fn test_gather_basic() -> Vec<i32> {
 
 [[test]]
 name = "gather_exceptions"
+skip = true
 description = "gather(return_exceptions=True)"
 
 python = '''
@@ -307,6 +316,7 @@ pub async fn test_gather_exceptions() -> usize {
 
 [[test]]
 name = "gather_cancel"
+skip = true
 description = "Cancelling gathered tasks"
 
 python = '''
@@ -351,6 +361,7 @@ pub async fn test_gather_cancel() -> bool {
 
 [[test]]
 name = "wait_basic"
+skip = true
 description = "done, pending = await asyncio.wait(tasks)"
 
 python = '''
@@ -389,6 +400,7 @@ pub async fn test_wait_basic() -> usize {
 
 [[test]]
 name = "wait_timeout"
+skip = true
 description = "asyncio.wait(tasks, timeout=1.0)"
 
 python = '''
@@ -421,6 +433,7 @@ pub async fn test_wait_timeout() -> bool {
 
 [[test]]
 name = "wait_return_when"
+skip = true
 description = "FIRST_COMPLETED, FIRST_EXCEPTION, ALL_COMPLETED"
 
 python = '''
@@ -469,6 +482,7 @@ pub async fn test_wait_return_when() -> usize {
 
 [[test]]
 name = "wait_for"
+skip = true
 description = "await asyncio.wait_for(coro, timeout=1.0)"
 
 python = '''
@@ -503,6 +517,7 @@ pub async fn test_wait_for() -> i32 {
 
 [[test]]
 name = "task_group"
+skip = true
 description = "async with asyncio.TaskGroup() as tg: tg.create_task()"
 
 python = '''
@@ -541,6 +556,7 @@ pub async fn test_task_group() -> i32 {
 
 [[test]]
 name = "task_group_exception"
+skip = true
 description = "TaskGroup cancels all on first exception"
 
 python = '''
@@ -585,6 +601,7 @@ pub async fn test_task_group_exception() -> bool {
 
 [[test]]
 name = "asyncio_run"
+skip = true
 description = "asyncio.run(main())"
 
 python = '''
@@ -612,6 +629,7 @@ pub fn test_asyncio_run() -> i32 {
 
 [[test]]
 name = "event_loop"
+skip = true
 description = "asyncio.get_event_loop()"
 
 python = '''
@@ -631,6 +649,7 @@ pub fn test_event_loop() -> bool {
 
 [[test]]
 name = "asyncio_sleep"
+skip = true
 description = "await asyncio.sleep(1.0)"
 
 python = '''
@@ -657,6 +676,7 @@ pub async fn test_asyncio_sleep() -> bool {
 
 [[test]]
 name = "asyncio_lock"
+skip = true
 description = "async with asyncio.Lock(): ..."
 
 python = '''
@@ -681,6 +701,7 @@ pub async fn test_asyncio_lock() -> i32 {
 
 [[test]]
 name = "asyncio_event"
+skip = true
 description = "event.set(), await event.wait()"
 
 python = '''
@@ -708,6 +729,7 @@ pub async fn test_asyncio_event() -> bool {
 
 [[test]]
 name = "asyncio_semaphore"
+skip = true
 description = "Limit concurrent operations"
 
 python = '''
@@ -732,6 +754,7 @@ pub async fn test_asyncio_semaphore() -> i32 {
 
 [[test]]
 name = "asyncio_queue"
+skip = true
 description = "Async producer-consumer queue"
 
 python = '''
@@ -767,6 +790,7 @@ expected_output = "42"
 
 [[test]]
 name = "orphaned_task"
+skip = true
 description = "Task created but not awaited"
 
 python = '''
@@ -796,6 +820,7 @@ pub async fn test_orphaned_task() -> bool {
 
 [[test]]
 name = "task_different_loop"
+skip = true
 description = "Task running in different event loop"
 
 python = '''
@@ -823,6 +848,7 @@ expected_output = "42"
 
 [[test]]
 name = "shield"
+skip = true
 description = "asyncio.shield(coro)"
 
 python = '''

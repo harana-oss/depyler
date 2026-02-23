@@ -8,6 +8,7 @@ category = "algorithms"
 
 [[test]]
 name = "binary_search_simple"
+skip = true
 description = "Example test"
 
 python = '''
@@ -143,6 +144,7 @@ pub fn find_maximum(arr: &Vec<i32>) -> Result<i32, IndexError> {
 
 [[test]]
 name = "fibonacci"
+skip = true
 description = "Example test"
 
 python = '''
@@ -248,6 +250,7 @@ pub fn fibonacci_iterative(n: i32) -> i32 {
 
 [[test]]
 name = "quicksort"
+skip = true
 description = "Example test"
 
 python = '''

@@ -1,9 +1,0 @@
-  set-operations.toml :: set_constructor
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− pub const result: HashSet<i32> = vec![1, 2, 3].into_iter().collect::<HashSet<_>>();
-− use serde_json;
-− use std::collections::HashSet;
-+ 
-────────────────────────────────────────────────────────────

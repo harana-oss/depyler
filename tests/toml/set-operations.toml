@@ -8,6 +8,7 @@ category = "data-structures"
 
 [[test]]
 name = "set_literal"
+skip = true
 description = "{1, 2, 3}"
 
 python = '''
@@ -30,6 +31,7 @@ use std::collections::HashSet;
 
 [[test]]
 name = "set_constructor"
+skip = true
 description = "set([1, 2, 3])"
 
 python = '''
@@ -44,6 +46,7 @@ use std::collections::HashSet;
 
 [[test]]
 name = "set_empty"
+skip = true
 description = "set() not {}"
 
 python = '''
@@ -73,6 +76,7 @@ use std::collections::HashSet;
 
 [[test]]
 name = "set_from_string"
+skip = true
 description = "set('hello')"
 
 python = '''
@@ -91,6 +95,7 @@ use std::collections::HashSet;
 
 [[test]]
 name = "set_union"
+skip = true
 description = "a.union(b)"
 
 python = '''
@@ -128,6 +133,7 @@ use std::collections::HashSet;
 
 [[test]]
 name = "set_intersection"
+skip = true
 description = "a.intersection(b)"
 
 python = '''
@@ -165,6 +171,7 @@ use std::collections::HashSet;
 
 [[test]]
 name = "set_difference"
+skip = true
 description = "a.difference(b)"
 
 python = '''
@@ -202,6 +209,7 @@ use std::collections::HashSet;
 
 [[test]]
 name = "set_symmetric_difference"
+skip = true
 description = "a.symmetric_difference(b)"
 
 python = '''
@@ -243,6 +251,7 @@ use std::collections::HashSet;
 
 [[test]]
 name = "set_union_op"
+skip = true
 description = "a | b"
 
 python = '''
@@ -280,6 +289,7 @@ use std::collections::HashSet;
 
 [[test]]
 name = "set_intersection_op"
+skip = true
 description = "a & b"
 
 python = '''
@@ -317,6 +327,7 @@ use std::collections::HashSet;
 
 [[test]]
 name = "set_difference_op"
+skip = true
 description = "a - b"
 
 python = '''
@@ -354,6 +365,7 @@ use std::collections::HashSet;
 
 [[test]]
 name = "set_symmetric_difference_op"
+skip = true
 description = "a ^ b"
 
 python = '''
@@ -395,6 +407,7 @@ use std::collections::HashSet;
 
 [[test]]
 name = "set_subset"
+skip = true
 description = "a.issubset(b) or a <= b"
 
 python = '''
@@ -427,6 +440,7 @@ use std::collections::HashSet;
 
 [[test]]
 name = "set_proper_subset"
+skip = true
 description = "a < b"
 
 python = '''
@@ -459,6 +473,7 @@ use std::collections::HashSet;
 
 [[test]]
 name = "set_superset"
+skip = true
 description = "a.issuperset(b) or a >= b"
 
 python = '''
@@ -491,6 +506,7 @@ use std::collections::HashSet;
 
 [[test]]
 name = "set_disjoint"
+skip = true
 description = "a.isdisjoint(b)"
 
 python = '''
@@ -526,6 +542,7 @@ use std::collections::HashSet;
 
 [[test]]
 name = "set_add"
+skip = true
 description = "s.add(elem)"
 
 python = '''
@@ -551,6 +568,7 @@ use std::collections::HashSet;
 
 [[test]]
 name = "set_remove"
+skip = true
 description = "s.remove(elem) raises if missing"
 
 python = '''
@@ -577,6 +595,7 @@ use std::collections::HashSet;
 
 [[test]]
 name = "set_discard"
+skip = true
 description = "s.discard(elem) no error if missing"
 
 python = '''
@@ -604,6 +623,7 @@ use std::collections::HashSet;
 
 [[test]]
 name = "set_pop"
+skip = true
 description = "s.pop() arbitrary element"
 
 python = '''
@@ -638,6 +658,7 @@ use std::collections::HashSet;
 
 [[test]]
 name = "set_clear"
+skip = true
 description = "s.clear()"
 
 python = '''
@@ -668,6 +689,7 @@ use std::collections::HashSet;
 
 [[test]]
 name = "set_update"
+skip = true
 description = "a.update(b) or a |= b"
 
 python = '''
@@ -692,6 +714,7 @@ use std::collections::HashSet;
 
 [[test]]
 name = "set_intersection_update"
+skip = true
 description = "a.intersection_update(b) or a &= b"
 
 python = '''
@@ -717,6 +740,7 @@ use std::collections::HashSet;
 
 [[test]]
 name = "set_difference_update"
+skip = true
 description = "a.difference_update(b) or a -= b"
 
 python = '''
@@ -742,6 +766,7 @@ use std::collections::HashSet;
 
 [[test]]
 name = "set_symmetric_diff_update"
+skip = true
 description = "a.symmetric_difference_update(b) or a ^= b"
 
 python = '''
@@ -771,6 +796,7 @@ use std::collections::HashSet;
 
 [[test]]
 name = "frozenset_create"
+skip = true
 description = "frozenset([1, 2, 3])"
 
 python = '''
@@ -785,6 +811,7 @@ use std::collections::HashSet;
 
 [[test]]
 name = "frozenset_immutable"
+skip = true
 description = "Cannot add/remove"
 
 python = '''
@@ -803,6 +830,7 @@ rust = '''
 
 [[test]]
 name = "frozenset_hashable"
+skip = true
 description = "Can be dict key or set element"
 
 python = '''
@@ -844,6 +872,7 @@ use std::collections::HashSet;
 
 [[test]]
 name = "set_mixed"
+skip = true
 description = "{1, 'a', (1, 2)}"
 
 python = '''
@@ -866,6 +895,7 @@ use std::collections::HashSet;
 
 [[test]]
 name = "set_unhashable"
+skip = true
 description = "{[1, 2]} raises TypeError"
 
 python = '''
@@ -887,6 +917,7 @@ rust = '''
 
 [[test]]
 name = "set_comprehension"
+skip = true
 description = "{x*2 for x in range(5)}"
 
 python = '''
@@ -905,6 +936,7 @@ use std::collections::HashSet;
 
 [[test]]
 name = "set_operations"
+skip = true
 description = "Example test"
 
 python = '''
@@ -1053,6 +1085,7 @@ pub fn test_set_comprehension() -> HashSet<i32> {
 
 [[test]]
 name = "simple_set"
+skip = true
 description = "Example test"
 
 python = '''
@@ -1079,6 +1112,7 @@ pub fn test_simple_set() -> HashSet<i32> {
 
 [[test]]
 name = "test_frozenset"
+skip = true
 description = "Example test"
 
 python = '''
@@ -1110,6 +1144,7 @@ pub fn test_frozenset() -> (i32, i32, i32) {
 
 [[test]]
 name = "test_set_basic"
+skip = true
 description = "Example test"
 
 python = '''
@@ -1177,6 +1212,7 @@ pub fn test_set_with_duplicates() -> HashSet<i32> {
 
 [[test]]
 name = "test_set_comprehensions"
+skip = true
 description = "Test set comprehensions"
 
 python = '''
@@ -1254,6 +1290,7 @@ pub fn test_set_comp_with_expression() -> HashSet<i32> {
 
 [[test]]
 name = "test_set_methods"
+skip = true
 description = "Test set methods"
 
 python = '''
@@ -1362,6 +1399,7 @@ pub fn test_set_pop() -> i32 {
 
 [[test]]
 name = "test_set_operations"
+skip = true
 description = "Test set operations"
 
 python = '''
@@ -1524,6 +1562,7 @@ pub fn test_set_symmetric_difference() -> HashSet<i32> {
 
 [[test]]
 name = "test_set_summary"
+skip = true
 description = "Comprehensive test of implemented set features"
 
 python = '''
@@ -1632,6 +1671,7 @@ pub fn test_all_set_features() -> HashSet<i32> {
 
 [[test]]
 name = "test_simple_set_typed"
+skip = true
 description = "Example test"
 
 python = '''

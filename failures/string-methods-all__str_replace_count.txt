@@ -1,7 +1,0 @@
-  string-methods-all.toml :: str_replace_count
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− pub const result: String = "hello".replacen("l", "L", 1 as usize);
-+ 
-────────────────────────────────────────────────────────────

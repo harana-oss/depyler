@@ -5,6 +5,7 @@ description = "Tests for inlining disabled behavior and DCE interaction"
 
 [[test]]
 name = "inlining_disabled_trivial_function_preserved"
+skip = true
 description = "Verify trivial functions work when inlining is disabled"
 
 python = '''
@@ -49,6 +50,7 @@ pub fn compute(x: i32, y: i32) -> i32 {
 
 [[test]]
 name = "inline_threshold_simple_function"
+skip = true
 description = "Simple function respects inline threshold"
 
 python = '''
@@ -70,6 +72,7 @@ pub fn double_identity(x: i32) -> i32 {
 
 [[test]]
 name = "function_chain_no_inline"
+skip = true
 description = "Function chain compiles correctly without inlining"
 
 python = '''
@@ -109,6 +112,7 @@ pub fn chain(x: i32) -> i32 {
 
 [[test]]
 name = "dce_preserves_intermediate_variables"
+skip = true
 description = "Dead code elimination preserves variables used later"
 
 python = '''

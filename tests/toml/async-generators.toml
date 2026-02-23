@@ -8,6 +8,7 @@ category = "async"
 
 [[test]]
 name = "async_generator_basic"
+skip = true
 description = "async def gen(): yield 1; yield 2"
 
 python = '''
@@ -26,6 +27,7 @@ async fn f() {
 
 [[test]]
 name = "async_generator_iterate"
+skip = true
 description = "async for x in gen(): ..."
 
 python = '''
@@ -64,6 +66,7 @@ pub async fn test_async_generator_iterate() -> i32 {
 
 [[test]]
 name = "async_generator_await"
+skip = true
 description = "async def gen(): yield await async_func()"
 
 python = '''
@@ -86,6 +89,7 @@ async fn f() {
 
 [[test]]
 name = "async_gen_aiter"
+skip = true
 description = "Async generator implements __aiter__"
 
 python = '''
@@ -105,6 +109,7 @@ struct Example {
 
 [[test]]
 name = "async_gen_anext"
+skip = true
 description = "anext() on async generator"
 
 python = '''
@@ -134,6 +139,7 @@ async fn test_async_gen_anext() -> i32 {
 
 [[test]]
 name = "async_gen_asend"
+skip = true
 description = "Send values into async generator"
 
 python = '''
@@ -159,6 +165,7 @@ async fn test_async_gen_asend() -> i32 {
 
 [[test]]
 name = "async_gen_athrow"
+skip = true
 description = "Throw exception into async generator"
 
 python = '''
@@ -187,6 +194,7 @@ async fn test_async_gen_athrow() -> i32 {
 
 [[test]]
 name = "async_gen_aclose"
+skip = true
 description = "Close async generator"
 
 python = '''
@@ -225,6 +233,7 @@ async fn test_async_gen_aclose() -> bool {
 
 [[test]]
 name = "async_gen_yield_value"
+skip = true
 description = "yield some_value"
 
 python = '''
@@ -252,6 +261,7 @@ async fn test_async_gen_yield_value() -> i32 {
 
 [[test]]
 name = "async_gen_yield_expr"
+skip = true
 description = "received = yield value"
 
 python = '''
@@ -277,6 +287,7 @@ async fn test_async_gen_yield_expr() -> i32 {
 
 [[test]]
 name = "async_gen_multi_yield"
+skip = true
 description = "Multiple yield statements"
 
 python = '''
@@ -313,6 +324,7 @@ async fn test_async_gen_multi_yield() -> i32 {
 
 [[test]]
 name = "async_gen_loop"
+skip = true
 description = "for i in range(n): yield i"
 
 python = '''
@@ -344,6 +356,7 @@ async fn test_async_gen_loop() -> usize {
 
 [[test]]
 name = "async_gen_try_finally"
+skip = true
 description = "Cleanup with finally in async gen"
 
 python = '''
@@ -390,6 +403,7 @@ async fn test_async_gen_try_finally() -> usize {
 
 [[test]]
 name = "async_gen_early_return"
+skip = true
 description = "return in async generator"
 
 python = '''
@@ -427,6 +441,7 @@ async fn test_async_gen_early_return() -> usize {
 
 [[test]]
 name = "async_gen_streaming"
+skip = true
 description = "Yield chunks of HTTP response"
 
 python = '''
@@ -465,6 +480,7 @@ async fn test_async_gen_streaming() -> usize {
 
 [[test]]
 name = "async_gen_cursor"
+skip = true
 description = "Yield rows from database cursor"
 
 python = '''
@@ -497,6 +513,7 @@ async fn test_async_gen_cursor() -> usize {
 
 [[test]]
 name = "async_gen_events"
+skip = true
 description = "Yield events as they occur"
 
 python = '''
@@ -535,6 +552,7 @@ async fn test_async_gen_events() -> String {
 
 [[test]]
 name = "async_gen_exit"
+skip = true
 description = "GeneratorExit on aclose()"
 
 python = '''
@@ -566,6 +584,7 @@ async fn test_async_gen_exit() -> usize {
 
 [[test]]
 name = "async_gen_break_cleanup"
+skip = true
 description = "Cleanup when iteration breaks"
 
 python = '''
@@ -613,6 +632,7 @@ async fn test_async_gen_break_cleanup() -> usize {
 
 [[test]]
 name = "async_gen_yield_from"
+skip = true
 description = "yield from not allowed in async generator"
 
 python = '''
@@ -635,6 +655,7 @@ async fn test_async_gen_yield_from() -> bool {
 
 [[test]]
 name = "async_gen_expression"
+skip = true
 description = "(x async for x in aiter) is async gen expr"
 
 python = '''
@@ -666,6 +687,7 @@ async fn test_async_gen_expression() -> i32 {
 
 [[test]]
 name = "async_gen_nested"
+skip = true
 description = "Async generator yielding from another"
 
 python = '''

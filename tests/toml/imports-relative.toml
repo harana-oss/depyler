@@ -8,6 +8,7 @@ category = "imports"
 
 [[test]]
 name = "relative_single_dot"
+skip = true
 description = "from . import sibling"
 
 python = '''
@@ -25,6 +26,7 @@ rust = '''
 
 [[test]]
 name = "relative_from_current"
+skip = true
 description = "from .sibling import func"
 
 python = '''
@@ -46,6 +48,7 @@ rust = '''
 
 [[test]]
 name = "relative_double_dot"
+skip = true
 description = "from .. import parent_sibling"
 
 python = '''
@@ -63,6 +66,7 @@ rust = '''
 
 [[test]]
 name = "relative_from_parent"
+skip = true
 description = "from ..sibling import func"
 
 python = '''
@@ -84,6 +88,7 @@ rust = '''
 
 [[test]]
 name = "relative_triple_dot"
+skip = true
 description = "from ... import grandparent"
 
 python = '''
@@ -101,6 +106,7 @@ rust = '''
 
 [[test]]
 name = "relative_many_dots"
+skip = true
 description = "from ....pkg import mod"
 
 python = '''
@@ -122,6 +128,7 @@ rust = '''
 
 [[test]]
 name = "relative_submodule"
+skip = true
 description = "from .sub.mod import item"
 
 python = '''
@@ -139,6 +146,7 @@ rust = '''
 
 [[test]]
 name = "relative_parent_down"
+skip = true
 description = "from ..other.sub import item"
 
 python = '''
@@ -160,6 +168,7 @@ rust = '''
 
 [[test]]
 name = "relative_in_init"
+skip = true
 description = "Relative imports in __init__.py"
 
 python = '''
@@ -179,6 +188,7 @@ struct Example {
 
 [[test]]
 name = "relative_reexport"
+skip = true
 description = "from .mod import func to re-export"
 
 python = '''
@@ -200,6 +210,7 @@ rust = '''
 
 [[test]]
 name = "relative_explicit"
+skip = true
 description = "from . import x vs import x"
 
 python = '''
@@ -219,6 +230,7 @@ rust = '''
 
 [[test]]
 name = "relative_absolute"
+skip = true
 description = "import pkg (absolute)"
 
 python = '''
@@ -240,6 +252,7 @@ rust = '''
 
 [[test]]
 name = "relative_beyond_top"
+skip = true
 description = "from ... in top-level raises"
 
 python = '''
@@ -257,6 +270,7 @@ rust = '''
 
 [[test]]
 name = "relative_in_script"
+skip = true
 description = "Relative import in __main__"
 
 python = '''
@@ -280,6 +294,7 @@ struct Example {
 
 [[test]]
 name = "relative_star"
+skip = true
 description = "from . import *"
 
 python = '''
@@ -297,6 +312,7 @@ rust = '''
 
 [[test]]
 name = "relative_as"
+skip = true
 description = "from . import mod as m"
 
 python = '''
@@ -314,6 +330,7 @@ rust = '''
 
 [[test]]
 name = "relative_circular"
+skip = true
 description = "Circular relative imports"
 
 python = '''

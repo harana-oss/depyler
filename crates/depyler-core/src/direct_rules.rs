@@ -279,7 +279,7 @@ fn convert_protocol_to_trait(protocol: &Protocol, type_mapper: &TypeMapper) -> R
     }))
 }
 
-fn convert_abc_to_trait(class: &HirClass, type_mapper: &TypeMapper) -> Result<syn::Item> {
+pub(crate) fn convert_abc_to_trait(class: &HirClass, type_mapper: &TypeMapper) -> Result<syn::Item> {
     let trait_name = syn::Ident::new(&class.name, proc_macro2::Span::call_site());
 
     // Convert ABC methods to trait methods (excluding __init__ and other special methods)

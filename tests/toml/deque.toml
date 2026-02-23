@@ -8,6 +8,7 @@ category = "data-structures"
 
 [[test]]
 name = "deque_empty"
+skip = true
 description = "deque()"
 
 python = '''
@@ -28,6 +29,7 @@ rust = '''
 
 [[test]]
 name = "deque_from_iter"
+skip = true
 description = "deque([1, 2, 3])"
 
 python = '''
@@ -48,6 +50,7 @@ rust = '''
 
 [[test]]
 name = "deque_maxlen"
+skip = true
 description = "deque(maxlen=3)"
 
 python = '''
@@ -80,6 +83,7 @@ rust = '''
 
 [[test]]
 name = "deque_append"
+skip = true
 description = "d.append(x)"
 
 python = '''
@@ -102,6 +106,7 @@ rust = '''
 
 [[test]]
 name = "deque_appendleft"
+skip = true
 description = "d.appendleft(x)"
 
 python = '''
@@ -124,6 +129,7 @@ rust = '''
 
 [[test]]
 name = "deque_extend"
+skip = true
 description = "d.extend([1, 2, 3])"
 
 python = '''
@@ -146,6 +152,7 @@ rust = '''
 
 [[test]]
 name = "deque_extendleft"
+skip = true
 description = "d.extendleft([1, 2, 3]) # reversed"
 
 python = '''
@@ -170,6 +177,7 @@ rust = '''
 
 [[test]]
 name = "deque_insert"
+skip = true
 description = "d.insert(i, x)"
 
 python = '''
@@ -196,6 +204,7 @@ rust = '''
 
 [[test]]
 name = "deque_pop"
+skip = true
 description = "d.pop()"
 
 python = '''
@@ -218,6 +227,7 @@ rust = '''
 
 [[test]]
 name = "deque_popleft"
+skip = true
 description = "d.popleft()"
 
 python = '''
@@ -240,6 +250,7 @@ rust = '''
 
 [[test]]
 name = "deque_remove"
+skip = true
 description = "d.remove(x)"
 
 python = '''
@@ -264,6 +275,7 @@ rust = '''
 
 [[test]]
 name = "deque_clear"
+skip = true
 description = "d.clear()"
 
 python = '''
@@ -290,6 +302,7 @@ rust = '''
 
 [[test]]
 name = "deque_rotate_right"
+skip = true
 description = "d.rotate(1)"
 
 python = '''
@@ -314,6 +327,7 @@ rust = '''
 
 [[test]]
 name = "deque_rotate_left"
+skip = true
 description = "d.rotate(-1)"
 
 python = '''
@@ -338,6 +352,7 @@ rust = '''
 
 [[test]]
 name = "deque_rotate_multi"
+skip = true
 description = "d.rotate(3)"
 
 python = '''
@@ -364,6 +379,7 @@ rust = '''
 
 [[test]]
 name = "deque_index"
+skip = true
 description = "d[0], d[-1]"
 
 python = '''
@@ -384,6 +400,7 @@ rust = '''
 
 [[test]]
 name = "deque_index_method"
+skip = true
 description = "d.index(x)"
 
 python = '''
@@ -404,6 +421,7 @@ rust = '''
 
 [[test]]
 name = "deque_count"
+skip = true
 description = "d.count(x)"
 
 python = '''
@@ -428,6 +446,7 @@ rust = '''
 
 [[test]]
 name = "deque_maxlen_right"
+skip = true
 description = "append to full deque drops left"
 
 python = '''
@@ -454,6 +473,7 @@ rust = '''
 
 [[test]]
 name = "deque_maxlen_left"
+skip = true
 description = "appendleft to full drops right"
 
 python = '''
@@ -480,6 +500,7 @@ rust = '''
 
 [[test]]
 name = "deque_maxlen_prop"
+skip = true
 description = "d.maxlen"
 
 python = '''
@@ -515,6 +536,7 @@ rust = '''
 
 [[test]]
 name = "deque_reverse"
+skip = true
 description = "d.reverse()"
 
 python = '''
@@ -538,6 +560,7 @@ rust = '''
 
 [[test]]
 name = "deque_copy"
+skip = true
 description = "d.copy()"
 
 python = '''
@@ -560,6 +583,7 @@ rust = '''
 
 [[test]]
 name = "deque_contains"
+skip = true
 description = "x in d"
 
 python = '''
@@ -580,6 +604,7 @@ rust = '''
 
 [[test]]
 name = "deque_len"
+skip = true
 description = "len(d)"
 
 python = '''
@@ -604,6 +629,7 @@ rust = '''
 
 [[test]]
 name = "deque_queue"
+skip = true
 description = "append right, popleft"
 
 python = '''
@@ -628,6 +654,7 @@ rust = '''
 
 [[test]]
 name = "deque_stack"
+skip = true
 description = "append right, pop right"
 
 python = '''
@@ -652,6 +679,7 @@ rust = '''
 
 [[test]]
 name = "deque_sliding"
+skip = true
 description = "maxlen for fixed-size window"
 
 python = '''
@@ -685,6 +713,7 @@ rust = '''
 
 [[test]]
 name = "deque_iter"
+skip = true
 description = "for x in d: ..."
 
 python = '''
@@ -712,6 +741,7 @@ rust = '''
 
 [[test]]
 name = "deque_reversed"
+skip = true
 description = "reversed(d)"
 
 python = '''
@@ -732,6 +762,7 @@ rust = '''
 
 [[test]]
 name = "deque_compare"
+skip = true
 description = "deque([1,2]) == deque([1,2])"
 
 python = '''

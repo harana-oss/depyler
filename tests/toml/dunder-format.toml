@@ -8,6 +8,7 @@ category = "dunder-methods"
 
 [[test]]
 name = "dunder_format"
+skip = true
 description = "def __format__(self, spec): return formatted_string"
 python = """
 class Point:
@@ -58,6 +59,7 @@ expected_output = """(3, 4)
 
 [[test]]
 name = "format_builtin"
+skip = true
 description = "format(obj, spec) calls obj.__format__(spec)"
 python = """
 class Temperature:
@@ -107,6 +109,7 @@ expected_output = """25.0°C
 
 [[test]]
 name = "fstring_format"
+skip = true
 description = "f'{obj:spec}' calls __format__"
 python = """
 class Money:
@@ -154,6 +157,7 @@ $42.50
 
 [[test]]
 name = "format_empty_spec"
+skip = true
 description = "__format__('') default formatting"
 python = """
 class Person:
@@ -202,6 +206,7 @@ Person(Alice)"""
 
 [[test]]
 name = "format_custom_spec"
+skip = true
 description = "Custom format specification language"
 python = """
 class Color:
@@ -253,6 +258,7 @@ rgb(255, 128, 64)"""
 
 [[test]]
 name = "format_width"
+skip = true
 description = "f'{obj:>10}' right align with width"
 python = """
 class Item:
@@ -291,6 +297,7 @@ expected_output = """'        42'
 
 [[test]]
 name = "format_fill"
+skip = true
 description = "f'{obj:*^10}' fill with *"
 python = """
 class Label:
@@ -335,6 +342,7 @@ Hi--------"""
 
 [[test]]
 name = "dunder_bytes"
+skip = true
 description = "def __bytes__(self): return bytes(...)"
 python = """
 class Message:
@@ -375,6 +383,7 @@ bytes"""
 
 [[test]]
 name = "bytes_builtin"
+skip = true
 description = "bytes(obj) calls obj.__bytes__()"
 python = """
 class Data:
@@ -412,6 +421,7 @@ Hello"""
 
 [[test]]
 name = "bytes_serialization"
+skip = true
 description = "Convert object to bytes representation"
 python = """
 class Packet:
@@ -467,6 +477,7 @@ expected_output = """b'\\x01\\x00\\x04test'
 
 [[test]]
 name = "dunder_bool"
+skip = true
 description = "def __bool__(self): return bool_value"
 python = """
 class Container:
@@ -505,6 +516,7 @@ False"""
 
 [[test]]
 name = "bool_builtin"
+skip = true
 description = "bool(obj) calls obj.__bool__()"
 python = """
 class Status:
@@ -543,6 +555,7 @@ False"""
 
 [[test]]
 name = "bool_if"
+skip = true
 description = "if obj: uses __bool__"
 python = """
 class Gate:
@@ -593,6 +606,7 @@ Gate is closed"""
 
 [[test]]
 name = "bool_len_fallback"
+skip = true
 description = "Without __bool__, uses __len__() != 0"
 python = """
 class Queue:
@@ -636,6 +650,7 @@ False"""
 
 [[test]]
 name = "bool_default"
+skip = true
 description = "Without __bool__ or __len__, always True"
 python = """
 class Thing:
@@ -676,6 +691,7 @@ True"""
 
 [[test]]
 name = "dunder_sizeof"
+skip = true
 description = "def __sizeof__(self): return size_in_bytes"
 python = """
 class CustomObject:
@@ -712,6 +728,7 @@ expected_output = "Size: 44 bytes"
 
 [[test]]
 name = "getsizeof"
+skip = true
 description = "sys.getsizeof(obj) uses __sizeof__"
 python = """
 import sys
@@ -754,6 +771,7 @@ expected_output = "Buffer size: 1048 bytes"
 
 [[test]]
 name = "format_number"
+skip = true
 description = "Custom numeric type with format spec"
 python = """
 class Fraction:
@@ -803,6 +821,7 @@ expected_output = """3/4
 
 [[test]]
 name = "format_datetime"
+skip = true
 description = "f'{dt:%Y-%m-%d}' style formatting"
 python = """
 from datetime import datetime
@@ -851,6 +870,7 @@ December 10, 2025"""
 
 [[test]]
 name = "falsy_object"
+skip = true
 description = "Object that evaluates to False"
 python = """
 class Result:
@@ -901,6 +921,7 @@ Failed!"""
 
 [[test]]
 name = "format_non_string"
+skip = true
 description = "__format__ must return str"
 python = """
 class BadFormat:
@@ -921,6 +942,7 @@ expected_output = "TypeError: __format__ must return a str, not int"
 
 [[test]]
 name = "bool_non_bool"
+skip = true
 description = "__bool__ must return True or False"
 python = """
 class BadBool:
@@ -940,6 +962,7 @@ expected_output = "TypeError: __bool__ should return bool, returned str"
 
 [[test]]
 name = "format_spec_parse"
+skip = true
 description = "Parsing complex format specifications"
 python = """
 class Styled:

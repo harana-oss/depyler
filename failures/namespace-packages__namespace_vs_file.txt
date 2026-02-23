@@ -1,8 +1,0 @@
-  namespace-packages.toml :: namespace_vs_file
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− // Directory namespace vs .py file
-−     let result = true; // Placeholder
-+ pub const result: bool = true;
-────────────────────────────────────────────────────────────

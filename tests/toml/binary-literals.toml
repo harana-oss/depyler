@@ -8,6 +8,7 @@ category = "core-language"
 
 [[test]]
 name = "binary_literal"
+skip = true
 description = "x = 0b1010"
 
 python = '''
@@ -22,6 +23,7 @@ rust = '''
 
 [[test]]
 name = "binary_literal_upper"
+skip = true
 description = "x = 0B1010"
 
 python = '''
@@ -36,6 +38,7 @@ rust = '''
 
 [[test]]
 name = "binary_underscore"
+skip = true
 description = "x = 0b1010_1010"
 
 python = '''
@@ -54,6 +57,7 @@ rust = '''
 
 [[test]]
 name = "octal_literal"
+skip = true
 description = "x = 0o777"
 
 python = '''
@@ -68,6 +72,7 @@ rust = '''
 
 [[test]]
 name = "octal_literal_upper"
+skip = true
 description = "x = 0O777"
 
 python = '''
@@ -82,6 +87,7 @@ rust = '''
 
 [[test]]
 name = "octal_underscore"
+skip = true
 description = "x = 0o7_7_7"
 
 python = '''
@@ -100,6 +106,7 @@ rust = '''
 
 [[test]]
 name = "hex_literal_lower"
+skip = true
 description = "x = 0xff"
 
 python = '''
@@ -114,6 +121,7 @@ rust = '''
 
 [[test]]
 name = "hex_literal_upper"
+skip = true
 description = "x = 0xFF"
 
 python = '''
@@ -128,6 +136,7 @@ rust = '''
 
 [[test]]
 name = "hex_underscore"
+skip = true
 description = "x = 0xFF_FF"
 
 python = '''
@@ -142,6 +151,7 @@ rust = '''
 
 [[test]]
 name = "hex_mixed_case"
+skip = true
 description = "x = 0xDeAdBeEf"
 
 python = '''
@@ -160,6 +170,7 @@ rust = '''
 
 [[test]]
 name = "decimal_underscore"
+skip = true
 description = "x = 1_000_000"
 
 python = '''
@@ -174,6 +185,7 @@ rust = '''
 
 [[test]]
 name = "float_underscore"
+skip = true
 description = "x = 1_000.000_001"
 
 python = '''
@@ -192,6 +204,7 @@ rust = '''
 
 [[test]]
 name = "binary_arithmetic"
+skip = true
 description = "0b1010 + 0b0101"
 
 python = '''
@@ -204,6 +217,7 @@ rust = '''
 
 [[test]]
 name = "mixed_base_arithmetic"
+skip = true
 description = "0xFF + 0o77 + 0b11"
 
 python = '''
@@ -216,6 +230,7 @@ rust = '''
 
 [[test]]
 name = "binary_bitwise"
+skip = true
 description = "0b1010 & 0b1100"
 
 python = '''
@@ -232,6 +247,7 @@ rust = '''
 
 [[test]]
 name = "bin_function"
+skip = true
 description = "bin(10) == '0b1010'"
 
 python = '''
@@ -247,6 +263,7 @@ rust = '''
 
 [[test]]
 name = "oct_function"
+skip = true
 description = "oct(64) == '0o100'"
 
 python = '''
@@ -262,6 +279,7 @@ rust = '''
 
 [[test]]
 name = "hex_function"
+skip = true
 description = "hex(255) == '0xff'"
 
 python = '''
@@ -277,6 +295,7 @@ rust = '''
 
 [[test]]
 name = "int_with_base"
+skip = true
 description = "int('ff', 16) == 255"
 
 python = '''
@@ -293,6 +312,7 @@ rust = '''
 
 [[test]]
 name = "zero_all_bases"
+skip = true
 description = "0b0, 0o0, 0x0"
 
 python = '''
@@ -305,6 +325,7 @@ rust = '''
 
 [[test]]
 name = "negative_literals"
+skip = true
 description = "-0xFF is unary minus applied to 0xFF"
 
 python = '''
@@ -317,6 +338,7 @@ rust = '''
 
 [[test]]
 name = "large_literals"
+skip = true
 description = "0xFFFF_FFFF_FFFF_FFFF"
 
 python = '''

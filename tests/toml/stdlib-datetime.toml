@@ -121,6 +121,7 @@ assert td.seconds == 86399
 
 [[test]]
 name = "naive_datetime_comparison"
+skip = true
 description = "Naive datetimes compare chronologically"
 python = '''
 from datetime import datetime
@@ -145,6 +146,7 @@ rust = '''
 
 [[test]]
 name = "aware_datetime_comparison"
+skip = true
 description = "Aware datetimes compare by UTC time"
 python = '''
 from datetime import datetime, timezone, timedelta

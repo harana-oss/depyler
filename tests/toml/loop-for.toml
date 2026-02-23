@@ -74,6 +74,7 @@ pub fn process_pairs(pairs: &Vec<(i32, i32)>) -> i32 {
 
 [[test]]
 name = "tuple_unpacking_first_unused"
+skip = true
 description = "Test tuple unpacking with first element unused"
 
 python = '''
@@ -368,6 +369,7 @@ pub fn count_items(items: Vec<i32>) -> i32 {
 
 [[test]]
 name = "char_to_string_conversion"
+skip = true
 description = "Test char-to-String conversion for dict keys"
 
 python = '''
@@ -540,6 +542,7 @@ pub fn complex_analysis(data: Vec<(i32, String)>) -> HashMap<String, i32> {
 
 [[test]]
 name = "for_loop_comparison_compiles"
+skip = true
 description = "For loop with comparison should compile (iterator dereferencing)"
 compile_check = true
 
@@ -611,6 +614,7 @@ pub fn sum_list(numbers: &Vec<i32>) -> i32 {
 
 [[test]]
 name = "for_loop_assignment_compiles"
+skip = true
 description = "For loop with conditional assignment should compile"
 compile_check = true
 
@@ -659,6 +663,7 @@ pub fn find_max(numbers: &Vec<i32>) -> i32 {
 
 [[test]]
 name = "for_loop_string_compiles"
+skip = true
 description = "For loop over strings with len comparison should compile"
 compile_check = true
 

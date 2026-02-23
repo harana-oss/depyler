@@ -1,9 +1,0 @@
-  match-or-patterns.toml :: or_guard_capture
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− // Invalid: OR patterns must bind same variables
-−     // This would be a compile error
-−     let result = true;
-+ pub const result: bool = true;
-────────────────────────────────────────────────────────────

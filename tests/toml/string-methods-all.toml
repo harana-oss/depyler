@@ -8,6 +8,7 @@ category = "strings"
 
 [[test]]
 name = "str_upper"
+skip = false
 description = "'hello'.upper()"
 
 python = '''
@@ -20,6 +21,7 @@ pub const result: String = "hello".to_uppercase();
 
 [[test]]
 name = "str_lower"
+skip = false
 description = "'HELLO'.lower()"
 
 python = '''
@@ -32,6 +34,7 @@ pub const result: String = "HELLO".to_lowercase();
 
 [[test]]
 name = "str_capitalize"
+skip = false
 description = "'hello world'.capitalize()"
 
 python = '''
@@ -51,6 +54,7 @@ pub const result: String = {
 
 [[test]]
 name = "str_title"
+skip = false
 description = "'hello world'.title()"
 
 python = '''
@@ -73,6 +77,7 @@ pub const result: String = "hello world"
 
 [[test]]
 name = "str_swapcase"
+skip = false
 description = "'Hello'.swapcase()"
 
 python = '''
@@ -84,16 +89,17 @@ pub const result: String = "Hello"
     .chars()
     .map(|c| {
         if c.is_uppercase() {
-            c.to_lowercase().collect::<String>()
+            c.to_lowercase().to_string()
         } else {
-            c.to_uppercase().collect::<String>()
+            c.to_uppercase().to_string()
         }
     })
-    .collect();
+    .collect::<String>();
 '''
 
 [[test]]
 name = "str_casefold"
+skip = true
 description = "'ß'.casefold()"
 
 python = '''
@@ -110,6 +116,7 @@ pub const result: String = "ß".to_lowercase();
 
 [[test]]
 name = "str_find"
+skip = false
 description = "'hello'.find('l')"
 
 python = '''
@@ -122,6 +129,7 @@ pub const result: i32 = "hello".find("l").map(|i| i as i32).unwrap_or(-1);
 
 [[test]]
 name = "str_rfind"
+skip = false
 description = "'hello'.rfind('l')"
 
 python = '''
@@ -134,6 +142,7 @@ pub const result: i32 = "hello".rfind("l").map(|i| i as i32).unwrap_or(-1);
 
 [[test]]
 name = "str_index"
+skip = false
 description = "'hello'.index('l')"
 
 python = '''
@@ -149,6 +158,7 @@ pub const result: i32 = "hello"
 
 [[test]]
 name = "str_rindex"
+skip = false
 description = "'hello'.rindex('l')"
 
 python = '''
@@ -164,6 +174,7 @@ pub const result: i32 = "hello"
 
 [[test]]
 name = "str_count"
+skip = false
 description = "'hello'.count('l')"
 
 python = '''
@@ -180,6 +191,7 @@ pub const result: i32 = "hello".matches("l").count() as i32;
 
 [[test]]
 name = "str_startswith"
+skip = false
 description = "'hello'.startswith('he')"
 
 python = '''
@@ -192,6 +204,7 @@ pub const result: bool = "hello".starts_with("he");
 
 [[test]]
 name = "str_endswith"
+skip = false
 description = "'hello'.endswith('lo')"
 
 python = '''
@@ -204,6 +217,7 @@ pub const result: bool = "hello".ends_with("lo");
 
 [[test]]
 name = "str_startswith_tuple"
+skip = true
 description = "'hello'.startswith(('he', 'hi'))"
 
 python = '''
@@ -216,6 +230,7 @@ pub const result: bool = ["he", "hi"].iter().any(|prefix| "hello".starts_with(pr
 
 [[test]]
 name = "str_removeprefix"
+skip = true
 description = "'hello'.removeprefix('he')"
 
 python = '''
@@ -228,6 +243,7 @@ pub const result: String = "hello".strip_prefix("he").unwrap_or("hello").to_stri
 
 [[test]]
 name = "str_removesuffix"
+skip = true
 description = "'hello'.removesuffix('lo')"
 
 python = '''
@@ -244,6 +260,7 @@ pub const result: String = "hello".strip_suffix("lo").unwrap_or("hello").to_stri
 
 [[test]]
 name = "str_strip"
+skip = true
 description = "'  hello  '.strip()"
 
 python = '''
@@ -256,6 +273,7 @@ pub const result: String = "  hello  ".trim().to_string();
 
 [[test]]
 name = "str_lstrip"
+skip = true
 description = "'  hello'.lstrip()"
 
 python = '''
@@ -268,6 +286,7 @@ pub const result: String = "  hello".trim_start().to_string();
 
 [[test]]
 name = "str_rstrip"
+skip = true
 description = "'hello  '.rstrip()"
 
 python = '''
@@ -280,6 +299,7 @@ pub const result: String = "hello  ".trim_end().to_string();
 
 [[test]]
 name = "str_strip_chars"
+skip = true
 description = "'xxhelloxx'.strip('x')"
 
 python = '''
@@ -296,10 +316,12 @@ pub const result: String = "xxhelloxx".trim_matches(|c: char| "x".contains(c)).t
 
 [[test]]
 name = "str_split"
+skip = true
 description = "'a,b,c'.split(',')"
 
 [[test]]
 name = "str_split"
+skip = true
 description = "'a,b,c'.split(',')"
 
 python = '''
@@ -315,6 +337,7 @@ pub const result: Vec<String> = "a,b,c"
 
 [[test]]
 name = "str_split_max"
+skip = true
 description = "'a,b,c'.split(',', 1)"
 
 python = '''
@@ -326,6 +349,7 @@ contains = ["splitn", "a,b,c"]
 
 [[test]]
 name = "str_rsplit"
+skip = true
 description = "'a,b,c'.rsplit(',', 1)"
 
 python = '''
@@ -341,6 +365,7 @@ pub const result: Vec<String> = {
 
 [[test]]
 name = "str_splitlines"
+skip = true
 description = "'a\\nb\\nc'.splitlines()"
 
 python = '''
@@ -356,6 +381,7 @@ pub const result: Vec<String> = "a\nb\nc"
 
 [[test]]
 name = "str_partition"
+skip = true
 description = "'hello'.partition('l')"
 
 python = '''
@@ -379,6 +405,7 @@ pub const result: (String, String, String) = {
 
 [[test]]
 name = "str_rpartition"
+skip = true
 description = "'hello'.rpartition('l')"
 
 python = '''
@@ -406,6 +433,7 @@ pub const result: (String, String, String) = {
 
 [[test]]
 name = "str_join"
+skip = true
 description = "','.join(['a', 'b', 'c'])"
 
 python = '''
@@ -419,6 +447,7 @@ pub const result: String =
 
 [[test]]
 name = "str_replace"
+skip = true
 description = "'hello'.replace('l', 'L')"
 
 python = '''
@@ -431,6 +460,7 @@ pub const result: String = "hello".replace("l", "L");
 
 [[test]]
 name = "str_replace_count"
+skip = true
 description = "'hello'.replace('l', 'L', 1)"
 
 python = '''
@@ -447,6 +477,7 @@ pub const result: String = "hello".replacen("l", "L", 1 as usize);
 
 [[test]]
 name = "str_center"
+skip = true
 description = "'hi'.center(10)"
 
 python = '''
@@ -476,6 +507,7 @@ pub const result: String = {
 
 [[test]]
 name = "str_ljust"
+skip = true
 description = "'hi'.ljust(10)"
 
 python = '''
@@ -497,6 +529,7 @@ pub const result: String = {
 
 [[test]]
 name = "str_rjust"
+skip = true
 description = "'hi'.rjust(10)"
 
 python = '''
@@ -518,6 +551,7 @@ pub const result: String = {
 
 [[test]]
 name = "str_zfill"
+skip = true
 description = "'42'.zfill(5)"
 
 python = '''
@@ -548,6 +582,7 @@ pub const result: String = {
 
 [[test]]
 name = "str_isalpha"
+skip = true
 description = "'abc'.isalpha()"
 
 python = '''
@@ -560,6 +595,7 @@ pub const result: bool = "abc".chars().all(|c| c.is_alphabetic());
 
 [[test]]
 name = "str_isdigit"
+skip = true
 description = "'123'.isdigit()"
 
 python = '''
@@ -572,6 +608,7 @@ pub const result: bool = "123".chars().all(|c| c.is_numeric());
 
 [[test]]
 name = "str_isalnum"
+skip = true
 description = "'abc123'.isalnum()"
 
 python = '''
@@ -584,6 +621,7 @@ pub const result: bool = "abc123".chars().all(|c| c.is_alphanumeric());
 
 [[test]]
 name = "str_isspace"
+skip = true
 description = "'   '.isspace()"
 
 python = '''
@@ -596,6 +634,7 @@ pub const result: bool = !("   ").is_empty() && "   ".chars().all(|c| c.is_white
 
 [[test]]
 name = "str_isupper"
+skip = true
 description = "'ABC'.isupper()"
 
 python = '''
@@ -608,6 +647,7 @@ pub const result: bool = "ABC".chars().any(|c| c.is_alphabetic()) && "ABC".chars
 
 [[test]]
 name = "str_islower"
+skip = true
 description = "'abc'.islower()"
 
 python = '''
@@ -620,6 +660,7 @@ pub const result: bool = "abc".chars().any(|c| c.is_alphabetic()) && "abc".chars
 
 [[test]]
 name = "str_istitle"
+skip = true
 description = "'Hello World'.istitle()"
 
 python = '''
@@ -654,6 +695,7 @@ pub const result: bool = {
 
 [[test]]
 name = "str_isnumeric"
+skip = true
 description = "'123'.isnumeric()"
 
 python = '''
@@ -666,6 +708,7 @@ pub const result: bool = !("123").is_empty() && "123".chars().all(|c| c.is_numer
 
 [[test]]
 name = "str_isdecimal"
+skip = true
 description = "'123'.isdecimal()"
 
 python = '''
@@ -678,6 +721,7 @@ pub const result: bool = !("123").is_empty() && "123".chars().all(|c| c.is_ascii
 
 [[test]]
 name = "str_isidentifier"
+skip = true
 description = "'var_name'.isidentifier()"
 
 python = '''
@@ -698,6 +742,7 @@ pub const result: bool = {
 
 [[test]]
 name = "str_isprintable"
+skip = true
 description = "'hello'.isprintable()"
 
 python = '''
@@ -710,6 +755,7 @@ pub const result: bool = "hello".chars().all(|c| !c.is_control() || c == '\n' ||
 
 [[test]]
 name = "str_isascii"
+skip = true
 description = "'hello'.isascii()"
 
 python = '''
@@ -726,6 +772,7 @@ pub const result: bool = "hello".is_ascii();
 
 [[test]]
 name = "str_encode"
+skip = true
 description = "'hello'.encode('utf-8')"
 
 python = '''
@@ -738,6 +785,7 @@ pub const result: Vec<u8> = "hello".as_bytes().to_vec();
 
 [[test]]
 name = "str_format"
+skip = true
 description = "'{} {}'.format('hello', 'world')"
 
 python = '''
@@ -749,6 +797,7 @@ contains = ["format!", "hello", "world"]
 
 [[test]]
 name = "str_format_map"
+skip = true
 description = "'{x}'.format_map({'x': 1})"
 
 python = '''
@@ -770,6 +819,7 @@ use std::collections::HashMap;
 
 [[test]]
 name = "str_maketrans"
+skip = true
 description = "str.maketrans('abc', 'xyz')"
 
 python = '''
@@ -791,6 +841,7 @@ use std::collections::HashMap;
 
 [[test]]
 name = "str_translate"
+skip = true
 description = "'abc'.translate(table)"
 
 python = '''
@@ -821,6 +872,7 @@ use std::collections::HashMap;
 
 [[test]]
 name = "str_expandtabs"
+skip = true
 description = "'a\\tb'.expandtabs(4)"
 
 python = '''

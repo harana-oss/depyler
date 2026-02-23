@@ -1,9 +1,0 @@
-  functions.toml :: generic_function
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− use serde_json;
-  pub fn identity<T: Clone>(value: T) -> T {
-      return value;
-  }
-────────────────────────────────────────────────────────────

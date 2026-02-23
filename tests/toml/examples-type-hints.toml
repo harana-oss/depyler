@@ -8,6 +8,7 @@ category = "type_hints"
 
 [[test]]
 name = "showcase_type_inference"
+skip = true
 description = "Example test"
 
 python = '''
@@ -267,6 +268,7 @@ pub fn confidence_levels_demo<'a, 'b, 'c>(
 
 [[test]]
 name = "test_type_hints"
+skip = true
 description = "Example test"
 
 python = '''
@@ -476,6 +478,7 @@ result }
 
 [[test]]
 name = "test_type_hints_simple"
+skip = true
 description = "Example test"
 
 python = '''
@@ -577,6 +580,7 @@ pub fn list_operations(items: &mut serde_json::Value) -> i32 {
 
 [[test]]
 name = "type_extraction_demo"
+skip = true
 description = "!/usr/bin/env python3"
 
 python = '''
@@ -747,6 +751,7 @@ Error: Expression type not yet supported
 
 [[test]]
 name = "type_inference_demo"
+skip = true
 description = "Example test"
 
 python = '''

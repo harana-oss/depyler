@@ -1,8 +1,0 @@
-  match-guards.toml :: guard_side_effects
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− // Side effects in guard (evaluated conditionally)
-−     let result = true; // Placeholder
-+ pub const result: bool = true;
-────────────────────────────────────────────────────────────

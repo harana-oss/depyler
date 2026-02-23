@@ -1,8 +1,0 @@
-  contextlib-decorator.toml :: contextmanager_no_yield
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− // Rust type system prevents this at compile time
-−     let result = "error caught";
-+ pub fn no_yield() {}
-────────────────────────────────────────────────────────────

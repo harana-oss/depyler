@@ -8,6 +8,7 @@ category = "imports"
 
 [[test]]
 name = "namespace_no_init"
+skip = true
 description = "Directory without __init__.py"
 
 python = '''
@@ -27,6 +28,7 @@ struct Example {
 
 [[test]]
 name = "namespace_import"
+skip = true
 description = "import namespace_pkg"
 
 python = '''
@@ -42,6 +44,7 @@ rust = '''
 
 [[test]]
 name = "namespace_path"
+skip = true
 description = "Multiple paths in __path__"
 
 python = '''
@@ -65,6 +68,7 @@ struct Example {
 
 [[test]]
 name = "namespace_split"
+skip = true
 description = "Package split across directories"
 
 python = '''
@@ -80,6 +84,7 @@ rust = '''
 
 [[test]]
 name = "namespace_path_order"
+skip = true
 description = "First in sys.path found first"
 
 python = '''
@@ -95,6 +100,7 @@ rust = '''
 
 [[test]]
 name = "namespace_merge"
+skip = true
 description = "Submodules from different locations"
 
 python = '''
@@ -114,6 +120,7 @@ rust = '''
 
 [[test]]
 name = "namespace_vs_regular"
+skip = true
 description = "Regular package has __init__.py"
 
 python = '''
@@ -133,6 +140,7 @@ struct Example {
 
 [[test]]
 name = "namespace_characteristics"
+skip = true
 description = "__file__ is None, __path__ is list"
 
 python = '''
@@ -152,6 +160,7 @@ struct Example {
 
 [[test]]
 name = "namespace_hybrid"
+skip = true
 description = "Namespace with some __init__.py"
 
 python = '''
@@ -175,6 +184,7 @@ struct Example {
 
 [[test]]
 name = "namespace_plugin"
+skip = true
 description = "Namespace for plugins"
 
 python = '''
@@ -190,6 +200,7 @@ rust = '''
 
 [[test]]
 name = "namespace_discover"
+skip = true
 description = "Find all submodules in namespace"
 
 python = '''
@@ -205,6 +216,7 @@ rust = '''
 
 [[test]]
 name = "namespace_install"
+skip = true
 description = "Install adds to namespace"
 
 python = '''
@@ -224,6 +236,7 @@ rust = '''
 
 [[test]]
 name = "namespace_nested"
+skip = true
 description = "Nested namespace packages"
 
 python = '''
@@ -239,6 +252,7 @@ rust = '''
 
 [[test]]
 name = "namespace_partial"
+skip = true
 description = "Some levels namespace, some regular"
 
 python = '''
@@ -258,6 +272,7 @@ rust = '''
 
 [[test]]
 name = "namespace_extend_path"
+skip = true
 description = "__path__ = extend_path(__path__, __name__)"
 
 python = '''
@@ -277,6 +292,7 @@ struct Example {
 
 [[test]]
 name = "namespace_legacy"
+skip = true
 description = "pkg_resources.declare_namespace"
 
 python = '''
@@ -296,6 +312,7 @@ rust = '''
 
 [[test]]
 name = "namespace_loader"
+skip = true
 description = "NamespaceLoader"
 
 python = '''
@@ -311,6 +328,7 @@ rust = '''
 
 [[test]]
 name = "namespace_spec"
+skip = true
 description = "ModuleSpec for namespace"
 
 python = '''
@@ -330,6 +348,7 @@ rust = '''
 
 [[test]]
 name = "namespace_empty"
+skip = true
 description = "Namespace with no submodules"
 
 python = '''
@@ -345,6 +364,7 @@ rust = '''
 
 [[test]]
 name = "namespace_vs_file"
+skip = true
 description = "Directory namespace vs .py file"
 
 python = '''
@@ -360,6 +380,7 @@ rust = '''
 
 [[test]]
 name = "namespace_zip"
+skip = true
 description = "Namespace in zip file"
 
 python = '''

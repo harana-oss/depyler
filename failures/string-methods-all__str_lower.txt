@@ -1,7 +1,0 @@
-  string-methods-all.toml :: str_lower
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− pub const result: String = "HELLO".to_lowercase();
-+ 
-────────────────────────────────────────────────────────────

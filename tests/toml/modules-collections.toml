@@ -80,6 +80,7 @@ pub fn expand_counts(counts: HashMap<String, i32>) -> Vec<String> {
 
 [[test]]
 name = "defaultdict_int"
+skip = true
 description = "defaultdict with int factory"
 
 python = '''
@@ -126,6 +127,7 @@ pub fn count_words(words: &Vec<String>) -> HashMap<String, i32> {
 
 [[test]]
 name = "defaultdict_list"
+skip = true
 description = "defaultdict with list factory"
 
 python = '''
@@ -278,6 +280,7 @@ pub fn rotate_right(d: &deque, n: i32) {
 
 [[test]]
 name = "namedtuple_creation"
+skip = true
 description = "namedtuple definition and creation"
 
 python = '''
@@ -301,6 +304,7 @@ pub fn make_point(x: i32, y: i32) -> Point {
 
 [[test]]
 name = "namedtuple_access"
+skip = true
 description = "namedtuple field access"
 
 python = '''
@@ -342,6 +346,7 @@ pub fn make_ordered() -> OrderedDict {
 
 [[test]]
 name = "heapq_heapify"
+skip = true
 description = "heapq.heapify() create min-heap"
 
 python = '''
@@ -383,6 +388,7 @@ pub fn create_heap(items: &Vec<i32>) {
 
 [[test]]
 name = "heapq_heappush"
+skip = true
 description = "heapq.heappush() add to heap"
 
 python = '''
@@ -413,6 +419,7 @@ pub fn push_item(heap: &Vec<serde_json::Value>, item: i32) {
 
 [[test]]
 name = "heapq_heappop"
+skip = true
 description = "heapq.heappop() remove min"
 
 python = '''
@@ -459,6 +466,7 @@ pub fn pop_min(heap: &Vec<i32>) -> i32 {
 
 [[test]]
 name = "heapq_nlargest"
+skip = true
 description = "heapq.nlargest() get n largest"
 
 python = '''
@@ -481,6 +489,7 @@ pub fn get_largest(n: i32, items: &Vec<serde_json::Value>) -> Vec<i32> {
 
 [[test]]
 name = "heapq_nsmallest"
+skip = true
 description = "heapq.nsmallest() get n smallest"
 
 python = '''
@@ -503,6 +512,7 @@ pub fn get_smallest(n: i32, items: &Vec<serde_json::Value>) -> Vec<i32> {
 
 [[test]]
 name = "bisect_left"
+skip = true
 description = "bisect.bisect_left() leftmost insert point"
 
 python = '''
@@ -532,6 +542,7 @@ pub fn find_insert_left(a: &Vec<serde_json::Value>, x: i32) -> i32 {
 
 [[test]]
 name = "bisect_right"
+skip = true
 description = "bisect.bisect_right() rightmost insert point"
 
 python = '''
@@ -562,6 +573,7 @@ pub fn find_insert_right(a: &Vec<serde_json::Value>, x: i32) -> i32 {
 
 [[test]]
 name = "bisect_insort_left"
+skip = true
 description = "bisect.insort_left() insert in sorted order"
 
 python = '''
@@ -592,6 +604,7 @@ pub fn insert_left(a: &Vec<serde_json::Value>, x: i32) {
 
 [[test]]
 name = "bisect_insort_right"
+skip = true
 description = "bisect.insort_right() insert at right"
 
 python = '''

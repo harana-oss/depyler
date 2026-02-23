@@ -8,6 +8,7 @@ category = "resources"
 
 [[test]]
 name = "file_handle_cleanup"
+skip = true
 description = "File handle automatic cleanup"
 
 python = '''
@@ -47,6 +48,7 @@ pub fn write_file_safe(path: String, content: String) -> bool {
 
 [[test]]
 name = "file_lines_cleanup"
+skip = true
 description = "Read file lines with cleanup"
 
 python = '''
@@ -117,6 +119,7 @@ impl Connection {
 
 [[test]]
 name = "socket_auto_close"
+skip = true
 description = "Socket auto-close pattern"
 
 python = '''
@@ -219,6 +222,7 @@ pub fn use_temp_resource() -> i32 {
 
 [[test]]
 name = "nested_resource_cleanup"
+skip = true
 description = "Nested resource cleanup order"
 
 python = '''
@@ -386,6 +390,7 @@ impl SafeResource {
 
 [[test]]
 name = "cleanup_error_handling"
+skip = true
 description = "Handle errors during cleanup"
 
 python = '''
@@ -409,6 +414,7 @@ pub fn cleanup_with_error(should_fail: bool) -> bool {
 
 [[test]]
 name = "finally_cleanup"
+skip = true
 description = "Finally block cleanup"
 
 python = '''

@@ -1,9 +1,0 @@
-  format-spec.toml :: format_precision
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-  pub fn format_with_precision() -> String {
-−     return format!("{:.2}", 3.14159);
-+     return format!("{:.2f}", 3.14159);
-  }
-────────────────────────────────────────────────────────────

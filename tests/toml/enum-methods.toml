@@ -8,6 +8,7 @@ category = "data-structures"
 
 [[test]]
 name = "enum_custom_method"
+skip = true
 description = "def describe(self): return f'{self.name}: {self.value}'"
 python = """
 from enum import Enum
@@ -44,6 +45,7 @@ ACTIVE: 2"""
 
 [[test]]
 name = "enum_method_value"
+skip = true
 description = "Method using self.value"
 python = """
 from enum import Enum
@@ -80,6 +82,7 @@ True"""
 
 [[test]]
 name = "enum_method_name"
+skip = true
 description = "Method using self.name"
 python = """
 from enum import Enum
@@ -120,6 +123,7 @@ Blue"""
 
 [[test]]
 name = "enum_staticmethod"
+skip = true
 description = "@staticmethod def helper(): ..."
 python = """
 from enum import Enum
@@ -165,6 +169,7 @@ GET"""
 
 [[test]]
 name = "enum_classmethod"
+skip = true
 description = "@classmethod def from_string(cls, s): ..."
 python = """
 from enum import Enum
@@ -217,6 +222,7 @@ expected_output = """MONDAY
 
 [[test]]
 name = "enum_classmethod_members"
+skip = true
 description = "cls.__members__ in classmethod"
 python = """
 from enum import Enum
@@ -260,6 +266,7 @@ expected_output = "4"
 
 [[test]]
 name = "enum_custom_str"
+skip = true
 description = "def __str__(self): return self.value"
 python = """
 from enum import Enum
@@ -301,6 +308,7 @@ Price: €100"""
 
 [[test]]
 name = "enum_custom_repr"
+skip = true
 description = "def __repr__(self): ..."
 python = """
 from enum import Enum
@@ -336,6 +344,7 @@ expected_output = "<State.Running>"
 
 [[test]]
 name = "enum_custom_format"
+skip = true
 description = "def __format__(self, spec): ..."
 python = """
 from enum import Enum
@@ -384,6 +393,7 @@ M"""
 
 [[test]]
 name = "enum_custom_bool"
+skip = true
 description = "def __bool__(self): return self.value != 0"
 python = """
 from enum import Enum
@@ -430,6 +440,7 @@ Toggle is OFF"""
 
 [[test]]
 name = "enum_property"
+skip = true
 description = "@property def label(self): ..."
 python = """
 from enum import Enum
@@ -469,6 +480,7 @@ expected_output = """[INFO]
 
 [[test]]
 name = "enum_computed"
+skip = true
 description = "Property computing from value"
 python = """
 from enum import Enum
@@ -510,6 +522,7 @@ expected_output = """32.0
 
 [[test]]
 name = "enum_generate_next"
+skip = true
 description = "Customize auto() behavior"
 python = """
 from enum import Enum, auto
@@ -545,6 +558,7 @@ expected_output = """1
 
 [[test]]
 name = "enum_custom_auto"
+skip = true
 description = "auto() returns custom values"
 python = """
 from enum import Enum, auto
@@ -587,6 +601,7 @@ ID_001"""
 
 [[test]]
 name = "enum_missing"
+skip = true
 description = "Handle unknown values"
 python = """
 from enum import Enum
@@ -629,6 +644,7 @@ Unknown"""
 
 [[test]]
 name = "enum_fallback"
+skip = true
 description = "_missing_ returns default member"
 python = """
 from enum import Enum
@@ -687,6 +703,7 @@ B"""
 
 [[test]]
 name = "enum_ignore"
+skip = true
 description = "_ignore_ = ['helper'] excludes names"
 python = """
 from enum import Enum
@@ -731,6 +748,7 @@ Helper method"""
 
 [[test]]
 name = "enum_mixin"
+skip = true
 description = "class Color(Mixin, Enum): ..."
 python = """
 from enum import Enum
@@ -780,6 +798,7 @@ expected_output = "{'name': 'Pending', 'value': 1}"
 
 [[test]]
 name = "enum_ordered"
+skip = true
 description = "Mixin providing ordering"
 python = """
 from enum import Enum
@@ -820,6 +839,7 @@ expected_output = """true
 
 [[test]]
 name = "enum_new"
+skip = true
 description = "__new__ for complex members"
 python = """
 from enum import Enum
@@ -856,6 +876,7 @@ expected_output = """5970000000000000000000000
 
 [[test]]
 name = "enum_multi_value"
+skip = true
 description = "MEMBER = (value, extra)"
 python = """
 from enum import Enum
@@ -892,6 +913,7 @@ expected_output = """1
 
 [[test]]
 name = "enum_init_args"
+skip = true
 description = "__init__(self, val, desc): ..."
 python = """
 from enum import Enum

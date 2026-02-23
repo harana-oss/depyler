@@ -1,8 +1,0 @@
-  namespace-packages.toml :: namespace_path_order
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− // First in sys.path found first
-−     let result = true; // Placeholder
-+ pub const result: bool = true;
-────────────────────────────────────────────────────────────

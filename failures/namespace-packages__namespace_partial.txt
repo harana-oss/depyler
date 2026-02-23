@@ -1,8 +1,0 @@
-  namespace-packages.toml :: namespace_partial
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− // Some levels namespace, some regular
-−     let result = true; // Placeholder
-+ pub const result: bool = true;
-────────────────────────────────────────────────────────────

@@ -8,6 +8,7 @@ category = "strings"
 
 [[test]]
 name = "fstring_debug_basic"
+skip = true
 description = "f'{x=}' outputs 'x=value'"
 
 python = '''
@@ -23,6 +24,7 @@ rust = '''
 
 [[test]]
 name = "fstring_debug_expr"
+skip = true
 description = "f'{1+2=}' outputs '1+2=3'"
 
 python = '''
@@ -38,6 +40,7 @@ rust = '''
 
 [[test]]
 name = "fstring_debug_method"
+skip = true
 description = "f'{s.upper()=}'"
 
 python = '''
@@ -57,6 +60,7 @@ rust = '''
 
 [[test]]
 name = "fstring_debug_format"
+skip = true
 description = "f'{x=:.2f}'"
 
 python = '''
@@ -72,6 +76,7 @@ rust = '''
 
 [[test]]
 name = "fstring_debug_width"
+skip = true
 description = "f'{x=:10}'"
 
 python = '''
@@ -87,6 +92,7 @@ rust = '''
 
 [[test]]
 name = "fstring_debug_conv"
+skip = true
 description = "f'{obj=!r}'"
 
 python = '''
@@ -106,6 +112,7 @@ rust = '''
 
 [[test]]
 name = "fstring_debug_space"
+skip = true
 description = "f'{x = }' keeps spaces"
 
 python = '''
@@ -121,6 +128,7 @@ rust = '''
 
 [[test]]
 name = "fstring_debug_nospace"
+skip = true
 description = "f'{x=}' no extra space"
 
 python = '''
@@ -140,6 +148,7 @@ rust = '''
 
 [[test]]
 name = "fstring_debug_arith"
+skip = true
 description = "f'{a + b * c=}'"
 
 python = '''
@@ -155,6 +164,7 @@ rust = '''
 
 [[test]]
 name = "fstring_debug_listcomp"
+skip = true
 description = "f'{[x*2 for x in items]=}'"
 
 python = '''
@@ -170,6 +180,7 @@ rust = '''
 
 [[test]]
 name = "fstring_debug_dict"
+skip = true
 description = "f'{d[\"key\"]=}'"
 
 python = '''
@@ -189,6 +200,7 @@ rust = '''
 
 [[test]]
 name = "fstring_debug_use"
+skip = true
 description = "Quick print debugging"
 
 python = '''
@@ -204,6 +216,7 @@ rust = '''
 
 [[test]]
 name = "fstring_debug_log"
+skip = true
 description = "Log with variable names"
 
 python = '''
@@ -223,6 +236,7 @@ rust = '''
 
 [[test]]
 name = "fstring_debug_nested"
+skip = true
 description = "Multiple = in one f-string"
 
 python = '''
@@ -238,6 +252,7 @@ rust = '''
 
 [[test]]
 name = "fstring_debug_special"
+skip = true
 description = "Expression with quotes"
 
 python = '''

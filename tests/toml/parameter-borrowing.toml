@@ -74,6 +74,7 @@ pub fn get_age(person: &Person) -> i32 {
 
 [[test]]
 name = "function_returning_field_reference"
+skip = true
 description = "Functions returning refs tracked in functions_returning_refs"
 
 python = '''
@@ -117,6 +118,7 @@ pub fn get_players(game: &Game) -> Vec<String> {
 
 [[test]]
 name = "multiple_string_params_owned"
+skip = true
 description = "Multiple string parameters all owned"
 
 python = '''

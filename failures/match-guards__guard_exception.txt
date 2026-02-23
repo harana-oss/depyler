@@ -1,8 +1,0 @@
-  match-guards.toml :: guard_exception
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− // Exception raised in guard evaluation
-−     let result = true; // Placeholder
-+ pub const result: bool = true;
-────────────────────────────────────────────────────────────

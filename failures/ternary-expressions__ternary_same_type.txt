@@ -1,9 +1,0 @@
-  ternary-expressions.toml :: ternary_same_type
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− let cond = true;
-− let result = if cond { "yes" } else { "no" };
-− log::info!("str {}", result);
-+ 
-────────────────────────────────────────────────────────────

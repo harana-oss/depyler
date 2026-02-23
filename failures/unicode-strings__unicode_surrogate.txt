@@ -1,9 +1,0 @@
-  unicode-strings.toml :: unicode_surrogate
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-  pub fn emoji_length() -> i32 {
-−     return "😀".len() as i32;
-+     return "😀".len() as i32 as i32;
-  }
-────────────────────────────────────────────────────────────

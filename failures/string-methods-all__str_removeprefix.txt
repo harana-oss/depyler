@@ -1,7 +1,0 @@
-  string-methods-all.toml :: str_removeprefix
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− pub const result: String = "hello".strip_prefix("he").unwrap_or("hello").to_string();
-+ 
-────────────────────────────────────────────────────────────

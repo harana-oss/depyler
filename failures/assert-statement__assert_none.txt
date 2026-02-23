@@ -1,9 +1,0 @@
-  assert-statement.toml :: assert_none
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− let x: Option<i32> = Some(42);
-−     assert!(x.is_some());
-−     let result = true;
-+ 
-────────────────────────────────────────────────────────────

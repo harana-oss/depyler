@@ -1,9 +1,0 @@
-  optional-types.toml :: optional_string_concatenation
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-  pub fn greet(name: &Option<String>) -> String {
-−     return format!("Hello, {}!", name.as_ref().unwrap());
-+     return format!("{}{}", format!("{}{}", "Hello, ", name), "!");
-  }
-────────────────────────────────────────────────────────────

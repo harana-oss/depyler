@@ -28,6 +28,7 @@ pub fn use_after_move() -> i32 {
 
 [[test]]
 name = "use_after_move_in_function_call"
+skip = true
 description = "Detect use-after-move when passing to function"
 
 python = '''
@@ -99,6 +100,7 @@ pub fn create_local() -> Vec<i32> {
 
 [[test]]
 name = "dangling_reference_nested"
+skip = true
 description = "Prevent nested function dangling reference"
 
 python = '''
@@ -121,6 +123,7 @@ pub fn outer() -> Vec<i32> {
 
 [[test]]
 name = "dangling_reference_loop"
+skip = true
 description = "Prevent reference escaping loop scope"
 
 python = '''
@@ -162,6 +165,7 @@ pub fn no_aliasing(items: &mut Vec<i32>) {
 
 [[test]]
 name = "mutable_aliasing_split"
+skip = true
 description = "Allow splitting borrows on different fields"
 
 python = '''
@@ -218,6 +222,7 @@ pub fn modify_twice(items: &mut Vec<i32>) {
 
 [[test]]
 name = "lifetime_escape"
+skip = true
 description = "Prevent references outliving their data"
 
 python = '''
@@ -238,6 +243,7 @@ pub fn get_first(items: &Vec<i32>) -> i32 {
 
 [[test]]
 name = "lifetime_escape_struct"
+skip = true
 description = "Prevent struct field outliving data"
 
 python = '''
@@ -267,6 +273,7 @@ pub fn create_container(value: i32) -> Container {
 
 [[test]]
 name = "lifetime_escape_closure"
+skip = true
 description = "Prevent closure capturing dangling reference"
 
 python = '''

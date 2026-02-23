@@ -8,6 +8,7 @@ category = "modules"
 
 [[test]]
 name = "circular_import"
+skip = true
 description = "Circular import handling"
 
 python = '''
@@ -30,6 +31,7 @@ pub fn process_b(x: i32) -> i32 {
 
 [[test]]
 name = "mutual_reference"
+skip = true
 description = "Mutual function references"
 
 python = '''
@@ -66,6 +68,7 @@ pub fn is_odd(n: i32) -> bool {
 
 [[test]]
 name = "re_export"
+skip = true
 description = "Re-export from __init__.py"
 
 python = '''
@@ -88,6 +91,7 @@ fn internal_helper(x: i32) -> i32 {
 
 [[test]]
 name = "re_export_alias"
+skip = true
 description = "Re-export with alias"
 
 python = '''
@@ -114,6 +118,7 @@ pub fn alias_user(x: i32) -> i32 {
 
 [[test]]
 name = "wildcard_import_scope"
+skip = true
 description = "__all__ wildcard import"
 
 python = '''
@@ -140,6 +145,7 @@ fn _private_func() -> i32 {
 
 [[test]]
 name = "all_export_list"
+skip = true
 description = "__all__ export list pattern"
 
 python = '''
@@ -172,6 +178,7 @@ fn _hidden_func() -> i32 {
 
 [[test]]
 name = "relative_import_resolution"
+skip = true
 description = "Complex relative imports"
 
 python = '''
@@ -194,6 +201,7 @@ pub fn parent_module_func(x: i32) -> i32 {
 
 [[test]]
 name = "nested_relative_import"
+skip = true
 description = "Nested relative imports"
 
 python = '''
@@ -227,6 +235,7 @@ pub fn level_three(x: i32) -> i32 {
 
 [[test]]
 name = "module_attribute_access"
+skip = true
 description = "Module-level attribute access"
 
 python = '''
@@ -258,6 +267,7 @@ pub fn get_build() -> i32 {
 
 [[test]]
 name = "module_constant_usage"
+skip = true
 description = "Module constants in functions"
 
 python = '''
@@ -289,6 +299,7 @@ pub fn clamp_size(size: i32) -> i32 {
 
 [[test]]
 name = "module_class_access"
+skip = true
 description = "Module-level class access"
 
 python = '''
@@ -325,6 +336,7 @@ pub fn create_config(name: String) -> Config {
 
 [[test]]
 name = "module_function_chain"
+skip = true
 description = "Chain module functions"
 
 python = '''

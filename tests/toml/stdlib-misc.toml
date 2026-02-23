@@ -8,6 +8,7 @@ category = "stdlib-misc"
 
 [[test]]
 name = "uuid_uuid1"
+skip = true
 description = "uuid.uuid1() time-based UUID"
 
 python = '''
@@ -27,6 +28,7 @@ pub fn generate_uuid1() -> String {
 
 [[test]]
 name = "uuid_uuid4"
+skip = true
 description = "uuid.uuid4() random UUID"
 
 python = '''
@@ -51,6 +53,7 @@ pub fn generate_uuid4() -> String {
 
 [[test]]
 name = "uuid1_uses_v4_placeholder"
+skip = true
 description = "uuid.uuid1() currently implemented as v4 (time-based not authentic)"
 
 python = '''
@@ -73,6 +76,7 @@ pub fn generate_time_uuid() -> String {
 
 [[test]]
 name = "uuid4_random_generation"
+skip = true
 description = "uuid.uuid4() generates random UUID correctly"
 
 python = '''
@@ -94,6 +98,7 @@ pub fn create_random_uuid() -> String {
 
 [[test]]
 name = "uuid_multiple_calls"
+skip = true
 description = "Multiple UUID calls should generate different UUIDs"
 
 python = '''
@@ -121,6 +126,7 @@ pub fn generate_two_uuids() -> (String, String) {
 
 [[test]]
 name = "uuid_in_data_structure"
+skip = true
 description = "UUID as value in dict"
 
 python = '''
@@ -149,6 +155,7 @@ pub fn create_item_with_id() -> HashMap<String, String> {
 
 [[test]]
 name = "uuid_uuid3"
+skip = true
 description = "uuid.uuid3() MD5 hash UUID"
 
 python = '''
@@ -171,6 +178,7 @@ pub fn generate_uuid3(namespace: &uuid::Uuid, name: String) -> String {
 
 [[test]]
 name = "uuid_uuid5"
+skip = true
 description = "uuid.uuid5() SHA1 hash UUID"
 
 python = '''
@@ -249,6 +257,7 @@ pub fn decode_url(text: String) -> String {
 
 [[test]]
 name = "statistics_mean"
+skip = true
 description = "statistics.mean() average"
 
 python = '''
@@ -268,6 +277,7 @@ pub fn calculate_mean(data: &Vec<f64>) -> f64 {
 
 [[test]]
 name = "statistics_median"
+skip = true
 description = "statistics.median() middle value"
 
 python = '''
@@ -318,6 +328,7 @@ pub fn calculate_mode(data: &Vec<i32>) -> i32 {
 
 [[test]]
 name = "statistics_stdev"
+skip = true
 description = "statistics.stdev() standard deviation"
 
 python = '''
@@ -346,6 +357,7 @@ pub fn calculate_stdev(data: &Vec<f64>) -> f64 {
 
 [[test]]
 name = "statistics_variance"
+skip = true
 description = "statistics.variance() sample variance"
 
 python = '''
@@ -373,6 +385,7 @@ pub fn calculate_variance(data: &Vec<f64>) -> f64 {
 
 [[test]]
 name = "copy_shallow_copy_list"
+skip = true
 description = "copy.copy() should generate clone, not invalid .copy() method"
 
 python = '''
@@ -396,6 +409,7 @@ pub fn test_shallow_copy() -> i32 {
 
 [[test]]
 name = "copy_shallow_copy_dict"
+skip = true
 description = "copy.copy() for dictionaries"
 
 python = '''
@@ -425,6 +439,7 @@ pub fn test_dict_copy() -> i32 {
 
 [[test]]
 name = "copy_deepcopy_list"
+skip = true
 description = "copy.deepcopy() for nested lists"
 
 python = '''

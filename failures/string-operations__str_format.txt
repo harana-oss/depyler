@@ -1,5 +1,0 @@
-  string-operations.toml :: str_format
-    Expected transpilation to fail, but it succeeded:
-    pub fn format_str(template: String, value: i32) -> String {
-        return format!("{}", template);
-    }

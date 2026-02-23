@@ -1,9 +1,0 @@
-  bytes.toml :: bytes_concat
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− let mut result = b"a".to_vec();
-−     result.extend_from_slice(b"b");
-+ pub const result: serde_json::Value = b"a" + b"b";
-+ use serde_json;
-────────────────────────────────────────────────────────────

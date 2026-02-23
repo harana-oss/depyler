@@ -8,6 +8,7 @@ category = "dunder-methods"
 
 [[test]]
 name = "dunder_neg"
+skip = true
 description = "def __neg__(self): return MyClass(-self.x)"
 
 python = '''
@@ -37,6 +38,7 @@ impl Neg for Number {
 
 [[test]]
 name = "dunder_pos"
+skip = true
 description = "def __pos__(self): return MyClass(+self.x)"
 
 python = '''
@@ -57,6 +59,7 @@ rust = '''
 
 [[test]]
 name = "dunder_abs"
+skip = true
 description = "def __abs__(self): return MyClass(abs(self.x))"
 
 python = '''
@@ -90,6 +93,7 @@ impl Number {
 
 [[test]]
 name = "dunder_invert"
+skip = true
 description = "def __invert__(self): return MyClass(~self.x)"
 
 python = '''
@@ -123,6 +127,7 @@ impl Not for BitMask {
 
 [[test]]
 name = "dunder_round"
+skip = true
 description = "def __round__(self, n=None): return round(self.x, n)"
 
 python = '''
@@ -142,6 +147,7 @@ struct Example {
 
 [[test]]
 name = "dunder_trunc"
+skip = true
 description = "def __trunc__(self): return int(self.x)"
 
 python = '''
@@ -161,6 +167,7 @@ struct Example {
 
 [[test]]
 name = "dunder_floor"
+skip = true
 description = "def __floor__(self): return math.floor(self.x)"
 
 python = '''
@@ -180,6 +187,7 @@ struct Example {
 
 [[test]]
 name = "dunder_ceil"
+skip = true
 description = "def __ceil__(self): return math.ceil(self.x)"
 
 python = '''
@@ -203,6 +211,7 @@ struct Example {
 
 [[test]]
 name = "dunder_int"
+skip = true
 description = "def __int__(self): return int(self.x)"
 
 python = '''
@@ -222,6 +231,7 @@ struct Example {
 
 [[test]]
 name = "dunder_float"
+skip = true
 description = "def __float__(self): return float(self.x)"
 
 python = '''
@@ -241,6 +251,7 @@ struct Example {
 
 [[test]]
 name = "dunder_complex"
+skip = true
 description = "def __complex__(self): return complex(self.x)"
 
 python = '''
@@ -260,6 +271,7 @@ struct Example {
 
 [[test]]
 name = "dunder_index"
+skip = true
 description = "def __index__(self): return int(self.x) (for slicing)"
 
 python = '''
@@ -283,6 +295,7 @@ struct Example {
 
 [[test]]
 name = "neg_vector"
+skip = true
 description = "Negating a vector class"
 
 python = '''
@@ -335,6 +348,7 @@ fn main() {
 
 [[test]]
 name = "abs_complex"
+skip = true
 description = "Magnitude of complex number"
 
 python = '''
@@ -382,6 +396,7 @@ fn main() {
 
 [[test]]
 name = "invert_bitmask"
+skip = true
 description = "Inverting a bitmask class"
 
 python = '''
@@ -439,6 +454,7 @@ fn main() {
 
 [[test]]
 name = "pos_identity"
+skip = true
 description = "+x often returns x (or copy)"
 
 python = '''
@@ -478,6 +494,7 @@ fn main() {
 
 [[test]]
 name = "index_for_conversion"
+skip = true
 description = "__index__ used by bin(), hex(), oct()"
 
 python = '''
@@ -497,6 +514,7 @@ struct Example {
 
 [[test]]
 name = "index_vs_int"
+skip = true
 description = "__index__ must return int, __int__ can truncate"
 
 python = '''

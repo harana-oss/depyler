@@ -1,8 +1,0 @@
-  type-parameter-lists.toml :: typeparam_vartuple
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− // def f[*Ts](*args: *Ts) -> tuple[*Ts]: ...
-−     let result = true; // Placeholder
-+ pub const result: bool = true;
-────────────────────────────────────────────────────────────

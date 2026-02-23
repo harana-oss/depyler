@@ -1,8 +1,0 @@
-  match-guards.toml :: guard_class_pattern
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− // case Point(x, y) if x == y: ...
-−     let result = true; // Placeholder
-+ pub const result: bool = true;
-────────────────────────────────────────────────────────────

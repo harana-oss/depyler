@@ -1,9 +1,0 @@
-  string-encoding.toml :: case_folding
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− pub fn lowercase(s: &str) -> String {
-+ pub fn lowercase(s: String) -> String {
-      return s.to_lowercase();
-  }
-────────────────────────────────────────────────────────────

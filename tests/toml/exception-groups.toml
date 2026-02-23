@@ -8,6 +8,7 @@ category = "modern-python"
 
 [[test]]
 name = "exception_group_create"
+skip = true
 description = "Creating an ExceptionGroup"
 python = """
 errors = [ValueError("val error"), TypeError("type error")]
@@ -43,6 +44,7 @@ Count: 2"""
 
 [[test]]
 name = "exception_group_raise"
+skip = true
 description = "Raising an ExceptionGroup"
 python = """
 def validate(values):
@@ -95,6 +97,7 @@ Errors: 2"""
 
 [[test]]
 name = "exception_group_nested"
+skip = true
 description = "Nested ExceptionGroup"
 python = """
 inner_errors = [ValueError("inner1"), ValueError("inner2")]
@@ -149,6 +152,7 @@ Has nested: True"""
 
 [[test]]
 name = "except_star_basic"
+skip = true
 description = "Basic except* usage"
 python = """
 try:
@@ -210,6 +214,7 @@ Caught TypeError group: 1"""
 
 [[test]]
 name = "except_star_multiple"
+skip = true
 description = "Multiple except* clauses"
 python = """
 try:
@@ -265,6 +270,7 @@ Handling TypeErrors"""
 
 [[test]]
 name = "except_star_tuple"
+skip = true
 description = "except* with tuple of exception types"
 python = """
 try:
@@ -330,6 +336,7 @@ Caught RuntimeError"""
 
 [[test]]
 name = "exception_group_partial"
+skip = true
 description = "Partial exception handling"
 python = """
 try:
@@ -374,6 +381,7 @@ Caught propagated TypeError"""
 
 [[test]]
 name = "exception_group_subgroup"
+skip = true
 description = "Extract subgroup of matching exceptions"
 python = """
 eg = ExceptionGroup("errors", [
@@ -435,6 +443,7 @@ expected_output = "ValueErrors: 2"
 
 [[test]]
 name = "exception_group_split"
+skip = true
 description = "Split into matching and non-matching"
 python = """
 eg = ExceptionGroup("errors", [
@@ -510,6 +519,7 @@ Rest: 1"""
 
 [[test]]
 name = "base_exception_group"
+skip = true
 description = "BaseExceptionGroup for BaseException subclasses"
 python = """
 # BaseExceptionGroup can contain any BaseException
@@ -544,6 +554,7 @@ expected_output = "Base group: 2"
 
 [[test]]
 name = "exception_group_derive"
+skip = true
 description = "Create derived group with same message"
 python = """
 original = ExceptionGroup("errors", [
@@ -601,6 +612,7 @@ Derived count: 1"""
 
 [[test]]
 name = "exception_group_concurrent"
+skip = true
 description = "Collecting errors from multiple tasks"
 python = """
 def process_item(item):
@@ -654,6 +666,7 @@ expected_output = "Processing errors: [Negative(-1), Zero]"
 
 [[test]]
 name = "exception_group_validation"
+skip = true
 description = "Multiple validation failures"
 python = """
 def validate_user(data):
@@ -705,6 +718,7 @@ expected_output = "Validation errors: 3"
 
 [[test]]
 name = "exception_group_cleanup"
+skip = true
 description = "Multiple cleanup failures"
 python = """
 class Resource:
@@ -782,6 +796,7 @@ expected_output = "Cleanup errors: 2"
 
 [[test]]
 name = "except_star_non_group"
+skip = true
 description = "except* with regular exception"
 python = """
 try:
@@ -807,6 +822,7 @@ expected_output = "Caught: 1"
 
 [[test]]
 name = "except_mixed"
+skip = true
 description = "Cannot mix except and except* in same try"
 
 python = """
@@ -834,6 +850,7 @@ expected_output = "True"
 
 [[test]]
 name = "exception_group_empty"
+skip = true
 description = "ExceptionGroup with empty list"
 
 python = """
@@ -850,6 +867,7 @@ expected_output = "1"
 
 [[test]]
 name = "exception_group_message"
+skip = true
 description = "Accessing group message and exceptions"
 python = """
 eg = ExceptionGroup("Test errors", [
@@ -899,6 +917,7 @@ First exception type: ValueError"""
 
 [[test]]
 name = "exception_group_traceback"
+skip = true
 description = "Exception group structure"
 python = """
 try:

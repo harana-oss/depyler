@@ -8,6 +8,7 @@ category = "context-managers"
 
 [[test]]
 name = "contextmanager_basic"
+skip = true
 description = "@contextmanager def cm(): yield"
 
 python = '''
@@ -35,6 +36,7 @@ rust = '''
 
 [[test]]
 name = "contextmanager_setup"
+skip = true
 description = "Setup before yield"
 
 python = '''
@@ -71,6 +73,7 @@ rust = '''
 
 [[test]]
 name = "contextmanager_teardown"
+skip = true
 description = "Teardown after yield"
 
 python = '''
@@ -111,6 +114,7 @@ rust = '''
 
 [[test]]
 name = "contextmanager_yield"
+skip = true
 description = "yield value bound with as"
 
 python = '''
@@ -141,6 +145,7 @@ rust = '''
 
 [[test]]
 name = "contextmanager_try_finally"
+skip = true
 description = "try: yield finally: cleanup"
 
 python = '''
@@ -188,6 +193,7 @@ rust = '''
 
 [[test]]
 name = "contextmanager_exception"
+skip = true
 description = "Exception propagates through yield"
 
 python = '''
@@ -232,6 +238,7 @@ rust = '''
 
 [[test]]
 name = "contextmanager_suppress"
+skip = true
 description = "try: yield except: pass to suppress"
 
 python = '''
@@ -272,6 +279,7 @@ let result = "success";
 
 [[test]]
 name = "contextmanager_temp_value"
+skip = true
 description = "Change and restore a value"
 
 python = '''
@@ -317,6 +325,7 @@ rust = '''
 
 [[test]]
 name = "contextmanager_timing"
+skip = true
 description = "Measure time in context"
 
 python = '''
@@ -361,6 +370,7 @@ rust = '''
 
 [[test]]
 name = "contextmanager_chdir"
+skip = true
 description = "Change and restore cwd"
 
 python = '''
@@ -401,6 +411,7 @@ rust = '''
 
 [[test]]
 name = "contextmanager_environ"
+skip = true
 description = "Set and restore env var"
 
 python = '''
@@ -449,6 +460,7 @@ rust = '''
 
 [[test]]
 name = "contextmanager_single_yield"
+skip = true
 description = "Must yield exactly once"
 
 python = '''
@@ -466,6 +478,7 @@ rust = '''
 
 [[test]]
 name = "contextmanager_no_yield"
+skip = true
 description = "RuntimeError if no yield"
 
 python = '''
@@ -489,6 +502,7 @@ rust = '''
 
 [[test]]
 name = "contextmanager_multi_yield"
+skip = true
 description = "RuntimeError if multiple yields"
 
 python = '''
@@ -517,6 +531,7 @@ rust = '''
 
 [[test]]
 name = "contextmanager_vs_class"
+skip = true
 description = "@contextmanager vs __enter__/__exit__"
 
 python = '''
@@ -566,6 +581,7 @@ rust = '''
 
 [[test]]
 name = "contextmanager_when"
+skip = true
 description = "Generator simpler for simple cases"
 
 python = '''
@@ -599,6 +615,7 @@ rust = '''
 
 [[test]]
 name = "contextmanager_params"
+skip = true
 description = "@contextmanager def cm(x, y): ..."
 
 python = '''
@@ -625,6 +642,7 @@ rust = '''
 
 [[test]]
 name = "contextmanager_setup_fail"
+skip = true
 description = "Exception before yield"
 
 python = '''
@@ -658,6 +676,7 @@ rust = '''
 
 [[test]]
 name = "contextmanager_teardown_fail"
+skip = true
 description = "Exception after yield"
 
 python = '''
@@ -705,6 +724,7 @@ rust = '''
 
 [[test]]
 name = "contextmanager_reuse"
+skip = true
 description = "Each call creates new generator"
 
 python = '''

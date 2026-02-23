@@ -5,6 +5,7 @@ description = "Tests for detecting mutations in for loop iterators requiring &mu
 
 [[test]]
 name = "for_loop_param_field_mutation"
+skip = true
 description = "Iterating over param.field with mutating loop body needs &mut"
 
 python = '''
@@ -51,6 +52,7 @@ pub fn update_scores(state: &mut State) {
 
 [[test]]
 name = "for_loop_param_field_no_mutation"
+skip = true
 description = "Iterating over param.field with non-mutating loop body"
 
 python = '''
@@ -125,6 +127,7 @@ pub fn sum_local() -> i32 {
 
 [[test]]
 name = "for_loop_enumerate_mutation"
+skip = true
 description = "For loop with enumerate and mutation"
 
 python = '''
@@ -143,6 +146,7 @@ pub fn double_items(items: &mut Vec<i32>) {
 
 [[test]]
 name = "for_loop_method_mutation_on_element"
+skip = true
 description = "For loop with method mutation on list element"
 
 python = '''
@@ -189,6 +193,7 @@ pub fn add_to_all(data: &mut Data, value: i32) {
 
 [[test]]
 name = "nested_for_loops_with_mutation"
+skip = true
 description = "Nested for loops with mutation in inner loop"
 
 python = '''

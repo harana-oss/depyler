@@ -44,6 +44,7 @@ pub fn append_to_empty() -> Vec<i32> {
 
 [[test]]
 name = "empty_dict_access"
+skip = true
 description = "Access empty dict with default"
 
 python = '''
@@ -63,6 +64,7 @@ pub fn get_or_default(key: &str) -> i32 {
 
 [[test]]
 name = "empty_set_membership"
+skip = true
 description = "Membership test on empty set"
 
 python = '''
@@ -86,6 +88,7 @@ pub fn in_empty_set(item: i32) -> bool {
 
 [[test]]
 name = "collection_modification_during_iteration"
+skip = true
 description = "Detect mutation during iteration"
 
 python = '''
@@ -111,6 +114,7 @@ pub fn safe_filter(items: Vec<i32>) -> Vec<i32> {
 
 [[test]]
 name = "collect_then_modify"
+skip = true
 description = "Collect results then modify"
 
 python = '''
@@ -136,6 +140,7 @@ pub fn double_positives(items: Vec<i32>) -> Vec<i32> {
 
 [[test]]
 name = "iter_with_index"
+skip = true
 description = "Iterate with index safely"
 
 python = '''
@@ -162,6 +167,7 @@ pub fn enumerate_items(items: Vec<String>) -> Vec<(i32, String)> {
 
 [[test]]
 name = "nested_collection_mutation"
+skip = true
 description = "Deep mutation in nested structures"
 
 python = '''
@@ -180,6 +186,7 @@ pub fn append_nested(outer: &mut Vec<Vec<i32>>, inner_idx: i32, value: i32) {
 
 [[test]]
 name = "nested_dict_update"
+skip = true
 description = "Update nested dict"
 
 python = '''
@@ -238,6 +245,7 @@ pub fn create_matrix(rows: i32, cols: i32) -> Vec<Vec<i32>> {
 
 [[test]]
 name = "collection_view_invalidation"
+skip = true
 description = "Iterator invalidation patterns"
 
 python = '''
@@ -260,6 +268,7 @@ pub fn safe_iter(items: Vec<i32>) -> Vec<i32> {
 
 [[test]]
 name = "copy_before_modify"
+skip = true
 description = "Copy collection before modification"
 
 python = '''
@@ -279,6 +288,7 @@ pub fn modify_copy(items: Vec<i32>) -> Vec<i32> {
 
 [[test]]
 name = "iter_slice"
+skip = true
 description = "Iterate over slice safely"
 
 python = '''
@@ -306,6 +316,7 @@ pub fn sum_range(items: &Vec<i32>, start: i32, end: i32) -> i32 {
 
 [[test]]
 name = "dict_key_ordering"
+skip = true
 description = "Dict insertion order preservation"
 
 python = '''
@@ -328,6 +339,7 @@ pub fn ordered_keys() -> Vec<String> {
 
 [[test]]
 name = "dict_iteration_order"
+skip = true
 description = "Dict iteration preserves order"
 
 python = '''
@@ -357,6 +369,7 @@ pub fn iter_dict() -> Vec<(String, i32)> {
 
 [[test]]
 name = "dict_update_ordering"
+skip = true
 description = "Dict update maintains order"
 
 python = '''

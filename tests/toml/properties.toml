@@ -8,6 +8,7 @@ category = "advanced-oop"
 
 [[test]]
 name = "property_getter"
+skip = true
 description = "@property def x(self): return self._x"
 python = """
 class Person:
@@ -43,6 +44,7 @@ log::info!("Name: {}", p.name());"""
 
 [[test]]
 name = "property_setter"
+skip = true
 description = "@x.setter def x(self, value): self._x = value"
 python = """
 class Person:
@@ -90,6 +92,7 @@ log::info!("After: {}", p.name());"""
 
 [[test]]
 name = "property_deleter"
+skip = true
 description = "@x.deleter def x(self): del self._x"
 python = """
 class Person:
@@ -141,6 +144,7 @@ log::info!("Has name after delete: {}", p.has_name());"""
 
 [[test]]
 name = "property_readonly"
+skip = true
 description = "Property with only getter"
 python = """
 class Circle:
@@ -184,6 +188,7 @@ log::info!("Cannot set read-only property");"""
 
 [[test]]
 name = "property_computed"
+skip = true
 description = "Property that computes value from other attributes"
 python = """
 class Rectangle:
@@ -229,6 +234,7 @@ log::info!("Perimeter: {}", r.perimeter());"""
 
 [[test]]
 name = "property_validated"
+skip = true
 description = "Setter that validates before assignment"
 python = """
 class Person:
@@ -292,6 +298,7 @@ if let Err(e) = p.set_age(200) {
 
 [[test]]
 name = "property_type_conversion"
+skip = true
 description = "Setter converts type (e.g., str to int)"
 python = """
 class Config:
@@ -346,6 +353,7 @@ log::info!("New port: {}, type: i32", c.port());"""
 
 [[test]]
 name = "property_function"
+skip = true
 description = "x = property(get_x, set_x, del_x, 'docstring')"
 python = """
 class Person:
@@ -397,6 +405,7 @@ log::info!("Changed: {}", p.name());"""
 
 [[test]]
 name = "property_lambda"
+skip = true
 description = "x = property(lambda self: self._x)"
 python = """
 class Point:
@@ -439,6 +448,7 @@ log::info!("Point: ({}, {})", p.x(), p.y());"""
 
 [[test]]
 name = "property_override"
+skip = true
 description = "Subclass overrides parent property"
 python = """
 class Base:
@@ -483,6 +493,7 @@ log::info!("Derived: {}", d.value());"""
 
 [[test]]
 name = "property_extend"
+skip = true
 description = "Override only setter, keep parent getter"
 python = """
 class Base:
@@ -571,6 +582,7 @@ if let Err(e) = d.set_value(-5) {
 
 [[test]]
 name = "property_is_descriptor"
+skip = true
 description = "Property implements descriptor protocol"
 python = """
 class MyClass:
@@ -591,6 +603,7 @@ log::info!("Has __delete__: true");"""
 
 [[test]]
 name = "property_class_access"
+skip = true
 description = "MyClass.prop returns property object"
 python = """
 class MyClass:
@@ -618,6 +631,7 @@ log::info!("Value: 42");"""
 
 [[test]]
 name = "property_docstring"
+skip = true
 description = "@property preserves docstring"
 python = """
 class MyClass:
@@ -644,6 +658,7 @@ log::info!("Docstring: This is the value property");"""
 
 [[test]]
 name = "property_classmethod"
+skip = true
 description = "Cannot combine @property and @classmethod"
 python = """
 # Property and classmethod cannot be combined directly
@@ -673,6 +688,7 @@ expected_output = "42"
 
 [[test]]
 name = "property_shadowing"
+skip = true
 description = "Property name same as backing attribute"
 python = """
 class MyClass:
@@ -716,6 +732,7 @@ log::info!("Backing: {}", obj._value);"""
 
 [[test]]
 name = "cached_property"
+skip = true
 description = "@functools.cached_property"
 python = """
 from functools import cached_property

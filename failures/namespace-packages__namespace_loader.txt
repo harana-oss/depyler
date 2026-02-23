@@ -1,8 +1,0 @@
-  namespace-packages.toml :: namespace_loader
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− // NamespaceLoader
-−     let result = true; // Placeholder
-+ pub const result: bool = true;
-────────────────────────────────────────────────────────────

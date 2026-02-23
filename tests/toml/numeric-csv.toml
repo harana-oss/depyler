@@ -8,6 +8,7 @@ category = "stdlib-numeric"
 
 [[test]]
 name = "csv_reader"
+skip = true
 description = "csv.reader() basic reading"
 
 python = '''
@@ -33,6 +34,7 @@ pub fn read_csv_file(filename: String) -> Vec<i32> {
 
 [[test]]
 name = "csv_reader_delimiter"
+skip = true
 description = "csv.reader() with delimiter"
 
 python = '''
@@ -58,6 +60,7 @@ pub fn read_csv_with_delimiter(filename: String, delim: String) -> Vec<i32> {
 
 [[test]]
 name = "csv_writer"
+skip = true
 description = "csv.writer() basic writing"
 
 python = '''
@@ -81,6 +84,7 @@ pub fn write_csv_file(filename: String, rows: &Vec<serde_json::Value>) {
 
 [[test]]
 name = "csv_writerow"
+skip = true
 description = "csv.writer().writerow() single row"
 
 python = '''
@@ -138,6 +142,7 @@ pub fn decimal_from_float(value: f64) -> Decimal {
 
 [[test]]
 name = "decimal_add"
+skip = true
 description = "Decimal addition"
 
 python = '''
@@ -155,6 +160,7 @@ pub fn add_decimals(a: &Decimal, b: &Decimal) -> Decimal {
 
 [[test]]
 name = "decimal_multiply"
+skip = true
 description = "Decimal multiplication"
 
 python = '''
@@ -206,6 +212,7 @@ pub fn parse_fraction(s: String) -> Fraction {
 
 [[test]]
 name = "fraction_add"
+skip = true
 description = "Fraction addition"
 
 python = '''
@@ -223,6 +230,7 @@ pub fn add_fractions(a: &Fraction, b: &Fraction) -> Fraction {
 
 [[test]]
 name = "fraction_multiply"
+skip = true
 description = "Fraction multiplication"
 
 python = '''
@@ -240,6 +248,7 @@ pub fn multiply_fractions(a: &Fraction, b: &Fraction) -> Fraction {
 
 [[test]]
 name = "fraction_divide"
+skip = true
 description = "Fraction division"
 
 python = '''

@@ -1,9 +1,0 @@
-  type-inference.toml :: type_mapper_generic_list_type
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-  pub fn process_list(items: &Vec<String>) -> i32 {
-−     return items.len() as i32;
-+     return items.len() as i32 as i32;
-  }
-────────────────────────────────────────────────────────────

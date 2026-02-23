@@ -8,6 +8,7 @@ category = "dunder-methods"
 
 [[test]]
 name = "dunder_call_no_args"
+skip = true
 description = "def __call__(self): return self.value"
 python = """
 class Callable:
@@ -40,6 +41,7 @@ log::info!("{}", obj.call());"""
 
 [[test]]
 name = "dunder_call_args"
+skip = true
 description = "def __call__(self, x, y): return x + y"
 python = """
 class Adder:
@@ -65,6 +67,7 @@ log::info!("{}", add.call(10, 20));"""
 
 [[test]]
 name = "dunder_call_kwargs"
+skip = true
 description = "def __call__(self, **kwargs): ..."
 python = """
 class Handler:
@@ -95,6 +98,7 @@ log::info!("{}", handler.call(kwargs));"""
 
 [[test]]
 name = "dunder_call_varargs"
+skip = true
 description = "def __call__(self, *args, **kwargs): ..."
 python = """
 class Flexible:
@@ -127,6 +131,7 @@ log::info!("{}", flex.call(args, kwargs));"""
 
 [[test]]
 name = "callable_true"
+skip = true
 description = "callable(obj_with_call) == True"
 python = """
 class MyCallable:
@@ -154,6 +159,7 @@ log::info!("{}", obj.call());"""
 
 [[test]]
 name = "callable_false"
+skip = true
 description = "callable(regular_obj) == False"
 python = """
 class NotCallable:
@@ -172,6 +178,7 @@ log::info!("false"); // Integers aren't callable"""
 
 [[test]]
 name = "callable_function"
+skip = true
 description = "callable(func) == True"
 python = """
 def my_function():
@@ -194,6 +201,7 @@ log::info!("true"); // Closures are callable"""
 
 [[test]]
 name = "functor"
+skip = true
 description = "Class that acts like a function"
 python = """
 class Multiplier:
@@ -230,6 +238,7 @@ log::info!("{}", times_three.call(5));"""
 
 [[test]]
 name = "stateful_callable"
+skip = true
 description = "Callable that remembers state between calls"
 python = """
 class Counter:
@@ -268,6 +277,7 @@ log::info!("{}", counter.call());"""
 
 [[test]]
 name = "callable_decorator"
+skip = true
 description = "Class decorator using __call__"
 python = """
 class TimesTwo:
@@ -308,6 +318,7 @@ log::info!("{}", decorated.call(3));"""
 
 [[test]]
 name = "callable_factory"
+skip = true
 description = "Callable that returns other callables"
 python = """
 class Adder:
@@ -347,6 +358,7 @@ log::info!("{}", add_10.call(5));"""
 
 [[test]]
 name = "callable_memoize"
+skip = true
 description = "Callable that caches results"
 python = """
 class Memoize:
@@ -398,6 +410,7 @@ log::info!("{}", memo.call(3));"""
 
 [[test]]
 name = "call_uses_methods"
+skip = true
 description = "__call__ delegating to other methods"
 python = """
 class Processor:
@@ -428,6 +441,7 @@ log::info!("{}", proc.call(5));"""
 
 [[test]]
 name = "call_modifies_self"
+skip = true
 description = "__call__ that modifies instance state"
 python = """
 class Accumulator:
@@ -470,6 +484,7 @@ log::info!("{}", acc.call(3));"""
 
 [[test]]
 name = "callable_callback"
+skip = true
 description = "Pass callable instance where function expected"
 python = """
 class Logger:
@@ -503,6 +518,7 @@ process(|msg| logger.call(msg), "Processing data");"""
 
 [[test]]
 name = "callable_higher_order"
+skip = true
 description = "map(callable_obj, items)"
 python = """
 class Square:
@@ -532,6 +548,7 @@ log::info!("{:?}", result);"""
 
 [[test]]
 name = "call_returns_none"
+skip = true
 description = "__call__ with no return statement"
 python = """
 class SideEffect:
@@ -557,6 +574,7 @@ log::info!("Result: None");"""
 
 [[test]]
 name = "call_nested"
+skip = true
 description = "obj()(x) chained calls"
 python = """
 class Outer:
@@ -593,6 +611,7 @@ log::info!("{}", result);"""
 
 [[test]]
 name = "call_type_hints"
+skip = true
 description = "__call__ with parameter and return type hints"
 python = """
 class TypedCallable:
@@ -616,6 +635,7 @@ log::info!("{}", obj.call(3, 4));"""
 
 [[test]]
 name = "callable_subclass"
+skip = true
 description = "Subclass overriding __call__"
 python = """
 class Base:

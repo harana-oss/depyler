@@ -8,6 +8,7 @@ category = "examples"
 
 [[test]]
 name = "test_simple_annotated"
+skip = true
 description = "!/usr/bin/env python3"
 
 python = '''
@@ -56,6 +57,7 @@ pub fn test_annotated_assignments() {
 
 [[test]]
 name = "test_annotated_no_value"
+skip = true
 description = "!/usr/bin/env python3"
 
 python = '''

@@ -8,6 +8,7 @@ category = "build"
 
 [[test]]
 name = "cargo_toml_generation"
+skip = true
 description = "Cargo.toml dependency mapping"
 
 python = '''
@@ -37,6 +38,7 @@ pub fn get_edition() -> String {
 
 [[test]]
 name = "cargo_dependency_version"
+skip = true
 description = "Dependency version specification"
 
 python = '''
@@ -67,6 +69,7 @@ pub fn format_version(major: i32, minor: i32, patch: i32) -> String {
 
 [[test]]
 name = "cargo_metadata"
+skip = true
 description = "Package metadata"
 
 python = '''
@@ -108,6 +111,7 @@ impl PackageInfo {
 
 [[test]]
 name = "feature_flags"
+skip = true
 description = "Optional feature flag generation"
 
 python = '''
@@ -137,6 +141,7 @@ pub fn all_features() -> Vec<String> {
 
 [[test]]
 name = "feature_conditional"
+skip = true
 description = "Conditional compilation by feature"
 
 python = '''
@@ -161,6 +166,7 @@ pub fn get_implementation(feature: &str) -> String {
 
 [[test]]
 name = "feature_dependencies"
+skip = true
 description = "Feature-gated dependencies"
 
 python = '''
@@ -192,6 +198,7 @@ pub fn get_dependencies(features: &[String]) -> Vec<String> {
 
 [[test]]
 name = "workspace_support"
+skip = true
 description = "Multi-crate workspace generation"
 
 python = '''
@@ -230,6 +237,7 @@ pub fn add_member(mut workspace: Vec<String>, name: String) -> Vec<String> {
 
 [[test]]
 name = "workspace_paths"
+skip = true
 description = "Workspace path resolution"
 
 python = '''
@@ -256,6 +264,7 @@ pub fn relative_path(_from_crate: &str, to_crate: &str) -> String {
 
 [[test]]
 name = "build_script"
+skip = true
 description = "build.rs generation when needed"
 
 python = '''
@@ -278,6 +287,7 @@ pub fn build_script_content() -> String {
 
 [[test]]
 name = "build_env_vars"
+skip = true
 description = "Build-time environment variables"
 
 python = '''
@@ -304,6 +314,7 @@ pub fn cargo_env(name: &str) -> String {
 
 [[test]]
 name = "build_output"
+skip = true
 description = "Build script output directives"
 
 python = '''

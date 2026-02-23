@@ -1,7 +1,0 @@
-  namedtuple.toml :: namedtuple_asdict
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− // Rust would use serde for serialization
-+ use std::collections::namedtuple;
-────────────────────────────────────────────────────────────

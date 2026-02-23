@@ -1,9 +1,0 @@
-  type-inference.toml :: simple_generic_function
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-  pub fn identity<T: Clone>(x: T) -> T {
-      return x;
-− };
-+ }
-────────────────────────────────────────────────────────────

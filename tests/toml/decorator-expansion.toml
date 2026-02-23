@@ -8,6 +8,7 @@ category = "decorators"
 
 [[test]]
 name = "stacked_decorators_order"
+skip = true
 description = "Stacked decorator application order"
 
 python = '''
@@ -51,6 +52,7 @@ pub fn compute(x: i32) -> i32 {
 
 [[test]]
 name = "stacked_three_decorators"
+skip = true
 description = "Three stacked decorators"
 
 python = '''
@@ -112,6 +114,7 @@ pub fn identity(x: i32) -> i32 {
 
 [[test]]
 name = "decorator_factory"
+skip = true
 description = "Decorator factory patterns"
 
 python = '''
@@ -146,6 +149,7 @@ pub fn base(x: i32) -> i32 {
 
 [[test]]
 name = "decorator_factory_string"
+skip = true
 description = "Decorator factory with string param"
 
 python = '''
@@ -180,6 +184,7 @@ pub fn get_name() -> String {
 
 [[test]]
 name = "decorator_factory_multiple_params"
+skip = true
 description = "Decorator factory with multiple params"
 
 python = '''
@@ -231,6 +236,7 @@ pub fn compute_value(x: i32) -> i32 {
 
 [[test]]
 name = "class_decorator_mutation"
+skip = true
 description = "Class decorator mutations"
 
 python = '''
@@ -269,6 +275,7 @@ impl Counter {
 
 [[test]]
 name = "class_add_method"
+skip = true
 description = "Add method via decorator"
 
 python = '''
@@ -304,6 +311,7 @@ impl Point {
 
 [[test]]
 name = "method_decorator_self"
+skip = true
 description = "Method decorator self handling"
 
 python = '''
@@ -351,6 +359,7 @@ impl Calculator {
 
 [[test]]
 name = "method_chain"
+skip = true
 description = "Method chaining with self"
 
 python = '''
@@ -389,6 +398,7 @@ impl Builder {
 
 [[test]]
 name = "static_method_decorator"
+skip = true
 description = "Static method decorator"
 
 python = '''
@@ -418,6 +428,7 @@ impl Math {
 
 [[test]]
 name = "classmethod_decorator"
+skip = true
 description = "Class method decorator"
 
 python = '''

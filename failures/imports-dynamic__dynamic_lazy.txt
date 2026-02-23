@@ -1,9 +1,0 @@
-  imports-dynamic.toml :: dynamic_lazy
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− // importlib.util.LazyLoader
-−     // Lazy evaluation with lazy_static or once_cell crates
-−     let result = true;
-+ pub const result: bool = true;
-────────────────────────────────────────────────────────────

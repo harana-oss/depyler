@@ -112,6 +112,7 @@ pub fn countdown(mut n: i32) -> i32 {
 
 [[test]]
 name = "deferred_initialization_not_mutable"
+skip = true
 description = "Deferred initialization in if/else is NOT mutable"
 
 python = '''

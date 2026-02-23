@@ -1,9 +1,0 @@
-  boundary-values.toml :: extremely_simple_function
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− pub fn get_five() -> i32 {
-−     return 5;
-− }
-+ pub fn f() {}
-────────────────────────────────────────────────────────────

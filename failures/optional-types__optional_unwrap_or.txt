@@ -1,9 +1,0 @@
-  optional-types.toml :: optional_unwrap_or
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-  pub fn get_or_default(value: &Option<i32>) -> i32 {
-−     return if value.is_some() { value } else { 0 };
-+     return if value.is_some() { value.unwrap() } else { 0 };
-  }
-────────────────────────────────────────────────────────────

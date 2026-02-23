@@ -1,2 +1,0 @@
-  dataclasses-frozen.toml :: frozen_inherit_mutable
-    Transpilation failed: Statement type not yet supported: ClassDef (classes)

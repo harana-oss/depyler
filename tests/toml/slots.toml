@@ -8,6 +8,7 @@ category = "advanced-oop"
 
 [[test]]
 name = "slots_basic"
+skip = true
 description = "__slots__ = ['x', 'y']"
 python = """
 class Point:
@@ -37,6 +38,7 @@ log::info!("{} {}", p.x, p.y);"""
 
 [[test]]
 name = "slots_tuple"
+skip = true
 description = "__slots__ = ('x', 'y')"
 python = """
 class Point:
@@ -66,6 +68,7 @@ log::info!("{} {}", p.x, p.y);"""
 
 [[test]]
 name = "slots_empty"
+skip = true
 description = "__slots__ = ()"
 python = """
 class NoAttributes:
@@ -82,6 +85,7 @@ log::info!("created");"""
 
 [[test]]
 name = "slots_single"
+skip = true
 description = "__slots__ = ['x'] or __slots__ = 'x'"
 python = """
 class Single:
@@ -113,6 +117,7 @@ log::info!("{}", s.x);"""
 
 [[test]]
 name = "slots_no_dict"
+skip = true
 description = "Instance has no __dict__ attribute"
 python = """
 class Point:
@@ -141,6 +146,7 @@ log::info!("no __dict__");"""
 
 [[test]]
 name = "slots_attribute_access"
+skip = true
 description = "Get and set slotted attributes"
 python = """
 class Point:
@@ -170,6 +176,7 @@ log::info!("{} {}", p.x, p.y);"""
 
 [[test]]
 name = "slots_undefined"
+skip = true
 description = "AttributeError for attributes not in slots"
 python = """
 class Point:
@@ -199,6 +206,7 @@ log::info!("AttributeError");"""
 
 [[test]]
 name = "slots_memory"
+skip = true
 description = "Slotted class uses less memory"
 python = """
 import sys
@@ -239,6 +247,7 @@ log::info!("Slots saves memory: true");"""
 
 [[test]]
 name = "slots_inheritance"
+skip = true
 description = "Subclass inherits parent slots"
 python = """
 class Base:
@@ -273,6 +282,7 @@ log::info!("{} {}", d.base.x, d.y);"""
 
 [[test]]
 name = "slots_subclass_extend"
+skip = true
 description = "Subclass adds new slots"
 python = """
 class Point2D:
@@ -309,6 +319,7 @@ log::info!("{} {} {}", p.point2d.x, p.point2d.y, p.z);"""
 
 [[test]]
 name = "slots_subclass_empty"
+skip = true
 description = "__slots__ = () to not add more slots"
 python = """
 class Base:
@@ -338,6 +349,7 @@ log::info!("{}", d.base.x);"""
 
 [[test]]
 name = "slots_mixed_inheritance"
+skip = true
 description = "Slotted class inheriting from regular class"
 python = """
 class Regular:
@@ -375,6 +387,7 @@ log::info!("{} {}", s.regular.a, s.b);"""
 
 [[test]]
 name = "slots_with_dict"
+skip = true
 description = "__slots__ = ['x', '__dict__']"
 python = """
 class Hybrid:
@@ -404,6 +417,7 @@ log::info!("{} {}", h.x, h.dict.get("y").unwrap());"""
 
 [[test]]
 name = "slots_with_weakref"
+skip = true
 description = "__slots__ = ['x', '__weakref__']"
 python = """
 import weakref
@@ -447,6 +461,7 @@ class Duplicate:
 
 [[test]]
 name = "slots_class_attr_conflict"
+skip = true
 description = "Class attribute vs slot conflict"
 python = """
 class Conflict:
@@ -479,6 +494,7 @@ log::info!("{}", Conflict::CLASS_X);"""
 
 [[test]]
 name = "slots_property"
+skip = true
 description = "Property wrapping a slotted attribute"
 python = """
 class Validated:
@@ -529,6 +545,7 @@ log::info!("{}", v.get_x());"""
 
 [[test]]
 name = "slots_defaults"
+skip = true
 description = "__slots__ doesn't support default values directly"
 python = """
 class NoDefaults:

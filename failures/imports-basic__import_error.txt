@@ -1,8 +1,0 @@
-  imports-basic.toml :: import_error
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− // Rust: import errors caught at compile time
-−     let result = true;
-+ pub const result: bool = true;
-────────────────────────────────────────────────────────────

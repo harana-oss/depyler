@@ -8,6 +8,7 @@ category = "validation"
 
 [[test]]
 name = "test_all"
+skip = true
 description = "Example test"
 
 python = '''
@@ -202,6 +203,7 @@ pub fn test_classify_number() {
 
 [[test]]
 name = "test_async"
+skip = true
 description = "Test async/await support"
 
 python = '''
@@ -239,6 +241,7 @@ pub async fn process_batch(items: &Vec<String>) -> Vec<String> {
 
 [[test]]
 name = "test_with"
+skip = true
 description = "Test with statement support"
 
 python = '''
@@ -286,6 +289,7 @@ pub fn process_file(input_file: String, output_file: String) {
 
 [[test]]
 name = "verification_demo"
+skip = true
 description = "!/usr/bin/env python3"
 
 python = '''

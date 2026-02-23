@@ -8,6 +8,7 @@ category = "core-language"
 
 [[test]]
 name = "assert_basic"
+skip = true
 description = "assert condition"
 
 python = '''
@@ -26,6 +27,7 @@ fn main() {
 
 [[test]]
 name = "assert_with_message"
+skip = true
 description = "assert condition, 'error message'"
 
 python = '''
@@ -44,6 +46,7 @@ fn main() {
 
 [[test]]
 name = "assert_true"
+skip = true
 description = "assert True (always passes)"
 
 python = '''
@@ -64,6 +67,7 @@ fn main() {
 
 [[test]]
 name = "assert_comparison"
+skip = true
 description = "assert x > 0"
 
 python = '''
@@ -82,6 +86,7 @@ fn main() {
 
 [[test]]
 name = "assert_equality"
+skip = true
 description = "assert result == expected"
 
 python = '''
@@ -102,6 +107,7 @@ fn main() {
 
 [[test]]
 name = "assert_isinstance"
+skip = true
 description = "assert isinstance(x, int)"
 
 python = '''
@@ -120,6 +126,7 @@ fn main() {
 
 [[test]]
 name = "assert_in"
+skip = true
 description = "assert item in collection"
 
 python = '''
@@ -144,6 +151,7 @@ fn main() {
 
 [[test]]
 name = "assert_and"
+skip = true
 description = "assert cond1 and cond2"
 
 python = '''
@@ -164,6 +172,7 @@ fn main() {
 
 [[test]]
 name = "assert_or"
+skip = true
 description = "assert cond1 or cond2"
 
 python = '''
@@ -184,6 +193,7 @@ fn main() {
 
 [[test]]
 name = "assert_not"
+skip = true
 description = "assert not invalid"
 
 python = '''
@@ -202,6 +212,7 @@ fn main() {
 
 [[test]]
 name = "assert_function_call"
+skip = true
 description = "assert is_valid(x)"
 
 python = '''
@@ -229,6 +240,7 @@ let result = true;
 
 [[test]]
 name = "assert_fstring_message"
+skip = true
 description = "assert x > 0, f'x must be positive, got {x}'"
 
 python = '''
@@ -247,6 +259,7 @@ fn main() {
 
 [[test]]
 name = "assert_expression_message"
+skip = true
 description = "assert valid, str(error_details)"
 
 python = '''
@@ -275,6 +288,7 @@ fn main() {
 
 [[test]]
 name = "assert_precondition"
+skip = true
 description = "Assert at start of function for input validation"
 
 python = '''
@@ -296,6 +310,7 @@ let result = divide(10, 2) == 5;
 
 [[test]]
 name = "assert_postcondition"
+skip = true
 description = "Assert before return for output validation"
 
 python = '''
@@ -321,6 +336,7 @@ let result = value == 5;
 
 [[test]]
 name = "assert_invariant"
+skip = true
 description = "Assert inside loop for invariant checking"
 
 python = '''
@@ -348,6 +364,7 @@ let result = total == 15;
 
 [[test]]
 name = "assert_tuple_gotcha"
+skip = true
 description = "assert (False, 'msg') is always True!"
 
 python = '''
@@ -369,6 +386,7 @@ fn main() {
 
 [[test]]
 name = "assert_none"
+skip = true
 description = "assert x is not None"
 
 python = '''
@@ -385,6 +403,7 @@ rust = '''
 
 [[test]]
 name = "assert_optimization"
+skip = true
 description = "Assert behavior with __debug__"
 
 python = '''

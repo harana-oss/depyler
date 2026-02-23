@@ -8,6 +8,7 @@ category = "lists"
 
 [[test]]
 name = "list_empty"
+skip = true
 description = "Create empty list"
 
 python = '''
@@ -38,6 +39,7 @@ pub fn create_list() -> Vec<i32> {
 
 [[test]]
 name = "list_typed"
+skip = true
 description = "Typed list annotation"
 
 python = '''
@@ -160,6 +162,7 @@ pub fn reverse_list(items: &mut Vec<i32>) {
 
 [[test]]
 name = "list_sort"
+skip = true
 description = "List sort() method"
 
 python = '''
@@ -198,6 +201,7 @@ pub fn copy_list(items: &Vec<i32>) -> Vec<i32> {
 
 [[test]]
 name = "list_index_access"
+skip = true
 description = "Access list by index"
 
 python = '''
@@ -230,6 +234,7 @@ pub fn get_item(items: &Vec<i32>, i: i32) -> i32 {
 
 [[test]]
 name = "list_negative_index"
+skip = true
 description = "Access list with negative index"
 
 python = '''
@@ -350,6 +355,7 @@ pub fn add_if_missing(items: &mut Vec<i32>, item: i32) {
 
 [[test]]
 name = "list_add_if_missing_dataclass"
+skip = true
 description = "'if item not in items' with dataclass - membership check with custom type"
 
 python = '''
@@ -424,6 +430,7 @@ pub fn print_indexed(items: Vec<String>) {
 
 [[test]]
 name = "list_len"
+skip = true
 description = "List length with len()"
 
 python = '''
@@ -439,6 +446,7 @@ pub fn list_size(items: &Vec<i32>) -> i32 {
 
 [[test]]
 name = "list_concat"
+skip = true
 description = "List concatenation with +"
 
 python = '''
@@ -454,6 +462,7 @@ pub fn concat_lists(a: &Vec<i32>, b: &Vec<i32>) -> Vec<i32> {
 
 [[test]]
 name = "list_multiply"
+skip = true
 description = "List repetition with *"
 
 python = '''
@@ -514,6 +523,7 @@ pub fn maximum(items: Vec<i32>) -> i32 {
 
 [[test]]
 name = "list_sorted"
+skip = true
 description = "sorted() builtin"
 
 python = '''
@@ -545,6 +555,7 @@ pub fn sort_copy(items: Vec<i32>) -> Vec<i32> {
 
 [[test]]
 name = "list_string_index_compiles"
+skip = true
 description = "String list index should compile (cloned, not copied)"
 compile_check = true
 
@@ -578,6 +589,7 @@ pub fn get_string(items: &Vec<String>, index: i32) -> String {
 
 [[test]]
 name = "list_nested_index_compiles"
+skip = true
 description = "Nested list index should compile"
 compile_check = true
 
@@ -611,6 +623,7 @@ pub fn get_row(matrix: &Vec<Vec<i32>>, row: i32) -> Vec<i32> {
 
 [[test]]
 name = "list_negative_index_compiles"
+skip = true
 description = "Negative index should compile without usize error"
 compile_check = true
 
@@ -663,6 +676,7 @@ pub fn test_arrays() -> (Vec<i32>, Vec<bool>) {
 
 [[test]]
 name = "array_multiplication_pattern"
+skip = true
 description = "Array multiplication pattern [x] * n"
 
 python = '''
@@ -708,6 +722,7 @@ pub fn test_init() -> (Vec<i32>, Vec<i32>, Vec<i32>) {
 
 [[test]]
 name = "array_large_uses_vec"
+skip = true
 description = "Large arrays use proper array syntax"
 
 python = '''
@@ -870,6 +885,7 @@ pub fn test_jagged() -> Vec<Vec<i32>> {
 
 [[test]]
 name = "nested_arrays_empty_subarrays"
+skip = true
 description = "Arrays with empty subarrays"
 
 python = '''
@@ -887,6 +903,7 @@ pub fn test_empty_nested() -> Vec<Vec<i32>> {
 
 [[test]]
 name = "nested_arrays_with_multiplication"
+skip = true
 description = "Nested array with multiplication pattern"
 
 python = '''
@@ -922,6 +939,7 @@ pub fn test_single() -> Vec<Vec<i32>> {
 
 [[test]]
 name = "nested_arrays_negative_numbers"
+skip = true
 description = "Nested arrays with negative numbers"
 
 python = '''

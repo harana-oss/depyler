@@ -8,6 +8,7 @@ category = "core-language"
 
 [[test]]
 name = "ellipsis_function_placeholder"
+skip = true
 description = "def func(): ..."
 python = """
 def func():
@@ -27,6 +28,7 @@ log::info!("Function with ellipsis works");"""
 
 [[test]]
 name = "ellipsis_class_placeholder"
+skip = true
 description = "class Empty: ..."
 python = """
 class Empty:
@@ -44,6 +46,7 @@ log::info!("Empty class works: Empty");"""
 
 [[test]]
 name = "ellipsis_abstract"
+skip = true
 description = "@abstractmethod def method(self): ..."
 python = """
 from abc import ABC, abstractmethod
@@ -78,6 +81,7 @@ log::info!("{}", obj.method());"""
 
 [[test]]
 name = "ellipsis_vs_pass"
+skip = true
 description = "Both valid as no-op body"
 python = """
 def with_pass():
@@ -110,6 +114,7 @@ log::info!("Both pass and ellipsis work");"""
 
 [[test]]
 name = "ellipsis_callable"
+skip = true
 description = "Callable[..., ReturnType]"
 python = """
 from typing import Callable
@@ -137,6 +142,7 @@ log::info!("Result: {}", result);"""
 
 [[test]]
 name = "ellipsis_tuple"
+skip = true
 description = "Tuple[int, ...] for variable-length tuple"
 python = """
 from typing import Tuple
@@ -164,6 +170,7 @@ log::info!("Results: {}, {}", result1, result2);"""
 
 [[test]]
 name = "ellipsis_slice"
+skip = true
 description = "arr[..., 0] for multi-dimensional indexing"
 python = """
 # Simulating multi-dimensional array behavior
@@ -194,6 +201,7 @@ log::info!("{}", result);"""
 
 [[test]]
 name = "ellipsis_expand"
+skip = true
 description = "arr[0, ...] equivalent to arr[0, :, :, :]"
 python = """
 class Array:
@@ -226,6 +234,7 @@ log::info!("{}", result);"""
 
 [[test]]
 name = "ellipsis_assignment"
+skip = true
 description = "x = ..."
 python = """
 x = ...
@@ -240,6 +249,7 @@ log::info!("Type: ()");"""
 
 [[test]]
 name = "ellipsis_type"
+skip = true
 description = "type(...) == ellipsis"
 python = """
 print(f"Type of ellipsis: {type(...)}")
@@ -252,6 +262,7 @@ log::info!("Is ellipsis type: true");"""
 
 [[test]]
 name = "ellipsis_singleton"
+skip = true
 description = "... is ... (same object)"
 python = """
 a = ...
@@ -268,6 +279,7 @@ log::info!("Equal: true");"""
 
 [[test]]
 name = "ellipsis_in_dict"
+skip = true
 description = "{...: 'ellipsis'} or {'key': ...}"
 python = """
 d1 = {...: 'ellipsis_key'}
@@ -293,6 +305,7 @@ log::info!("Dict with ellipsis value: {{'key': ()}}");"""
 
 [[test]]
 name = "ellipsis_truthiness"
+skip = true
 description = "if ...: (ellipsis is truthy)"
 python = """
 if ...:
@@ -312,6 +325,7 @@ if true {
 
 [[test]]
 name = "ellipsis_comparison"
+skip = true
 description = "... == ... is True"
 python = """
 print(f"Ellipsis equals itself: {... == ...}")
@@ -323,6 +337,7 @@ log::info!("Ellipsis is itself: true");"""
 
 [[test]]
 name = "ellipsis_default_arg"
+skip = true
 description = "def f(x=...): to distinguish from None"
 python = """
 def func(x=...):

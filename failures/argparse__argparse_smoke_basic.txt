@@ -1,8 +1,0 @@
-  argparse.toml :: argparse_smoke_basic
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-  use clap::Parser;
-− pub const parser: serde_json::Value = clap::Parser();
-− use serde_json;
-────────────────────────────────────────────────────────────

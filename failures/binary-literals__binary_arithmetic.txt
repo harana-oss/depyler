@@ -1,8 +1,0 @@
-  binary-literals.toml :: binary_arithmetic
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− let result = (0b1010 + 0b0101) == 15;
-+ pub const result: serde_json::Value = 10 + 5 == 15;
-+ use serde_json;
-────────────────────────────────────────────────────────────

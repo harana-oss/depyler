@@ -1,9 +1,0 @@
-  imports-relative.toml :: relative_absolute
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− // import pkg (absolute)
-−     // In Rust: use crate::pkg; or use pkg;
-−     let result = true;
-+ pub const result: bool = true;
-────────────────────────────────────────────────────────────

@@ -1,9 +1,0 @@
-  imports-relative.toml :: relative_triple_dot
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− // from ... import grandparent
-−     // In Rust: use super::super::super::grandparent;
-−     let result = true;
-+ pub const result: bool = true;
-────────────────────────────────────────────────────────────

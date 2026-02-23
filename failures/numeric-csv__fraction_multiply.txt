@@ -1,9 +1,0 @@
-  numeric-csv.toml :: fraction_multiply
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-  pub fn multiply_fractions(a: &Fraction, b: &Fraction) -> Fraction {
-      return a * b;
-− };
-+ }
-────────────────────────────────────────────────────────────

@@ -1,2 +1,0 @@
-  examples-tooling.toml :: mcp_usage
-    Transpilation failed: rstrip() with arguments not supported in V1

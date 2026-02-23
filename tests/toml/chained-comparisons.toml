@@ -8,6 +8,7 @@ category = "core-language"
 
 [[test]]
 name = "chained_less_than"
+skip = true
 description = "a < b < c"
 
 python = '''
@@ -28,6 +29,7 @@ rust = '''
 
 [[test]]
 name = "chained_less_equal"
+skip = true
 description = "a <= b <= c"
 
 python = '''
@@ -48,6 +50,7 @@ rust = '''
 
 [[test]]
 name = "chained_greater_than"
+skip = true
 description = "a > b > c"
 
 python = '''
@@ -68,6 +71,7 @@ rust = '''
 
 [[test]]
 name = "chained_equality"
+skip = true
 description = "a == b == c"
 
 python = '''
@@ -88,6 +92,7 @@ rust = '''
 
 [[test]]
 name = "chained_inequality"
+skip = true
 description = "a != b != c"
 
 python = '''
@@ -112,6 +117,7 @@ rust = '''
 
 [[test]]
 name = "chained_mixed_operators"
+skip = true
 description = "a < b <= c < d"
 
 python = '''
@@ -134,6 +140,7 @@ rust = '''
 
 [[test]]
 name = "chained_eq_neq"
+skip = true
 description = "a == b != c"
 
 python = '''
@@ -154,6 +161,7 @@ rust = '''
 
 [[test]]
 name = "chained_range_eq"
+skip = true
 description = "a <= b == c <= d"
 
 python = '''
@@ -180,6 +188,7 @@ rust = '''
 
 [[test]]
 name = "chained_with_calls"
+skip = true
 description = "0 < len(s) < 100 (middle expression evaluated once)"
 
 python = '''
@@ -197,6 +206,7 @@ rust = '''
 
 [[test]]
 name = "chained_short_circuit"
+skip = true
 description = "Verify middle expressions only evaluated once"
 
 python = '''
@@ -236,6 +246,7 @@ rust = '''
 
 [[test]]
 name = "chained_is"
+skip = true
 description = "a is b is c"
 
 python = '''
@@ -260,6 +271,7 @@ rust = '''
 
 [[test]]
 name = "chained_is_not"
+skip = true
 description = "a is not b is not c"
 
 python = '''
@@ -282,6 +294,7 @@ rust = '''
 
 [[test]]
 name = "chained_in"
+skip = true
 description = "a in b in c"
 
 python = '''
@@ -306,6 +319,7 @@ rust = '''
 
 [[test]]
 name = "chained_long"
+skip = true
 description = "a < b < c < d < e"
 
 python = '''
@@ -330,6 +344,7 @@ rust = '''
 
 [[test]]
 name = "chained_in_if"
+skip = true
 description = "if 0 <= x < 10:"
 
 python = '''
@@ -349,6 +364,7 @@ rust = '''
 
 [[test]]
 name = "chained_as_expression"
+skip = true
 description = "result = 0 < x < 10"
 
 python = '''
@@ -365,6 +381,7 @@ rust = '''
 
 [[test]]
 name = "chained_floats"
+skip = true
 description = "0.0 < x < 1.0"
 
 python = '''

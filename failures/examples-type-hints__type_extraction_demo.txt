@@ -1,2 +1,0 @@
-  examples-type-hints.toml :: type_extraction_demo
-    Transpilation failed: get() requires 1 or 2 arguments

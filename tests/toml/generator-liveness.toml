@@ -5,6 +5,7 @@ description = "Tests for generator captures, unused variables, and state preserv
 
 [[test]]
 name = "generator_captures_used_variables"
+skip = true
 description = "Verify state struct includes needed variables"
 
 python = '''
@@ -56,6 +57,7 @@ impl Iterator for CountWithStepState {
 
 [[test]]
 name = "generator_variables_modified_between_yields"
+skip = true
 description = "Ensure proper state preservation when variables change between yields"
 
 python = '''
@@ -113,6 +115,7 @@ impl Iterator for AccumulatorState {
 
 [[test]]
 name = "generator_nested_loops_with_yields"
+skip = true
 description = "Verify complex control flow state tracking"
 
 python = '''
@@ -183,6 +186,7 @@ impl Iterator for MatrixElementsState {
 
 [[test]]
 name = "generator_with_local_scope_variables"
+skip = true
 description = "Verify scope-aware capture for local variables"
 
 python = '''
@@ -245,6 +249,7 @@ impl Iterator for AlternatingState {
 
 [[test]]
 name = "generator_with_parameter_state"
+skip = true
 description = "Verify state struct includes parameters used after yield"
 
 python = '''

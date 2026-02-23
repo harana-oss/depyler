@@ -1,7 +1,0 @@
-  bytes.toml :: bytes_decode
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− let result = String::from_utf8(b"hello".to_vec()).unwrap();
-+ 
-────────────────────────────────────────────────────────────

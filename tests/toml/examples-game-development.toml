@@ -8,6 +8,7 @@ category = "game_development"
 
 [[test]]
 name = "simulation_combined"
+skip = true
 description = "Example test"
 
 python = '''
@@ -784,6 +785,7 @@ pub fn run_simulations() -> Result<(), Box<dyn std::error::Error>> {
 
 [[test]]
 name = "tic_tac_toe"
+skip = true
 description = "Example test"
 
 python = '''

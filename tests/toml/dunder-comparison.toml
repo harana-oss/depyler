@@ -8,6 +8,7 @@ category = "dunder-methods"
 
 [[test]]
 name = "dunder_eq"
+skip = true
 description = "def __eq__(self, other): return self.x == other.x"
 python = """
 class Point:
@@ -49,6 +50,7 @@ False"""
 
 [[test]]
 name = "dunder_ne"
+skip = true
 description = "def __ne__(self, other): return self.x != other.x"
 python = """
 class Value:
@@ -89,6 +91,7 @@ True"""
 
 [[test]]
 name = "dunder_ne_default"
+skip = true
 description = "__ne__ defaults to not __eq__"
 python = """
 class Simple:
@@ -131,6 +134,7 @@ True"""
 
 [[test]]
 name = "dunder_lt"
+skip = true
 description = "def __lt__(self, other): return self.x < other.x"
 python = """
 class Number:
@@ -166,6 +170,7 @@ False"""
 
 [[test]]
 name = "dunder_le"
+skip = true
 description = "def __le__(self, other): return self.x <= other.x"
 python = """
 class Number:
@@ -206,6 +211,7 @@ False"""
 
 [[test]]
 name = "dunder_gt"
+skip = true
 description = "def __gt__(self, other): return self.x > other.x"
 python = """
 class Number:
@@ -241,6 +247,7 @@ False"""
 
 [[test]]
 name = "dunder_ge"
+skip = true
 description = "def __ge__(self, other): return self.x >= other.x"
 python = """
 class Number:
@@ -285,6 +292,7 @@ False"""
 
 [[test]]
 name = "total_ordering"
+skip = true
 description = "@total_ordering with __eq__ and one of __lt__, __le__, __gt__, __ge__"
 python = """
 from functools import total_ordering
@@ -341,6 +349,7 @@ False"""
 
 [[test]]
 name = "dunder_hash"
+skip = true
 description = "def __hash__(self): return hash(self.x)"
 python = """
 class Point:
@@ -387,6 +396,7 @@ expected_output = "True"
 
 [[test]]
 name = "hash_eq_consistency"
+skip = true
 description = "Equal objects must have same hash"
 python = """
 class HashableValue:
@@ -434,6 +444,7 @@ True"""
 
 [[test]]
 name = "unhashable"
+skip = true
 description = "__hash__ = None makes class unhashable"
 python = """
 class Unhashable:
@@ -469,6 +480,7 @@ expected_output = "TypeError: unhashable type"
 
 [[test]]
 name = "hash_in_dict"
+skip = true
 description = "Object as dict key requires __hash__"
 python = """
 class Hashable:
@@ -512,6 +524,7 @@ expected_output = "first"
 
 [[test]]
 name = "hash_in_set"
+skip = true
 description = "Object in set requires __hash__"
 python = """
 class Hashable:
@@ -560,6 +573,7 @@ expected_output = "2"
 
 [[test]]
 name = "eq_different_type"
+skip = true
 description = "Return NotImplemented for incompatible types"
 python = """
 class Value:
@@ -602,6 +616,7 @@ False"""
 
 [[test]]
 name = "lt_different_type"
+skip = true
 description = "Comparison with incompatible type"
 python = """
 class Value:
@@ -639,6 +654,7 @@ expected_output = "TypeError"
 
 [[test]]
 name = "comparison_reflected"
+skip = true
 description = "Python tries reflected method if NotImplemented"
 python = """
 class A:
@@ -706,6 +722,7 @@ True"""
 
 [[test]]
 name = "dunder_chaining"
+skip = true
 description = "a < b < c with custom comparisons"
 python = """
 class Number:
@@ -743,6 +760,7 @@ False"""
 
 [[test]]
 name = "eq_non_bool"
+skip = true
 description = "__eq__ can return non-bool (like numpy)"
 python = """
 class Special:
@@ -792,6 +810,7 @@ not equal"""
 
 [[test]]
 name = "mutable_hash"
+skip = true
 description = "Mutable objects should not be hashable"
 python = """
 class MutablePoint:

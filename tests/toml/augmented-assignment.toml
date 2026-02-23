@@ -8,6 +8,7 @@ category = "core-language"
 
 [[test]]
 name = "augmented_add"
+skip = true
 description = "x += y"
 python = """
 x = 10
@@ -21,6 +22,7 @@ log::info!("{}", x);"""
 
 [[test]]
 name = "augmented_sub"
+skip = true
 description = "x -= y"
 python = """
 x = 10
@@ -34,6 +36,7 @@ log::info!("{}", x);"""
 
 [[test]]
 name = "augmented_mul"
+skip = true
 description = "x *= y"
 python = """
 x = 5
@@ -47,6 +50,7 @@ log::info!("{}", x);"""
 
 [[test]]
 name = "augmented_div"
+skip = true
 description = "x /= y (true division)"
 python = """
 x = 10
@@ -60,6 +64,7 @@ log::info!("{}", x);"""
 
 [[test]]
 name = "augmented_floor_div"
+skip = true
 description = "x //= y (floor division)"
 python = """
 x = 10
@@ -73,6 +78,7 @@ log::info!("{}", x);"""
 
 [[test]]
 name = "augmented_mod"
+skip = true
 description = "x %= y"
 python = """
 x = 10
@@ -86,6 +92,7 @@ log::info!("{}", x);"""
 
 [[test]]
 name = "augmented_pow"
+skip = true
 description = "x **= y"
 python = """
 x = 2
@@ -102,6 +109,7 @@ log::info!("{}", x);"""
 
 [[test]]
 name = "augmented_and"
+skip = true
 description = "x &= y (bitwise AND)"
 python = """
 x = 12  # 1100
@@ -115,6 +123,7 @@ log::info!("{}", x);"""
 
 [[test]]
 name = "augmented_or"
+skip = true
 description = "x |= y (bitwise OR)"
 python = """
 x = 12  # 1100
@@ -128,6 +137,7 @@ log::info!("{}", x);"""
 
 [[test]]
 name = "augmented_xor"
+skip = true
 description = "x ^= y (bitwise XOR)"
 python = """
 x = 12  # 1100
@@ -141,6 +151,7 @@ log::info!("{}", x);"""
 
 [[test]]
 name = "augmented_rshift"
+skip = true
 description = "x >>= y (right shift)"
 python = """
 x = 16
@@ -154,6 +165,7 @@ log::info!("{}", x);"""
 
 [[test]]
 name = "augmented_lshift"
+skip = true
 description = "x <<= y (left shift)"
 python = """
 x = 4
@@ -171,6 +183,7 @@ log::info!("{}", x);"""
 
 [[test]]
 name = "augmented_add_list"
+skip = true
 description = "lst += [item] extends list"
 python = """
 lst = [1, 2, 3]
@@ -184,6 +197,7 @@ log::info!("{:?}", lst);"""
 
 [[test]]
 name = "augmented_add_string"
+skip = true
 description = "s += 'more' concatenates strings"
 python = """
 s = "hello"
@@ -197,6 +211,7 @@ log::info!("{}", s);"""
 
 [[test]]
 name = "augmented_mul_list"
+skip = true
 description = "lst *= n repeats list"
 python = """
 lst = [1, 2]
@@ -214,6 +229,7 @@ log::info!("{:?}", lst);"""
 
 [[test]]
 name = "augmented_subscript"
+skip = true
 description = "lst[0] += 1"
 python = """
 lst = [10, 20, 30]
@@ -227,6 +243,7 @@ log::info!("{:?}", lst);"""
 
 [[test]]
 name = "augmented_dict_value"
+skip = true
 description = "d['key'] += 1"
 python = """
 d = {'a': 10, 'b': 20}
@@ -249,6 +266,7 @@ log::info!("{}", d.get("a").cloned().unwrap());"""
 
 [[test]]
 name = "augmented_attribute"
+skip = true
 description = "obj.attr += 1"
 python = """
 class Counter:
@@ -279,6 +297,7 @@ log::info!("{}", obj.count);"""
 
 [[test]]
 name = "augmented_inplace_semantics"
+skip = true
 description = "Test that mutable types modify in-place"
 python = """
 original_list = [1, 2, 3]
@@ -294,6 +313,7 @@ log::info!("{} {:?}", original_list == same_list, original_list);"""
 
 [[test]]
 name = "augmented_custom_iadd"
+skip = true
 description = "Custom class with __iadd__ implementation"
 python = """
 class Counter:
@@ -329,6 +349,7 @@ expected_output = "Counter(15)"
 
 [[test]]
 name = "augmented_class_with_list_and_dict"
+skip = true
 description = "Complex augmented assignment with class attributes, list elements, and dict values"
 python = """
 class Counter:

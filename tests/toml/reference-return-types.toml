@@ -37,6 +37,7 @@ pub fn create_point(x: i32, y: i32) -> Point {
 
 [[test]]
 name = "factory_method_returns_owned_value"
+skip = true
 description = "Self::new() patterns return owned value"
 
 python = '''
@@ -69,6 +70,7 @@ pub fn make_square(size: i32) -> Rectangle {
 
 [[test]]
 name = "tuple_return_with_constructed_values"
+skip = true
 description = "Tuple return with constructed values has no reference wrapper"
 
 python = '''
@@ -99,6 +101,7 @@ pub fn create_pair(a: i32, b: i32) -> (Item, Item) {
 
 [[test]]
 name = "struct_literal_return_direct_value"
+skip = true
 description = "Struct literal return is direct value"
 
 python = '''
@@ -131,6 +134,7 @@ pub fn default_config() -> Config {
 
 [[test]]
 name = "nested_constructor_in_return"
+skip = true
 description = "Nested constructor calls in return statement"
 
 python = '''

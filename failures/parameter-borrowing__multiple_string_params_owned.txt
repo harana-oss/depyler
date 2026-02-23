@@ -1,9 +1,0 @@
-  parameter-borrowing.toml :: multiple_string_params_owned
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-  pub fn join_strings(a: String, b: String, sep: String) -> String {
-−     return a + &sep + &b;
-+     return format!("{}{}", format!("{}{}", a, sep), b);
-  }
-────────────────────────────────────────────────────────────

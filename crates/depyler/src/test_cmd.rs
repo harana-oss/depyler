@@ -306,7 +306,7 @@ pub fn run_toml_tests(
                 print!("{}", diff_output);
             }
         }
-        std::process::exit(1);
+        anyhow::bail!("{} test(s) failed", failed_tests);
     }
 
     Ok(())

@@ -1,9 +1,0 @@
-  string-encoding.toml :: string_comparison
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− pub fn strings_equal(a: &str, b: &str) -> bool {
-+ pub fn strings_equal(a: String, b: String) -> bool {
-      return a == b;
-  }
-────────────────────────────────────────────────────────────

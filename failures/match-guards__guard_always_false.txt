@@ -1,8 +1,0 @@
-  match-guards.toml :: guard_always_false
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− // case x if False: never matches
-−     let result = true; // Placeholder
-+ pub const result: bool = true;
-────────────────────────────────────────────────────────────

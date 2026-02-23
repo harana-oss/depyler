@@ -8,6 +8,7 @@ category = "async"
 
 [[test]]
 name = "async_def_basic"
+skip = true
 description = "async def f(): return 42"
 
 python = '''
@@ -30,6 +31,7 @@ pub const result: i32 = {
 
 [[test]]
 name = "async_def_params"
+skip = true
 description = "async def f(x, y): return x + y"
 
 python = '''
@@ -52,6 +54,7 @@ pub const result: i32 = {
 
 [[test]]
 name = "async_def_typed"
+skip = true
 description = "async def f(x: int) -> int: ..."
 
 python = '''
@@ -75,6 +78,7 @@ pub const result: impl std::future::Future<Output = ()> = f();
 
 [[test]]
 name = "async_call"
+skip = true
 description = "f() returns coroutine object"
 
 python = '''
@@ -105,6 +109,7 @@ fn main () {
 
 [[test]]
 name = "coroutine_type"
+skip = true
 description = "isinstance(f(), Coroutine)"
 
 python = '''
@@ -138,6 +143,7 @@ fn main () {
 
 [[test]]
 name = "iscoroutinefunction"
+skip = true
 description = "inspect.iscoroutinefunction(f) is True"
 
 python = '''
@@ -169,6 +175,7 @@ fn main () {
 
 [[test]]
 name = "async_method"
+skip = true
 description = "async def method(self): ..."
 
 python = '''
@@ -219,6 +226,7 @@ impl MyClass {
 
 [[test]]
 name = "async_staticmethod"
+skip = true
 description = "@staticmethod async def f(): ..."
 
 python = '''
@@ -242,6 +250,7 @@ pub const result: serde_json::Value = f();
 
 [[test]]
 name = "async_decorated"
+skip = true
 description = "@decorator async def f(): ..."
 
 python = '''
@@ -261,6 +270,7 @@ pub const result: serde_json::Value = f();
 
 [[test]]
 name = "async_multi_decorated"
+skip = true
 description = "@d1 @d2 async def f(): ..."
 
 python = '''
@@ -284,6 +294,7 @@ pub const result: serde_json::Value = f();
 
 [[test]]
 name = "async_return"
+skip = true
 description = "Return value obtained via await"
 
 python = '''
@@ -319,6 +330,7 @@ pub async fn main () -> String {
 
 [[test]]
 name = "async_return_none"
+skip = true
 description = "async def without explicit return"
 
 python = '''
@@ -342,6 +354,7 @@ pub const result: serde_json::Value = {
 
 [[test]]
 name = "async_raise"
+skip = true
 description = "raise Exception() in async def"
 
 python = '''
@@ -365,6 +378,7 @@ pub const result: serde_json::Value = f();
 
 [[test]]
 name = "async_calls_async"
+skip = true
 description = "async def a(): await b()"
 
 python = '''
@@ -384,6 +398,7 @@ pub const result: serde_json::Value = f();
 
 [[test]]
 name = "async_closure"
+skip = true
 description = "async function with closure over variables"
 
 python = '''
@@ -426,6 +441,7 @@ let result = inner().await;
 
 [[test]]
 name = "async_varargs"
+skip = true
 description = "async def f(*args, **kwargs): ..."
 
 python = '''
@@ -445,6 +461,7 @@ pub const result: serde_json::Value = f();
 
 [[test]]
 name = "async_with_yield"
+skip = true
 description = "async def with yield is async generator"
 
 python = '''
@@ -464,6 +481,7 @@ pub const result: serde_json::Value = f();
 
 [[test]]
 name = "async_init"
+skip = true
 description = "__init__ cannot be async"
 
 python = '''

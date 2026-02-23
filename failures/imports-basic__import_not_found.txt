@@ -1,9 +1,0 @@
-  imports-basic.toml :: import_not_found
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− // Rust: compile-time error for missing modules
-−     // use nonexistent_module; // Would not compile
-−     let result = true;
-+ 
-────────────────────────────────────────────────────────────

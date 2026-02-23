@@ -872,10 +872,15 @@ fn convert_classes_to_rust(
     
     let mut class_items = Vec::new();
     for class in classes {
-        let items = crate::direct_rules::convert_class_to_struct(class, type_mapper, &abc_classes)?;
-        for item in items {
-            let tokens = item.to_token_stream();
-            class_items.push(tokens);
+        if class.is_abc {
+            let trait_item = crate::direct_rules::convert_abc_to_trait(class, type_mapper)?;
+            class_items.push(trait_item.to_token_stream());
+        } else {
+            let items = crate::direct_rules::convert_class_to_struct(class, type_mapper, &abc_classes)?;
+            for item in items {
+                let tokens = item.to_token_stream();
+                class_items.push(tokens);
+            }
         }
     }
     Ok(class_items)
@@ -1080,6 +1085,63 @@ fn generate_constant_tokens(
                 HirExpr::Literal(Literal::Float(_)) => quote! { : f64 },
                 HirExpr::Literal(Literal::String(_)) => quote! { : &str },
                 HirExpr::Literal(Literal::Bool(_)) => quote! { : bool },
+
+                // String method calls return String
+                HirExpr::MethodCall { object, method, .. }
+                    if matches!(object.as_ref(), HirExpr::Literal(Literal::String(_)))
+                        && matches!(
+                            method.as_str(),
+                            "upper"
+                                | "lower"
+                                | "strip"
+                                | "lstrip"
+                                | "rstrip"
+                                | "replace"
+                                | "title"
+                                | "capitalize"
+                                | "swapcase"
+                                | "center"
+                                | "ljust"
+                                | "rjust"
+                                | "zfill"
+                                | "expandtabs"
+                                | "join"
+                        ) =>
+                {
+                    quote! { : String }
+                }
+
+                // String method calls that return i32
+                HirExpr::MethodCall { object, method, .. }
+                    if matches!(object.as_ref(), HirExpr::Literal(Literal::String(_)))
+                        && matches!(
+                            method.as_str(),
+                            "find" | "rfind" | "index" | "rindex" | "count"
+                        ) =>
+                {
+                    quote! { : i32 }
+                }
+
+                // String method calls that return bool
+                HirExpr::MethodCall { object, method, .. }
+                    if matches!(object.as_ref(), HirExpr::Literal(Literal::String(_)))
+                        && matches!(
+                            method.as_str(),
+                            "startswith"
+                                | "endswith"
+                                | "isdigit"
+                                | "isalpha"
+                                | "isalnum"
+                                | "isspace"
+                                | "islower"
+                                | "isupper"
+                                | "istitle"
+                                | "isascii"
+                                | "isprintable"
+                        ) =>
+                {
+                    quote! { : bool }
+                }
 
                 // DEPYLER-0448: Dict types → serde_json::Value (safe fallback)
                 HirExpr::Dict { .. } => {

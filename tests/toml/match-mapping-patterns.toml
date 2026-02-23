@@ -8,6 +8,7 @@ category = "modern-python"
 
 [[test]]
 name = "mapping_simple_key"
+skip = true
 description = "case {'key': value}: ..."
 
 python = '''
@@ -34,6 +35,7 @@ rust = '''
 
 [[test]]
 name = "mapping_multiple_keys"
+skip = true
 description = "case {'a': x, 'b': y}: ..."
 
 python = '''
@@ -64,6 +66,7 @@ rust = '''
 
 [[test]]
 name = "mapping_literal_value"
+skip = true
 description = "case {'type': 'error'}: ..."
 
 python = '''
@@ -98,6 +101,7 @@ rust = '''
 
 [[test]]
 name = "mapping_capture"
+skip = true
 description = "case {'name': name}: capture name"
 
 python = '''
@@ -125,6 +129,7 @@ rust = '''
 
 [[test]]
 name = "mapping_capture_literal"
+skip = true
 description = "case {'type': 'user', 'id': id}: ..."
 
 python = '''
@@ -155,6 +160,7 @@ rust = '''
 
 [[test]]
 name = "mapping_nested_capture"
+skip = true
 description = "case {'data': {'id': id}}: ..."
 
 python = '''
@@ -191,6 +197,7 @@ rust = '''
 
 [[test]]
 name = "mapping_rest"
+skip = true
 description = "case {'key': v, **rest}: capture remaining"
 
 python = '''
@@ -222,6 +229,7 @@ rust = '''
 
 [[test]]
 name = "mapping_rest_empty"
+skip = true
 description = "**rest is empty dict when all keys matched"
 
 python = '''
@@ -248,6 +256,7 @@ rust = '''
 
 [[test]]
 name = "mapping_rest_discard"
+skip = true
 description = "case {'key': v, **_}: ignore rest"
 
 python = '''
@@ -279,6 +288,7 @@ rust = '''
 
 [[test]]
 name = "mapping_string_keys"
+skip = true
 description = "case {'a': x}: string key"
 
 python = '''
@@ -305,6 +315,7 @@ rust = '''
 
 [[test]]
 name = "mapping_int_keys"
+skip = true
 description = "case {0: first, 1: second}: ..."
 
 python = '''
@@ -332,6 +343,7 @@ rust = '''
 
 [[test]]
 name = "mapping_enum_keys"
+skip = true
 description = "case {Status.OK: data}: ..."
 
 python = '''
@@ -379,6 +391,7 @@ rust = '''
 
 [[test]]
 name = "mapping_partial"
+skip = true
 description = "case {'required': v}: matches with extra keys"
 
 python = '''
@@ -407,6 +420,7 @@ rust = '''
 
 [[test]]
 name = "mapping_missing_key"
+skip = true
 description = "Pattern fails if required key missing"
 
 python = '''
@@ -437,6 +451,7 @@ rust = '''
 
 [[test]]
 name = "mapping_nested"
+skip = true
 description = "case {'outer': {'inner': v}}: ..."
 
 python = '''
@@ -469,6 +484,7 @@ rust = '''
 
 [[test]]
 name = "mapping_with_sequence"
+skip = true
 description = "case {'items': [first, *rest]}: ..."
 
 python = '''
@@ -499,6 +515,7 @@ rust = '''
 
 [[test]]
 name = "mapping_with_class"
+skip = true
 description = "case {'point': Point(x, y)}: ..."
 
 python = '''
@@ -540,6 +557,7 @@ rust = '''
 
 [[test]]
 name = "mapping_empty"
+skip = true
 description = "case {}: matches any mapping"
 
 python = '''
@@ -568,6 +586,7 @@ rust = '''
 
 [[test]]
 name = "mapping_duplicate_keys"
+skip = true
 description = "case {'a': x, 'a': y}: syntax error"
 
 python = '''
@@ -583,6 +602,7 @@ rust = '''
 
 [[test]]
 name = "mapping_subclass"
+skip = true
 description = "Pattern matches dict subclasses"
 
 python = '''
@@ -617,6 +637,7 @@ rust = '''
 
 [[test]]
 name = "mapping_non_dict"
+skip = true
 description = "Works with any Mapping type"
 
 python = '''

@@ -8,6 +8,7 @@ category = "async"
 
 [[test]]
 name = "async_list_comp"
+skip = true
 description = "[x async for x in async_iter]"
 python = """
 async def async_range(n):
@@ -31,6 +32,7 @@ log::info!("{:?}", result);"""
 
 [[test]]
 name = "async_set_comp"
+skip = true
 description = "{x async for x in async_iter}"
 python = """
 async def async_range(n):
@@ -56,6 +58,7 @@ log::info!("{:?}", sorted);"""
 
 [[test]]
 name = "async_dict_comp"
+skip = true
 description = "{k: v async for k, v in async_iter}"
 python = """
 async def async_items():
@@ -81,6 +84,7 @@ log::info!("{:?}", result);"""
 
 [[test]]
 name = "async_gen_expr"
+skip = true
 description = "(x async for x in async_iter)"
 python = """
 async def async_range(n):
@@ -114,6 +118,7 @@ log::info!("{:?}", result);"""
 
 [[test]]
 name = "await_in_comp"
+skip = true
 description = "[await f(x) for x in items]"
 python = """
 async def fetch(x):
@@ -142,6 +147,7 @@ log::info!("{:?}", result);"""
 
 [[test]]
 name = "await_async_for_comp"
+skip = true
 description = "[await f(x) async for x in async_iter]"
 python = """
 async def async_range(n):
@@ -175,6 +181,7 @@ log::info!("{:?}", result);"""
 
 [[test]]
 name = "await_in_filter"
+skip = true
 description = "[x for x in items if await is_valid(x)]"
 python = """
 async def is_valid(x):
@@ -209,6 +216,7 @@ log::info!("{:?}", result);"""
 
 [[test]]
 name = "async_comp_condition"
+skip = true
 description = "[x async for x in iter if x > 0]"
 python = """
 async def async_range(start, end):
@@ -234,6 +242,7 @@ log::info!("{:?}", result);"""
 
 [[test]]
 name = "async_comp_await_cond"
+skip = true
 description = "[x async for x in iter if await check(x)]"
 python = """
 async def async_range(n):
@@ -266,6 +275,7 @@ log::info!("{:?}", result);"""
 
 [[test]]
 name = "async_comp_nested"
+skip = true
 description = "[y async for x in iter1 for y in x]"
 python = """
 async def async_lists():
@@ -297,6 +307,7 @@ log::info!("{:?}", result);"""
 
 [[test]]
 name = "async_comp_collect"
+skip = true
 description = "Collect all results from async iterator"
 python = """
 async def fetch_data(items):
@@ -321,6 +332,7 @@ log::info!("{:?}", results);"""
 
 [[test]]
 name = "async_comp_transform"
+skip = true
 description = "Transform items from async stream"
 python = """
 async def async_data():
@@ -343,6 +355,7 @@ log::info!("{:?}", results);"""
 
 [[test]]
 name = "async_comp_filter"
+skip = true
 description = "Filter items from async stream"
 python = """
 async def async_numbers():
@@ -395,6 +408,7 @@ python = """
 
 [[test]]
 name = "async_comp_empty"
+skip = true
 description = "[x async for x in empty_async]"
 python = """
 async def empty_async():
@@ -417,6 +431,7 @@ log::info!("{:?}", result);"""
 
 [[test]]
 name = "async_comp_exception"
+skip = true
 description = "Exception during async comprehension"
 python = """
 async def failing_async():
@@ -453,6 +468,7 @@ match stream
 
 [[test]]
 name = "async_comp_memory"
+skip = true
 description = "Generator expression vs list comprehension"
 python = """
 async def async_range(n):

@@ -1,9 +1,0 @@
-  imports-relative.toml :: relative_parent_down
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− // from ..other.sub import item
-−     // In Rust: use super::super::other::sub::item;
-−     let result = true;
-+ pub const result: bool = true;
-────────────────────────────────────────────────────────────

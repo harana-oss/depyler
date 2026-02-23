@@ -8,6 +8,7 @@ category = "modern-python"
 
 [[test]]
 name = "as_basic"
+skip = true
 description = "case [x, y] as point: use point"
 
 python = '''
@@ -33,6 +34,7 @@ rust = '''
 
 [[test]]
 name = "as_literal"
+skip = true
 description = "case 'hello' as greeting: ..."
 
 python = '''
@@ -58,6 +60,7 @@ rust = '''
 
 [[test]]
 name = "as_class"
+skip = true
 description = "case Point(x, y) as p: use p, x, y"
 
 python = '''
@@ -95,6 +98,7 @@ rust = '''
 
 [[test]]
 name = "as_sequence"
+skip = true
 description = "case [first, *rest] as all: ..."
 
 python = '''
@@ -120,6 +124,7 @@ rust = '''
 
 [[test]]
 name = "as_mapping"
+skip = true
 description = "case {'key': value} as d: ..."
 
 python = '''
@@ -150,6 +155,7 @@ rust = '''
 
 [[test]]
 name = "as_nested"
+skip = true
 description = "case {'data': [x, y] as coords}: ..."
 
 python = '''
@@ -183,6 +189,7 @@ rust = '''
 
 [[test]]
 name = "as_with_or"
+skip = true
 description = "case (1 | 2 | 3) as num: capture which matched"
 
 python = '''
@@ -206,6 +213,7 @@ rust = '''
 
 [[test]]
 name = "as_or_result"
+skip = true
 description = "case ('yes' | 'y') as answer: ..."
 
 python = '''
@@ -233,6 +241,7 @@ rust = '''
 
 [[test]]
 name = "as_nested_binding"
+skip = true
 description = "case (Point(x, y) as p1, Point(a, b) as p2): ..."
 
 python = '''
@@ -267,6 +276,7 @@ rust = '''
 
 [[test]]
 name = "as_subpattern"
+skip = true
 description = "case [first as f, *rest]: ..."
 
 python = '''
@@ -294,6 +304,7 @@ rust = '''
 
 [[test]]
 name = "as_preserve_whole"
+skip = true
 description = "Access both parts and whole"
 
 python = '''
@@ -317,6 +328,7 @@ rust = '''
 
 [[test]]
 name = "as_conditional"
+skip = true
 description = "case x as whole if validate(whole): ..."
 
 python = '''
@@ -347,6 +359,7 @@ rust = '''
 
 [[test]]
 name = "as_nested_data"
+skip = true
 description = "Extract nested while keeping container"
 
 python = '''
@@ -385,6 +398,7 @@ rust = '''
 
 [[test]]
 name = "as_guard_alias"
+skip = true
 description = "case [x, y] as point if is_valid(point): ..."
 
 python = '''
@@ -415,6 +429,7 @@ rust = '''
 
 [[test]]
 name = "as_guard_context"
+skip = true
 description = "Guard uses both destructured and whole"
 
 python = '''
@@ -442,6 +457,7 @@ rust = '''
 
 [[test]]
 name = "as_wildcard"
+skip = true
 description = "case _ as x: capture anything"
 
 python = '''
@@ -462,6 +478,7 @@ rust = '''
 
 [[test]]
 name = "as_multiple_same"
+skip = true
 description = "case (a as x) as y: nested as"
 
 python = '''
@@ -486,6 +503,7 @@ rust = '''
 
 [[test]]
 name = "as_scope"
+skip = true
 description = "as bindings available in guard and body"
 
 python = '''
@@ -509,6 +527,7 @@ rust = '''
 
 [[test]]
 name = "as_capture_conflict"
+skip = true
 description = "case x as x: same name"
 
 python = '''

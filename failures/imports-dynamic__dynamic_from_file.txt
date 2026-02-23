@@ -1,9 +1,0 @@
-  imports-dynamic.toml :: dynamic_from_file
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− // spec_from_file_location
-−     // Would use dlopen for dynamic library loading
-−     let result = true;
-+ pub const result: bool = true;
-────────────────────────────────────────────────────────────

@@ -1,9 +1,0 @@
-  imports-dynamic.toml :: dynamic_error
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− // try/except for imports
-−     // Import errors caught at compile time
-−     let result = true;
-+ 
-────────────────────────────────────────────────────────────

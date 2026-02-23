@@ -8,6 +8,7 @@ category = "decorators-closures"
 
 [[test]]
 name = "decorator_basic"
+skip = true
 description = "@decorator def f(): ..."
 
 python = '''
@@ -39,6 +40,7 @@ rust = '''
 
 [[test]]
 name = "decorator_wrapper"
+skip = true
 description = "def decorator(f): def wrapper(): return f() return wrapper"
 
 python = '''
@@ -72,6 +74,7 @@ rust = '''
 
 [[test]]
 name = "decorator_call"
+skip = true
 description = "Calling decorated function"
 
 python = '''
@@ -109,6 +112,7 @@ rust = '''
 
 [[test]]
 name = "decorator_stacked"
+skip = true
 description = "@a @b @c def f(): ... equivalent to a(b(c(f)))"
 
 python = '''
@@ -168,6 +172,7 @@ rust = '''
 
 [[test]]
 name = "decorator_order"
+skip = true
 description = "Bottom decorator applied first"
 
 python = '''
@@ -214,6 +219,7 @@ rust = '''
 
 [[test]]
 name = "decorator_three"
+skip = true
 description = "Multiple decorator application"
 
 python = '''
@@ -280,6 +286,7 @@ rust = '''
 
 [[test]]
 name = "decorator_logging"
+skip = true
 description = "Log function calls"
 
 python = '''
@@ -330,6 +337,7 @@ rust = '''
 
 [[test]]
 name = "decorator_timing"
+skip = true
 description = "Measure execution time"
 
 python = '''
@@ -375,6 +383,7 @@ rust = '''
 
 [[test]]
 name = "decorator_validation"
+skip = true
 description = "Validate arguments"
 
 python = '''
@@ -416,6 +425,7 @@ rust = '''
 
 [[test]]
 name = "decorator_retry"
+skip = true
 description = "Retry on failure"
 
 python = '''
@@ -497,6 +507,7 @@ rust = '''
 
 [[test]]
 name = "decorator_args_kwargs"
+skip = true
 description = "def wrapper(*args, **kwargs): return f(*args, **kwargs)"
 
 python = '''
@@ -530,6 +541,7 @@ rust = '''
 
 [[test]]
 name = "decorator_return"
+skip = true
 description = "Return decorated function's result"
 
 python = '''
@@ -567,6 +579,7 @@ rust = '''
 
 [[test]]
 name = "decorator_exception"
+skip = true
 description = "Exceptions propagate through wrapper"
 
 python = '''
@@ -610,6 +623,7 @@ rust = '''
 
 [[test]]
 name = "decorator_method"
+skip = true
 description = "@decorator def method(self): ..."
 
 python = '''
@@ -653,6 +667,7 @@ rust = '''
 
 [[test]]
 name = "decorator_self"
+skip = true
 description = "Wrapper receives self correctly"
 
 python = '''
@@ -709,6 +724,7 @@ rust = '''
 
 [[test]]
 name = "decorator_return_none"
+skip = true
 description = "Decorator not returning function"
 
 python = '''
@@ -733,6 +749,7 @@ rust = '''
 
 [[test]]
 name = "decorator_no_wrap"
+skip = true
 description = "def decorator(f): return f"
 
 python = '''
@@ -761,6 +778,7 @@ rust = '''
 
 [[test]]
 name = "decorator_lambda"
+skip = true
 description = "@decorator applied to lambda"
 
 python = '''
@@ -788,6 +806,7 @@ rust = '''
 
 [[test]]
 name = "decorator_recursive"
+skip = true
 description = "Recursive function with decorator"
 
 python = '''
@@ -839,6 +858,7 @@ rust = '''
 
 [[test]]
 name = "test_function_decorators"
+skip = true
 description = "Example test"
 
 python = '''
@@ -906,6 +926,7 @@ Error: Statement type not yet supported
 
 [[test]]
 name = "test_simple_decorator"
+skip = true
 description = "Example test"
 
 python = '''

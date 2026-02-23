@@ -1,8 +1,0 @@
-  binary-literals.toml :: mixed_base_arithmetic
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− let result = (0xFF + 0o77 + 0b11) == 321;
-+ pub const result: serde_json::Value = 255 + 63 + 3 == 321;
-+ use serde_json;
-────────────────────────────────────────────────────────────

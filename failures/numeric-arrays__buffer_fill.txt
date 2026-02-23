@@ -1,9 +1,0 @@
-  numeric-arrays.toml :: buffer_fill
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-  pub fn fill_buffer(size: i32, value: i32) -> Vec<i32> {
-−     return vec![value; size as usize];
-+     return vec![value] * size;
-  }
-────────────────────────────────────────────────────────────

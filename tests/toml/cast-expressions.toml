@@ -5,6 +5,7 @@ description = "Tests for cast operations requiring values, not references"
 
 [[test]]
 name = "float_cast_no_references"
+skip = false
 description = "float() cast has no references inside expression"
 
 python = '''
@@ -20,7 +21,7 @@ def cast_to_float(state: State, cond: bool) -> float:
 '''
 
 rust = '''
-#[derive(Debug, Clone, PartialEq, Default)]
+#[derive(Debug, Copy, Clone, PartialEq, Default)]
 pub struct State {
     pub x: i32,
     pub y: i32,
@@ -37,6 +38,7 @@ pub fn cast_to_float(state: &State, cond: bool) -> f64 {
 
 [[test]]
 name = "int_cast_no_references"
+skip = false
 description = "int() cast has no references inside expression"
 
 python = '''
@@ -52,7 +54,7 @@ def cast_to_int(data: Data, cond: bool) -> int:
 '''
 
 rust = '''
-#[derive(Debug, Clone, PartialEq, Default)]
+#[derive(Debug, Copy, Clone, PartialEq, Default)]
 pub struct Data {
     pub a: f64,
     pub b: f64,
@@ -69,6 +71,7 @@ pub fn cast_to_int(data: &Data, cond: bool) -> i32 {
 
 [[test]]
 name = "str_cast_from_int"
+skip = false
 description = "str() cast from int"
 
 python = '''
@@ -99,6 +102,7 @@ pub fn int_to_bool(x: i32) -> bool {
 
 [[test]]
 name = "nested_cast_expression"
+skip = false
 description = "Nested cast expression"
 
 python = '''
@@ -124,5 +128,134 @@ def cast_sum(a: int, b: int) -> float:
 rust = '''
 pub fn cast_sum(a: i32, b: i32) -> f64 {
     return (a + b) as f64;
+}
+'''
+
+[[test]]
+name = "int_abs_subtraction"
+skip = true
+description = "int(abs(a - b)) with integer operands"
+
+python = '''
+def compute(a: int, b: int) -> int:
+    return int(abs(a - b))
+'''
+
+rust = '''
+pub fn compute(a: i32, b: i32) -> i32 {
+    return (a - b).abs();
+}
+'''
+
+[[test]]
+name = "int_abs_nested_parentheses"
+skip = true
+description = "int(abs(a - (b - c))) preserves inner parentheses"
+
+python = '''
+def compute(a: int, b: int, c: int) -> int:
+    return int(abs(a - (b - c)))
+'''
+
+rust = '''
+pub fn compute(a: i32, b: i32, c: i32) -> i32 {
+    return (a - (b - c)).abs();
+}
+'''
+
+[[test]]
+name = "int_abs_constants_and_struct_field"
+skip = true
+description = "int(abs(CONST - (CONST - struct.field))) with constants and field access"
+
+python = '''
+from dataclasses import dataclass
+
+CENTRE_OF_FIELD_Y = 50
+FIELD_HEIGHT = 100
+
+@dataclass
+class Position:
+    x: int
+    y: int
+
+@dataclass
+class GameState:
+    ball_location: Position
+
+def compute_distance(state: GameState) -> int:
+    return int(abs(CENTRE_OF_FIELD_Y - (FIELD_HEIGHT - state.ball_location.y)))
+'''
+
+rust = '''
+pub const CENTRE_OF_FIELD_Y: i32 = 50;
+pub const FIELD_HEIGHT: i32 = 100;
+#[derive(Debug, Copy, Clone, PartialEq, Default)]
+pub struct Position {
+    pub x: i32,
+    pub y: i32,
+}
+impl Position {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct GameState {
+    pub ball_location: Position,
+}
+impl GameState {
+    pub fn new(ball_location: Position) -> Self {
+        Self { ball_location }
+    }
+}
+pub fn compute_distance(state: &GameState) -> i32 {
+    return (CENTRE_OF_FIELD_Y - (FIELD_HEIGHT - state.ball_location.y)).abs();
+}
+'''
+
+[[test]]
+name = "int_abs_float_expression"
+skip = true
+description = "int(abs(float_expr)) casts float abs to int"
+
+python = '''
+def compute(a: float, b: float) -> int:
+    return int(abs(a - b))
+'''
+
+rust = '''
+pub fn compute(a: f64, b: f64) -> i32 {
+    return (a - b).abs() as i32;
+}
+'''
+
+[[test]]
+name = "cast_parenthesized_precedence"
+description = "float() cast with parenthesized precedence override"
+
+python = '''
+def compute(a: int, b: int, c: int) -> float:
+    return float((a + b) * c)
+'''
+
+rust = '''
+pub fn compute(a: i32, b: i32, c: i32) -> f64 {
+    return ((a + b) * c) as f64;
+}
+'''
+
+[[test]]
+name = "cast_nested_grouped_arithmetic"
+description = "float() with deeply nested grouped operations"
+
+python = '''
+def compute(a: int, b: int, c: int, d: int) -> float:
+    return float((a + b) * (c - d))
+'''
+
+rust = '''
+pub fn compute(a: i32, b: i32, c: i32, d: i32) -> f64 {
+    return ((a + b) * (c - d)) as f64;
 }
 '''

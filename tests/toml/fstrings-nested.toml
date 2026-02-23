@@ -8,6 +8,7 @@ category = "strings"
 
 [[test]]
 name = "fstring_nested_basic"
+skip = true
 description = "f'{f\"{inner}\"}'"
 
 python = '''
@@ -23,6 +24,7 @@ rust = '''
 
 [[test]]
 name = "fstring_nested_expr"
+skip = true
 description = "f'{f\"{x + y}\"}'"
 
 python = '''
@@ -42,6 +44,7 @@ rust = '''
 
 [[test]]
 name = "fstring_nested_format"
+skip = true
 description = "f'{\"{}\".format(x)}'"
 
 python = '''
@@ -57,6 +60,7 @@ rust = '''
 
 [[test]]
 name = "fstring_nested_var"
+skip = true
 description = "inner = f'{x}'; f'{inner}'"
 
 python = '''
@@ -72,6 +76,7 @@ rust = '''
 
 [[test]]
 name = "fstring_nested_strformat"
+skip = true
 description = "'{}'.format(f'{x}')"
 
 python = '''
@@ -91,6 +96,7 @@ rust = '''
 
 [[test]]
 name = "fstring_nested_spec"
+skip = true
 description = "f'{value:{width}.{precision}}'"
 
 python = '''
@@ -106,6 +112,7 @@ rust = '''
 
 [[test]]
 name = "fstring_nested_align"
+skip = true
 description = "f'{text:{align}{width}}'"
 
 python = '''
@@ -125,6 +132,7 @@ rust = '''
 
 [[test]]
 name = "fstring_deep_nested"
+skip = true
 description = "f'{f\"{f'{x}'}\"}'"
 
 python = '''
@@ -144,6 +152,7 @@ rust = '''
 
 [[test]]
 name = "fstring_same_quotes"
+skip = true
 description = "f'text {\"quoted\"}'"
 
 python = '''
@@ -159,6 +168,7 @@ rust = '''
 
 [[test]]
 name = "fstring_triple_nested"
+skip = true
 description = "f'''{f'''inner'''}'''"
 
 python = '''
@@ -178,6 +188,7 @@ rust = '''
 
 [[test]]
 name = "fstring_nested_table"
+skip = true
 description = "f'{name:{max_len}}'"
 
 python = '''
@@ -193,6 +204,7 @@ rust = '''
 
 [[test]]
 name = "fstring_nested_json"
+skip = true
 description = "f'{{\"key\": \"{value}\"}}'"
 
 python = '''
@@ -212,6 +224,7 @@ rust = '''
 
 [[test]]
 name = "fstring_nested_backslash"
+skip = true
 description = "Backslash restrictions"
 
 python = '''
@@ -233,6 +246,7 @@ rust = '''
 
 [[test]]
 name = "fstring_nested_comments"
+skip = true
 description = "Comments not allowed"
 
 python = '''

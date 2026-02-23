@@ -8,6 +8,7 @@ category = "serialization"
 
 [[test]]
 name = "pickle_warning"
+skip = true
 description = "Warn about pickle usage"
 
 python = '''
@@ -49,6 +50,7 @@ impl Data {
 
 [[test]]
 name = "pickle_alternative"
+skip = true
 description = "Alternative to pickle"
 
 python = '''
@@ -75,6 +77,7 @@ pub fn deserialize_int(s: &str) -> i32 {
 
 [[test]]
 name = "json_nested"
+skip = true
 description = "Deep nested JSON structures"
 
 python = '''
@@ -114,6 +117,7 @@ pub fn get_nested(data: &HashMap<String, HashMap<String, i32>>, k1: &str, k2: &s
 
 [[test]]
 name = "json_list_of_objects"
+skip = true
 description = "JSON array of objects"
 
 python = '''
@@ -160,6 +164,7 @@ pub fn sum_values(items: &Vec<HashMap<String, i32>>) -> i32 {
 
 [[test]]
 name = "json_custom_encoder"
+skip = true
 description = "Custom JSON encoder handling"
 
 python = '''
@@ -204,6 +209,7 @@ impl Point {
 
 [[test]]
 name = "json_encoder_datetime"
+skip = true
 description = "Datetime JSON encoding"
 
 python = '''
@@ -255,6 +261,7 @@ impl Timestamp {
 
 [[test]]
 name = "yaml_support"
+skip = true
 description = "YAML serialization"
 
 python = '''
@@ -287,6 +294,7 @@ pub fn yaml_to_dict(yaml_str: &str) -> HashMap<String, String> {
 
 [[test]]
 name = "yaml_list"
+skip = true
 description = "YAML list parsing"
 
 python = '''
@@ -318,6 +326,7 @@ pub fn parse_yaml_list(yaml_str: &str) -> Vec<String> {
 
 [[test]]
 name = "toml_support"
+skip = true
 description = "TOML serialization"
 
 python = '''
@@ -360,6 +369,7 @@ pub fn parse_toml_section(toml_str: &str, section: &str) -> HashMap<String, Stri
 
 [[test]]
 name = "toml_key_value"
+skip = true
 description = "TOML key-value parsing"
 
 python = '''

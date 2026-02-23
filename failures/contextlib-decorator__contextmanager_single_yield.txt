@@ -1,8 +1,0 @@
-  contextlib-decorator.toml :: contextmanager_single_yield
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− // Rust's type system enforces single invocation
-−     let result = "must yield once";
-+ pub const result: &str = "must yield once";
-────────────────────────────────────────────────────────────

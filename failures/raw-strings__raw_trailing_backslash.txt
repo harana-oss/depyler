@@ -1,8 +1,0 @@
-  raw-strings.toml :: raw_trailing_backslash
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− // Similar limitation in Rust
-−     let result = true;
-+ pub const result: bool = true;
-────────────────────────────────────────────────────────────

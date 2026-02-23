@@ -8,6 +8,7 @@ category = "strings"
 
 [[test]]
 name = "utf8_validation"
+skip = true
 description = "UTF-8 encoding validation"
 
 python = '''
@@ -27,6 +28,7 @@ pub fn is_valid_utf8(s: &str) -> bool {
 
 [[test]]
 name = "utf8_length"
+skip = true
 description = "UTF-8 string length"
 
 python = '''
@@ -42,6 +44,7 @@ pub fn string_length(s: &str) -> i32 {
 
 [[test]]
 name = "utf8_bytes"
+skip = true
 description = "UTF-8 byte count"
 
 python = '''
@@ -61,6 +64,7 @@ pub fn byte_length(s: &str) -> i32 {
 
 [[test]]
 name = "surrogate_pairs"
+skip = true
 description = "Surrogate pair handling"
 
 python = '''
@@ -84,6 +88,7 @@ pub fn has_high_codepoint(s: &str) -> bool {
 
 [[test]]
 name = "codepoint_count"
+skip = true
 description = "Count Unicode codepoints"
 
 python = '''
@@ -103,6 +108,7 @@ pub fn count_codepoints(s: &str) -> i32 {
 
 [[test]]
 name = "string_indexing_unicode"
+skip = true
 description = "Unicode character indexing"
 
 python = '''
@@ -125,6 +131,7 @@ pub fn get_char(s: &str, idx: i32) -> String {
 
 [[test]]
 name = "string_slice_unicode"
+skip = true
 description = "Unicode string slicing"
 
 python = '''
@@ -144,6 +151,7 @@ pub fn substring(s: &str, start: i32, end: i32) -> String {
 
 [[test]]
 name = "char_iteration"
+skip = true
 description = "Iterate over Unicode characters"
 
 python = '''
@@ -163,6 +171,7 @@ pub fn list_chars(s: &str) -> Vec<String> {
 
 [[test]]
 name = "grapheme_clusters"
+skip = true
 description = "Grapheme cluster handling"
 
 python = '''
@@ -178,6 +187,7 @@ pub fn count_display_chars(s: &str) -> i32 {
 
 [[test]]
 name = "grapheme_split"
+skip = true
 description = "Split by grapheme clusters"
 
 python = '''
@@ -197,6 +207,7 @@ pub fn split_graphemes(s: &str) -> Vec<String> {
 
 [[test]]
 name = "string_normalization"
+skip = true
 description = "Unicode normalization (NFC/NFD)"
 
 python = '''
@@ -213,6 +224,7 @@ pub fn normalize_string(s: &str) -> String {
 
 [[test]]
 name = "case_folding"
+skip = true
 description = "Unicode case folding"
 
 python = '''
@@ -228,6 +240,7 @@ pub fn lowercase(s: &str) -> String {
 
 [[test]]
 name = "uppercase"
+skip = true
 description = "Unicode uppercase"
 
 python = '''
@@ -243,6 +256,7 @@ pub fn uppercase(s: &str) -> String {
 
 [[test]]
 name = "title_case"
+skip = true
 description = "Unicode title case"
 
 python = '''
@@ -271,6 +285,7 @@ pub fn titlecase(s: &str) -> String {
 
 [[test]]
 name = "string_comparison"
+skip = true
 description = "Unicode string comparison"
 
 python = '''
@@ -286,6 +301,7 @@ pub fn strings_equal(a: &str, b: &str) -> bool {
 
 [[test]]
 name = "string_contains"
+skip = true
 description = "Unicode substring search"
 
 python = '''

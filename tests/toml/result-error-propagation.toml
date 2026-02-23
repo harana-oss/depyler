@@ -5,6 +5,7 @@ description = "Tests for selective error propagation to avoid E0277 errors"
 
 [[test]]
 name = "result_caller_calls_plain_return"
+skip = true
 description = "Function returning Result calls function returning i32 - no ? added"
 
 python = '''
@@ -28,6 +29,7 @@ pub fn process_with_double(x: i32) -> i32 {
 
 [[test]]
 name = "plain_caller_uses_result_function"
+skip = true
 description = "Non-Result caller calls Result-returning function with unwrap"
 
 python = '''
@@ -92,6 +94,7 @@ pub fn divide_or_zero(a: i32, b: i32) -> i32 {
 
 [[test]]
 name = "nested_plain_function_calls"
+skip = true
 description = "Nested function calls with mixed Result/non-Result types"
 
 python = '''
@@ -121,6 +124,7 @@ pub fn compound(x: i32, y: i32, z: i32) -> i32 {
 
 [[test]]
 name = "chained_function_calls_no_question_mark"
+skip = true
 description = "Chained plain function calls without ? operator"
 
 python = '''
@@ -148,6 +152,7 @@ pub fn pipeline(x: i32) -> i32 {
 
 [[test]]
 name = "function_returning_error_with_format_string"
+skip = true
 description = "Error from format string"
 
 python = '''

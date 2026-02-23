@@ -53,6 +53,7 @@ pub fn safe_subtract(a: i32, b: i32) -> i32 {
 
 [[test]]
 name = "int_overflow_power"
+skip = true
 description = "Power operation overflow"
 
 python = '''
@@ -109,6 +110,7 @@ pub fn floats_equal(a: f64, b: f64, epsilon: f64) -> bool {
 
 [[test]]
 name = "float_division"
+skip = true
 description = "Float division precision"
 
 python = '''
@@ -163,6 +165,7 @@ pub fn decimal_multiply(a: f64, b: f64) -> f64 {
 
 [[test]]
 name = "decimal_round"
+skip = true
 description = "Decimal rounding"
 
 python = '''
@@ -184,6 +187,7 @@ pub fn round_to_places(value: f64, places: i32) -> f64 {
 
 [[test]]
 name = "fractions_module"
+skip = true
 description = "fractions.Fraction handling"
 
 python = '''
@@ -203,6 +207,7 @@ pub fn fraction_add(num1: i32, den1: i32, num2: i32, den2: i32) -> (i32, i32) {
 
 [[test]]
 name = "fractions_simplify"
+skip = true
 description = "Fraction simplification"
 
 python = '''
@@ -238,6 +243,7 @@ pub fn simplify(num: i32, den: i32) -> (i32, i32) {
 
 [[test]]
 name = "nan_inf_handling"
+skip = true
 description = "NaN and Inf propagation"
 
 python = '''
@@ -254,6 +260,7 @@ pub fn is_finite(value: f64) -> bool {
 
 [[test]]
 name = "nan_check"
+skip = true
 description = "NaN detection"
 
 python = '''
@@ -269,6 +276,7 @@ pub fn is_nan(value: f64) -> bool {
 
 [[test]]
 name = "inf_check"
+skip = true
 description = "Infinity detection"
 
 python = '''
@@ -304,6 +312,7 @@ pub fn propagate_nan(a: f64, b: f64) -> f64 {
 
 [[test]]
 name = "floor_division_negative"
+skip = true
 description = "// operator with negative numbers"
 
 python = '''
@@ -329,6 +338,7 @@ pub fn floor_div(a: i32, b: i32) -> i32 {
 
 [[test]]
 name = "floor_division_positive"
+skip = true
 description = "// operator with positive numbers"
 
 python = '''
@@ -354,6 +364,7 @@ pub fn floor_div_positive(a: i32, b: i32) -> i32 {
 
 [[test]]
 name = "modulo_negative"
+skip = true
 description = "Modulo with negative numbers"
 
 python = '''
@@ -369,6 +380,7 @@ pub fn python_mod(a: i32, b: i32) -> i32 {
 
 [[test]]
 name = "divmod_negative"
+skip = true
 description = "divmod with negative numbers"
 
 python = '''

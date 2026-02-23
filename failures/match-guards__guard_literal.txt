@@ -1,8 +1,0 @@
-  match-guards.toml :: guard_literal
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− // case 0 if condition: ... (guard on literal)
-−     let result = true; // Placeholder
-+ pub const result: bool = true;
-────────────────────────────────────────────────────────────

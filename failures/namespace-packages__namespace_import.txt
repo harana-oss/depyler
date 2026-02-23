@@ -1,8 +1,0 @@
-  namespace-packages.toml :: namespace_import
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− // import namespace_pkg
-−     let result = true; // Placeholder
-+ pub const result: bool = true;
-────────────────────────────────────────────────────────────

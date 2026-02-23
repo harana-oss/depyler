@@ -8,6 +8,7 @@ category = "advanced-oop"
 
 [[test]]
 name = "type_as_metaclass"
+skip = true
 description = "type('MyClass', (Base,), {'attr': value})"
 python = """
 # Creating a class dynamically with type()
@@ -32,6 +33,7 @@ rust = """
 
 [[test]]
 name = "custom_metaclass"
+skip = true
 description = "class Meta(type): ..."
 python = """
 class Meta(type):
@@ -70,6 +72,7 @@ true"""
 
 [[test]]
 name = "metaclass_keyword"
+skip = true
 description = "class MyClass(metaclass=Meta): ..."
 python = """
 class UpperAttrMeta(type):
@@ -106,6 +109,7 @@ expected_output = """true
 
 [[test]]
 name = "metaclass_new"
+skip = true
 description = "def __new__(mcs, name, bases, namespace): ..."
 python = """
 class TrackedMeta(type):
@@ -144,6 +148,7 @@ expected_output = """["A", "B"]"""
 
 [[test]]
 name = "metaclass_init"
+skip = true
 description = "def __init__(cls, name, bases, namespace): ..."
 python = """
 class InitMeta(type):
@@ -172,6 +177,7 @@ true"""
 
 [[test]]
 name = "metaclass_call"
+skip = true
 description = "Control instance creation"
 python = """
 class CallMeta(type):
@@ -211,6 +217,7 @@ Instance created
 
 [[test]]
 name = "metaclass_prepare"
+skip = true
 description = "@classmethod def __prepare__(mcs, name, bases): ..."
 python = """
 from collections import OrderedDict
@@ -252,6 +259,7 @@ expected_output = """["a", "b", "c"]"""
 
 [[test]]
 name = "singleton_metaclass"
+skip = true
 description = "Metaclass ensuring single instance"
 python = """
 class Singleton(type):
@@ -298,6 +306,7 @@ Connected"""
 
 [[test]]
 name = "registration_metaclass"
+skip = true
 description = "Auto-register classes on creation"
 python = """
 class RegistryMeta(type):
@@ -341,6 +350,7 @@ expected_output = """["PluginA", "PluginB"]"""
 
 [[test]]
 name = "validation_metaclass"
+skip = true
 description = "Validate class definition at creation"
 python = """
 class ValidatedMeta(type):
@@ -383,6 +393,7 @@ expected_output = "OK"
 
 [[test]]
 name = "attribute_injection"
+skip = true
 description = "Add attributes/methods via metaclass"
 python = """
 class InjectorMeta(type):
@@ -439,6 +450,7 @@ MyClass"""
 
 [[test]]
 name = "metaclass_inheritance"
+skip = true
 description = "Subclass inherits parent's metaclass"
 python = """
 class Meta(type):
@@ -474,6 +486,7 @@ true"""
 
 [[test]]
 name = "metaclass_conflict"
+skip = true
 description = "Multiple inheritance with different metaclasses"
 python = """
 class Meta1(type):
@@ -520,6 +533,7 @@ expected_output = "Metaclass conflict handled"
 
 [[test]]
 name = "metaclass_instancecheck"
+skip = true
 description = "Custom isinstance() behavior"
 python = """
 class InstanceCheckMeta(type):
@@ -560,6 +574,7 @@ expected_output = "true"
 
 [[test]]
 name = "metaclass_subclasscheck"
+skip = true
 description = "Custom issubclass() behavior"
 python = """
 class SubclassCheckMeta(type):

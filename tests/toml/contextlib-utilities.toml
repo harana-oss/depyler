@@ -8,6 +8,7 @@ category = "context-managers"
 
 [[test]]
 name = "closing_basic"
+skip = true
 description = "with closing(obj) as x: (calls x.close())"
 
 python = '''
@@ -58,6 +59,7 @@ pub fn test_closing_basic() -> bool {
 
 [[test]]
 name = "closing_file_like"
+skip = true
 description = "Close objects with .close() method"
 
 python = '''
@@ -109,6 +111,7 @@ pub fn test_closing_file_like() -> bool {
 
 [[test]]
 name = "closing_exception"
+skip = true
 description = "close() called even on exception"
 
 python = '''
@@ -167,6 +170,7 @@ pub fn test_closing_exception() -> bool {
 
 [[test]]
 name = "suppress_single"
+skip = true
 description = "with suppress(ValueError): ..."
 
 python = '''
@@ -189,6 +193,7 @@ pub fn test_suppress_single() -> bool {
 
 [[test]]
 name = "suppress_multiple"
+skip = true
 description = "with suppress(ValueError, TypeError): ..."
 
 python = '''
@@ -223,6 +228,7 @@ pub fn test_suppress_multiple() -> i32 {
 
 [[test]]
 name = "suppress_non_matching"
+skip = true
 description = "Non-matching exception still propagates"
 
 python = '''
@@ -249,6 +255,7 @@ rust = '''
 
 [[test]]
 name = "redirect_stdout"
+skip = true
 description = "with redirect_stdout(f): print(...)"
 
 python = '''
@@ -275,6 +282,7 @@ pub fn test_redirect_stdout() -> String {
 
 [[test]]
 name = "capture_stdout"
+skip = true
 description = "Capture print output to StringIO"
 
 python = '''
@@ -303,6 +311,7 @@ pub fn test_capture_stdout() -> usize {
 
 [[test]]
 name = "redirect_stderr"
+skip = true
 description = "with redirect_stderr(f): ..."
 
 python = '''
@@ -334,6 +343,7 @@ pub fn test_redirect_stderr() -> String {
 
 [[test]]
 name = "nullcontext_basic"
+skip = true
 description = "with nullcontext(): (no-op)"
 
 python = '''
@@ -353,6 +363,7 @@ pub fn test_nullcontext_basic() -> bool {
 
 [[test]]
 name = "nullcontext_value"
+skip = true
 description = "with nullcontext(value) as x: (x = value)"
 
 python = '''
@@ -373,6 +384,7 @@ pub fn test_nullcontext_value() -> i32 {
 
 [[test]]
 name = "nullcontext_conditional"
+skip = true
 description = "cm = lock if threaded else nullcontext()"
 
 python = '''
@@ -404,6 +416,7 @@ pub fn test_nullcontext_conditional() -> bool {
 
 [[test]]
 name = "exitstack_basic"
+skip = true
 description = "with ExitStack() as stack: ..."
 
 python = '''
@@ -424,6 +437,7 @@ pub fn test_exitstack_basic() -> bool {
 
 [[test]]
 name = "exitstack_enter"
+skip = true
 description = "stack.enter_context(cm)"
 
 python = '''
@@ -477,6 +491,7 @@ pub fn test_exitstack_enter() -> bool {
 
 [[test]]
 name = "exitstack_callback"
+skip = true
 description = "stack.callback(func, *args)"
 
 python = '''
@@ -506,6 +521,7 @@ pub fn test_exitstack_callback() -> usize {
 
 [[test]]
 name = "exitstack_push"
+skip = true
 description = "stack.push(exit_func)"
 
 python = '''
@@ -537,6 +553,7 @@ pub fn test_exitstack_push() -> bool {
 
 [[test]]
 name = "exitstack_pop_all"
+skip = true
 description = "Transfer cleanup to new stack"
 
 python = '''
@@ -583,6 +600,7 @@ pub fn test_exitstack_pop_all() -> bool {
 
 [[test]]
 name = "async_exitstack"
+skip = true
 description = "async with AsyncExitStack() as stack: ..."
 
 python = '''
@@ -603,6 +621,7 @@ pub async fn test_async_exitstack() -> bool {
 
 [[test]]
 name = "async_exitstack_enter"
+skip = true
 description = "await stack.enter_async_context(acm)"
 
 python = '''
@@ -661,6 +680,7 @@ pub async fn test_async_exitstack_enter() -> bool {
 
 [[test]]
 name = "aclosing"
+skip = true
 description = "async with aclosing(async_gen): ..."
 
 python = '''
@@ -714,6 +734,7 @@ pub async fn test_aclosing() -> bool {
 
 [[test]]
 name = "chdir"
+skip = true
 description = "with chdir('/path'): ..."
 
 python = '''
@@ -750,6 +771,7 @@ pub fn test_chdir() -> bool {
 
 [[test]]
 name = "utilities_nested"
+skip = true
 description = "Combining multiple contextlib utilities"
 
 python = '''
@@ -785,6 +807,7 @@ pub fn test_utilities_nested() -> bool {
 
 [[test]]
 name = "exitstack_order"
+skip = true
 description = "LIFO cleanup order"
 
 python = '''

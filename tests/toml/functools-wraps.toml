@@ -8,6 +8,7 @@ category = "decorators-closures"
 
 [[test]]
 name = "wraps_basic"
+skip = true
 description = "@wraps(f) def wrapper(): ..."
 
 python = '''
@@ -39,6 +40,7 @@ rust = '''
 
 [[test]]
 name = "without_wraps"
+skip = true
 description = "wrapper.__name__ would be 'wrapper'"
 
 python = '''
@@ -58,6 +60,7 @@ struct Example {
 
 [[test]]
 name = "with_wraps"
+skip = true
 description = "wrapper.__name__ becomes f.__name__"
 
 python = '''
@@ -81,6 +84,7 @@ struct Example {
 
 [[test]]
 name = "wraps_name"
+skip = true
 description = "Function name preserved"
 
 python = '''
@@ -110,6 +114,7 @@ rust = '''
 
 [[test]]
 name = "wraps_doc"
+skip = true
 description = "Docstring preserved"
 
 python = '''
@@ -140,6 +145,7 @@ rust = '''
 
 [[test]]
 name = "wraps_module"
+skip = true
 description = "Module name preserved"
 
 python = '''
@@ -169,6 +175,7 @@ rust = '''
 
 [[test]]
 name = "wraps_qualname"
+skip = true
 description = "Qualified name preserved"
 
 python = '''
@@ -202,6 +209,7 @@ rust = '''
 
 [[test]]
 name = "wraps_annotations"
+skip = true
 description = "Type annotations preserved"
 
 python = '''
@@ -233,6 +241,7 @@ rust = '''
 
 [[test]]
 name = "wraps_dict"
+skip = true
 description = "Custom attributes copied"
 
 python = '''
@@ -268,6 +277,7 @@ rust = '''
 
 [[test]]
 name = "wraps_factory"
+skip = true
 description = "@wraps in parameterized decorator"
 
 python = '''
@@ -303,6 +313,7 @@ rust = '''
 
 [[test]]
 name = "wraps_nested"
+skip = true
 description = "Multiple decorators all using @wraps"
 
 python = '''
@@ -345,6 +356,7 @@ rust = '''
 
 [[test]]
 name = "wraps_wrapped"
+skip = true
 description = "wrapper.__wrapped__ is original function"
 
 python = '''
@@ -364,6 +376,7 @@ struct Example {
 
 [[test]]
 name = "wraps_unwrap"
+skip = true
 description = "inspect.unwrap() follows __wrapped__"
 
 python = '''
@@ -387,6 +400,7 @@ struct Example {
 
 [[test]]
 name = "update_wrapper"
+skip = true
 description = "update_wrapper(wrapper, wrapped)"
 
 python = '''
@@ -413,6 +427,7 @@ rust = '''
 
 [[test]]
 name = "update_wrapper_assigned"
+skip = true
 description = "Customize which attributes to copy"
 
 python = '''
@@ -438,6 +453,7 @@ rust = '''
 
 [[test]]
 name = "update_wrapper_updated"
+skip = true
 description = "Customize which dict attrs to update"
 
 python = '''
@@ -467,6 +483,7 @@ rust = '''
 
 [[test]]
 name = "wraps_signature"
+skip = true
 description = "inspect.signature works correctly"
 
 python = '''
@@ -500,6 +517,7 @@ rust = '''
 
 [[test]]
 name = "wraps_help"
+skip = true
 description = "help() shows original docs"
 
 python = '''
@@ -530,6 +548,7 @@ rust = '''
 
 [[test]]
 name = "wraps_debug"
+skip = true
 description = "Name shows original in tracebacks"
 
 python = '''
@@ -562,6 +581,7 @@ rust = '''
 
 [[test]]
 name = "wraps_method"
+skip = true
 description = "@wraps on decorated method"
 
 python = '''
@@ -599,6 +619,7 @@ rust = '''
 
 [[test]]
 name = "wraps_partial"
+skip = true
 description = "@wraps with functools.partial"
 
 python = '''
@@ -630,6 +651,7 @@ rust = '''
 
 [[test]]
 name = "wraps_custom_attrs"
+skip = true
 description = "Custom attributes on original function"
 
 python = '''

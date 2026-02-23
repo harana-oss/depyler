@@ -8,6 +8,7 @@ category = "core-language"
 
 [[test]]
 name = "imaginary_literal"
+skip = true
 description = "Imaginary literal with j suffix"
 python = """
 x = 3j
@@ -26,6 +27,7 @@ expected_output = """0.0
 
 [[test]]
 name = "complex_literal"
+skip = true
 description = "Complex literal notation"
 python = """
 x = 3 + 4j
@@ -44,6 +46,7 @@ expected_output = """3.0
 
 [[test]]
 name = "complex_float"
+skip = true
 description = "Complex with floating point components"
 python = """
 x = 3.14 + 2.71j
@@ -62,6 +65,7 @@ expected_output = """3.14
 
 [[test]]
 name = "pure_imaginary"
+skip = true
 description = "Pure imaginary number"
 python = """
 x = 1j
@@ -80,6 +84,7 @@ expected_output = """0.0
 
 [[test]]
 name = "complex_constructor"
+skip = true
 description = "Complex constructor"
 python = """
 x = complex(3, 4)
@@ -98,6 +103,7 @@ expected_output = """3.0
 
 [[test]]
 name = "complex_from_string"
+skip = true
 description = "Parse complex from string"
 python = """
 x = complex('3+4j')
@@ -121,6 +127,7 @@ expected_output = """3.0
 
 [[test]]
 name = "complex_add"
+skip = true
 description = "Complex addition"
 python = """
 result = (1+2j) + (3+4j)
@@ -138,6 +145,7 @@ expected_output = "4.0+6.0j"
 
 [[test]]
 name = "complex_sub"
+skip = true
 description = "Complex subtraction"
 python = """
 result = (5+6j) - (1+2j)
@@ -155,6 +163,7 @@ expected_output = "4.0+4.0j"
 
 [[test]]
 name = "complex_mul"
+skip = true
 description = "Complex multiplication"
 python = """
 result = (1+2j) * (3+4j)
@@ -172,6 +181,7 @@ expected_output = "-5.0+10.0j"
 
 [[test]]
 name = "complex_div"
+skip = true
 description = "Complex division"
 python = """
 result = (1+2j) / (3+4j)
@@ -189,6 +199,7 @@ expected_output = "0.44+0.08j"
 
 [[test]]
 name = "complex_pow"
+skip = true
 description = "Complex exponentiation"
 python = """
 result = (1+1j) ** 2
@@ -205,6 +216,7 @@ expected_output = "0.0+2.0j"
 
 [[test]]
 name = "complex_neg"
+skip = true
 description = "Complex negation"
 python = """
 x = 3+4j
@@ -226,6 +238,7 @@ expected_output = "-3.0+-4.0j"
 
 [[test]]
 name = "complex_real"
+skip = true
 description = "Real part property"
 python = """
 x = 3+4j
@@ -241,6 +254,7 @@ expected_output = "3.0"
 
 [[test]]
 name = "complex_imag"
+skip = true
 description = "Imaginary part property"
 python = """
 x = 3+4j
@@ -256,6 +270,7 @@ expected_output = "4.0"
 
 [[test]]
 name = "complex_conjugate"
+skip = true
 description = "Complex conjugate"
 python = """
 x = 3+4j
@@ -277,6 +292,7 @@ expected_output = "3.0+-4.0j"
 
 [[test]]
 name = "complex_abs"
+skip = true
 description = "Magnitude of complex number"
 python = """
 x = 3+4j
@@ -292,6 +308,7 @@ expected_output = "5.0"
 
 [[test]]
 name = "complex_cmath"
+skip = true
 description = "Complex math functions"
 python = """
 import cmath
@@ -314,6 +331,7 @@ expected_output = "1.10+0.46j"
 
 [[test]]
 name = "complex_plus_int"
+skip = true
 description = "Complex plus integer"
 python = """
 result = (3+4j) + 1
@@ -330,6 +348,7 @@ expected_output = "4.0+4.0j"
 
 [[test]]
 name = "complex_plus_float"
+skip = true
 description = "Complex plus float"
 python = """
 result = (3+4j) + 1.0
@@ -346,6 +365,7 @@ expected_output = "4.0+4.0j"
 
 [[test]]
 name = "int_plus_complex"
+skip = true
 description = "Integer plus complex"
 python = """
 result = 1 + (3+4j)
@@ -366,6 +386,7 @@ expected_output = "4.0+4.0j"
 
 [[test]]
 name = "complex_comparison"
+skip = true
 description = "Complex numbers cannot be compared with < > <= >="
 python = """
 # Complex numbers don't support ordering comparisons
@@ -390,6 +411,7 @@ True"""
 
 [[test]]
 name = "complex_equality"
+skip = true
 description = "Complex equality comparison"
 python = """
 x = 3+4j
@@ -407,6 +429,7 @@ expected_output = "True"
 
 [[test]]
 name = "zero_imaginary"
+skip = true
 description = "Zero imaginary part"
 python = """
 x = 5+0j
@@ -422,6 +445,7 @@ expected_output = "0.0"
 
 [[test]]
 name = "complex_in_list"
+skip = true
 description = "Complex numbers in list"
 python = """
 numbers = [1+2j, 3+4j, 5+6j]

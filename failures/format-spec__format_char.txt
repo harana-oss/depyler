@@ -1,9 +1,0 @@
-  format-spec.toml :: format_char
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-  pub fn format_as_char() -> String {
-−     return format!("{}", char::from(65));
-+     return format!("{:c}", 65);
-  }
-────────────────────────────────────────────────────────────

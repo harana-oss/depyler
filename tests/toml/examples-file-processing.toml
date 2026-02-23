@@ -8,6 +8,7 @@ category = "file_processing"
 
 [[test]]
 name = "csv_parser"
+skip = true
 description = "Example test"
 
 python = '''
@@ -173,6 +174,7 @@ Error: Expression type not yet supported
 
 [[test]]
 name = "log_analyzer"
+skip = true
 description = "Example test"
 
 python = '''

@@ -1,9 +1,0 @@
-  type-inference.toml :: multiple_type_parameters
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− pub fn pair<T: Clone, U: Clone>(a: &T, b: &U) -> (T, U) {
-+ pub fn pair<U: Clone, T: Clone>(a: &T, b: &U) -> (T, U) {
-      return (a, b);
-  }
-────────────────────────────────────────────────────────────

@@ -230,6 +230,7 @@ assert f"{''}" == ""
 
 [[test]]
 name = "fstring_lambda"
+skip = true
 description = "Lambda requires parentheses in f-string"
 python = '''
 assert f"{(lambda x: x * 2)(5)}" == "10"

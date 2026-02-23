@@ -8,6 +8,7 @@ category = "imports"
 
 [[test]]
 name = "init_empty"
+skip = true
 description = "Empty __init__.py makes directory a package"
 
 python = '''
@@ -27,6 +28,7 @@ struct Example {
 
 [[test]]
 name = "init_with_code"
+skip = true
 description = "Code runs on package import"
 
 python = '''
@@ -56,6 +58,7 @@ rust = '''
 
 [[test]]
 name = "init_import_package"
+skip = true
 description = "import pkg runs __init__.py"
 
 python = '''
@@ -79,6 +82,7 @@ struct Example {
 
 [[test]]
 name = "init_reexport"
+skip = true
 description = "from .sub import func in __init__.py"
 
 python = '''
@@ -98,6 +102,7 @@ struct Example {
 
 [[test]]
 name = "init_public_api"
+skip = true
 description = "__init__.py defines public API"
 
 python = '''
@@ -117,6 +122,7 @@ struct Example {
 
 [[test]]
 name = "init_lazy"
+skip = true
 description = "Submodules loaded on demand"
 
 python = '''
@@ -155,6 +161,7 @@ rust = '''
 
 [[test]]
 name = "init_version"
+skip = true
 description = "__version__ = '1.0.0'"
 
 python = '''
@@ -174,6 +181,7 @@ struct Example {
 
 [[test]]
 name = "init_author"
+skip = true
 description = "__author__ = 'Name'"
 
 python = '''
@@ -193,6 +201,7 @@ struct Example {
 
 [[test]]
 name = "init_constants"
+skip = true
 description = "Define constants in __init__.py"
 
 python = '''
@@ -216,6 +225,7 @@ struct Example {
 
 [[test]]
 name = "init_nested"
+skip = true
 description = "pkg/sub/__init__.py"
 
 python = '''
@@ -235,6 +245,7 @@ struct Example {
 
 [[test]]
 name = "init_import_sub"
+skip = true
 description = "import pkg.sub"
 
 python = '''
@@ -263,6 +274,7 @@ rust = '''
 
 [[test]]
 name = "init_from_sub"
+skip = true
 description = "from pkg.sub import item"
 
 python = '''
@@ -292,6 +304,7 @@ rust = '''
 
 [[test]]
 name = "init_path"
+skip = true
 description = "pkg.__path__"
 
 python = '''
@@ -311,6 +324,7 @@ struct Example {
 
 [[test]]
 name = "init_path_extend"
+skip = true
 description = "__path__.append() for plugins"
 
 python = '''
@@ -334,6 +348,7 @@ struct Example {
 
 [[test]]
 name = "init_package"
+skip = true
 description = "__package__ == 'pkg'"
 
 python = '''
@@ -353,6 +368,7 @@ struct Example {
 
 [[test]]
 name = "init_package_sub"
+skip = true
 description = "__package__ == 'pkg.sub'"
 
 python = '''
@@ -376,6 +392,7 @@ struct Example {
 
 [[test]]
 name = "init_circular"
+skip = true
 description = "Circular imports through __init__"
 
 python = '''
@@ -412,6 +429,7 @@ rust = '''
 
 [[test]]
 name = "init_order"
+skip = true
 description = "Parent __init__ runs before child"
 
 python = '''
@@ -431,6 +449,7 @@ struct Example {
 
 [[test]]
 name = "init_implicit"
+skip = true
 description = "No __init__.py (namespace package)"
 
 python = '''

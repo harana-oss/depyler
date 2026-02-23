@@ -1,9 +1,0 @@
-  cse-optimization.toml :: simple_addition_no_cse
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− pub fn add_values(a: i64, b: i64) -> i64 {
-+ pub fn add_values(a: i32, b: i32) -> i32 {
-      return a + b;
-  }
-────────────────────────────────────────────────────────────

@@ -1,9 +1,0 @@
-  bytes.toml :: bytes_case
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− let lower = b"Hello".to_ascii_lowercase();
-−     let upper = b"hello".to_ascii_uppercase();
-−     let result = (lower, upper);
-+ 
-────────────────────────────────────────────────────────────

@@ -1,9 +1,0 @@
-  lists-arrays.toml :: list_multiply
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-  pub fn repeat_list(items: &Vec<i32>, n: i32) -> Vec<i32> {
-      return items * n;
-− };
-+ }
-────────────────────────────────────────────────────────────

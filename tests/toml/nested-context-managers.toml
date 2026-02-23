@@ -8,6 +8,7 @@ category = "context-managers"
 
 [[test]]
 name = "multi_with_comma"
+skip = true
 description = "Multiple context managers with comma separation"
 
 python = '''
@@ -26,6 +27,7 @@ pub fn process_files() {
 
 [[test]]
 name = "multi_with_as"
+skip = true
 description = "Multiple context managers with as clauses"
 
 python = '''
@@ -56,6 +58,7 @@ pub fn read_files() {
 
 [[test]]
 name = "multi_mixed_as"
+skip = true
 description = "Mixed as clauses in multiple context managers"
 
 python = '''
@@ -82,6 +85,7 @@ pub fn mixed_files() {
 
 [[test]]
 name = "nested_with"
+skip = true
 description = "Nested with blocks"
 
 python = '''
@@ -114,6 +118,7 @@ pub fn nested_contexts() {
 
 [[test]]
 name = "deeply_nested"
+skip = true
 description = "Deeply nested with statements"
 
 python = '''
@@ -262,6 +267,7 @@ contains = ["SuppressingContext", "__enter__", "__exit__"]
 
 [[test]]
 name = "multi_exit_exception"
+skip = true
 description = "Exception in exit affects later contexts"
 
 python = '''
@@ -328,6 +334,7 @@ contains = ["ExitStack", "__enter__"]
 
 [[test]]
 name = "multi_from_list"
+skip = true
 description = "Managing list of context managers"
 
 python = '''

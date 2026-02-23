@@ -1,9 +1,0 @@
-  imports-dynamic.toml :: dynamic_spec_props
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− // spec.name, spec.origin
-−     // Module metadata available via Cargo.toml
-−     let result = true;
-+ 
-────────────────────────────────────────────────────────────

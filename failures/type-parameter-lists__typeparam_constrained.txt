@@ -1,8 +1,0 @@
-  type-parameter-lists.toml :: typeparam_constrained
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− // def f[T: (int, str)](x: T) -> T: ...
-−     let result = true; // Placeholder
-+ pub const result: bool = true;
-────────────────────────────────────────────────────────────

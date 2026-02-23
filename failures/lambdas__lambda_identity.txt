@@ -1,9 +1,0 @@
-  lambdas.toml :: lambda_identity
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-  pub fn identity_map(items: Vec<i32>) -> Vec<i32> {
-      return items.iter().map(|x| x).collect::<Vec<_>>();
-− };
-+ }
-────────────────────────────────────────────────────────────

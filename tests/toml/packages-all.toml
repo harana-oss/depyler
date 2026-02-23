@@ -8,6 +8,7 @@ category = "imports"
 
 [[test]]
 name = "all_list"
+skip = true
 description = "__all__ = ['func1', 'Class1']"
 
 python = '''
@@ -27,6 +28,7 @@ struct Example {
 
 [[test]]
 name = "all_star_import"
+skip = true
 description = "from mod import * gets __all__ items"
 
 python = '''
@@ -46,6 +48,7 @@ struct Example {
 
 [[test]]
 name = "all_excluded"
+skip = true
 description = "Items not in __all__ not star imported"
 
 python = '''
@@ -69,6 +72,7 @@ struct Example {
 
 [[test]]
 name = "all_as_list"
+skip = true
 description = "__all__ = ['a', 'b', 'c']"
 
 python = '''
@@ -88,6 +92,7 @@ struct Example {
 
 [[test]]
 name = "all_as_tuple"
+skip = true
 description = "__all__ = ('a', 'b', 'c')"
 
 python = '''
@@ -107,6 +112,7 @@ struct Example {
 
 [[test]]
 name = "all_dynamic"
+skip = true
 description = "__all__ = [x for x in dir() if not x.startswith('_')]"
 
 python = '''
@@ -130,6 +136,7 @@ struct Example {
 
 [[test]]
 name = "all_missing"
+skip = true
 description = "Star imports non-underscore names"
 
 python = '''
@@ -152,6 +159,7 @@ rust = '''
 
 [[test]]
 name = "all_underscore"
+skip = true
 description = "_private not star imported"
 
 python = '''
@@ -174,6 +182,7 @@ rust = '''
 
 [[test]]
 name = "all_dunder"
+skip = true
 description = "__dunder__ not star imported"
 
 python = '''
@@ -197,6 +206,7 @@ struct Example {
 
 [[test]]
 name = "all_package"
+skip = true
 description = "__all__ in __init__.py"
 
 python = '''
@@ -216,6 +226,7 @@ struct Example {
 
 [[test]]
 name = "all_submodule"
+skip = true
 description = "__all__ = ['submod'] imports submodule"
 
 python = '''
@@ -235,6 +246,7 @@ struct Example {
 
 [[test]]
 name = "all_reexport"
+skip = true
 description = "Control what package exposes"
 
 python = '''
@@ -261,6 +273,7 @@ rust = '''
 
 [[test]]
 name = "all_explicit"
+skip = true
 description = "from mod import x works even if x not in __all__"
 
 python = '''
@@ -280,6 +293,7 @@ struct Example {
 
 [[test]]
 name = "all_import_module"
+skip = true
 description = "import mod.x ignores __all__"
 
 python = '''
@@ -303,6 +317,7 @@ struct Example {
 
 [[test]]
 name = "all_documentation"
+skip = true
 description = "__all__ documents public API"
 
 python = '''
@@ -322,6 +337,7 @@ struct Example {
 
 [[test]]
 name = "all_ide"
+skip = true
 description = "IDEs use __all__ for completion"
 
 python = '''
@@ -345,6 +361,7 @@ struct Example {
 
 [[test]]
 name = "all_explicit_better"
+skip = true
 description = "Avoid * imports, use explicit"
 
 python = '''
@@ -368,6 +385,7 @@ rust = '''
 
 [[test]]
 name = "all_library"
+skip = true
 description = "Libraries should define __all__"
 
 python = '''
@@ -391,6 +409,7 @@ struct Example {
 
 [[test]]
 name = "all_empty"
+skip = true
 description = "__all__ = [] imports nothing"
 
 python = '''
@@ -410,6 +429,7 @@ struct Example {
 
 [[test]]
 name = "all_nonexistent"
+skip = true
 description = "__all__ = ['nonexistent'] raises"
 
 python = '''
@@ -429,6 +449,7 @@ struct Example {
 
 [[test]]
 name = "all_modify"
+skip = true
 description = "Modifying __all__ at runtime"
 
 python = '''

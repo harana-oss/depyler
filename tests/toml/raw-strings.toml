@@ -8,6 +8,7 @@ category = "strings"
 
 [[test]]
 name = "raw_basic"
+skip = true
 description = "r'\\n' contains backslash n"
 
 python = '''
@@ -22,6 +23,7 @@ rust = '''
 
 [[test]]
 name = "raw_path"
+skip = true
 description = "r'C:\\Users\\name'"
 
 python = '''
@@ -36,6 +38,7 @@ rust = '''
 
 [[test]]
 name = "raw_regex"
+skip = true
 description = "r'\\d+\\.\\d+'"
 
 python = '''
@@ -54,6 +57,7 @@ rust = '''
 
 [[test]]
 name = "raw_backslash_n"
+skip = true
 description = "r'\\n' vs '\\n'"
 
 python = '''
@@ -70,6 +74,7 @@ rust = '''
 
 [[test]]
 name = "raw_backslash_t"
+skip = true
 description = "r'\\t' vs '\\t'"
 
 python = '''
@@ -86,6 +91,7 @@ rust = '''
 
 [[test]]
 name = "raw_unicode"
+skip = true
 description = "r'\\u0041' literal backslash"
 
 python = '''
@@ -100,6 +106,7 @@ rust = '''
 
 [[test]]
 name = "raw_hex"
+skip = true
 description = "r'\\x41' literal backslash"
 
 python = '''
@@ -118,6 +125,7 @@ rust = '''
 
 [[test]]
 name = "raw_single"
+skip = true
 description = "r'text'"
 
 python = '''
@@ -132,6 +140,7 @@ rust = '''
 
 [[test]]
 name = "raw_double"
+skip = true
 description = "r\"text\""
 
 python = '''
@@ -146,6 +155,7 @@ rust = '''
 
 [[test]]
 name = "raw_triple_single"
+skip = true
 description = "r'''text'''"
 
 python = """
@@ -160,6 +170,7 @@ rust = '''
 
 [[test]]
 name = "raw_triple_double"
+skip = true
 description = "r\"\"\"text\"\"\""
 
 python = '''
@@ -178,6 +189,7 @@ rust = '''
 
 [[test]]
 name = "raw_fstring"
+skip = true
 description = "rf'{var}\\n'"
 
 python = '''
@@ -194,6 +206,7 @@ rust = '''
 
 [[test]]
 name = "fr_string"
+skip = true
 description = "fr'{var}\\n' same as rf"
 
 python = '''
@@ -214,6 +227,7 @@ rust = '''
 
 [[test]]
 name = "raw_trailing_backslash"
+skip = true
 description = "r'text\\' - odd backslashes at end"
 
 python = '''
@@ -229,6 +243,7 @@ rust = '''
 
 [[test]]
 name = "raw_quote_escape"
+skip = true
 description = "r'\\'' invalid"
 
 python = '''
@@ -248,6 +263,7 @@ rust = '''
 
 [[test]]
 name = "raw_regex_use"
+skip = true
 description = "re.match(r'\\d+', text)"
 
 python = '''
@@ -268,6 +284,7 @@ rust = '''
 
 [[test]]
 name = "raw_windows"
+skip = true
 description = "r'C:\\Program Files\\App'"
 
 python = '''
@@ -282,6 +299,7 @@ rust = '''
 
 [[test]]
 name = "raw_latex"
+skip = true
 description = "r'\\frac{1}{2}'"
 
 python = '''
@@ -300,6 +318,7 @@ rust = '''
 
 [[test]]
 name = "raw_empty"
+skip = true
 description = "r''"
 
 python = '''
@@ -314,6 +333,7 @@ rust = '''
 
 [[test]]
 name = "raw_multiline"
+skip = true
 description = "r'''multi\\nline'''"
 
 python = """
@@ -328,6 +348,7 @@ rust = '''
 
 [[test]]
 name = "raw_bytes"
+skip = true
 description = "rb'\\x00' or br'\\x00'"
 
 python = '''

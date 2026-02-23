@@ -1,9 +1,0 @@
-  lists-arrays.toml :: list_typed
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-  pub fn typed_list(items: &Vec<i32>) -> i32 {
-−     return items.len() as i32;
-+     return items.len() as i32 as i32;
-  }
-────────────────────────────────────────────────────────────

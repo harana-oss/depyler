@@ -1,9 +1,0 @@
-  imports-from.toml :: from_import_func
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− // Rust: import function (fold is like reduce)
-−     let result = vec![1, 2, 3, 4].iter().fold(0, |acc, x| acc + x);
-−     assert_eq!(result, 10);
-+ use std::iter::Iterator::fold;
-────────────────────────────────────────────────────────────

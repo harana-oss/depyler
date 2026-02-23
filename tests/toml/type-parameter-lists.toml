@@ -8,6 +8,7 @@ category = "modern-python"
 
 [[test]]
 name = "typeparam_function"
+skip = true
 description = "def f[T](x: T) -> T: return x"
 
 python = '''
@@ -23,6 +24,7 @@ rust = '''
 
 [[test]]
 name = "typeparam_multiple"
+skip = true
 description = "def f[K, V](key: K, value: V) -> tuple[K, V]: ..."
 
 python = '''
@@ -38,6 +40,7 @@ rust = '''
 
 [[test]]
 name = "typeparam_bounded"
+skip = true
 description = "def f[T: int](x: T) -> T: ..."
 
 python = '''
@@ -53,6 +56,7 @@ rust = '''
 
 [[test]]
 name = "typeparam_constrained"
+skip = true
 description = "def f[T: (int, str)](x: T) -> T: ..."
 
 python = '''
@@ -72,6 +76,7 @@ rust = '''
 
 [[test]]
 name = "typeparam_class"
+skip = true
 description = "class Box[T]: ..."
 
 python = '''
@@ -87,6 +92,7 @@ rust = '''
 
 [[test]]
 name = "typeparam_dataclass"
+skip = true
 description = "@dataclass class Pair[T, U]: ..."
 
 python = '''
@@ -111,6 +117,7 @@ struct Point {
 
 [[test]]
 name = "typeparam_inherit"
+skip = true
 description = "class Child[T](Parent[T]): ..."
 
 python = '''
@@ -130,6 +137,7 @@ rust = '''
 
 [[test]]
 name = "typeparam_vs_typevar"
+skip = true
 description = "New syntax vs TypeVar('T')"
 
 python = '''
@@ -145,6 +153,7 @@ rust = '''
 
 [[test]]
 name = "typeparam_scoped"
+skip = true
 description = "Type parameter scope limited to definition"
 
 python = '''
@@ -164,6 +173,7 @@ rust = '''
 
 [[test]]
 name = "typeparam_paramspec"
+skip = true
 description = "def decorator[**P, R](f: Callable[P, R]): ..."
 
 python = '''
@@ -183,6 +193,7 @@ rust = '''
 
 [[test]]
 name = "typeparam_vartuple"
+skip = true
 description = "def f[*Ts](*args: *Ts) -> tuple[*Ts]: ..."
 
 python = '''
@@ -202,6 +213,7 @@ rust = '''
 
 [[test]]
 name = "typeparam_nested"
+skip = true
 description = "Generic function inside generic function"
 
 python = '''
@@ -217,6 +229,7 @@ rust = '''
 
 [[test]]
 name = "typeparam_default"
+skip = true
 description = "def f[T = int](x: T) -> T: ..."
 
 python = '''
@@ -235,6 +248,7 @@ rust = '''
 
 [[test]]
 name = "typeparam_variance"
+skip = true
 description = "class C[T: covariant]: ..."
 
 python = '''

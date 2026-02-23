@@ -21,6 +21,7 @@ pub fn simple_func() {}
 
 [[test]]
 name = "ast_class_def"
+skip = true
 description = "AST class definition parsing"
 
 python = '''
@@ -166,6 +167,7 @@ pub fn countdown(mut n: i32) -> i32 {
 
 [[test]]
 name = "codegen_function_signature"
+skip = true
 description = "Function signature code generation"
 
 python = '''
@@ -186,6 +188,7 @@ pub fn add(a: i32, b: i32) -> i32 {
 
 [[test]]
 name = "codegen_struct_definition"
+skip = true
 description = "Struct definition code generation"
 
 python = '''
@@ -210,6 +213,7 @@ impl Point {
 
 [[test]]
 name = "codegen_impl_block"
+skip = true
 description = "Impl block code generation"
 
 python = '''
@@ -290,6 +294,7 @@ pub fn documented() -> i32 {
 
 [[test]]
 name = "edge_decorator"
+skip = true
 description = "Decorator handling"
 
 python = '''

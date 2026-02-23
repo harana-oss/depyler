@@ -496,7 +496,12 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         // Unknown type - default to + operator (numeric addition)
                         // Numbers are more common than string concatenation
                         let rust_op = convert_binop(op)?;
-                        Ok(parse_quote! { #left_expr #rust_op #right_expr })
+                        Ok(syn::Expr::Binary(syn::ExprBinary {
+                            attrs: vec![],
+                            left: Box::new(left_expr),
+                            op: rust_op,
+                            right: Box::new(right_expr),
+                        }))
                     } else if left_is_float && right_is_int_type {
                         // float + int: cast int to f64
                         // Wrap right_expr in parentheses to handle precedence with `as`
@@ -509,11 +514,21 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     } else if left_is_int_type && right_is_int_type {
                         // Both are int - normal addition
                         let rust_op = convert_binop(op)?;
-                        Ok(parse_quote! { #left_expr #rust_op #right_expr })
+                        Ok(syn::Expr::Binary(syn::ExprBinary {
+                            attrs: vec![],
+                            left: Box::new(left_expr),
+                            op: rust_op,
+                            right: Box::new(right_expr),
+                        }))
                     } else {
                         // At least one side is numeric but not both, use normal addition
                         let rust_op = convert_binop(op)?;
-                        Ok(parse_quote! { #left_expr #rust_op #right_expr })
+                        Ok(syn::Expr::Binary(syn::ExprBinary {
+                            attrs: vec![],
+                            left: Box::new(left_expr),
+                            op: rust_op,
+                            right: Box::new(right_expr),
+                        }))
                     }
                 }
             }
@@ -625,7 +640,12 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     Ok(parse_quote! { (#left_expr).saturating_sub(#right_expr) })
                 } else {
                     let rust_op = convert_binop(op)?;
-                    Ok(parse_quote! { #left_expr #rust_op #right_expr })
+                    Ok(syn::Expr::Binary(syn::ExprBinary {
+                        attrs: vec![],
+                        left: Box::new(left_expr),
+                        op: rust_op,
+                        right: Box::new(right_expr),
+                    }))
                 }
             }
             BinOp::Mul => {
@@ -721,7 +741,12 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                             Ok(parse_quote! { ((#left_expr) as f64) * #right_expr })
                         } else {
                             let rust_op = convert_binop(op)?;
-                            Ok(parse_quote! { #left_expr #rust_op #right_expr })
+                            Ok(syn::Expr::Binary(syn::ExprBinary {
+                                attrs: vec![],
+                                left: Box::new(left_expr),
+                                op: rust_op,
+                                right: Box::new(right_expr),
+                            }))
                         }
                     }
                 }
@@ -1975,6 +2000,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
     }
 
+    /// Returns true if the expression needs wrapping in parentheses for a cast or method call.
+    fn needs_parens_for_cast(expr: &syn::Expr) -> bool {
+        !matches!(expr, syn::Expr::Path(_) | syn::Expr::Lit(_) | syn::Expr::Field(_) | syn::Expr::MethodCall(_) | syn::Expr::Call(_) | syn::Expr::Paren(_))
+    }
+
     fn convert_int_cast(&self, hir_args: &[HirExpr], arg_exprs: &[syn::Expr]) -> Result<syn::Expr> {
         if arg_exprs.is_empty() || arg_exprs.len() > 2 {
             bail!("int() requires 1-2 arguments");
@@ -2017,11 +2047,17 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                             }
                             // Numeric types use simple cast
                             Type::Int | Type::Float | Type::Bool => {
-                                return Ok(parse_quote! { (#arg) as i32 });
+                                if Self::needs_parens_for_cast(arg) {
+                                    return Ok(parse_quote! { (#arg) as i32 });
+                                }
+                                return Ok(parse_quote! { #arg as i32 });
                             }
                             // For other known types, use cast conservatively
                             _ => {
-                                return Ok(parse_quote! { (#arg) as i32 });
+                                if Self::needs_parens_for_cast(arg) {
+                                    return Ok(parse_quote! { (#arg) as i32 });
+                                }
+                                return Ok(parse_quote! { #arg as i32 });
                             }
                         }
                     }
@@ -2045,7 +2081,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         return Ok(parse_quote! { #arg.parse::<i32>().unwrap() });
                     }
                     // Default: use as i32 cast for other types
-                    return Ok(parse_quote! { (#arg) as i32 });
+                    if Self::needs_parens_for_cast(arg) {
+                        return Ok(parse_quote! { (#arg) as i32 });
+                    }
+                    return Ok(parse_quote! { #arg as i32 });
                 }
 
                 // E.g., Vec<String>.get() or str methods
@@ -2060,24 +2099,36 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         return Ok(parse_quote! { #arg.parse::<i32>().unwrap() });
                     }
                     // Otherwise, use default cast
-                    return Ok(parse_quote! { (#arg) as i32 });
+                    if Self::needs_parens_for_cast(arg) {
+                        return Ok(parse_quote! { (#arg) as i32 });
+                    }
+                    return Ok(parse_quote! { #arg as i32 });
                 }
 
                 // Check if it's a known bool expression
                 expr => {
                     if let Some(is_bool) = self.is_bool_expr(expr) {
                         if is_bool {
-                            return Ok(parse_quote! { (#arg) as i32 });
+                            if Self::needs_parens_for_cast(arg) {
+                                return Ok(parse_quote! { (#arg) as i32 });
+                            }
+                            return Ok(parse_quote! { #arg as i32 });
                         }
                     }
                     // For other complex expressions, apply cast conservatively
-                    return Ok(parse_quote! { (#arg) as i32 });
+                    if Self::needs_parens_for_cast(arg) {
+                        return Ok(parse_quote! { (#arg) as i32 });
+                    }
+                    return Ok(parse_quote! { #arg as i32 });
                 }
             }
         }
 
         // Default: cast for safety
-        Ok(parse_quote! { (#arg) as i32 })
+        if Self::needs_parens_for_cast(arg) {
+            return Ok(parse_quote! { (#arg) as i32 });
+        }
+        Ok(parse_quote! { #arg as i32 })
     }
 
     fn convert_float_cast(&self, hir_args: &[HirExpr], args: &[syn::Expr]) -> Result<syn::Expr> {
@@ -2092,7 +2143,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             return Ok(arg.clone());
         }
 
-        Ok(parse_quote! { (#arg) as f64 })
+        if Self::needs_parens_for_cast(arg) {
+            return Ok(parse_quote! { (#arg) as f64 });
+        }
+        Ok(parse_quote! { #arg as f64 })
     }
 
     fn convert_str_conversion(
@@ -2109,10 +2163,14 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         let is_optional = !hir_args.is_empty() && self.expr_is_optional(&hir_args[0]);
 
         if is_optional {
-            Ok(parse_quote! { (#arg).as_ref().unwrap().to_string() })
-        } else {
-            // Wrap in parens to handle cast expressions like `(x as i32).to_string()`
+            if Self::needs_parens_for_cast(arg) {
+                return Ok(parse_quote! { (#arg).as_ref().unwrap().to_string() });
+            }
+            Ok(parse_quote! { #arg.as_ref().unwrap().to_string() })
+        } else if Self::needs_parens_for_cast(arg) {
             Ok(parse_quote! { (#arg).to_string() })
+        } else {
+            Ok(parse_quote! { #arg.to_string() })
         }
     }
 
@@ -10643,7 +10701,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         let mut chars = s.chars();
                         match chars.next() {
                             None => String::new(),
-                            Some(first) => first.to_uppercase().chain(chars).collect::<String>(),
+                            Some(first) => first.to_uppercase().collect::<String>() + &chars.as_str().to_lowercase(),
                         }
                     }
                 })
@@ -11314,6 +11372,9 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 | "isalpha"
                 | "isalnum"
                 | "title"
+                | "capitalize"
+                | "swapcase"
+                | "expandtabs"
                 | "center"
                 | "ljust"
                 | "rjust"
@@ -11445,9 +11506,24 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         // Fallback to method name dispatch
         match method {
             // List methods
-            "append" | "extend" | "pop" | "insert" | "remove" | "index" | "copy" | "clear"
+            "append" | "extend" | "pop" | "insert" | "remove" | "copy" | "clear"
             | "reverse" | "sort" => {
                 self.convert_list_method(&object_expr, object, method, arg_exprs, hir_args, kwargs)
+            }
+
+            "index" => {
+                if self.is_string_base(object) {
+                    self.convert_string_method(object, &object_expr, method, arg_exprs, hir_args)
+                } else {
+                    self.convert_list_method(
+                        &object_expr,
+                        object,
+                        method,
+                        arg_exprs,
+                        hir_args,
+                        kwargs,
+                    )
+                }
             }
 
             "count" => {
@@ -11505,7 +11581,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
 
             // String methods
             // Note: "count" handled separately above with disambiguation logic
-            // Note: "index" handled in list methods above (lists take precedence)
+            // Note: "index" handled separately above with disambiguation logic
             "upper" | "lower" | "strip" | "lstrip" | "rstrip" | "startswith" | "endswith"
             | "split" | "splitlines" | "join" | "replace" | "find" | "rfind" | "rindex"
             | "isdigit" | "isalpha" | "isalnum" | "title" | "center" | "ljust" | "rjust"
@@ -11662,6 +11738,9 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 | "isalpha"
                 | "isalnum"
                 | "title"
+                | "capitalize"
+                | "swapcase"
+                | "expandtabs"
                 | "center"
                 | "ljust"
                 | "rjust"

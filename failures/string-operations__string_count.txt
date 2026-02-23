@@ -1,9 +1,0 @@
-  string-operations.toml :: string_count
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-  pub fn count_occurrences(s: String, substring: String) -> i32 {
-−     return s.matches(substring).count() as i32;
-+     return s.matches(substring).count() as i32 as i32;
-  }
-────────────────────────────────────────────────────────────

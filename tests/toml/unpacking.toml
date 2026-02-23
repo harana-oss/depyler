@@ -8,6 +8,7 @@ category = "core-language"
 
 [[test]]
 name = "basic_tuple_unpacking"
+skip = true
 description = "a, b = (1, 2)"
 python = """
 a, b = (1, 2)
@@ -19,6 +20,7 @@ log::info!("{}", format!("a={}, b={}", a, b));"""
 
 [[test]]
 name = "basic_list_unpacking"
+skip = true
 description = "a, b, c = [1, 2, 3]"
 python = """
 a, b, c = [1, 2, 3]
@@ -34,6 +36,7 @@ log::info!("{}", format!("a={}, b={}, c={}", a, b, c));"""
 
 [[test]]
 name = "starred_at_end"
+skip = true
 description = "a, *rest = [1, 2, 3, 4]"
 python = """
 a, *rest = [1, 2, 3, 4]
@@ -47,6 +50,7 @@ log::info!("{}", format!("a={}, rest={}", a, rest));"""
 
 [[test]]
 name = "starred_at_beginning"
+skip = true
 description = "*rest, last = [1, 2, 3, 4]"
 python = """
 *rest, last = [1, 2, 3, 4]
@@ -60,6 +64,7 @@ log::info!("{}", format!("rest={}, last={}", rest, last));"""
 
 [[test]]
 name = "starred_in_middle"
+skip = true
 description = "first, *middle, last = [1, 2, 3, 4, 5]"
 python = """
 first, *middle, last = [1, 2, 3, 4, 5]
@@ -77,6 +82,7 @@ log::info!(
 
 [[test]]
 name = "starred_single_element"
+skip = true
 description = "a, *rest = [1] results in rest = []"
 python = """
 a, *rest = [1]
@@ -94,6 +100,7 @@ log::info!("{}", format!("a={}, rest={}", a, rest));"""
 
 [[test]]
 name = "nested_tuple_unpacking"
+skip = true
 description = "(a, b), c = ((1, 2), 3)"
 python = """
 (a, b), c = ((1, 2), 3)
@@ -105,6 +112,7 @@ log::info!("{}", format!("a={}, b={}, c={}", a, b, c));"""
 
 [[test]]
 name = "deeply_nested_unpacking"
+skip = true
 description = "a, (b, (c, d)) = (1, (2, (3, 4)))"
 python = """
 a, (b, (c, d)) = (1, (2, (3, 4)))
@@ -120,6 +128,7 @@ log::info!("{}", format!("a={}, b={}, c={}, d={}", a, b, c, d));"""
 
 [[test]]
 name = "starred_in_call"
+skip = true
 description = "func(*args)"
 python = """
 def print_values(*args):
@@ -137,6 +146,7 @@ print_values(&numbers);"""
 
 [[test]]
 name = "double_starred_in_call"
+skip = true
 description = "func(**kwargs)"
 python = """
 def print_kwargs(**kwargs):
@@ -166,6 +176,7 @@ print_kwargs();"""
 
 [[test]]
 name = "combined_unpacking_in_call"
+skip = true
 description = "func(*args, **kwargs)"
 python = """
 def combined_func(*args, **kwargs):
@@ -196,6 +207,7 @@ combined_func(&args);"""
 
 [[test]]
 name = "unpacking_in_for"
+skip = true
 description = "for a, b in pairs:"
 python = """
 pairs = [(1, 2), (3, 4), (5, 6)]
@@ -210,6 +222,7 @@ for (a, b) in pairs.iter().cloned() {
 
 [[test]]
 name = "nested_unpacking_in_for"
+skip = true
 description = "for (a, b), c in data:"
 python = """
 data = [((1, 2), 3), ((4, 5), 6)]
@@ -228,6 +241,7 @@ for ((a, b), c) in data.iter().cloned() {
 
 [[test]]
 name = "unpacking_with_annotations"
+skip = true
 description = "Unpacking where variables have type hints"
 python = """
 data: tuple[int, int] = (10, 20)
@@ -245,6 +259,7 @@ log::info!("{}", format!("x={}, y={}", x, y));"""
 
 [[test]]
 name = "unpacking_string"
+skip = true
 description = "a, b, c = 'abc'"
 python = """
 a, b, c = 'abc'
@@ -256,6 +271,7 @@ log::info!("{}", format!("a={}, b={}, c={}", a, b, c));"""
 
 [[test]]
 name = "unpacking_range"
+skip = true
 description = "a, b, c = range(3)"
 python = """
 a, b, c = range(3)

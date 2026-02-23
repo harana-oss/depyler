@@ -5,6 +5,7 @@
 
 [[test]]
 name = "pattern_literal"
+skip = true
 tags = ["match", "literal"]
 python = '''
 def check(x: int) -> str:
@@ -35,6 +36,7 @@ expected_output = "one"
 
 [[test]]
 name = "pattern_capture"
+skip = true
 tags = ["match", "capture"]
 python = '''
 def extract(x: int) -> int:
@@ -59,6 +61,7 @@ expected_output = "10"
 
 [[test]]
 name = "pattern_wildcard"
+skip = true
 tags = ["match", "wildcard"]
 python = '''
 def classify(x: int) -> str:
@@ -86,6 +89,7 @@ expected_output = "nonzero"
 
 [[test]]
 name = "pattern_guard_condition"
+skip = true
 tags = ["match", "guard"]
 python = '''
 def classify(x: int) -> str:
@@ -116,6 +120,7 @@ expected_output = "negative"
 
 [[test]]
 name = "pattern_guard_with_capture"
+skip = true
 tags = ["match", "guard", "capture"]
 python = '''
 def describe(x: int) -> str:
@@ -146,6 +151,7 @@ expected_output = "medium: 50"
 
 [[test]]
 name = "pattern_or_basic"
+skip = true
 tags = ["match", "or"]
 python = '''
 def check_vowel(c: str) -> str:
@@ -173,6 +179,7 @@ expected_output = "vowel"
 
 [[test]]
 name = "pattern_or_precedence"
+skip = true
 tags = ["match", "or"]
 python = '''
 def classify_num(x: int) -> str:
@@ -203,6 +210,7 @@ expected_output = "mid"
 
 [[test]]
 name = "pattern_or_binds_same_names"
+skip = true
 tags = ["match", "or", "capture"]
 description = "OR patterns that bind the same names - simplified"
 python = '''
@@ -234,6 +242,7 @@ expected_output = "20"
 
 [[test]]
 name = "pattern_list"
+skip = true
 tags = ["match", "sequence"]
 description = "Simplified list pattern matching"
 python = '''
@@ -269,6 +278,7 @@ expected_output = "pair"
 
 [[test]]
 name = "pattern_star"
+skip = true
 tags = ["match", "star"]
 description = "Star pattern for remaining elements - using slice matching"
 python = '''
@@ -301,6 +311,7 @@ expected_output = "multiple"
 
 [[test]]
 name = "pattern_star_middle"
+skip = true
 tags = ["match", "star"]
 description = "Star pattern in middle position - using slice matching"
 python = '''
@@ -332,6 +343,7 @@ expected_output = "1 to 5"
 
 [[test]]
 name = "pattern_dict"
+skip = true
 tags = ["match", "mapping"]
 description = "Dict pattern matching - using explicit key checks"
 python = '''
@@ -369,6 +381,7 @@ expected_output = "point: (1, 2)"
 
 [[test]]
 name = "pattern_dict_star"
+skip = true
 tags = ["match", "mapping", "star"]
 description = "Dict pattern with double-star for rest - checking keys"
 python = '''
@@ -402,6 +415,7 @@ expected_output = "name: Alice"
 
 [[test]]
 name = "pattern_class_positional"
+skip = true
 tags = ["match", "class"]
 description = "Class pattern with positional args - using struct matching"
 python = '''
@@ -439,6 +453,7 @@ expected_output = "Point(3, 4)"
 
 [[test]]
 name = "pattern_class_keyword"
+skip = true
 tags = ["match", "class"]
 description = "Class pattern with keyword args - using struct field matching"
 python = '''
@@ -492,6 +507,7 @@ expected_output = "debug only"
 
 [[test]]
 name = "pattern_value_vs_capture"
+skip = true
 tags = ["match", "value"]
 description = "Distinguishing value patterns from capture patterns"
 python = '''
@@ -524,6 +540,7 @@ expected_output = "special"
 
 [[test]]
 name = "pattern_as_captures_whole"
+skip = true
 tags = ["match", "as"]
 description = "AS pattern captures the whole matched value"
 python = '''

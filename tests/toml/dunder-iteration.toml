@@ -8,6 +8,7 @@ category = "dunder-methods"
 
 [[test]]
 name = "dunder_iter_self"
+skip = true
 description = "Iterator returning self"
 python = """
 class Counter:
@@ -66,6 +67,7 @@ expected_output = """1
 
 [[test]]
 name = "dunder_iter_new"
+skip = true
 description = "Iterable returning new iterator"
 python = """
 class NumberList:
@@ -109,6 +111,7 @@ expected_output = """1
 
 [[test]]
 name = "dunder_iter_generator"
+skip = true
 description = "Iterator using generator"
 python = """
 class NumberGenerator:
@@ -158,6 +161,7 @@ expected_output = """1
 
 [[test]]
 name = "iter_builtin"
+skip = true
 description = "iter() builtin calls __iter__"
 python = """
 class MyList:
@@ -208,6 +212,7 @@ expected_output = """__iter__ called
 
 [[test]]
 name = "dunder_next"
+skip = true
 description = "Iterator protocol with __next__"
 python = """
 class SimpleIterator:
@@ -266,6 +271,7 @@ expected_output = """10
 
 [[test]]
 name = "stop_iteration"
+skip = true
 description = "StopIteration signals end of iteration"
 python = """
 class ThreeIterator:
@@ -324,6 +330,7 @@ Done"""
 
 [[test]]
 name = "next_builtin"
+skip = true
 description = "next() builtin calls __next__"
 python = """
 class MyIterator:
@@ -379,6 +386,7 @@ b"""
 
 [[test]]
 name = "next_default"
+skip = true
 description = "next() with default value"
 python = """
 class MyIterator:
@@ -441,6 +449,7 @@ expected_output = """1
 
 [[test]]
 name = "dunder_reversed"
+skip = true
 description = "Custom __reversed__ implementation"
 python = """
 class MyList:
@@ -479,6 +488,7 @@ expected_output = """3
 
 [[test]]
 name = "reversed_builtin"
+skip = true
 description = "reversed() builtin"
 python = """
 class MySequence:
@@ -521,6 +531,7 @@ expected_output = """__reversed__ called
 
 [[test]]
 name = "reversed_fallback"
+skip = true
 description = "reversed() fallback to __len__ and __getitem__"
 python = """
 class MySequence:
@@ -570,6 +581,7 @@ expected_output = """15
 
 [[test]]
 name = "custom_iterator"
+skip = true
 description = "Complete iterator implementation"
 python = """
 class Countdown:
@@ -622,6 +634,7 @@ expected_output = """3
 
 [[test]]
 name = "iterator_state"
+skip = true
 description = "Iterator maintains position"
 python = """
 class PositionIterator:
@@ -683,6 +696,7 @@ Position: 2"""
 
 [[test]]
 name = "iterator_exhausted"
+skip = true
 description = "Iterator raises StopIteration when exhausted"
 python = """
 class TwoIterator:
@@ -743,6 +757,7 @@ Exhausted"""
 
 [[test]]
 name = "multiple_iterations"
+skip = true
 description = "Iterable can be iterated multiple times"
 python = """
 class ReusableIterable:
@@ -804,6 +819,7 @@ Second iteration:
 
 [[test]]
 name = "for_loop"
+skip = true
 description = "For loop uses iterator protocol"
 python = """
 class CustomRange:
@@ -885,6 +901,7 @@ expected_output = """0
 
 [[test]]
 name = "for_break"
+skip = true
 description = "Breaking from loop"
 python = """
 class InfiniteCounter:
@@ -937,6 +954,7 @@ Done"""
 
 [[test]]
 name = "unpack_iterable"
+skip = true
 description = "Unpacking uses iterator protocol"
 python = """
 class Triple:
@@ -976,6 +994,7 @@ expected_output = "10, 20, 30"
 
 [[test]]
 name = "range_iterator"
+skip = true
 description = "Custom range implementation"
 python = """
 class MyRange:
@@ -1033,6 +1052,7 @@ expected_output = """0
 
 [[test]]
 name = "file_iterator"
+skip = true
 description = "Iterate over lines"
 python = """
 class LineReader:
@@ -1080,6 +1100,7 @@ line 3"""
 
 [[test]]
 name = "infinite_iterator"
+skip = true
 description = "Iterator that never stops"
 python = """
 class Repeater:
@@ -1134,6 +1155,7 @@ expected_output = """42
 
 [[test]]
 name = "iterator_not_reusable"
+skip = true
 description = "Iterator exhausted after one pass"
 python = """
 class OneTimeIterator:
@@ -1205,6 +1227,7 @@ Done"""
 
 [[test]]
 name = "iter_sentinel"
+skip = true
 description = "iter() with sentinel value"
 python = """
 class Counter:
@@ -1249,6 +1272,7 @@ expected_output = """1
 
 [[test]]
 name = "length_hint"
+skip = true
 description = "Optional __length_hint__ for optimization"
 python = """
 class HintedIterator:

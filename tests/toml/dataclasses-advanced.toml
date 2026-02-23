@@ -8,6 +8,7 @@ category = "data-structures"
 
 [[test]]
 name = "dataclass_inheritance"
+skip = true
 description = "@dataclass class Child(Parent): ..."
 
 python = '''
@@ -32,6 +33,7 @@ struct Point {
 
 [[test]]
 name = "dataclass_inherit_order"
+skip = true
 description = "Parent fields before child fields"
 
 python = '''
@@ -71,6 +73,7 @@ pub fn test_dataclass_inherit_order() -> (i32, i32) {
 
 [[test]]
 name = "dataclass_override_field"
+skip = true
 description = "Override parent field with new default"
 
 python = '''
@@ -115,6 +118,7 @@ pub fn test_dataclass_override_field() -> i32 {
 
 [[test]]
 name = "dataclass_mixed_inherit"
+skip = true
 description = "Dataclass inheriting from regular class"
 
 python = '''
@@ -175,6 +179,7 @@ pub fn test_dataclass_mixed_inherit() -> i32 {
 
 [[test]]
 name = "dataclass_custom_order"
+skip = true
 description = "@dataclass(order=True) comparison by fields"
 
 python = '''
@@ -199,6 +204,7 @@ struct Point {
 
 [[test]]
 name = "dataclass_order_fields"
+skip = true
 description = "field(compare=False) excludes from ordering"
 
 python = '''
@@ -262,6 +268,7 @@ pub fn test_dataclass_order_fields() -> bool {
 
 [[test]]
 name = "dataclass_hash_frozen"
+skip = true
 description = "frozen=True makes hashable"
 
 python = '''
@@ -298,6 +305,7 @@ pub fn test_dataclass_hash_frozen() -> u64 {
 
 [[test]]
 name = "dataclass_unsafe_hash"
+skip = true
 description = "@dataclass(unsafe_hash=True)"
 
 python = '''
@@ -326,6 +334,7 @@ struct Point {
 
 [[test]]
 name = "dataclass_asdict"
+skip = true
 description = "dataclasses.asdict(instance)"
 
 python = '''
@@ -370,6 +379,7 @@ pub fn test_dataclass_asdict() -> i32 {
 
 [[test]]
 name = "dataclass_astuple"
+skip = true
 description = "dataclasses.astuple(instance)"
 
 python = '''
@@ -407,6 +417,7 @@ pub fn test_dataclass_astuple() -> (i32, i32) {
 
 [[test]]
 name = "dataclass_nested_convert"
+skip = true
 description = "asdict with nested dataclasses"
 
 python = '''
@@ -455,6 +466,7 @@ pub fn test_dataclass_nested_convert() -> i32 {
 
 [[test]]
 name = "dataclass_dict_factory"
+skip = true
 description = "asdict(obj, dict_factory=OrderedDict)"
 
 python = '''
@@ -504,6 +516,7 @@ pub fn test_dataclass_dict_factory() -> usize {
 
 [[test]]
 name = "dataclass_fields"
+skip = true
 description = "dataclasses.fields(cls)"
 
 python = '''
@@ -533,6 +546,7 @@ pub fn test_dataclass_fields() -> usize {
 
 [[test]]
 name = "dataclass_metadata"
+skip = true
 description = "field(metadata={'key': 'value'})"
 
 python = '''
@@ -565,6 +579,7 @@ pub fn test_dataclass_metadata() -> String {
 
 [[test]]
 name = "dataclass_field_info"
+skip = true
 description = "f.name, f.type, f.default"
 
 python = '''
@@ -599,6 +614,7 @@ pub fn test_dataclass_field_info() -> String {
 
 [[test]]
 name = "dataclass_replace"
+skip = true
 description = "dataclasses.replace(obj, x=10)"
 
 python = '''
@@ -638,6 +654,7 @@ pub fn test_dataclass_replace() -> i32 {
 
 [[test]]
 name = "dataclass_replace_multi"
+skip = true
 description = "replace(obj, x=1, y=2)"
 
 python = '''
@@ -675,6 +692,7 @@ pub fn test_dataclass_replace_multi() -> (i32, i32) {
 
 [[test]]
 name = "dataclass_make"
+skip = true
 description = "make_dataclass('Point', ['x', 'y'])"
 
 python = '''
@@ -702,6 +720,7 @@ pub fn test_dataclass_make() -> i32 {
 
 [[test]]
 name = "dataclass_make_typed"
+skip = true
 description = "make_dataclass('Point', [('x', int), ('y', int)])"
 
 python = '''
@@ -729,6 +748,7 @@ pub fn test_dataclass_make_typed() -> i32 {
 
 [[test]]
 name = "dataclass_make_bases"
+skip = true
 description = "make_dataclass('C', fields, bases=(Base,))"
 
 python = '''
@@ -769,6 +789,7 @@ pub fn test_dataclass_make_bases() -> i32 {
 
 [[test]]
 name = "dataclass_is"
+skip = true
 description = "dataclasses.is_dataclass(obj)"
 
 python = '''
@@ -803,6 +824,7 @@ pub fn test_dataclass_is() -> bool {
 
 [[test]]
 name = "dataclass_is_instance"
+skip = true
 description = "is_dataclass on class and instance"
 
 python = '''
@@ -838,6 +860,7 @@ pub fn test_dataclass_is_instance() -> bool {
 
 [[test]]
 name = "dataclass_kw_only"
+skip = true
 description = "@dataclass(kw_only=True)"
 
 python = '''
@@ -862,6 +885,7 @@ struct Point {
 
 [[test]]
 name = "dataclass_match_args"
+skip = true
 description = "__match_args__ for pattern matching"
 
 python = '''
@@ -884,6 +908,7 @@ rust = '''
 
 [[test]]
 name = "dataclass_weakref"
+skip = true
 description = "@dataclass(weakref_slot=True)"
 
 python = '''

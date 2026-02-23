@@ -1,9 +1,0 @@
-  type-inference.toml :: type_mapper_typevar_mapping
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− use serde_json;
-  pub fn swap<T: Clone, U: Clone>(a: &T, b: &U) -> (U, T) {
-      return (b, a);
-  }
-────────────────────────────────────────────────────────────

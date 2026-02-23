@@ -1,8 +1,0 @@
-  namespace-packages.toml :: namespace_install
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− // Install adds to namespace
-−     let result = true; // Placeholder
-+ pub const result: bool = true;
-────────────────────────────────────────────────────────────

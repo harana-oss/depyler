@@ -1,8 +1,0 @@
-  namespace-packages.toml :: namespace_merge
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− // Submodules from different locations
-−     let result = true; // Placeholder
-+ pub const result: bool = true;
-────────────────────────────────────────────────────────────

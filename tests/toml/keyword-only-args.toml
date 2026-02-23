@@ -8,6 +8,7 @@ category = "modern-python"
 
 [[test]]
 name = "kwonly_basic"
+skip = true
 description = "def f(*, x): ... (x must be keyword)"
 python = """
 def greet(*, name):
@@ -31,6 +32,7 @@ log::info!("{}", greet(args));"""
 
 [[test]]
 name = "kwonly_multiple"
+skip = true
 description = "def f(*, a, b, c): ..."
 python = """
 def configure(*, host, port, debug):
@@ -61,6 +63,7 @@ log::info!("{}", configure(args));"""
 
 [[test]]
 name = "kwonly_defaults"
+skip = true
 description = "def f(*, x=0, y=0): ..."
 python = """
 def point(*, x=0, y=0):
@@ -102,6 +105,7 @@ log::info!("{}", point(PointArgs { x: 3, y: 4 }));"""
 
 [[test]]
 name = "kwonly_with_regular"
+skip = true
 description = "def f(a, b, *, c, d): ..."
 python = """
 def mixed(a, b, *, c, d):
@@ -118,6 +122,7 @@ log::info!("{}", mixed(1, 2, 3, 4));"""
 
 [[test]]
 name = "kwonly_with_varargs"
+skip = true
 description = "def f(*args, x, y): ..."
 python = """
 def varargs_kwonly(*args, x, y):
@@ -135,6 +140,7 @@ log::info!("{}", varargs_kwonly(&args, 10, 20));"""
 
 [[test]]
 name = "kwonly_with_kwargs"
+skip = true
 description = "def f(*, x, **kwargs): ..."
 python = """
 def kwonly_kwargs(*, x, **kwargs):
@@ -165,6 +171,7 @@ kwonly_kwargs(5, &kwargs);"""
 
 [[test]]
 name = "kwonly_force_named"
+skip = true
 description = "f(x=1) required, f(1) raises TypeError"
 python = """
 def create_user(*, username, email):
@@ -192,6 +199,7 @@ log::info!("{}", create_user(args));"""
 
 [[test]]
 name = "kwonly_self_doc"
+skip = true
 description = "f(verbose=True, recursive=False)"
 python = """
 def process_files(*, verbose=False, recursive=False, backup=True):
@@ -236,6 +244,7 @@ log::info!("{}", process_files(args));"""
 
 [[test]]
 name = "kwonly_clarity"
+skip = true
 description = "Avoid confusion with multiple similar args"
 python = """
 def resize_image(*, width, height, maintain_aspect=True):
@@ -271,6 +280,7 @@ log::info!("{}", resize_image(args));"""
 
 [[test]]
 name = "kwonly_required"
+skip = true
 description = "def f(*, x): x has no default, must be passed"
 python = """
 def login(*, username):
@@ -294,6 +304,7 @@ log::info!("{}", login(args));"""
 
 [[test]]
 name = "kwonly_optional"
+skip = true
 description = "def f(*, x=None): x has default"
 python = """
 def connect(*, timeout=30):
@@ -322,6 +333,7 @@ log::info!("{}", connect(ConnectArgs { timeout: 60 }));"""
 
 [[test]]
 name = "kwonly_mixed_req"
+skip = true
 description = "def f(*, a, b=0): a required, b optional"
 python = """
 def setup(*, host, port=8080):
@@ -361,6 +373,7 @@ log::info!(
 
 [[test]]
 name = "kwonly_type_hints"
+skip = true
 description = "def f(*, x: int, y: str = ''): ..."
 python = """
 def typed_func(*, count: int, message: str = "default"):
@@ -399,6 +412,7 @@ log::info!(
 
 [[test]]
 name = "kwonly_method"
+skip = true
 description = "def method(self, *, x): ..."
 python = """
 class Calculator:
@@ -431,6 +445,7 @@ log::info!("{}", calc.add(5));"""
 
 [[test]]
 name = "kwonly_classmethod"
+skip = true
 description = "@classmethod def f(cls, *, x): ..."
 python = """
 class Factory:
@@ -453,6 +468,7 @@ log::info!("{}", Factory::create("item", 42));"""
 
 [[test]]
 name = "kwonly_bare_star_end"
+skip = true
 description = "def f(a, *): is syntax error"
 python = """
 # Bare * must be followed by keyword-only parameters

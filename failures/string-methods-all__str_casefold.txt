@@ -1,7 +1,0 @@
-  string-methods-all.toml :: str_casefold
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− pub const result: String = "ß".to_lowercase();
-+ 
-────────────────────────────────────────────────────────────

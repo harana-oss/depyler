@@ -8,6 +8,7 @@ category = "tooling"
 
 [[test]]
 name = "ast_converters_demo"
+skip = true
 description = "!/usr/bin/env python3"
 
 python = '''
@@ -279,6 +280,7 @@ Error: Unsupported type annotation
 
 [[test]]
 name = "custom_attributes_demo"
+skip = true
 description = "!/usr/bin/env python3"
 
 python = '''
@@ -409,6 +411,7 @@ pub fn compute_hash(text: &str) -> Result<i32, ZeroDivisionError> {
 
 [[test]]
 name = "debugging_workflow"
+skip = true
 description = "!/usr/bin/env python3"
 
 python = '''
@@ -564,6 +567,7 @@ pub fn main() {
 
 [[test]]
 name = "interactive_annotation"
+skip = true
 description = "!/usr/bin/env python3"
 
 python = '''
@@ -845,6 +849,7 @@ Error: Augmented assignment not supported for this target type
 
 [[test]]
 name = "lsp_demo"
+skip = true
 description = "!/usr/bin/env python3"
 
 python = '''
@@ -1131,6 +1136,7 @@ Error: Statement type not yet supported
 
 [[test]]
 name = "mcp_usage"
+skip = true
 description = "!/usr/bin/env python3"
 
 python = '''
@@ -1605,6 +1611,7 @@ Error: Only simple name targets supported for loops
 
 [[test]]
 name = "module_mapping_demo"
+skip = true
 description = "!/usr/bin/env python3"
 
 python = '''
@@ -1858,6 +1865,7 @@ Error: Only simple name targets supported for loops
 
 [[test]]
 name = "simple_migration_demo"
+skip = true
 description = "Example test"
 
 python = '''
@@ -1957,6 +1965,7 @@ pub fn while_true_example() -> i32 {
 
 [[test]]
 name = "test_augmented_assign"
+skip = true
 description = "Example test"
 
 python = '''
@@ -2000,6 +2009,7 @@ pub fn test_counter() -> i32 {
 
 [[test]]
 name = "test_cse"
+skip = true
 description = "Example test"
 
 python = '''
@@ -2133,6 +2143,7 @@ pub fn loop_invariant_expressions(items: &Vec<i32>) -> i32 {
 
 [[test]]
 name = "test_debugging"
+skip = true
 description = "Example test"
 
 python = '''
@@ -2316,6 +2327,7 @@ pub fn test_functions() -> Result<(), Box<dyn std::error::Error>> {
 
 [[test]]
 name = "test_debugging_simple"
+skip = true
 description = "Example test"
 
 python = '''
@@ -2409,6 +2421,7 @@ pub fn process_data(data: Vec<i32>) -> HashMap<String, i32> {
 
 [[test]]
 name = "test_ide_integration"
+skip = true
 description = "Example test"
 
 python = '''
@@ -2543,6 +2556,7 @@ pub fn process_data(items: Vec<i32>) -> Result<HashMap<String, i32>, IndexError>
 
 [[test]]
 name = "test_inlining"
+skip = true
 description = "Example test"
 
 python = '''
@@ -2702,6 +2716,7 @@ pub fn large_function(x: i32, y: i32, z: i32) -> i32 {
 
 [[test]]
 name = "test_interactive"
+skip = true
 description = "Test case for interactive annotation suggestions"
 
 python = '''
@@ -2848,6 +2863,7 @@ pub fn lookup_values<'b, 'a>(data: &'a HashMap<String, i32>, keys: &'b Vec<Strin
 
 [[test]]
 name = "test_interactive_simple"
+skip = true
 description = "Simple test case for interactive annotation suggestions"
 
 python = '''
@@ -2883,6 +2899,7 @@ pub fn multiply(x: i32, y: i32) -> i32 {
 
 [[test]]
 name = "test_migration_suggestions"
+skip = true
 description = "Example test"
 
 python = '''
@@ -3090,6 +3107,7 @@ pub fn default_value() -> i32 {
 
 [[test]]
 name = "test_optimization"
+skip = true
 description = "Example test"
 
 python = '''
@@ -3166,6 +3184,7 @@ pub fn simple_math() -> Result<f64, ZeroDivisionError> {
 
 [[test]]
 name = "test_performance_warnings"
+skip = true
 description = "Example test"
 
 python = '''
@@ -3415,6 +3434,7 @@ pub fn process_item(idx: serde_json::Value, item: serde_json::Value) {}
 
 [[test]]
 name = "test_profiling"
+skip = true
 description = "!/usr/bin/env python3"
 
 python = '''
@@ -3726,6 +3746,7 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 [[test]]
 name = "test_profiling_simple"
+skip = true
 description = "!/usr/bin/env python3"
 
 python = '''

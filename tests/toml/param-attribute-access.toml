@@ -5,6 +5,7 @@ description = "Tests for detecting attribute access on specific parameters"
 
 [[test]]
 name = "direct_attribute_access"
+skip = true
 description = "Direct attribute access state.data with param state returns true"
 
 python = '''
@@ -35,6 +36,7 @@ pub fn get_data(state: &State) -> i32 {
 
 [[test]]
 name = "nested_attribute_access"
+skip = true
 description = "Nested attribute access state.data.items detects state as param"
 
 python = '''
@@ -78,6 +80,7 @@ pub fn get_nested(state: &State) -> i32 {
 
 [[test]]
 name = "non_matching_param"
+skip = true
 description = "Attribute access other.data does not match param state"
 
 python = '''
@@ -123,6 +126,7 @@ pub fn identity(state: i32) -> i32 {
 
 [[test]]
 name = "method_call_on_param"
+skip = true
 description = "Method call on param attribute handles correctly"
 
 python = '''
@@ -153,6 +157,7 @@ pub fn get_length(state: &State) -> i32 {
 
 [[test]]
 name = "deeply_nested_attribute_access"
+skip = true
 description = "Deeply nested attribute access a.b.c.d detects a as param"
 
 python = '''

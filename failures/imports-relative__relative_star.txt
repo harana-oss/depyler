@@ -1,9 +1,0 @@
-  imports-relative.toml :: relative_star
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− // from . import *
-−     // In Rust: use super::*; (imports all public items)
-−     let result = true;
-+ pub const result: bool = true;
-────────────────────────────────────────────────────────────

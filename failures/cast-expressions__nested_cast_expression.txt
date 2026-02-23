@@ -1,9 +1,0 @@
-  cast-expressions.toml :: nested_cast_expression
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-  pub fn nested_cast(x: f64) -> String {
-−     return (x as i32).to_string();
-+     return ((x) as i32).to_string();
-  }
-────────────────────────────────────────────────────────────

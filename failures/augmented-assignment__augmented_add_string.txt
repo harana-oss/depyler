@@ -1,9 +1,0 @@
-  augmented-assignment.toml :: augmented_add_string
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− let s = "hello".to_string();
-− s += " world";
-− log::info!("{}", s);
-+ 
-────────────────────────────────────────────────────────────

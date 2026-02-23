@@ -1,9 +1,0 @@
-  imports-relative.toml :: relative_from_current
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− // from .sibling import func
-−     // In Rust: use super::sibling::func;
-−     let result = true;
-+ pub const result: bool = true;
-────────────────────────────────────────────────────────────

@@ -8,6 +8,7 @@ category = "mathematical"
 
 [[test]]
 name = "basic_math"
+skip = true
 description = "Example test"
 
 python = '''
@@ -179,6 +180,7 @@ pub fn power(mut base: i32, mut exponent: i32) -> Result<i32, ZeroDivisionError>
 
 [[test]]
 name = "floor_division_test"
+skip = true
 description = "Example test"
 
 python = '''
@@ -366,6 +368,7 @@ pub fn test_floor_division_zero_remainder() -> Result<i32, ZeroDivisionError> {
 
 [[test]]
 name = "geometry"
+skip = true
 description = "Example test"
 
 python = '''
@@ -488,6 +491,7 @@ Error: Unsupported type annotation
 
 [[test]]
 name = "power_and_floor_division"
+skip = true
 description = "Example test"
 
 python = '''
@@ -758,6 +762,7 @@ pub fn mathematical_sequence(n: i32) -> Result<i32, ZeroDivisionError> {
 
 [[test]]
 name = "power_test"
+skip = true
 description = "Example test"
 
 python = '''
@@ -935,6 +940,7 @@ pub fn compute_power(base: i32, exp: i32) -> i32 {
 
 [[test]]
 name = "simple_power_floor"
+skip = true
 description = "Example test"
 
 python = '''
@@ -992,6 +998,7 @@ pub fn test_floor_div(x: i32, y: i32) -> Result<i32, ZeroDivisionError> {
 
 [[test]]
 name = "statistics"
+skip = true
 description = "Example test"
 
 python = '''

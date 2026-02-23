@@ -1,9 +1,0 @@
-  ownership.toml :: no_clone_last_use
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-  pub fn identity(items: Vec<i32>) -> Vec<i32> {
-      return items;
-− };
-+ }
-────────────────────────────────────────────────────────────

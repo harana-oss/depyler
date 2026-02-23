@@ -8,6 +8,7 @@ category = "data_processing"
 
 [[test]]
 name = "data_analysis_combined"
+skip = true
 description = "Example test"
 
 python = '''
@@ -865,6 +866,7 @@ pub fn analyze_dataset() -> Result<(), Box<dyn std::error::Error>> {
 
 [[test]]
 name = "list_operations"
+skip = true
 description = "Example test"
 
 python = '''

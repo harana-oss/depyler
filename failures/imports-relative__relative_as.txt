@@ -1,9 +1,0 @@
-  imports-relative.toml :: relative_as
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− // from . import mod as m
-−     // In Rust: use super::mod as m;
-−     let result = true;
-+ pub const result: bool = true;
-────────────────────────────────────────────────────────────

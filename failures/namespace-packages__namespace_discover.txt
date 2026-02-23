@@ -1,8 +1,0 @@
-  namespace-packages.toml :: namespace_discover
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− // Find all submodules in namespace
-−     let result = true; // Placeholder
-+ pub const result: bool = true;
-────────────────────────────────────────────────────────────

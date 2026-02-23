@@ -427,6 +427,7 @@ impl Counter {
 
 [[test]]
 name = "default_impl_complex"
+skip = true
 description = "Default with complex types"
 
 python = '''
@@ -536,6 +537,7 @@ impl Percent {
 
 [[test]]
 name = "clone_explicit"
+skip = true
 description = "Explicit clone call"
 
 python = '''

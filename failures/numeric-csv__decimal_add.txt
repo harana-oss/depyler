@@ -1,9 +1,0 @@
-  numeric-csv.toml :: decimal_add
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-  pub fn add_decimals(a: &Decimal, b: &Decimal) -> Decimal {
-      return a + b;
-− };
-+ }
-────────────────────────────────────────────────────────────

@@ -1,7 +1,0 @@
-  string-methods-all.toml :: str_removesuffix
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− pub const result: String = "hello".strip_suffix("lo").unwrap_or("hello").to_string();
-+ 
-────────────────────────────────────────────────────────────

@@ -1,8 +1,0 @@
-  match-guards.toml :: guard_mapping
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− // case {'key': v} if v is not None: ...
-−     let result = true; // Placeholder
-+ pub const result: bool = true;
-────────────────────────────────────────────────────────────

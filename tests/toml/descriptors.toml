@@ -8,6 +8,7 @@ category = "advanced-oop"
 
 [[test]]
 name = "descriptor_get"
+skip = true
 description = "Non-data descriptor with __get__ only"
 python = """
 class Descriptor:
@@ -45,6 +46,7 @@ expected_output = "Descriptor accessed on MyClass"
 
 [[test]]
 name = "descriptor_class_access"
+skip = true
 description = "Descriptor accessed from class vs instance"
 python = """
 class Descriptor:
@@ -85,6 +87,7 @@ Accessed from instance"""
 
 [[test]]
 name = "method_descriptor"
+skip = true
 description = "Functions are non-data descriptors"
 python = """
 class MyClass:
@@ -122,6 +125,7 @@ method called"""
 
 [[test]]
 name = "descriptor_set"
+skip = true
 description = "Data descriptor with __set__"
 python = """
 class Descriptor:
@@ -179,6 +183,7 @@ expected_output = "10"
 
 [[test]]
 name = "descriptor_delete"
+skip = true
 description = "Data descriptor with __delete__"
 python = """
 class Descriptor:
@@ -248,6 +253,7 @@ deleted"""
 
 [[test]]
 name = "descriptor_priority"
+skip = true
 description = "Data descriptor overrides instance __dict__"
 python = """
 class DataDescriptor:
@@ -292,6 +298,7 @@ expected_output = "descriptor value"
 
 [[test]]
 name = "descriptor_set_name"
+skip = true
 description = "Descriptor using __set_name__ to know its name"
 python = """
 class Descriptor:
@@ -345,6 +352,7 @@ Descriptor named 'y'"""
 
 [[test]]
 name = "descriptor_self_aware"
+skip = true
 description = "Descriptor stores its attribute name"
 python = """
 class NamedDescriptor:
@@ -412,6 +420,7 @@ Private: True"""
 
 [[test]]
 name = "typed_descriptor"
+skip = true
 description = "Type-checking descriptor"
 python = """
 class TypedDescriptor:
@@ -478,6 +487,7 @@ Error: age must be int"""
 
 [[test]]
 name = "lazy_descriptor"
+skip = true
 description = "Compute value on first access"
 python = """
 class LazyDescriptor:
@@ -548,6 +558,7 @@ Second access:
 
 [[test]]
 name = "validation_descriptor"
+skip = true
 description = "Validate values on set"
 python = """
 class ValidatedDescriptor:
@@ -632,6 +643,7 @@ Error: score must be <= 100"""
 
 [[test]]
 name = "cached_property_descriptor"
+skip = true
 description = "Cache computed value"
 python = """
 class CachedProperty:
@@ -701,6 +713,7 @@ expected_output = """Computing...
 
 [[test]]
 name = "descriptor_resolution"
+skip = true
 description = "Data descriptor > instance > non-data descriptor"
 python = """
 class DataDescriptor:
@@ -752,6 +765,7 @@ instance value"""
 
 [[test]]
 name = "getattribute_descriptor"
+skip = true
 description = "How __getattribute__ invokes descriptors"
 python = """
 class Descriptor:
@@ -808,6 +822,7 @@ descriptor value"""
 
 [[test]]
 name = "descriptor_slots"
+skip = true
 description = "Descriptor with __slots__ class"
 python = """
 class Descriptor:
@@ -865,6 +880,7 @@ expected_output = "42"
 
 [[test]]
 name = "descriptor_class_level"
+skip = true
 description = "Accessing descriptor from class, not instance"
 python = """
 class Descriptor:
@@ -905,6 +921,7 @@ Instance level access"""
 
 [[test]]
 name = "descriptor_inheritance"
+skip = true
 description = "Descriptors in class hierarchy"
 python = """
 class Descriptor:

@@ -1,9 +1,0 @@
-  imports-dynamic.toml :: dynamic_optional
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− // try: import x except: fallback
-−     // Use conditional compilation: #[cfg(feature = "optional")]
-−     let result = true;
-+ 
-────────────────────────────────────────────────────────────

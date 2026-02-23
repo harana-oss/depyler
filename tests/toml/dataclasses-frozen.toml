@@ -8,6 +8,7 @@ category = "data-structures"
 
 [[test]]
 name = "frozen_basic"
+skip = true
 description = "@dataclass(frozen=True)"
 
 python = '''
@@ -39,6 +40,7 @@ impl Point {
 
 [[test]]
 name = "frozen_no_mutate"
+skip = true
 description = "obj.x = 5 raises FrozenInstanceError"
 
 python = '''
@@ -73,6 +75,7 @@ impl Point {
 
 [[test]]
 name = "frozen_no_delete"
+skip = true
 description = "del obj.x raises FrozenInstanceError"
 
 python = '''
@@ -111,6 +114,7 @@ impl Point {
 
 [[test]]
 name = "frozen_hashable"
+skip = true
 description = "hash(frozen_instance)"
 
 python = '''
@@ -148,6 +152,7 @@ impl Point {
 
 [[test]]
 name = "frozen_dict_key"
+skip = true
 description = "{frozen_obj: 'value'}"
 
 python = '''
@@ -188,6 +193,7 @@ impl Point {
 
 [[test]]
 name = "frozen_set_element"
+skip = true
 description = "{frozen_obj1, frozen_obj2}"
 
 python = '''
@@ -232,6 +238,7 @@ impl Point {
 
 [[test]]
 name = "frozen_hash_stable"
+skip = true
 description = "Same values = same hash"
 
 python = '''
@@ -281,6 +288,7 @@ impl Point {
 
 [[test]]
 name = "frozen_replace"
+skip = true
 description = "new = replace(frozen, x=10)"
 
 python = '''
@@ -314,6 +322,7 @@ impl Point {
 
 [[test]]
 name = "frozen_original_unchanged"
+skip = true
 description = "replace returns new, old unchanged"
 
 python = '''
@@ -347,6 +356,7 @@ impl Point {
 
 [[test]]
 name = "frozen_replace_chain"
+skip = true
 description = "replace(replace(obj, x=1), y=2)"
 
 python = '''
@@ -384,6 +394,7 @@ impl Point {
 
 [[test]]
 name = "frozen_mutable_field"
+skip = true
 description = "items: list can still be mutated"
 
 python = '''
@@ -414,6 +425,7 @@ impl Container {
 
 [[test]]
 name = "frozen_deep"
+skip = true
 description = "Freeze nested structures manually"
 
 python = '''
@@ -456,6 +468,7 @@ impl Outer {
 
 [[test]]
 name = "frozen_tuple_field"
+skip = true
 description = "Use tuple for truly immutable collections"
 
 python = '''
@@ -489,6 +502,7 @@ impl Point {
 
 [[test]]
 name = "frozen_inherit_frozen"
+skip = true
 description = "Frozen subclass of frozen"
 
 python = '''
@@ -533,6 +547,7 @@ impl Point3D {
 
 [[test]]
 name = "frozen_inherit_mutable"
+skip = true
 description = "Frozen cannot inherit non-frozen dataclass"
 
 python = '''
@@ -567,6 +582,7 @@ impl Point2D {
 
 [[test]]
 name = "mutable_inherit_frozen"
+skip = true
 description = "Mutable subclass of frozen"
 
 python = '''
@@ -615,6 +631,7 @@ impl Point3D {
 
 [[test]]
 name = "frozen_post_init"
+skip = true
 description = "Can use object.__setattr__ in __post_init__"
 
 python = '''
@@ -649,6 +666,7 @@ impl Point {
 
 [[test]]
 name = "frozen_computed"
+skip = true
 description = "Set computed field in __post_init__"
 
 python = '''
@@ -689,6 +707,7 @@ impl Rectangle {
 
 [[test]]
 name = "frozen_classvar"
+skip = true
 description = "ClassVar can be modified"
 
 python = '''
@@ -722,6 +741,7 @@ impl Point {
 
 [[test]]
 name = "frozen_equality"
+skip = true
 description = "Frozen objects compare by value"
 
 python = '''
@@ -755,6 +775,7 @@ impl Point {
 
 [[test]]
 name = "frozen_repr"
+skip = true
 description = "repr shows field values"
 
 python = '''

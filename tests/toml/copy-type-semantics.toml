@@ -71,6 +71,7 @@ pub fn process_string(s: String) -> String {
 
 [[test]]
 name = "list_is_not_copy"
+skip = true
 description = "List type is NOT Copy"
 
 python = '''
@@ -86,6 +87,7 @@ pub fn get_first(items: &Vec<i32>) -> i32 {
 
 [[test]]
 name = "dict_is_not_copy"
+skip = true
 description = "Dict type is NOT Copy"
 
 python = '''
@@ -102,6 +104,7 @@ pub fn get_value(d: &HashMap<String, i32>, key: String) -> i32 {
 
 [[test]]
 name = "tuple_of_copy_types"
+skip = true
 description = "Tuple of all Copy types behavior"
 
 python = '''

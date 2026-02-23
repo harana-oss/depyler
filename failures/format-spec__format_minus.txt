@@ -1,9 +1,0 @@
-  format-spec.toml :: format_minus
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-  pub fn format_minus_sign() -> String {
-−     return format!("{}", -42);
-+     return format!("{:-}", -42);
-  }
-────────────────────────────────────────────────────────────

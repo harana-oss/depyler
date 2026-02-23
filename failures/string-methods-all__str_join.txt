@@ -1,7 +1,0 @@
-  string-methods-all.toml :: str_join
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− pub const result: String = vec!["a".to_string(), "b".to_string(), "c".to_string()].join(",");
-+ 
-────────────────────────────────────────────────────────────

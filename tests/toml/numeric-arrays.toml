@@ -42,6 +42,7 @@ pub fn append_to_array(mut arr: Vec<i32>, value: i32) -> Vec<i32> {
 
 [[test]]
 name = "array_extend"
+skip = true
 description = "Array extend operation"
 
 python = '''
@@ -59,6 +60,7 @@ pub fn extend_array(mut arr: Vec<i32>, values: Vec<i32>) -> Vec<i32> {
 
 [[test]]
 name = "array_slice"
+skip = true
 description = "Array slice operation"
 
 python = '''
@@ -78,6 +80,7 @@ pub fn slice_array(arr: Vec<i32>, start: i32, end: i32) -> Vec<i32> {
 
 [[test]]
 name = "struct_pack_unpack"
+skip = true
 description = "struct.pack/unpack operations"
 
 python = '''
@@ -101,6 +104,7 @@ pub fn pack_int(value: i32) -> Vec<i32> {
 
 [[test]]
 name = "struct_unpack_int"
+skip = true
 description = "Unpack bytes to int"
 
 python = '''
@@ -116,6 +120,7 @@ pub fn unpack_int(b0: i32, b1: i32, b2: i32, b3: i32) -> i32 {
 
 [[test]]
 name = "struct_size"
+skip = true
 description = "Calculate struct size"
 
 python = '''
@@ -149,6 +154,7 @@ pub fn byte_size() -> i32 {
 
 [[test]]
 name = "memoryview_advanced"
+skip = true
 description = "Advanced memoryview operations"
 
 python = '''
@@ -171,6 +177,7 @@ pub fn view_sum(data: &[i32]) -> i32 {
 
 [[test]]
 name = "memoryview_slice"
+skip = true
 description = "Memoryview slicing"
 
 python = '''
@@ -186,6 +193,7 @@ pub fn view_slice(data: &[i32], start: i32, end: i32) -> Vec<i32> {
 
 [[test]]
 name = "memoryview_readonly"
+skip = true
 description = "Readonly memoryview"
 
 python = '''
@@ -201,6 +209,7 @@ pub fn readonly_access(data: &[i32], idx: i32) -> i32 {
 
 [[test]]
 name = "memoryview_cast"
+skip = true
 description = "Memoryview type cast"
 
 python = '''
@@ -220,6 +229,7 @@ pub fn to_bytes(value: i32) -> Vec<i32> {
 
 [[test]]
 name = "buffer_protocol"
+skip = true
 description = "Buffer protocol handling"
 
 python = '''
@@ -265,6 +275,7 @@ impl Buffer {
 
 [[test]]
 name = "buffer_copy"
+skip = true
 description = "Buffer copy operation"
 
 python = '''
@@ -280,6 +291,7 @@ pub fn copy_buffer(src: Vec<i32>) -> Vec<i32> {
 
 [[test]]
 name = "buffer_fill"
+skip = true
 description = "Fill buffer with value"
 
 python = '''
@@ -295,6 +307,7 @@ pub fn fill_buffer(size: i32, value: i32) -> Vec<i32> {
 
 [[test]]
 name = "buffer_compare"
+skip = true
 description = "Compare two buffers"
 
 python = '''

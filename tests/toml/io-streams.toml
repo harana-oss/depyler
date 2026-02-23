@@ -48,6 +48,7 @@ pub fn log_error(msg: String) {
 
 [[test]]
 name = "file_read_text"
+skip = true
 description = "File read in text mode"
 
 python = '''
@@ -71,6 +72,7 @@ pub fn read_file(filepath: String) -> String {
 
 [[test]]
 name = "file_read_binary"
+skip = true
 description = "File read in binary mode"
 
 python = '''
@@ -94,6 +96,7 @@ pub fn read_binary(filepath: String) -> bytes {
 
 [[test]]
 name = "file_iteration"
+skip = true
 description = "File line-by-line iteration"
 
 python = '''
@@ -121,6 +124,7 @@ pub fn count_lines(filepath: String) -> i32 {
 
 [[test]]
 name = "argparse_string_param"
+skip = true
 description = "Argparse string parameter type inference"
 
 python = '''

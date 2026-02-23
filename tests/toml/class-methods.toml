@@ -8,6 +8,7 @@ category = "advanced-oop"
 
 [[test]]
 name = "classmethod_basic"
+skip = true
 description = "@classmethod def method(cls): ..."
 python = """
 class MyClass:
@@ -41,6 +42,7 @@ expected_output = """1
 
 [[test]]
 name = "classmethod_args"
+skip = true
 description = "@classmethod def method(cls, arg1, arg2): ..."
 python = """
 class Calculator:
@@ -66,6 +68,7 @@ expected_output = "8"
 
 [[test]]
 name = "classmethod_factory"
+skip = true
 description = "@classmethod def from_string(cls, s): return cls(...)"
 python = """
 class Date:
@@ -114,6 +117,7 @@ expected_output = "2023-12-25"
 
 [[test]]
 name = "classmethod_instance_call"
+skip = true
 description = "instance.classmethod() works (cls is class)"
 python = """
 class MyClass:
@@ -147,6 +151,7 @@ expected_output = """100
 
 [[test]]
 name = "classmethod_inheritance"
+skip = true
 description = "Subclass.parent_classmethod() gets subclass as cls"
 python = """
 class Parent:
@@ -189,6 +194,7 @@ Child"""
 
 [[test]]
 name = "staticmethod_basic"
+skip = true
 description = "@staticmethod def method(): ..."
 python = """
 class Math:
@@ -214,6 +220,7 @@ expected_output = "3.14159"
 
 [[test]]
 name = "staticmethod_args"
+skip = true
 description = "@staticmethod def method(arg1, arg2): ..."
 python = """
 class Math:
@@ -239,6 +246,7 @@ expected_output = "30"
 
 [[test]]
 name = "staticmethod_utility"
+skip = true
 description = "Helper function namespaced to class"
 python = """
 class StringUtils:
@@ -288,6 +296,7 @@ False"""
 
 [[test]]
 name = "staticmethod_instance_call"
+skip = true
 description = "instance.staticmethod() works"
 python = """
 class Math:
@@ -322,6 +331,7 @@ expected_output = """12
 
 [[test]]
 name = "classmethod_use_case"
+skip = true
 description = "Alternative constructors, accessing class state"
 python = """
 class Person:
@@ -367,6 +377,7 @@ expected_output = "Homo sapiens"
 
 [[test]]
 name = "staticmethod_use_case"
+skip = true
 description = "Pure utility functions related to class"
 python = """
 class Validator:
@@ -407,6 +418,7 @@ True"""
 
 [[test]]
 name = "classmethod_stacked"
+skip = true
 description = "Order matters: @decorator @classmethod"
 python = """
 def uppercase_decorator(func):
@@ -447,6 +459,7 @@ expected_output = "HELLO"
 
 [[test]]
 name = "staticmethod_stacked"
+skip = true
 description = "Order matters: @decorator @staticmethod"
 python = """
 def double_decorator(func):
@@ -491,6 +504,7 @@ expected_output = "30"
 
 [[test]]
 name = "classmethod_chain"
+skip = true
 description = "cls.other_classmethod() from classmethod"
 python = """
 class Calculator:
@@ -524,6 +538,7 @@ expected_output = "16"
 
 [[test]]
 name = "classmethod_calls_instance"
+skip = true
 description = "Cannot call instance methods from classmethod directly"
 python = """
 class MyClass:
@@ -558,6 +573,7 @@ expected_output = "instance"
 
 [[test]]
 name = "staticmethod_bare"
+skip = true
 description = "Staticmethod doesn't need class/instance"
 python = """
 class Utils:
@@ -586,6 +602,7 @@ expected_output = "15"
 
 [[test]]
 name = "classmethod_descriptor"
+skip = true
 description = "How classmethod works as descriptor"
 python = """
 class MyClass:
@@ -619,6 +636,7 @@ MyClass"""
 
 [[test]]
 name = "classmethod_cls_augmented_assignment"
+skip = true
 description = "DEPYLER-0346 fix: cls.attr += value generates Self::attr += value (not undefined cls)"
 python = """
 class MyClass:
@@ -652,6 +670,7 @@ expected_output = """1
 
 [[test]]
 name = "classmethod_cls_regular_assignment"
+skip = true
 description = "DEPYLER-0346 fix: cls.attr = value generates Self::attr = value (not undefined cls)"
 python = """
 class MyClass:

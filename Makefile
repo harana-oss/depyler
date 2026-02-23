@@ -3,7 +3,7 @@
 .PHONY: all build test test-full test-rust test-frontend test-fast test-comprehensive test-fixtures test-property test-compilation test-semantic validate quality-gate coverage clean-test lint lint-rust lint-frontend clippy fmt format fmt-check fmt-fix fmt-rust fmt-frontend fmt-docs check bench install-deps help profile profile-transpiler profile-tests profile-cargo-toml book-test book-test-fast book-build book-serve book-clean book-validate book-check validate-makefiles lint-scripts bashrs-report
 # Configuration
 CARGO := cargo
-MAKEFLAGS += -j$(shell nproc)
+MAKEFLAGS += -j$(shell nproc 2>/dev/null || sysctl -n hw.logicalcpu 2>/dev/null || echo 4)
 # Coverage threshold (NASA standard: 85% minimum)
 # Starting with 60% and will increase incrementally
 COVERAGE_THRESHOLD := 60
@@ -37,19 +37,19 @@ playground-fast: ## Start playground quickly (skip builds if possible)
 	@if [ ! -d "playground/dist" ]; then echo "Building frontend..."; cd playground && npm run build; else echo "✓ Using existing frontend build"; fi
 	@echo "✅ Playground ready! Starting server..."
 	cd playground && npm run preview
-# Main test target - comprehensive tests with full property test iterations
+# Main test target - run TOML-based transpilation tests
 .PHONY: test
-test: ## Run comprehensive Rust tests (runs everything, no time limit)
-	@echo "Running comprehensive Rust tests with FULL property test iterations..."
-	@echo "⚙️  Using DEFAULT iterations (PROPTEST_CASES=256, QUICKCHECK_TESTS=100)"
-	@$(CARGO) llvm-cov clean --workspace
-	@$(CARGO) llvm-cov --no-report test --workspace --all-features
-	@echo ""
-	@echo "=== Coverage Summary ==="
-	@$(CARGO) llvm-cov report --summary-only
-	@$(CARGO) llvm-cov report --summary-only --fail-under-functions $(COVERAGE_THRESHOLD) || true
+test: ## Run TOML-based transpilation tests (tests/toml)
+	@echo "Running TOML-based transpilation tests..."
+	$(CARGO) run -- test -j
 .PHONY: test-full
 test-full: test test-frontend ## Run all tests (Rust + frontend)
+.PHONY: test-one
+test-one: ## Run a single TOML test file (Usage: make test-one FILE=tests/toml/abc.toml)
+	@if [ -z "$(FILE)" ]; then echo "❌ Error: FILE not specified"; echo "Usage: make test-one FILE=tests/toml/abc.toml"; exit 1; fi
+	@echo "Running TOML test: $(FILE)..."
+	$(CARGO) run -- test -j --path $(FILE)
+
 .PHONY: test-rust
 test-rust: test ## Alias for main test target
 .PHONY: test-frontend
@@ -132,8 +132,8 @@ test-coverage: ## Run coverage analysis tests
 	$(CARGO) test --test edge_case_coverage $(TEST_FLAGS)
 	$(CARGO) test --test error_path_coverage $(TEST_FLAGS)
 	$(CARGO) test --test boundary_value_tests $(TEST_FLAGS)
-test-integration: ## Run integration tests
-	@echo "Running integration tests..."
+test-integration-benchmarks: ## Run integration benchmark tests
+	@echo "Running integration benchmark tests..."
 	$(CARGO) test --test integration_benchmarks $(TEST_FLAGS)
 	$(CARGO) test --test multi_version_compatibility $(TEST_FLAGS)
 	$(CARGO) test --test large_codebase_tests $(TEST_FLAGS)

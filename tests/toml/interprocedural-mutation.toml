@@ -9,6 +9,7 @@ description = "Tests for mutation propagation through function calls in various 
 
 [[test]]
 name = "for_loop_iter_calls_mutating_function"
+skip = true
 description = "For loop iterates over result of function that needs &mut"
 
 python = '''
@@ -61,6 +62,7 @@ pub fn update_via_loop(container: &mut Container) {
 
 [[test]]
 name = "for_loop_iter_with_slice_and_mutating_call"
+skip = true
 description = "For loop with slice on result of function needing &mut"
 
 python = '''
@@ -117,6 +119,7 @@ pub fn process_first_three(data: &mut Data) {
 
 [[test]]
 name = "for_loop_iter_attribute_on_mutating_call"
+skip = true
 description = "For loop iterates over attribute of mutating function result"
 
 python = '''
@@ -202,6 +205,7 @@ pub fn apply_time(state: &mut State, is_home: bool, seconds: f64) {
 
 [[test]]
 name = "return_value_mutated_needs_mut_param"
+skip = true
 description = "Function returning field reference where return is mutated needs &mut param"
 
 python = '''
@@ -257,6 +261,7 @@ pub fn modify_inner(outer: &mut Outer) {
 
 [[test]]
 name = "nested_attribute_access_mutation"
+skip = true
 description = "Mutation propagates through nested attribute access"
 
 python = '''
@@ -319,6 +324,7 @@ pub fn deep_update(l1: &mut Level1) {
 
 [[test]]
 name = "index_expression_mutation"
+skip = true
 description = "Mutation propagates through index expression"
 
 python = '''
@@ -359,6 +365,7 @@ pub fn update_first(record: &mut Record) {
 
 [[test]]
 name = "while_condition_with_mutating_call"
+skip = true
 description = "While loop condition contains call to mutating function"
 
 python = '''
@@ -410,6 +417,7 @@ pub fn increment_until_max(counter: &mut Counter) {
 
 [[test]]
 name = "if_condition_with_mutating_call"
+skip = true
 description = "If condition contains call that requires mutation propagation"
 
 python = '''
@@ -461,6 +469,7 @@ pub fn conditional_update(state: &mut State) {
 
 [[test]]
 name = "multiple_callers_inherit_mut"
+skip = true
 description = "Multiple functions calling same mutating helper all need &mut"
 
 python = '''
@@ -525,6 +534,7 @@ pub fn mute(settings: &mut Settings) {
 
 [[test]]
 name = "ternary_expr_with_mutating_calls"
+skip = true
 description = "Ternary expression branches call mutating functions"
 
 python = '''

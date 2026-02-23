@@ -1,9 +1,0 @@
-  lifetimes.toml :: string_parameter_generates_lifetime
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-  pub fn process_string(s: String) -> i32 {
-−     return s.len() as i32;
-+     return s.len() as i32 as i32;
-  }
-────────────────────────────────────────────────────────────

@@ -1,8 +1,0 @@
-  namespace-packages.toml :: namespace_plugin
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− // Namespace for plugins
-−     let result = true; // Placeholder
-+ pub const result: bool = true;
-────────────────────────────────────────────────────────────

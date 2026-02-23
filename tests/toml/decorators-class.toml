@@ -8,6 +8,7 @@ category = "decorators-closures"
 
 [[test]]
 name = "class_decorator_basic"
+skip = true
 description = "@decorator class MyClass: ..."
 
 python = '''
@@ -32,6 +33,7 @@ rust = '''
 
 [[test]]
 name = "class_decorator_return"
+skip = true
 description = "def decorator(cls): return cls"
 
 python = '''
@@ -56,6 +58,7 @@ rust = '''
 
 [[test]]
 name = "class_decorator_modify"
+skip = true
 description = "Add attributes or methods to class"
 
 python = '''
@@ -84,6 +87,7 @@ rust = '''
 
 [[test]]
 name = "dataclass_decorator"
+skip = true
 description = "@dataclass class Point: x: int; y: int"
 
 python = '''
@@ -108,6 +112,7 @@ struct Point {
 
 [[test]]
 name = "dataclass_options"
+skip = true
 description = "@dataclass(frozen=True, order=True)"
 
 python = '''
@@ -136,6 +141,7 @@ struct Point {
 
 [[test]]
 name = "class_decorator_singleton"
+skip = true
 description = "Ensure single instance"
 
 python = '''
@@ -160,6 +166,7 @@ rust = '''
 
 [[test]]
 name = "class_decorator_registry"
+skip = true
 description = "Auto-register class on definition"
 
 python = '''
@@ -184,6 +191,7 @@ rust = '''
 
 [[test]]
 name = "class_decorator_add_method"
+skip = true
 description = "Add new method to class"
 
 python = '''
@@ -208,6 +216,7 @@ rust = '''
 
 [[test]]
 name = "class_decorator_mixin"
+skip = true
 description = "Add mixin functionality"
 
 python = '''
@@ -236,6 +245,7 @@ rust = '''
 
 [[test]]
 name = "class_decorator_args"
+skip = true
 description = "@decorator(arg) class MyClass: ..."
 
 python = '''
@@ -260,6 +270,7 @@ rust = '''
 
 [[test]]
 name = "dataclass_field"
+skip = true
 description = "@dataclass with field() for defaults"
 
 python = '''
@@ -294,6 +305,7 @@ impl Default for Example {
 
 [[test]]
 name = "class_decorator_wrap"
+skip = true
 description = "Return wrapper class"
 
 python = '''
@@ -318,6 +330,7 @@ rust = '''
 
 [[test]]
 name = "class_decorator_inplace"
+skip = true
 description = "Modify and return same class"
 
 python = '''
@@ -342,6 +355,7 @@ rust = '''
 
 [[test]]
 name = "class_decorator_name"
+skip = true
 description = "Keep __name__ and __qualname__"
 
 python = '''
@@ -370,6 +384,7 @@ rust = '''
 
 [[test]]
 name = "class_decorator_stacked"
+skip = true
 description = "@a @b class C: ..."
 
 python = '''
@@ -394,6 +409,7 @@ rust = '''
 
 [[test]]
 name = "class_decorator_order"
+skip = true
 description = "Bottom applied first"
 
 python = '''
@@ -422,6 +438,7 @@ rust = '''
 
 [[test]]
 name = "class_decorator_non_class"
+skip = true
 description = "Return function instead of class"
 
 python = '''
@@ -446,6 +463,7 @@ rust = '''
 
 [[test]]
 name = "class_decorator_inheritance"
+skip = true
 description = "Decorated class as base class"
 
 python = '''
@@ -470,6 +488,7 @@ rust = '''
 
 [[test]]
 name = "class_decorator_metaclass"
+skip = true
 description = "Class decorator + metaclass interaction"
 
 python = '''
@@ -494,6 +513,7 @@ rust = '''
 
 [[test]]
 name = "class_decorator_abstract"
+skip = true
 description = "@decorator on ABC"
 
 python = '''

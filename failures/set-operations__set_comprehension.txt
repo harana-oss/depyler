@@ -1,9 +1,0 @@
-  set-operations.toml :: set_comprehension
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− pub const result: HashSet<i32> = (0..5).map(|x| x * 2).collect::<HashSet<_>>();
-+ pub const result: serde_json::Value = (0..5).map(|x| x * 2).collect::<HashSet<_>>();
-  use serde_json;
-  use std::collections::HashSet;
-────────────────────────────────────────────────────────────

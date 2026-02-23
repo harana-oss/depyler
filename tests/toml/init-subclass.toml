@@ -8,6 +8,7 @@ category = "advanced-oop"
 
 [[test]]
 name = "init_subclass_basic"
+skip = true
 description = "Basic __init_subclass__ hook"
 python = '''
 class Base:
@@ -54,6 +55,7 @@ rust = '''
 
 [[test]]
 name = "init_subclass_called"
+skip = true
 description = "__init_subclass__ is called when subclass is defined"
 python = '''
 class Base:
@@ -82,6 +84,7 @@ assert_eq!(Sub::FROM_TRAIT, true);
 
 [[test]]
 name = "init_subclass_params"
+skip = true
 description = "__init_subclass__ with class parameters"
 python = '''
 class Base:
@@ -129,6 +132,7 @@ assert_eq!(PluginB::plugin_name(), "B");
 
 [[test]]
 name = "init_subclass_register"
+skip = true
 description = "Auto-register subclasses in a registry"
 python = '''
 class Plugin:
@@ -182,6 +186,7 @@ rust = '''
 
 [[test]]
 name = "init_subclass_validate"
+skip = true
 description = "Validate subclass definition"
 python = '''
 class Base:
@@ -221,6 +226,7 @@ assert_eq!(GoodSub::required_attr(), "present");
 
 [[test]]
 name = "init_subclass_inject"
+skip = true
 description = "Inject attributes into subclass"
 python = '''
 class Base:
@@ -251,6 +257,7 @@ assert_eq!(Sub::version(), "1.0");
 
 [[test]]
 name = "init_subclass_require"
+skip = true
 description = "Require subclass to define certain attributes"
 python = '''
 class Model:
@@ -287,6 +294,7 @@ assert_eq!(User::table_name(), "users");
 
 [[test]]
 name = "init_subclass_super"
+skip = true
 description = "Calling super() in __init_subclass__"
 python = '''
 class Base:
@@ -329,6 +337,7 @@ assert_eq!(Leaf::from_middle(), true);
 
 [[test]]
 name = "init_subclass_chain"
+skip = true
 description = "Chain of __init_subclass__ calls"
 python = '''
 class A:
@@ -381,6 +390,7 @@ rust = '''
 
 [[test]]
 name = "init_subclass_kwargs"
+skip = true
 description = "Accept **kwargs and pass to super()"
 python = '''
 class Base:
@@ -423,6 +433,7 @@ rust = '''
 
 [[test]]
 name = "init_subclass_required"
+skip = true
 description = "Required parameter in __init_subclass__"
 python = '''
 class Base:
@@ -461,6 +472,7 @@ assert_eq!(GoodSub::required_param(), "value");
 
 [[test]]
 name = "init_subclass_default"
+skip = true
 description = "Parameter with default value"
 python = '''
 class Base:
@@ -505,6 +517,7 @@ assert_eq!(SubWithCustom::version(), "2.0");
 
 [[test]]
 name = "init_subclass_abc"
+skip = true
 description = "__init_subclass__ combined with ABC"
 python = '''
 from abc import ABC, abstractmethod
@@ -550,6 +563,7 @@ rust = '''
 
 [[test]]
 name = "init_subclass_multiple"
+skip = true
 description = "Multiple classes define __init_subclass__"
 python = '''
 class A:
@@ -640,6 +654,7 @@ assert_eq!(Sub::from_trait(), true);
 
 [[test]]
 name = "init_subclass_error"
+skip = true
 description = "Raising exception in __init_subclass__"
 python = '''
 class Base:

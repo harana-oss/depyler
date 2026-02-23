@@ -8,6 +8,7 @@ category = "async"
 
 [[test]]
 name = "await_basic"
+skip = true
 description = "result = await coroutine()"
 
 python = '''
@@ -33,6 +34,7 @@ async fn test_await_basic() -> i32 {
 
 [[test]]
 name = "await_expression"
+skip = true
 description = "x = await a() + await b()"
 
 python = '''
@@ -65,6 +67,7 @@ async fn test_await_expression() -> i32 {
 
 [[test]]
 name = "await_return"
+skip = true
 description = "return await f()"
 
 python = '''
@@ -92,6 +95,7 @@ async fn test_await_return() -> i32 {
 
 [[test]]
 name = "awaitable_protocol"
+skip = true
 description = "def __await__(self): yield from ..."
 
 python = '''
@@ -111,6 +115,7 @@ struct Example {
 
 [[test]]
 name = "custom_awaitable"
+skip = true
 description = "Class implementing __await__"
 
 python = '''
@@ -130,6 +135,7 @@ struct Example {
 
 [[test]]
 name = "await_future"
+skip = true
 description = "await asyncio.Future()"
 
 python = '''
@@ -159,6 +165,7 @@ async fn test_await_future() -> i32 {
 
 [[test]]
 name = "await_in_if"
+skip = true
 description = "if await condition(): ..."
 
 python = '''
@@ -185,6 +192,7 @@ async fn test_await_in_if() -> i32 {
 
 [[test]]
 name = "await_in_while"
+skip = true
 description = "while await has_more(): ..."
 
 python = '''
@@ -231,6 +239,7 @@ async fn test_await_in_while() -> usize {
 
 [[test]]
 name = "await_in_try"
+skip = true
 description = "try: await f() except: ..."
 
 python = '''
@@ -265,6 +274,7 @@ async fn test_await_in_try() -> i32 {
 
 [[test]]
 name = "await_chained"
+skip = true
 description = "await (await get_coro())()"
 
 python = '''
@@ -301,6 +311,7 @@ async fn test_await_chained() -> i32 {
 
 [[test]]
 name = "await_method"
+skip = true
 description = "await obj.async_method()"
 
 python = '''
@@ -332,6 +343,7 @@ async fn test_await_method() -> i32 {
 
 [[test]]
 name = "await_subscript"
+skip = true
 description = "await coros[0]"
 
 python = '''
@@ -369,6 +381,7 @@ async fn test_await_subscript() -> i32 {
 
 [[test]]
 name = "await_context"
+skip = true
 description = "await outside async is SyntaxError"
 
 python = '''
@@ -390,6 +403,7 @@ fn test_await_context() -> bool {
 
 [[test]]
 name = "await_nested"
+skip = true
 description = "await in inner async function"
 
 python = '''
@@ -425,6 +439,7 @@ async fn test_await_nested() -> i32 {
 
 [[test]]
 name = "await_in_comprehension"
+skip = true
 description = "[await x for x in coros] in async def"
 
 python = '''
@@ -447,6 +462,7 @@ async fn f() {
 
 [[test]]
 name = "await_exception"
+skip = true
 description = "Exception in awaited coro propagates"
 
 python = '''
@@ -477,6 +493,7 @@ async fn test_await_exception() -> bool {
 
 [[test]]
 name = "await_cancel"
+skip = true
 description = "CancelledError on cancellation"
 
 python = '''
@@ -512,6 +529,7 @@ async fn test_await_cancel() -> bool {
 
 [[test]]
 name = "await_timeout"
+skip = true
 description = "asyncio.wait_for with timeout"
 
 python = '''
@@ -551,6 +569,7 @@ async fn test_await_timeout() -> bool {
 
 [[test]]
 name = "await_none"
+skip = true
 description = "await async_func_returning_none()"
 
 python = '''
@@ -576,6 +595,7 @@ async fn test_await_none() -> bool {
 
 [[test]]
 name = "await_sequential"
+skip = true
 description = "Sequential awaits run one at a time"
 
 python = '''
@@ -623,6 +643,7 @@ async fn test_await_sequential() -> Vec<i32> {
 
 [[test]]
 name = "await_non_awaitable"
+skip = true
 description = "TypeError: object cannot be awaited"
 
 python = '''

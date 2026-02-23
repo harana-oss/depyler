@@ -1,7 +1,0 @@
-  string-methods-all.toml :: str_find
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− pub const result: i32 = "hello".find("l").map(|i| i as i32).unwrap_or(-1);
-+ 
-────────────────────────────────────────────────────────────

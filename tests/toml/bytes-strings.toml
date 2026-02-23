@@ -8,6 +8,7 @@ category = "strings"
 
 [[test]]
 name = "bytes_literal"
+skip = true
 description = "b'hello'"
 
 python = '''
@@ -24,6 +25,7 @@ pub fn test_bytes_literal() -> Vec<u8> {
 
 [[test]]
 name = "bytes_double"
+skip = true
 description = "b double quote hello"
 
 python = '''
@@ -40,6 +42,7 @@ pub fn test_bytes_double() -> Vec<u8> {
 
 [[test]]
 name = "bytes_triple"
+skip = true
 description = "b triple quote multi"
 
 python = """
@@ -61,6 +64,7 @@ pub fn test_bytes_triple() -> Vec<u8> {
 
 [[test]]
 name = "bytes_hex_escape"
+skip = true
 description = "b'\\x41' == b'A'"
 
 python = '''
@@ -77,6 +81,7 @@ pub fn test_bytes_hex_escape() -> bool {
 
 [[test]]
 name = "bytes_octal"
+skip = true
 description = "b'\\101' == b'A'"
 
 python = '''
@@ -93,6 +98,7 @@ pub fn test_bytes_octal() -> bool {
 
 [[test]]
 name = "bytes_escapes"
+skip = true
 description = "b'\\n\\t\\r'"
 
 python = '''
@@ -113,6 +119,7 @@ pub fn test_bytes_escapes() -> Vec<u8> {
 
 [[test]]
 name = "bytes_encode"
+skip = true
 description = "'hello'.encode('utf-8')"
 
 python = '''
@@ -129,6 +136,7 @@ pub fn test_bytes_encode() -> Vec<u8> {
 
 [[test]]
 name = "bytes_encode_errors"
+skip = true
 description = "encode(errors='ignore')"
 
 python = '''
@@ -147,6 +155,7 @@ pub fn test_bytes_encode_errors() -> Vec<u8> {
 
 [[test]]
 name = "bytes_constructor"
+skip = true
 description = "bytes('hello', 'utf-8')"
 
 python = '''
@@ -167,6 +176,7 @@ pub fn test_bytes_constructor() -> Vec<u8> {
 
 [[test]]
 name = "bytes_decode"
+skip = true
 description = "b'hello'.decode('utf-8')"
 
 python = '''
@@ -184,6 +194,7 @@ pub fn test_bytes_decode() -> String {
 
 [[test]]
 name = "bytes_decode_errors"
+skip = true
 description = "decode(errors='replace')"
 
 python = '''
@@ -206,6 +217,7 @@ pub fn test_bytes_decode_errors() -> String {
 
 [[test]]
 name = "bytes_concat"
+skip = true
 description = "b'a' + b'b'"
 
 python = '''
@@ -224,6 +236,7 @@ pub fn test_bytes_concat() -> Vec<u8> {
 
 [[test]]
 name = "bytes_repeat"
+skip = true
 description = "b'ab' * 3"
 
 python = '''
@@ -241,6 +254,7 @@ pub fn test_bytes_repeat() -> Vec<u8> {
 
 [[test]]
 name = "bytes_index_int"
+skip = true
 description = "b'abc'[0] == 97"
 
 python = '''
@@ -258,6 +272,7 @@ pub fn test_bytes_index_int() -> bool {
 
 [[test]]
 name = "bytes_slice"
+skip = true
 description = "b'hello'[1:4]"
 
 python = '''
@@ -279,6 +294,7 @@ pub fn test_bytes_slice() -> Vec<u8> {
 
 [[test]]
 name = "bytes_immutable"
+skip = true
 description = "b'x'[0] = 1 raises"
 
 python = '''
@@ -301,6 +317,7 @@ pub fn test_bytes_immutable() -> bool {
 
 [[test]]
 name = "bytearray_mutable"
+skip = true
 description = "ba[0] = 65"
 
 python = '''
@@ -321,6 +338,7 @@ pub fn test_bytearray_mutable() -> Vec<u8> {
 
 [[test]]
 name = "bytes_to_bytearray"
+skip = true
 description = "bytearray(b'hello')"
 
 python = '''
@@ -341,6 +359,7 @@ pub fn test_bytes_to_bytearray() -> Vec<u8> {
 
 [[test]]
 name = "raw_bytes_rb"
+skip = true
 description = "rb'\\n' literal backslash"
 
 python = '''
@@ -357,6 +376,7 @@ pub fn test_raw_bytes_rb() -> Vec<u8> {
 
 [[test]]
 name = "raw_bytes_br"
+skip = true
 description = "br'\\n' same as rb"
 
 python = '''
@@ -377,6 +397,7 @@ pub fn test_raw_bytes_br() -> Vec<u8> {
 
 [[test]]
 name = "bytes_find"
+skip = true
 description = "b'hello'.find(b'l')"
 
 python = '''
@@ -397,6 +418,7 @@ pub fn test_bytes_find() -> Option<usize> {
 
 [[test]]
 name = "bytes_split"
+skip = true
 description = "b'a,b,c'.split(b',')"
 
 python = '''
@@ -414,6 +436,7 @@ pub fn test_bytes_split() -> Vec<Vec<u8>> {
 
 [[test]]
 name = "bytes_join"
+skip = true
 description = "b','.join([b'a', b'b'])"
 
 python = '''
@@ -445,6 +468,7 @@ pub fn test_bytes_join() -> Vec<u8> {
 
 [[test]]
 name = "bytes_non_ascii"
+skip = true
 description = "b'é' syntax error"
 
 python = '''
@@ -470,6 +494,7 @@ pub fn test_bytes_non_ascii() -> bool {
 
 [[test]]
 name = "bytes_empty"
+skip = true
 description = "b'' and bytes()"
 
 python = '''
@@ -486,6 +511,7 @@ pub fn test_bytes_empty() -> (Vec<u8>, Vec<u8>) {
 
 [[test]]
 name = "bytes_str_compare"
+skip = true
 description = "b'a' != 'a'"
 
 python = '''

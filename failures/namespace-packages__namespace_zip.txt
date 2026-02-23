@@ -1,8 +1,0 @@
-  namespace-packages.toml :: namespace_zip
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− // Namespace in zip file
-−     let result = true; // Placeholder
-+ pub const result: bool = true;
-────────────────────────────────────────────────────────────

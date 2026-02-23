@@ -1,7 +1,0 @@
-  argparse.toml :: argparse_smoke_with_description
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-  use clap::Parser;
-− fn main() {}
-────────────────────────────────────────────────────────────

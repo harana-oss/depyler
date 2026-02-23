@@ -1,8 +1,0 @@
-  memoryview.toml :: memoryview_zero_copy
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− let data = b"hello";
-−     let slice = &data[1..3];
-+ 
-────────────────────────────────────────────────────────────

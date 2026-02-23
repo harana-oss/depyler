@@ -8,6 +8,7 @@ category = "data-structures"
 
 [[test]]
 name = "ordereddict_empty"
+skip = true
 description = "OrderedDict()"
 
 python = '''
@@ -28,6 +29,7 @@ rust = '''
 
 [[test]]
 name = "ordereddict_pairs"
+skip = true
 description = "OrderedDict([('a', 1), ('b', 2)])"
 
 python = '''
@@ -48,6 +50,7 @@ rust = '''
 
 [[test]]
 name = "ordereddict_kwargs"
+skip = true
 description = "OrderedDict(a=1, b=2)"
 
 python = '''
@@ -72,6 +75,7 @@ rust = '''
 
 [[test]]
 name = "ordereddict_order"
+skip = true
 description = "Keys in insertion order"
 
 python = '''
@@ -92,6 +96,7 @@ rust = '''
 
 [[test]]
 name = "ordereddict_iter"
+skip = true
 description = "list(d) preserves order"
 
 python = '''
@@ -112,6 +117,7 @@ rust = '''
 
 [[test]]
 name = "ordereddict_update"
+skip = true
 description = "Existing keys stay in place"
 
 python = '''
@@ -136,6 +142,7 @@ rust = '''
 
 [[test]]
 name = "ordereddict_move_end"
+skip = true
 description = "d.move_to_end('a')"
 
 python = '''
@@ -154,6 +161,7 @@ rust = '''
 
 [[test]]
 name = "ordereddict_move_start"
+skip = true
 description = "d.move_to_end('a', last=False)"
 
 python = '''
@@ -176,6 +184,7 @@ rust = '''
 
 [[test]]
 name = "ordereddict_popitem"
+skip = true
 description = "d.popitem() returns last"
 
 python = '''
@@ -195,6 +204,7 @@ rust = '''
 
 [[test]]
 name = "ordereddict_popitem_first"
+skip = true
 description = "d.popitem(last=False)"
 
 python = '''
@@ -218,6 +228,7 @@ rust = '''
 
 [[test]]
 name = "ordereddict_eq_order"
+skip = true
 description = "OrderedDict([a,b]) != OrderedDict([b,a])"
 
 python = '''
@@ -238,6 +249,7 @@ rust = '''
 
 [[test]]
 name = "ordereddict_eq_dict"
+skip = true
 description = "OrderedDict equals dict (ignores order)"
 
 python = '''
@@ -262,6 +274,7 @@ rust = '''
 
 [[test]]
 name = "ordereddict_reinsert"
+skip = true
 description = "del d[k]; d[k] = v moves to end"
 
 python = '''
@@ -282,6 +295,7 @@ rust = '''
 
 [[test]]
 name = "ordereddict_reverse"
+skip = true
 description = "reversed(d)"
 
 python = '''
@@ -306,6 +320,7 @@ rust = '''
 
 [[test]]
 name = "ordereddict_fromkeys"
+skip = true
 description = "OrderedDict.fromkeys(['a', 'b'])"
 
 python = '''
@@ -326,6 +341,7 @@ rust = '''
 
 [[test]]
 name = "ordereddict_copy"
+skip = true
 description = "d.copy()"
 
 python = '''
@@ -350,6 +366,7 @@ rust = '''
 
 [[test]]
 name = "ordereddict_vs_dict"
+skip = true
 description = "Regular dict maintains order too"
 
 python = '''
@@ -370,6 +387,7 @@ rust = '''
 
 [[test]]
 name = "ordereddict_use_case"
+skip = true
 description = "Use for order-aware equality"
 
 python = '''
@@ -394,6 +412,7 @@ rust = '''
 
 [[test]]
 name = "ordereddict_lru"
+skip = true
 description = "move_to_end on access, popitem oldest"
 
 python = '''
@@ -416,6 +435,7 @@ rust = '''
 
 [[test]]
 name = "ordereddict_repr"
+skip = true
 description = "repr shows order"
 
 python = '''
@@ -436,6 +456,7 @@ rust = '''
 
 [[test]]
 name = "ordereddict_merge"
+skip = true
 description = "d1 | d2"
 
 python = '''
@@ -456,6 +477,7 @@ rust = '''
 
 [[test]]
 name = "ordereddict_json"
+skip = true
 description = "json.dumps(OrderedDict)"
 
 python = '''

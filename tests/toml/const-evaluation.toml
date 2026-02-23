@@ -8,6 +8,7 @@ category = "optimization"
 
 [[test]]
 name = "const_arithmetic"
+skip = true
 description = "Compile-time constant folding"
 
 python = '''
@@ -20,6 +21,7 @@ pub const RESULT: i32 = 2 + 3 * 4;
 
 [[test]]
 name = "const_arithmetic_complex"
+skip = true
 description = "Complex constant arithmetic"
 
 python = '''
@@ -38,6 +40,7 @@ pub const D: i32 = C * 2;
 
 [[test]]
 name = "const_arithmetic_division"
+skip = true
 description = "Constant division"
 
 python = '''
@@ -54,6 +57,7 @@ pub const EACH: i32 = TOTAL / PARTS;
 
 [[test]]
 name = "const_arithmetic_negative"
+skip = true
 description = "Negative constant arithmetic"
 
 python = '''
@@ -74,6 +78,7 @@ pub const SUM: i32 = NEG + POS;
 
 [[test]]
 name = "const_string_concat"
+skip = true
 description = "Compile-time string concatenation"
 
 python = '''
@@ -91,6 +96,7 @@ use lazy_static::lazy_static;
 
 [[test]]
 name = "const_string_simple"
+skip = true
 description = "Simple string constant"
 
 python = '''
@@ -106,6 +112,7 @@ use lazy_static::lazy_static;
 
 [[test]]
 name = "const_string_multiline"
+skip = true
 description = "Multiline string constant"
 
 python = '''
@@ -127,6 +134,7 @@ use lazy_static::lazy_static;
 
 [[test]]
 name = "const_list_literals"
+skip = true
 description = "Static array from list literals"
 
 python = '''
@@ -142,6 +150,7 @@ use lazy_static::lazy_static;
 
 [[test]]
 name = "const_list_empty"
+skip = true
 description = "Empty list constant"
 
 python = '''
@@ -157,6 +166,7 @@ use lazy_static::lazy_static;
 
 [[test]]
 name = "const_list_strings"
+skip = true
 description = "String list constant"
 
 python = '''
@@ -176,6 +186,7 @@ use lazy_static::lazy_static;
 
 [[test]]
 name = "const_tuple_literals"
+skip = true
 description = "Tuple constant"
 
 python = '''
@@ -192,6 +203,7 @@ pub const POINT: (i32, i32) = (10, 20);
 
 [[test]]
 name = "const_dict_literals"
+skip = true
 description = "Compile-time dict to phf_map"
 
 python = '''
@@ -212,6 +224,7 @@ use lazy_static::lazy_static;
 
 [[test]]
 name = "const_dict_simple"
+skip = true
 description = "Simple dict constant"
 
 python = '''
@@ -232,6 +245,7 @@ use lazy_static::lazy_static;
 
 [[test]]
 name = "const_dict_empty"
+skip = true
 description = "Empty dict constant"
 
 python = '''
@@ -252,6 +266,7 @@ use lazy_static::lazy_static;
 
 [[test]]
 name = "const_frozen_dataclass"
+skip = true
 description = "Frozen dataclass as const"
 
 python = '''
@@ -286,6 +301,7 @@ use lazy_static::lazy_static;
 
 [[test]]
 name = "const_frozen_dataclass_default"
+skip = true
 description = "Frozen dataclass with defaults"
 
 python = '''

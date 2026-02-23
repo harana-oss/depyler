@@ -1,9 +1,0 @@
-  optional-types.toml :: optional_field_method_call
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-  pub fn get_length(text: &Option<String>) -> i32 {
-−     return text.as_ref().unwrap().len() as i32;
-+     return text.as_ref().unwrap().len() as i32 as i32;
-  }
-────────────────────────────────────────────────────────────

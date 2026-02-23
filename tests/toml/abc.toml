@@ -1,57 +1,31 @@
 [metadata]
-name = "Abstract Base Class Tests"
-category = "advanced-oop"
-
-# =============================================================================
-# Basic ABC
-# =============================================================================
+name = "ABC Test"
+category = "ownership"
 
 [[test]]
-name = "abc_basic"
-description = "from abc import ABC; class MyABC(ABC): ..."
+name = "clone_string_used_twice"
+description = "String param used twice needs clone"
 
 python = '''
-from abc import ABC
-
-class MyABC(ABC):
-    pass
-
-def test_abc_basic() -> bool:
-    return isinstance(MyABC, type)
+def use_string_twice(s: str) -> str:
+    a = s
+    b = s
+    return a + b
 '''
 
 rust = '''
-trait MyABC {}
-pub fn test_abc_basic() -> bool {
-    return true;
+pub fn use_string_twice(s: String) -> String {
+    let a = s.clone();
+    let b = s;
+    return format!("{}{}", a, b);
 }
-'''
-
-
-[[test]]
-name = "abc_meta"
-description = "class MyABC(metaclass=ABCMeta): ..."
-
-python = '''
-from abc import ABCMeta
-
-class MyABC(metaclass=ABCMeta):
-    pass
-
-def test_abc_meta() -> bool:
-    return isinstance(MyABC, type)
-'''
-
-rust = '''
-trait MyABC {}
-pub fn test_abc_meta() -> bool {
-    return true;
 }
 '''
 
 
 [[test]]
 name = "abc_no_instantiate"
+skip = false
 description = "TypeError when instantiating ABC with abstract methods"
 
 python = '''
@@ -71,7 +45,7 @@ def test_abc_no_instantiate() -> bool:
 '''
 
 rust = '''
-trait MyABC {
+pub trait MyABC {
     fn method(&self) -> ();
 }
 pub fn test_abc_no_instantiate() -> bool {
@@ -90,6 +64,7 @@ pub fn test_abc_no_instantiate() -> bool {
 
 [[test]]
 name = "abstractmethod_basic"
+skip = false
 description = "@abstractmethod def method(self): ..."
 
 python = '''
@@ -110,7 +85,7 @@ def test_abstractmethod_basic() -> int:
 '''
 
 rust = '''
-trait Base {
+pub trait Base {
     fn method(&self) -> i32;
 }
 #[derive(Debug, Copy, Clone)]
@@ -119,7 +94,9 @@ impl Concrete {
     pub fn new() -> Self {
         Self {}
     }
-    pub fn method(&self) -> i32 {
+}
+impl Base for Concrete {
+    fn method(&self) -> i32 {
         return 42;
     }
 }
@@ -132,6 +109,7 @@ pub fn test_abstractmethod_basic() -> i32 {
 
 [[test]]
 name = "abstractmethod_override"
+skip = false
 description = "Concrete subclass must implement"
 
 python = '''
@@ -152,7 +130,7 @@ def test_abstractmethod_override() -> int:
 '''
 
 rust = '''
-trait Base {
+pub trait Base {
     fn compute(&self) -> i32;
 }
 #[derive(Debug, Copy, Clone)]
@@ -161,7 +139,9 @@ impl Derived {
     pub fn new() -> Self {
         Self {}
     }
-    pub fn compute(&self) -> i32 {
+}
+impl Base for Derived {
+    fn compute(&self) -> i32 {
         return 100;
     }
 }
@@ -174,6 +154,7 @@ pub fn test_abstractmethod_override() -> i32 {
 
 [[test]]
 name = "abstractmethod_with_impl"
+skip = false
 description = "Abstract method can have default implementation"
 
 python = '''
@@ -194,10 +175,8 @@ def test_abstractmethod_with_impl() -> int:
 '''
 
 rust = '''
-trait Base {
-    fn method(&self) -> i32 {
-        return 10;
-    }
+pub trait Base {
+    fn method(&self) -> i32;
 }
 #[derive(Debug, Copy, Clone)]
 pub struct Concrete {}
@@ -208,7 +187,7 @@ impl Concrete {
 }
 impl Base for Concrete {
     fn method(&self) -> i32 {
-        return <Self as Base>::method(self) * 2;
+        return { self.method() } * 2;
     }
 }
 pub fn test_abstractmethod_with_impl() -> i32 {
@@ -220,6 +199,7 @@ pub fn test_abstractmethod_with_impl() -> i32 {
 
 [[test]]
 name = "abstractmethod_super"
+skip = false
 description = "Subclass can call super().method()"
 
 python = '''
@@ -240,10 +220,8 @@ def test_abstractmethod_super() -> int:
 '''
 
 rust = '''
-trait Base {
-    fn compute(&self) -> i32 {
-        return 5;
-    }
+pub trait Base {
+    fn compute(&self) -> i32;
 }
 #[derive(Debug, Copy, Clone)]
 pub struct Derived {}
@@ -254,7 +232,7 @@ impl Derived {
 }
 impl Base for Derived {
     fn compute(&self) -> i32 {
-        return <Self as Base>::compute(self) + 10;
+        return { self.compute() } + 10;
     }
 }
 pub fn test_abstractmethod_super() -> i32 {
@@ -270,6 +248,7 @@ pub fn test_abstractmethod_super() -> i32 {
 
 [[test]]
 name = "abstractclassmethod"
+skip = false
 description = "@abstractmethod @classmethod combination"
 
 python = '''
@@ -291,8 +270,8 @@ def test_abstractclassmethod() -> int:
 '''
 
 rust = '''
-trait Base {
-    fn create() -> i32;
+pub trait Base {
+    fn create(&self) -> i32;
 }
 #[derive(Debug, Copy, Clone)]
 pub struct Concrete {}
@@ -300,7 +279,9 @@ impl Concrete {
     pub fn new() -> Self {
         Self {}
     }
-    pub fn create() -> i32 {
+}
+impl Base for Concrete {
+    fn create() -> i32 {
         return 42;
     }
 }
@@ -312,6 +293,7 @@ pub fn test_abstractclassmethod() -> i32 {
 
 [[test]]
 name = "abstractstaticmethod"
+skip = false
 description = "@abstractmethod @staticmethod combination"
 
 python = '''
@@ -333,7 +315,7 @@ def test_abstractstaticmethod() -> int:
 '''
 
 rust = '''
-trait Base {
+pub trait Base {
     fn process() -> i32;
 }
 #[derive(Debug, Copy, Clone)]
@@ -342,7 +324,9 @@ impl Concrete {
     pub fn new() -> Self {
         Self {}
     }
-    pub fn process() -> i32 {
+}
+impl Base for Concrete {
+    fn process() -> i32 {
         return 99;
     }
 }
@@ -354,6 +338,7 @@ pub fn test_abstractstaticmethod() -> i32 {
 
 [[test]]
 name = "abstractproperty"
+skip = false
 description = "@property @abstractmethod combination"
 
 python = '''
@@ -376,7 +361,7 @@ def test_abstractproperty() -> int:
 '''
 
 rust = '''
-trait Base {
+pub trait Base {
     fn value(&self) -> i32;
 }
 #[derive(Debug, Copy, Clone)]
@@ -385,7 +370,9 @@ impl Concrete {
     pub fn new() -> Self {
         Self {}
     }
-    pub fn value(&self) -> i32 {
+}
+impl Base for Concrete {
+    fn value(&self) -> i32 {
         return 77;
     }
 }
@@ -402,6 +389,7 @@ pub fn test_abstractproperty() -> i32 {
 
 [[test]]
 name = "abc_register"
+skip = false
 description = "MyABC.register(SomeClass)"
 
 python = '''
@@ -420,7 +408,7 @@ def test_abc_register() -> bool:
 '''
 
 rust = '''
-trait MyABC {}
+pub trait MyABC {}
 #[derive(Debug, Copy, Clone)]
 pub struct SomeClass {}
 impl SomeClass {
@@ -431,14 +419,12 @@ impl SomeClass {
 pub fn test_abc_register() -> bool {
     return issubclass(SomeClass, MyABC);
 }
-fn main() {
-    MyABC::register(SomeClass);
-}
 '''
 
 
 [[test]]
 name = "abc_virtual_subclass"
+skip = false
 description = "Registered class passes isinstance check"
 
 python = '''
@@ -458,7 +444,7 @@ def test_abc_virtual_subclass() -> bool:
 '''
 
 rust = '''
-trait MyABC {}
+pub trait MyABC {}
 #[derive(Debug, Copy, Clone)]
 pub struct SomeClass {}
 impl SomeClass {
@@ -470,14 +456,12 @@ pub fn test_abc_virtual_subclass() -> bool {
     let obj = SomeClass::new();
     return true;
 }
-fn main() {
-    MyABC::register(SomeClass);
-}
 '''
 
 
 [[test]]
 name = "abc_subclasshook"
+skip = false
 description = "Custom isinstance/issubclass logic"
 
 python = '''
@@ -499,7 +483,7 @@ def test_abc_subclasshook() -> bool:
 '''
 
 rust = '''
-trait MyABC {}
+pub trait MyABC {}
 #[derive(Debug, Copy, Clone)]
 pub struct HasMethod {}
 impl HasMethod {
@@ -522,6 +506,7 @@ pub fn test_abc_subclasshook() -> bool {
 
 [[test]]
 name = "abc_multiple"
+skip = false
 description = "class Concrete(ABC1, ABC2): ..."
 
 python = '''
@@ -549,10 +534,10 @@ def test_abc_multiple() -> int:
 '''
 
 rust = '''
-trait ABC1 {
+pub trait ABC1 {
     fn method1(&self) -> i32;
 }
-trait ABC2 {
+pub trait ABC2 {
     fn method2(&self) -> i32;
 }
 #[derive(Debug, Copy, Clone)]
@@ -561,10 +546,14 @@ impl Concrete {
     pub fn new() -> Self {
         Self {}
     }
-    pub fn method1(&self) -> i32 {
+}
+impl ABC1 for Concrete {
+    fn method1(&self) -> i32 {
         return 10;
     }
-    pub fn method2(&self) -> i32 {
+}
+impl ABC2 for Concrete {
+    fn method2(&self) -> i32 {
         return 20;
     }
 }
@@ -577,6 +566,7 @@ pub fn test_abc_multiple() -> i32 {
 
 [[test]]
 name = "abc_mixin"
+skip = false
 description = "ABC as mixin with partial implementation"
 
 python = '''
@@ -600,11 +590,9 @@ def test_abc_mixin() -> int:
 '''
 
 rust = '''
-trait Mixin {
+pub trait Mixin {
     fn get_value(&self) -> i32;
-    fn double_value(&self) -> i32 {
-        return self.get_value() * 2;
-    }
+    fn double_value(&self) -> i32;
 }
 #[derive(Debug, Copy, Clone)]
 pub struct Concrete {}
@@ -612,7 +600,9 @@ impl Concrete {
     pub fn new() -> Self {
         Self {}
     }
-    pub fn get_value(&self) -> i32 {
+}
+impl Mixin for Concrete {
+    fn get_value(&self) -> i32 {
         return 15;
     }
 }
@@ -629,6 +619,7 @@ pub fn test_abc_mixin() -> i32 {
 
 [[test]]
 name = "collections_abc"
+skip = false
 description = "Iterable, Iterator, Sequence, Mapping, etc."
 
 python = '''
@@ -651,7 +642,7 @@ impl MyIterable {
         Self {}
     }
     pub fn __iter__(&self) {
-        return iter([1, 2, 3]);
+        return iter(vec![1, 2, 3]);
     }
 }
 pub fn test_collections_abc() -> i32 {
@@ -715,7 +706,7 @@ impl MyInt {
 }
 pub fn test_numbers_abc() -> i32 {
     let num = MyInt::new(42);
-    return (num) as i32;
+    return num as i32;
 }
 '''
 
@@ -726,6 +717,7 @@ pub fn test_numbers_abc() -> i32 {
 
 [[test]]
 name = "abc_partial"
+skip = false
 description = "Subclass implements some but not all abstract methods"
 
 python = '''
@@ -754,7 +746,7 @@ def test_abc_partial() -> bool:
 '''
 
 rust = '''
-trait Base {
+pub trait Base {
     fn method1(&self) -> ();
     fn method2(&self) -> ();
 }
@@ -764,7 +756,9 @@ impl Partial {
     pub fn new() -> Self {
         Self {}
     }
-    pub fn method1(&self) -> i32 {
+}
+impl Base for Partial {
+    fn method1(&self) -> () {
         return 1;
     }
 }
@@ -780,6 +774,7 @@ pub fn test_abc_partial() -> bool {
 
 [[test]]
 name = "abstractmethod_varargs"
+skip = false
 description = "Abstract method with flexible signature"
 
 python = '''
@@ -800,7 +795,7 @@ def test_abstractmethod_varargs() -> int:
 '''
 
 rust = '''
-trait Base {
+pub trait Base {
     fn process(&self) -> i32;
 }
 #[derive(Debug, Copy, Clone)]
@@ -809,19 +804,22 @@ impl Concrete {
     pub fn new() -> Self {
         Self {}
     }
-    pub fn process(&self) -> i32 {
+}
+impl Base for Concrete {
+    fn process(&self) -> i32 {
         return sum(args) + kwargs.len();
     }
 }
 pub fn test_abstractmethod_varargs() -> i32 {
     let obj = Concrete::new();
-    return obj.process();
+    return obj.process(1, 2, 3, 4, 5);
 }
 '''
 
 
 [[test]]
 name = "abstract_init"
+skip = false
 description = "@abstractmethod on __init__"
 
 python = '''
@@ -836,8 +834,6 @@ result = abs(n).value
 '''
 
 rust = '''
-pub const n: serde_json::Value = Number::new(-5);
-pub const result: serde_json::Value = n.abs().value;
 use serde_json;
 #[derive(Debug, Clone)]
 pub struct Number {

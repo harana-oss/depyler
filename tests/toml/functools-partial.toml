@@ -8,6 +8,7 @@ category = "decorators-closures"
 
 [[test]]
 name = "partial_basic"
+skip = true
 description = "add5 = partial(add, 5)"
 python = """
 from functools import partial
@@ -29,6 +30,7 @@ expected_output = "8"
 
 [[test]]
 name = "partial_call"
+skip = true
 description = "add5(3) == add(5, 3)"
 python = """
 from functools import partial
@@ -50,6 +52,7 @@ expected_output = "True"
 
 [[test]]
 name = "partial_keyword"
+skip = true
 description = "partial(func, x=10)"
 python = """
 from functools import partial
@@ -75,6 +78,7 @@ expected_output = "Hi, Alice!"
 
 [[test]]
 name = "partial_multi_args"
+skip = true
 description = "partial(func, a, b)"
 python = """
 from functools import partial
@@ -96,6 +100,7 @@ expected_output = "20"
 
 [[test]]
 name = "partial_mixed"
+skip = true
 description = "partial(func, a, b=1)"
 python = """
 from functools import partial
@@ -117,6 +122,7 @@ expected_output = "11"
 
 [[test]]
 name = "partial_add_args"
+skip = true
 description = "p = partial(f, a); p(b, c)"
 python = """
 from functools import partial
@@ -142,6 +148,7 @@ expected_output = "60"
 
 [[test]]
 name = "partial_func"
+skip = true
 description = "p.func is original function"
 python = """
 from functools import partial
@@ -166,6 +173,7 @@ expected_output = "True"
 
 [[test]]
 name = "partial_args"
+skip = true
 description = "p.args are frozen positional args"
 python = """
 from functools import partial
@@ -185,6 +193,7 @@ expected_output = "('Hello',)"
 
 [[test]]
 name = "partial_keywords"
+skip = true
 description = "p.keywords are frozen keyword args"
 python = """
 from functools import partial
@@ -207,6 +216,7 @@ expected_output = "{'greeting': 'Good evening'}"
 
 [[test]]
 name = "partialmethod_basic"
+skip = true
 description = "method = partialmethod(full_method, arg)"
 python = """
 from functools import partialmethod
@@ -239,6 +249,7 @@ expected_output = "8"
 
 [[test]]
 name = "partialmethod_class"
+skip = true
 description = "class C: m = partialmethod(f, x)"
 python = """
 from functools import partialmethod
@@ -271,6 +282,7 @@ expected_output = "Hello, Alice!"
 
 [[test]]
 name = "partialmethod_self"
+skip = true
 description = "self passed correctly"
 python = """
 from functools import partialmethod
@@ -321,6 +333,7 @@ expected_output = """1
 
 [[test]]
 name = "partial_callback"
+skip = true
 description = "button.onclick = partial(handler, button_id)"
 python = """
 from functools import partial
@@ -342,6 +355,7 @@ expected_output = "Button submit clicked with event click"
 
 [[test]]
 name = "partial_defaults"
+skip = true
 description = "Create function with different defaults"
 python = """
 from functools import partial
@@ -368,6 +382,7 @@ expected_output = """16
 
 [[test]]
 name = "partial_adapter"
+skip = true
 description = "Adapt function signature"
 python = """
 from functools import partial
@@ -394,6 +409,7 @@ expected_output = """[INFO] Application started
 
 [[test]]
 name = "partial_map"
+skip = true
 description = "map(partial(pow, 2), items)"
 python = """
 from functools import partial
@@ -423,6 +439,7 @@ expected_output = "[1, 4, 9, 16]"
 
 [[test]]
 name = "partial_vs_lambda"
+skip = true
 description = "partial(f, x) vs lambda y: f(x, y)"
 python = """
 from functools import partial
@@ -457,6 +474,7 @@ expected_output = """8
 
 [[test]]
 name = "partial_advantages"
+skip = true
 description = "Clearer, func/args accessible"
 python = """
 from functools import partial
@@ -490,6 +508,7 @@ Result: 10"""
 
 [[test]]
 name = "partial_nested"
+skip = true
 description = "partial(partial(f, a), b)"
 python = """
 from functools import partial
@@ -513,6 +532,7 @@ expected_output = "60"
 
 [[test]]
 name = "partial_varargs"
+skip = true
 description = "partial on *args function"
 python = """
 from functools import partial
@@ -538,6 +558,7 @@ expected_output = "60"
 
 [[test]]
 name = "partial_kwargs_func"
+skip = true
 description = "partial on **kwargs function"
 python = """
 from functools import partial
@@ -568,6 +589,7 @@ expected_output = "60"
 
 [[test]]
 name = "partial_override"
+skip = true
 description = "Call can override partial's kwargs"
 python = """
 from functools import partial

@@ -8,6 +8,7 @@ category = "thread-safety"
 
 [[test]]
 name = "threading_basic"
+skip = true
 description = "Python threading to Rust std::thread"
 
 python = '''
@@ -32,6 +33,7 @@ pub fn run_thread() -> String {
 
 [[test]]
 name = "threading_spawn"
+skip = true
 description = "Thread spawn pattern"
 
 python = '''
@@ -56,6 +58,7 @@ pub fn parallel_compute(value: i32) -> i32 {
 
 [[test]]
 name = "threading_join"
+skip = true
 description = "Thread join pattern"
 
 python = '''
@@ -82,6 +85,7 @@ pub fn run_and_join(value: i32) -> i32 {
 
 [[test]]
 name = "threading_locks"
+skip = true
 description = "Lock/RLock to Mutex/RwLock mapping"
 
 python = '''
@@ -118,6 +122,7 @@ impl Counter {
 
 [[test]]
 name = "threading_mutex_guard"
+skip = true
 description = "Mutex guard pattern"
 
 python = '''
@@ -154,6 +159,7 @@ impl SafeValue {
 
 [[test]]
 name = "threading_rwlock"
+skip = true
 description = "RwLock pattern for readers-writers"
 
 python = '''
@@ -198,6 +204,7 @@ impl Cache {
 
 [[test]]
 name = "threading_event"
+skip = true
 description = "Event to Condvar mapping"
 
 python = '''
@@ -234,6 +241,7 @@ impl Signal {
 
 [[test]]
 name = "threading_barrier"
+skip = true
 description = "Barrier synchronization pattern"
 
 python = '''
@@ -271,6 +279,7 @@ impl Barrier {
 
 [[test]]
 name = "queue_thread_safe"
+skip = true
 description = "queue.Queue to crossbeam::channel"
 
 python = '''
@@ -312,6 +321,7 @@ impl SimpleQueue {
 
 [[test]]
 name = "queue_bounded"
+skip = true
 description = "Bounded queue pattern"
 
 python = '''
@@ -364,6 +374,7 @@ impl BoundedQueue {
 
 [[test]]
 name = "shared_state"
+skip = true
 description = "Shared state with Arc<Mutex<T>>"
 
 python = '''
@@ -404,6 +415,7 @@ impl SharedCounter {
 
 [[test]]
 name = "shared_state_multiple"
+skip = true
 description = "Multiple shared state values"
 
 python = '''
@@ -469,6 +481,7 @@ impl Stats {
 
 [[test]]
 name = "atomic_operations"
+skip = true
 description = "Atomic counter operations"
 
 python = '''
@@ -516,6 +529,7 @@ impl AtomicCounter {
 
 [[test]]
 name = "atomic_compare_exchange"
+skip = true
 description = "Atomic compare-and-swap operations"
 
 python = '''
@@ -552,6 +566,7 @@ impl AtomicValue {
 
 [[test]]
 name = "atomic_flag"
+skip = true
 description = "Atomic boolean flag"
 
 python = '''

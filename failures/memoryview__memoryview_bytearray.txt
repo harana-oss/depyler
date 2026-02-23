@@ -1,9 +1,0 @@
-  memoryview.toml :: memoryview_bytearray
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− let data = b"hello";
-−     let slice = &data[..];
-−     let result = slice.len();
-+ 
-────────────────────────────────────────────────────────────

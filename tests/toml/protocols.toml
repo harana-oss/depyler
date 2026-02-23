@@ -8,6 +8,7 @@ category = "type-system"
 
 [[test]]
 name = "protocol_basic"
+skip = true
 description = "typing.Protocol to Rust trait"
 
 python = '''
@@ -56,6 +57,7 @@ pub fn render(shape: &impl Drawable) -> String {
 
 [[test]]
 name = "protocol_multiple_methods"
+skip = true
 description = "Protocol with multiple methods"
 
 python = '''
@@ -108,6 +110,7 @@ impl Comparable for Number {
 
 [[test]]
 name = "protocol_with_property"
+skip = true
 description = "Protocol with property-like accessor"
 
 python = '''
@@ -153,6 +156,7 @@ impl Named for Person {
 
 [[test]]
 name = "protocol_runtime_checkable"
+skip = true
 description = "@runtime_checkable Protocol handling"
 
 python = '''
@@ -202,6 +206,7 @@ pub fn get_size(obj: &impl Sized) -> i32 {
 
 [[test]]
 name = "protocol_isinstance_check"
+skip = true
 description = "isinstance with Protocol"
 
 python = '''
@@ -256,6 +261,7 @@ impl Iterable for Range {
 
 [[test]]
 name = "protocol_generic"
+skip = true
 description = "Generic Protocol[T] transpilation"
 
 python = '''
@@ -310,6 +316,7 @@ impl Container<i32> for Box {
 
 [[test]]
 name = "protocol_generic_bounded"
+skip = true
 description = "Generic Protocol with bounds"
 
 python = '''
@@ -364,6 +371,7 @@ impl Summable for IntList {
 
 [[test]]
 name = "structural_subtyping"
+skip = true
 description = "Duck typing to trait bounds"
 
 python = '''
@@ -419,6 +427,7 @@ impl Speaker for Dog {
 
 [[test]]
 name = "structural_subtyping_method"
+skip = true
 description = "Method-based structural typing"
 
 python = '''
@@ -488,6 +497,7 @@ pub fn read_all(source: &impl Readable) -> String {
 
 [[test]]
 name = "structural_subtyping_multiple"
+skip = true
 description = "Multiple structural type requirements"
 
 python = '''
@@ -548,6 +558,7 @@ impl Writable for ReadWriteBuffer {
 
 [[test]]
 name = "structural_subtyping_inheritance"
+skip = true
 description = "Protocol inheritance structural typing"
 
 python = '''

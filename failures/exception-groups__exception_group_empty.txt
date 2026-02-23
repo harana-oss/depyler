@@ -1,8 +1,0 @@
-  exception-groups.toml :: exception_group_empty
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− let errors: Vec<String> = vec!["at least one".to_string()];
-− log::info!("{}", errors.len());
-+ 
-────────────────────────────────────────────────────────────

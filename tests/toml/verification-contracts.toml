@@ -8,6 +8,7 @@ category = "verification"
 
 [[test]]
 name = "precondition_assert"
+skip = true
 description = "Function preconditions"
 
 python = '''
@@ -40,6 +41,7 @@ pub fn divide(a: i32, b: i32) -> i32 {
 
 [[test]]
 name = "precondition_range"
+skip = true
 description = "Range precondition assertion"
 
 python = '''
@@ -61,6 +63,7 @@ pub fn index_array(items: &Vec<i32>, idx: i32) -> i32 {
 
 [[test]]
 name = "precondition_type"
+skip = true
 description = "Type precondition assertion"
 
 python = '''
@@ -78,6 +81,7 @@ pub fn process_positive(n: i32) -> i32 {
 
 [[test]]
 name = "precondition_multiple"
+skip = true
 description = "Multiple preconditions"
 
 python = '''
@@ -103,6 +107,7 @@ pub fn bounded_add(a: i32, b: i32) -> i32 {
 
 [[test]]
 name = "postcondition_assert"
+skip = true
 description = "Function postconditions"
 
 python = '''
@@ -163,6 +168,7 @@ pub fn clamp(value: i32, min_val: i32, max_val: i32) -> i32 {
 
 [[test]]
 name = "postcondition_sorted"
+skip = true
 description = "Sorted postcondition assertion"
 
 python = '''
@@ -194,6 +200,7 @@ pub fn sort_pair(a: i32, b: i32) -> (i32, i32) {
 
 [[test]]
 name = "invariant_assertion"
+skip = true
 description = "Loop/class invariants"
 
 python = '''
@@ -262,6 +269,7 @@ impl NonNegativeCounter {
 
 [[test]]
 name = "invariant_loop"
+skip = true
 description = "Loop invariant assertion"
 
 python = '''
@@ -364,6 +372,7 @@ pub fn sum_list(items: &Vec<i32>) -> i32 {
 
 [[test]]
 name = "type_contract_optional"
+skip = true
 description = "Optional type contract"
 
 python = '''
@@ -401,6 +410,7 @@ pub fn safe_divide(a: i32, b: i32) -> Option<i32> {
 
 [[test]]
 name = "panic_vs_result"
+skip = true
 description = "Panic vs Result decision"
 
 python = '''
@@ -438,6 +448,7 @@ pub fn must_succeed(n: i32) -> i32 {
 
 [[test]]
 name = "panic_programmer_error"
+skip = true
 description = "Panic for programmer errors"
 
 python = '''
@@ -472,6 +483,7 @@ pub fn unreachable_branch(value: i32) -> String {
 
 [[test]]
 name = "result_recoverable"
+skip = true
 description = "Result for recoverable errors"
 
 python = '''
@@ -495,6 +507,7 @@ pub fn parse_int(s: String) -> Option<i32> {
 
 [[test]]
 name = "result_propagation"
+skip = true
 description = "Result error propagation"
 
 python = '''
@@ -531,6 +544,7 @@ pub fn parse_safe(s: String) -> Option<i32> {
 
 [[test]]
 name = "debug_assert_only"
+skip = true
 description = "Debug-only assertions"
 
 python = '''

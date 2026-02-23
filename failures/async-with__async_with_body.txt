@@ -1,8 +1,0 @@
-  async-with.toml :: async_with_body
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− // Execute body with async context
-−     let result = true; // Placeholder
-+ pub const result: bool = true;
-────────────────────────────────────────────────────────────

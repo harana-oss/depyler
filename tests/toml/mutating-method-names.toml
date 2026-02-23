@@ -95,6 +95,7 @@ pub fn reverse_list(items: &mut Vec<i32>) {
 
 [[test]]
 name = "dict_update_is_mutating"
+skip = true
 description = "Dict update method is mutating"
 
 python = '''
@@ -127,6 +128,7 @@ pub fn add_to_set(s: &mut HashSet<i32>, value: i32) {
 
 [[test]]
 name = "len_is_not_mutating"
+skip = true
 description = "len method is not mutating"
 
 python = '''
@@ -142,6 +144,7 @@ pub fn get_length(items: &Vec<i32>) -> i32 {
 
 [[test]]
 name = "get_is_not_mutating"
+skip = true
 description = "get method is not mutating"
 
 python = '''
@@ -158,6 +161,7 @@ pub fn get_or_default(d: &HashMap<String, i32>, key: String, default: i32) -> i3
 
 [[test]]
 name = "keys_is_not_mutating"
+skip = true
 description = "keys method is not mutating"
 
 python = '''

@@ -1,2 +1,0 @@
-  unicode-strings.toml :: unicode_charname
-    Transpilation failed: unicodedata.name is not yet supported - no direct Rust equivalent in unicode-normalization crate

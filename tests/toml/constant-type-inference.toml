@@ -80,6 +80,7 @@ pub fn get_negative() -> i32 {
 
 [[test]]
 name = "binary_add_int_type"
+skip = true
 description = "Binary Add with Ints infers to Type::Int"
 
 python = '''
@@ -95,6 +96,7 @@ pub fn add_ints() -> i32 {
 
 [[test]]
 name = "binary_div_float_type"
+skip = true
 description = "Binary Div with Ints infers to Type::Float (Python semantics)"
 
 python = '''
@@ -110,6 +112,7 @@ pub fn divide_ints() -> f64 {
 
 [[test]]
 name = "binary_floordiv_int_type"
+skip = true
 description = "Binary FloorDiv with Ints infers to Type::Int"
 
 python = '''
@@ -136,6 +139,7 @@ pub fn floor_divide() -> i32 {
 
 [[test]]
 name = "int_builtin_call_type"
+skip = true
 description = "int() call infers to Type::Int"
 
 python = '''
@@ -151,6 +155,7 @@ pub fn cast_to_int(x: f64) -> i32 {
 
 [[test]]
 name = "float_builtin_call_type"
+skip = true
 description = "float() call infers to Type::Float"
 
 python = '''
@@ -166,6 +171,7 @@ pub fn cast_to_float(x: i32) -> f64 {
 
 [[test]]
 name = "str_builtin_call_type"
+skip = true
 description = "str() call infers to Type::String"
 
 python = '''

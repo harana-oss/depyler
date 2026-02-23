@@ -1,9 +1,0 @@
-  ternary-expressions.toml :: ternary_strings
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− let flag = true;
-− let result = if flag { "yes" } else { "no" };
-− log::info!("{}", result);
-+ 
-────────────────────────────────────────────────────────────

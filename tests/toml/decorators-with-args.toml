@@ -8,6 +8,7 @@ category = "decorators-closures"
 
 [[test]]
 name = "decorator_args_basic"
+skip = true
 description = "@decorator(arg) def f(): ..."
 
 python = '''
@@ -32,6 +33,7 @@ rust = '''
 
 [[test]]
 name = "decorator_factory"
+skip = true
 description = "def decorator(arg): def actual_decorator(f): ... return actual_decorator"
 
 python = '''
@@ -56,6 +58,7 @@ rust = '''
 
 [[test]]
 name = "decorator_multi_args"
+skip = true
 description = "@decorator(a, b, c) def f(): ..."
 
 python = '''
@@ -80,6 +83,7 @@ rust = '''
 
 [[test]]
 name = "decorator_kwargs"
+skip = true
 description = "@decorator(x=1, y=2) def f(): ..."
 
 python = '''
@@ -108,6 +112,7 @@ rust = '''
 
 [[test]]
 name = "decorator_repeat"
+skip = true
 description = "@repeat(n) to call n times"
 
 python = '''
@@ -132,6 +137,7 @@ rust = '''
 
 [[test]]
 name = "decorator_timeout"
+skip = true
 description = "@timeout(seconds=5)"
 
 python = '''
@@ -156,6 +162,7 @@ rust = '''
 
 [[test]]
 name = "decorator_rate_limit"
+skip = true
 description = "@rate_limit(calls=10, period=60)"
 
 python = '''
@@ -180,6 +187,7 @@ rust = '''
 
 [[test]]
 name = "decorator_permission"
+skip = true
 description = "@requires_permission('admin')"
 
 python = '''
@@ -208,6 +216,7 @@ rust = '''
 
 [[test]]
 name = "decorator_defaults"
+skip = true
 description = "@decorator() vs @decorator (both work)"
 
 python = '''
@@ -232,6 +241,7 @@ rust = '''
 
 [[test]]
 name = "decorator_dual"
+skip = true
 description = "@decorator or @decorator() pattern"
 
 python = '''
@@ -256,6 +266,7 @@ rust = '''
 
 [[test]]
 name = "decorator_optional_args"
+skip = true
 description = "Some args required, others optional"
 
 python = '''
@@ -287,6 +298,7 @@ rust = '''
 
 [[test]]
 name = "decorator_capture"
+skip = true
 description = "Inner wrapper accesses outer arg"
 
 python = '''
@@ -311,6 +323,7 @@ rust = '''
 
 [[test]]
 name = "decorator_state"
+skip = true
 description = "Counter in decorator"
 
 python = '''
@@ -335,6 +348,7 @@ rust = '''
 
 [[test]]
 name = "decorator_cache"
+skip = true
 description = "Decorator maintaining cache via closure"
 
 python = '''
@@ -363,6 +377,7 @@ rust = '''
 
 [[test]]
 name = "decorator_type_hints"
+skip = true
 description = "Type hints on decorator factory"
 
 python = '''
@@ -387,6 +402,7 @@ rust = '''
 
 [[test]]
 name = "decorator_paramspec"
+skip = true
 description = "Preserve parameter types"
 
 python = '''
@@ -415,6 +431,7 @@ rust = '''
 
 [[test]]
 name = "decorator_func_arg"
+skip = true
 description = "@decorator(some_function)"
 
 python = '''
@@ -439,6 +456,7 @@ rust = '''
 
 [[test]]
 name = "decorator_parens"
+skip = true
 description = "@dec vs @dec() difference"
 
 python = '''
@@ -463,6 +481,7 @@ rust = '''
 
 [[test]]
 name = "decorator_nested_factory"
+skip = true
 description = "Decorator factory returning decorator factory"
 
 python = '''

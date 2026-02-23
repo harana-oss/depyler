@@ -1,9 +1,0 @@
-  complex-numbers.toml :: complex_abs
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− use num::Complex;
-  
-− let x = Complex::new(3.0, 4.0);
-− log::info!("{}", x.norm());
-────────────────────────────────────────────────────────────

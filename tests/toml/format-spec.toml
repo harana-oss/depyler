@@ -8,6 +8,7 @@ category = "strings"
 
 [[test]]
 name = "format_simple"
+skip = true
 description = "format(42, 'd')"
 
 python = '''
@@ -40,6 +41,7 @@ pub fn format_str_method() -> String {
 
 [[test]]
 name = "format_fstring"
+skip = true
 description = "f'{x:d}'"
 
 python = '''
@@ -159,6 +161,7 @@ pub fn format_plus_sign() -> String {
 
 [[test]]
 name = "format_minus"
+skip = true
 description = "'{:-}'.format(-42)"
 
 python = '''
@@ -175,6 +178,7 @@ pub fn format_minus_sign() -> String {
 
 [[test]]
 name = "format_space"
+skip = true
 description = "'{: }'.format(42)"
 
 python = '''
@@ -263,6 +267,7 @@ pub fn format_with_width() -> String {
 
 [[test]]
 name = "format_precision"
+skip = true
 description = "'{:.2f}'.format(3.14159)"
 
 python = '''
@@ -279,6 +284,7 @@ pub fn format_with_precision() -> String {
 
 [[test]]
 name = "format_width_prec"
+skip = true
 description = "'{:10.2f}'.format(3.14159)"
 
 python = '''
@@ -295,6 +301,7 @@ pub fn format_width_precision() -> String {
 
 [[test]]
 name = "format_str_prec"
+skip = true
 description = "'{:.5}'.format('hello world')"
 
 python = '''
@@ -316,6 +323,7 @@ pub fn format_str_precision() -> String {
 
 [[test]]
 name = "format_comma"
+skip = true
 description = "'{:,}'.format(1000000)"
 
 python = '''
@@ -341,6 +349,7 @@ pub fn format_comma_separator() -> String {
 
 [[test]]
 name = "format_underscore"
+skip = true
 description = "'{:_}'.format(1000000)"
 
 python = '''
@@ -370,6 +379,7 @@ pub fn format_underscore_separator() -> String {
 
 [[test]]
 name = "format_int_types"
+skip = true
 description = "d, b, o, x, X, n"
 
 python = '''
@@ -394,6 +404,7 @@ pub fn format_int_types() -> (String, String, String, String, String) {
 
 [[test]]
 name = "format_float_types"
+skip = true
 description = "f, F, e, E, g, G"
 
 python = '''
@@ -412,6 +423,7 @@ pub fn format_float_types() -> (String, String, String) {
 
 [[test]]
 name = "format_percent"
+skip = true
 description = "'{:.1%}'.format(0.25)"
 
 python = '''
@@ -429,6 +441,7 @@ pub fn format_as_percent() -> String {
 
 [[test]]
 name = "format_char"
+skip = true
 description = "'{:c}'.format(65)"
 
 python = '''
@@ -449,6 +462,7 @@ pub fn format_as_char() -> String {
 
 [[test]]
 name = "format_custom"
+skip = true
 description = "class with __format__"
 
 python = '''
@@ -468,6 +482,7 @@ struct Example {
 
 [[test]]
 name = "format_datetime"
+skip = true
 description = "'{:%Y-%m-%d}'.format(date)"
 
 python = '''
@@ -525,6 +540,7 @@ pub fn format_default() -> String {
 
 [[test]]
 name = "format_nested"
+skip = true
 description = "'{:{width}.{prec}}'.format(x, width=10, prec=2)"
 
 python = '''

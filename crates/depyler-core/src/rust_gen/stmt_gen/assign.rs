@@ -570,13 +570,16 @@ pub(crate) fn codegen_assign_stmt(
                 ) {
                     ctx.var_types.insert(var_name.clone(), Type::String);
                 }
-                // Track .find(), .search(), .match() as Optional for truthiness conversion
+                // str.find() returns int; regex .find()/.search()/.match() returns Optional
                 else if matches!(method.as_str(), "find" | "search" | "match") {
-                    // Check if this is a regex method call (on compiled regex object)
-                    // We don't have a specific regex type, so use Optional as a marker
-                    ctx.var_types
-                        .insert(var_name.clone(), Type::Optional(Box::new(Type::Unknown)));
-                    ctx.optional_vars.insert(var_name.clone());
+                    let obj_type = infer_expr_type_with_env(object, &ctx.var_types);
+                    if matches!(obj_type, Type::String) && method == "find" {
+                        ctx.var_types.insert(var_name.clone(), Type::Int);
+                    } else {
+                        ctx.var_types
+                            .insert(var_name.clone(), Type::Optional(Box::new(Type::Unknown)));
+                        ctx.optional_vars.insert(var_name.clone());
+                    }
                 }
                 // Track .next() as Optional since it returns Option<T>
                 else if method == "next" {

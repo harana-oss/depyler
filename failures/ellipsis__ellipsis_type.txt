@@ -1,9 +1,0 @@
-  ellipsis.toml :: ellipsis_type
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− // In Rust, () is the unit type
-− log::info!("Type of ellipsis: ()");
-− log::info!("Is ellipsis type: true");
-+ 
-────────────────────────────────────────────────────────────

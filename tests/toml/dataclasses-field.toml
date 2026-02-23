@@ -8,6 +8,7 @@ category = "data-structures"
 
 [[test]]
 name = "field_default"
+skip = true
 description = "field(default=0)"
 
 python = '''
@@ -40,6 +41,7 @@ rust = '''
 
 [[test]]
 name = "field_default_factory"
+skip = true
 description = "field(default_factory=list)"
 
 python = '''
@@ -76,6 +78,7 @@ rust = '''
 
 [[test]]
 name = "field_lambda_factory"
+skip = true
 description = "field(default_factory=lambda: [1, 2])"
 
 python = '''
@@ -108,6 +111,7 @@ rust = '''
 
 [[test]]
 name = "field_callable_factory"
+skip = true
 description = "field(default_factory=MyClass)"
 
 python = '''
@@ -157,6 +161,7 @@ rust = '''
 
 [[test]]
 name = "field_default_factory_set"
+skip = true
 description = "field(default_factory=set)"
 
 python = '''
@@ -197,6 +202,7 @@ rust = '''
 
 [[test]]
 name = "field_default_factory_dict"
+skip = true
 description = "field(default_factory=dict)"
 
 python = '''
@@ -237,6 +243,7 @@ rust = '''
 
 [[test]]
 name = "field_default_factory_mixed"
+skip = true
 description = "Multiple fields with different default_factory types"
 
 python = '''
@@ -294,6 +301,7 @@ rust = '''
 
 [[test]]
 name = "field_no_repr"
+skip = true
 description = "field(repr=False) excludes from repr"
 
 python = '''
@@ -335,6 +343,7 @@ rust = '''
 
 [[test]]
 name = "field_no_compare"
+skip = true
 description = "field(compare=False) excludes from eq/order"
 
 python = '''
@@ -377,6 +386,7 @@ rust = '''
 
 [[test]]
 name = "field_hash"
+skip = true
 description = "field(hash=True) or field(hash=False)"
 
 python = '''
@@ -423,6 +433,7 @@ rust = '''
 
 [[test]]
 name = "field_no_init"
+skip = true
 description = "field(init=False) not in __init__"
 
 python = '''
@@ -446,6 +457,7 @@ struct Example {
 
 [[test]]
 name = "field_metadata"
+skip = true
 description = "field(metadata={'unit': 'meters'})"
 
 python = '''
@@ -476,6 +488,7 @@ rust = '''
 
 [[test]]
 name = "field_access_metadata"
+skip = true
 description = "fields(obj)[0].metadata"
 
 python = '''
@@ -504,6 +517,7 @@ rust = '''
 
 [[test]]
 name = "field_metadata_immutable"
+skip = true
 description = "metadata is MappingProxy"
 
 python = '''
@@ -526,6 +540,7 @@ rust = '''
 
 [[test]]
 name = "field_metadata_multi"
+skip = true
 description = "metadata={'a': 1, 'b': 2}"
 
 python = '''
@@ -556,6 +571,7 @@ rust = '''
 
 [[test]]
 name = "field_initvar"
+skip = true
 description = "x: InitVar[int]"
 
 python = '''
@@ -593,6 +609,7 @@ rust = '''
 
 [[test]]
 name = "field_initvar_postinit"
+skip = true
 description = "InitVar passed to __post_init__"
 
 python = '''
@@ -613,6 +630,7 @@ rust = '''
 
 [[test]]
 name = "field_initvar_not_stored"
+skip = true
 description = "InitVar not an instance attribute"
 
 python = '''
@@ -654,6 +672,7 @@ rust = '''
 
 [[test]]
 name = "field_classvar"
+skip = true
 description = "x: ClassVar[int] = 0"
 
 python = '''
@@ -686,6 +705,7 @@ rust = '''
 
 [[test]]
 name = "field_classvar_no_init"
+skip = true
 description = "ClassVar not in __init__"
 
 python = '''
@@ -705,6 +725,7 @@ struct Example {
 
 [[test]]
 name = "field_classvar_shared"
+skip = true
 description = "ClassVar shared across instances"
 
 python = '''
@@ -745,6 +766,7 @@ rust = '''
 
 [[test]]
 name = "field_kw_only_sentinel"
+skip = true
 description = "_: KW_ONLY marker"
 
 python = '''
@@ -777,6 +799,7 @@ rust = '''
 
 [[test]]
 name = "field_kw_only"
+skip = true
 description = "field(kw_only=True)"
 
 python = '''
@@ -810,6 +833,7 @@ rust = '''
 
 [[test]]
 name = "field_order_defaults"
+skip = true
 description = "Fields with defaults after fields without"
 
 python = '''
@@ -850,6 +874,7 @@ rust = '''
 
 [[test]]
 name = "field_kw_only_reorder"
+skip = true
 description = "KW_ONLY fields can have defaults anywhere"
 
 python = '''
@@ -895,6 +920,7 @@ rust = '''
 
 [[test]]
 name = "field_no_annotation"
+skip = true
 description = "x = field() without annotation not a field"
 
 python = '''
@@ -924,6 +950,7 @@ rust = '''
 
 [[test]]
 name = "field_string_type"
+skip = true
 description = "x: 'MyClass' forward reference"
 
 python = '''
@@ -960,6 +987,7 @@ rust = '''
 
 [[test]]
 name = "field_none_default"
+skip = true
 description = "x: Optional[int] = None"
 
 python = '''

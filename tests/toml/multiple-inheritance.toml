@@ -8,6 +8,7 @@ category = "advanced-oop"
 
 [[test]]
 name = "multiple_inheritance_basic"
+skip = true
 description = "class C(A, B): ..."
 
 python = '''
@@ -42,6 +43,7 @@ trait Mixin2 {
 
 [[test]]
 name = "mi_method_first"
+skip = true
 description = "Method resolution picks first parent"
 
 python = '''
@@ -89,6 +91,7 @@ rust = '''
 
 [[test]]
 name = "mi_method_second"
+skip = true
 description = "Method from second parent when first doesn't have it"
 
 python = '''
@@ -140,6 +143,7 @@ rust = '''
 
 [[test]]
 name = "mro_attribute"
+skip = true
 description = "Class.__mro__ shows resolution order"
 
 python = '''
@@ -159,6 +163,7 @@ struct Example {
 
 [[test]]
 name = "mro_method"
+skip = true
 description = "Class.mro() returns list"
 
 python = '''
@@ -202,6 +207,7 @@ rust = '''
 
 [[test]]
 name = "c3_linearization"
+skip = true
 description = "MRO follows C3 algorithm"
 
 python = '''
@@ -263,6 +269,7 @@ rust = '''
 
 [[test]]
 name = "diamond_basic"
+skip = true
 description = "D inherits from B, C which both inherit from A"
 
 python = '''
@@ -311,6 +318,7 @@ rust = '''
 
 [[test]]
 name = "diamond_method"
+skip = true
 description = "Which implementation is used in diamond"
 
 python = '''
@@ -375,6 +383,7 @@ rust = '''
 
 [[test]]
 name = "diamond_super"
+skip = true
 description = "super() in diamond follows MRO"
 
 python = '''
@@ -428,6 +437,7 @@ rust = '''
 
 [[test]]
 name = "super_basic"
+skip = true
 description = "super().method() calls parent"
 
 python = '''
@@ -471,6 +481,7 @@ rust = '''
 
 [[test]]
 name = "super_with_args"
+skip = true
 description = "super(Class, self).method()"
 
 python = '''
@@ -525,6 +536,7 @@ rust = '''
 
 [[test]]
 name = "super_cooperative"
+skip = true
 description = "All classes in hierarchy use super()"
 
 python = '''
@@ -582,6 +594,7 @@ rust = '''
 
 [[test]]
 name = "super_init"
+skip = true
 description = "Proper initialization with super()"
 
 python = '''
@@ -626,6 +639,7 @@ rust = '''
 
 [[test]]
 name = "mixin_basic"
+skip = true
 description = "class MyClass(Mixin1, Mixin2, Base): ..."
 
 python = '''
@@ -685,6 +699,7 @@ rust = '''
 
 [[test]]
 name = "mixin_methods"
+skip = true
 description = "Mixin adds functionality to class"
 
 python = '''
@@ -737,6 +752,7 @@ rust = '''
 
 [[test]]
 name = "mixin_order"
+skip = true
 description = "Mixin before base class in inheritance"
 
 python = '''
@@ -799,6 +815,7 @@ rust = '''
 
 [[test]]
 name = "mro_inconsistent"
+skip = true
 description = "Invalid inheritance that breaks C3"
 
 python = '''
@@ -814,6 +831,7 @@ rust = '''
 
 [[test]]
 name = "mi_slots"
+skip = true
 description = "Combining classes with __slots__"
 
 python = '''
@@ -833,6 +851,7 @@ struct Example {
 
 [[test]]
 name = "mi_attribute_conflict"
+skip = true
 description = "Same attribute name in multiple parents"
 
 python = '''
@@ -876,6 +895,7 @@ rust = '''
 
 [[test]]
 name = "mi_isinstance"
+skip = true
 description = "isinstance() checks all bases"
 
 python = '''

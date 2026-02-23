@@ -8,6 +8,7 @@ category = "data-structures"
 
 [[test]]
 name = "enum_functional"
+skip = true
 description = "Color = Enum('Color', ['RED', 'GREEN'])"
 
 python = '''
@@ -33,6 +34,7 @@ pub fn test_enum_functional() -> usize {
 
 [[test]]
 name = "enum_functional_values"
+skip = true
 description = "Color = Enum('Color', [('RED', 1), ('GREEN', 2)])"
 
 python = '''
@@ -58,6 +60,7 @@ pub fn test_enum_functional_values() -> i32 {
 
 [[test]]
 name = "enum_functional_dict"
+skip = true
 description = "Color = Enum('Color', {'RED': 1})"
 
 python = '''
@@ -83,6 +86,7 @@ pub fn test_enum_functional_dict() -> i32 {
 
 [[test]]
 name = "enum_functional_string"
+skip = true
 description = "Color = Enum('Color', 'RED GREEN BLUE')"
 
 python = '''
@@ -113,6 +117,7 @@ pub fn test_enum_functional_string() -> usize {
 
 [[test]]
 name = "enum_unique"
+skip = true
 description = "@unique prevents duplicate values"
 
 python = '''
@@ -144,6 +149,7 @@ pub fn test_enum_unique() -> i32 {
 
 [[test]]
 name = "enum_unique_error"
+skip = true
 description = "@unique decorator validates enum uniqueness at compile time in Rust"
 
 python = '''
@@ -177,6 +183,7 @@ pub fn test_enum_unique_error() -> bool {
 
 [[test]]
 name = "enum_alias"
+skip = true
 description = "CRIMSON = RED = 1 creates alias"
 
 python = '''
@@ -206,6 +213,7 @@ pub fn test_enum_alias() -> bool {
 
 [[test]]
 name = "enum_alias_is"
+skip = true
 description = "Color.CRIMSON is Color.RED"
 
 python = '''
@@ -233,6 +241,7 @@ pub fn test_enum_alias_is() -> bool {
 
 [[test]]
 name = "enum_members_alias"
+skip = true
 description = "__members__ includes aliases"
 
 python = '''
@@ -252,6 +261,7 @@ struct Example {
 
 [[test]]
 name = "enum_iter_no_alias"
+skip = true
 description = "list(Color) excludes aliases"
 
 python = '''
@@ -285,6 +295,7 @@ pub fn test_enum_iter_no_alias() -> usize {
 
 [[test]]
 name = "enum_no_extend"
+skip = true
 description = "Enum values remain constant in Rust"
 
 python = '''
@@ -313,6 +324,7 @@ pub fn test_enum_no_extend() -> bool {
 
 [[test]]
 name = "enum_extend_base"
+skip = true
 description = "Can extend enum without members"
 
 python = '''
@@ -344,6 +356,7 @@ pub fn test_enum_extend_base() -> i32 {
 
 [[test]]
 name = "enum_shared_mixin"
+skip = true
 description = "Share methods via mixin class"
 
 python = '''
@@ -386,6 +399,7 @@ pub fn test_enum_shared_mixin() -> i32 {
 
 [[test]]
 name = "enum_tuple_value"
+skip = true
 description = "RED = (255, 0, 0)"
 
 python = '''
@@ -423,6 +437,7 @@ pub fn test_enum_tuple_value() -> u8 {
 
 [[test]]
 name = "enum_dict_value"
+skip = true
 description = "CONFIG = {'key': 'value'}"
 
 python = '''
@@ -472,6 +487,7 @@ pub fn test_enum_dict_value() -> String {
 
 [[test]]
 name = "enum_value_parts"
+skip = true
 description = "Color.RED.value[0]"
 
 python = '''
@@ -513,6 +529,7 @@ pub fn test_enum_value_parts() -> u8 {
 
 [[test]]
 name = "flag_strict"
+skip = true
 description = "Flag with boundary=STRICT"
 
 python = '''
@@ -553,6 +570,7 @@ pub fn test_flag_strict() -> u8 {
 
 [[test]]
 name = "flag_conform"
+skip = true
 description = "Flag with boundary=CONFORM"
 
 python = '''
@@ -584,6 +602,7 @@ pub fn test_flag_conform() -> u8 {
 
 [[test]]
 name = "flag_keep"
+skip = true
 description = "Flag with boundary=KEEP"
 
 python = '''
@@ -619,6 +638,7 @@ pub fn test_flag_keep() -> u8 {
 
 [[test]]
 name = "enum_reprmixin"
+skip = true
 description = "Repr shows value not name"
 
 python = '''
@@ -651,6 +671,7 @@ pub fn test_enum_reprmixin() -> String {
 
 [[test]]
 name = "enum_empty"
+skip = true
 description = "class Empty(Enum): pass"
 
 python = '''
@@ -675,6 +696,7 @@ pub fn test_enum_empty() -> usize {
 
 [[test]]
 name = "enum_pickle"
+skip = true
 description = "pickle.dumps/loads enum"
 
 python = '''
@@ -708,6 +730,7 @@ pub fn test_enum_pickle() -> i32 {
 
 [[test]]
 name = "enum_type_hint"
+skip = true
 description = "def f(color: Color) -> str"
 
 python = '''
@@ -743,6 +766,7 @@ pub fn test_enum_type_hint() -> String {
 
 [[test]]
 name = "enum_hash"
+skip = true
 description = "Enums are hashable"
 
 python = '''

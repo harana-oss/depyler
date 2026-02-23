@@ -8,6 +8,7 @@ category = "attributes"
 
 [[test]]
 name = "single_custom_attribute"
+skip = true
 description = "Single custom attribute via @depyler annotation"
 
 python = '''

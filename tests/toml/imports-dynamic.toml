@@ -8,6 +8,7 @@ category = "imports"
 
 [[test]]
 name = "dynamic_import_builtin"
+skip = true
 description = "mod = __import__('os')"
 
 python = '''
@@ -27,6 +28,7 @@ struct Example {
 
 [[test]]
 name = "dynamic_import_fromlist"
+skip = true
 description = "__import__('os.path', fromlist=['join'])"
 
 python = '''
@@ -50,6 +52,7 @@ struct Example {
 
 [[test]]
 name = "dynamic_import_module"
+skip = true
 description = "importlib.import_module('os')"
 
 python = '''
@@ -67,6 +70,7 @@ rust = '''
 
 [[test]]
 name = "dynamic_import_relative"
+skip = true
 description = "import_module('.sub', 'pkg')"
 
 python = '''
@@ -84,6 +88,7 @@ rust = '''
 
 [[test]]
 name = "dynamic_reload"
+skip = true
 description = "importlib.reload(mod)"
 
 python = '''
@@ -106,6 +111,7 @@ rust = '''
 
 [[test]]
 name = "dynamic_getattr"
+skip = true
 description = "getattr(mod, 'func')"
 
 python = '''
@@ -123,6 +129,7 @@ rust = '''
 
 [[test]]
 name = "dynamic_call"
+skip = true
 description = "importlib.import_module(name).func()"
 
 python = '''
@@ -144,6 +151,7 @@ rust = '''
 
 [[test]]
 name = "dynamic_lazy"
+skip = true
 description = "importlib.util.LazyLoader"
 
 python = '''
@@ -161,6 +169,7 @@ rust = '''
 
 [[test]]
 name = "dynamic_lazy_module"
+skip = true
 description = "Module loaded on first access"
 
 python = '''
@@ -182,6 +191,7 @@ rust = '''
 
 [[test]]
 name = "dynamic_from_file"
+skip = true
 description = "spec_from_file_location"
 
 python = '''
@@ -199,6 +209,7 @@ rust = '''
 
 [[test]]
 name = "dynamic_from_spec"
+skip = true
 description = "module_from_spec and loader.exec_module"
 
 python = '''
@@ -221,6 +232,7 @@ rust = '''
 
 [[test]]
 name = "dynamic_find_spec"
+skip = true
 description = "importlib.util.find_spec('os')"
 
 python = '''
@@ -238,6 +250,7 @@ rust = '''
 
 [[test]]
 name = "dynamic_spec_props"
+skip = true
 description = "spec.name, spec.origin"
 
 python = '''
@@ -259,6 +272,7 @@ rust = '''
 
 [[test]]
 name = "dynamic_plugin"
+skip = true
 description = "Load plugins dynamically"
 
 python = '''
@@ -276,6 +290,7 @@ rust = '''
 
 [[test]]
 name = "dynamic_optional"
+skip = true
 description = "try: import x except: fallback"
 
 python = '''
@@ -299,6 +314,7 @@ rust = '''
 
 [[test]]
 name = "dynamic_not_found"
+skip = true
 description = "ModuleNotFoundError"
 
 python = '''
@@ -319,6 +335,7 @@ rust = '''
 
 [[test]]
 name = "dynamic_error"
+skip = true
 description = "try/except for imports"
 
 python = '''

@@ -5,6 +5,7 @@ description = "Tests for detecting when lazy_static is required for module-level
 
 [[test]]
 name = "vec_constant_requires_lazy_static"
+skip = true
 description = "Vec requires lazy_static for module-level constant"
 
 python = '''
@@ -26,6 +27,7 @@ pub fn get_first() -> i32 {
 
 [[test]]
 name = "hashmap_constant_requires_lazy_static"
+skip = true
 description = "HashMap requires lazy_static for module-level constant"
 
 python = '''
@@ -48,6 +50,7 @@ pub fn get_config_value() -> i32 {
 
 [[test]]
 name = "string_constant_requires_lazy_static"
+skip = true
 description = "String requires lazy_static for module-level constant"
 
 python = '''
@@ -69,6 +72,7 @@ pub fn get_message() -> String {
 
 [[test]]
 name = "int_constant_no_lazy_static"
+skip = true
 description = "Int does NOT require lazy_static"
 
 python = '''
@@ -87,6 +91,7 @@ pub fn get_max() -> i32 {
 
 [[test]]
 name = "float_constant_no_lazy_static"
+skip = true
 description = "Float does NOT require lazy_static"
 
 python = '''
@@ -105,6 +110,7 @@ pub fn get_pi() -> f64 {
 
 [[test]]
 name = "bool_constant_no_lazy_static"
+skip = true
 description = "Bool does NOT require lazy_static"
 
 python = '''

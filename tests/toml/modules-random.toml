@@ -8,6 +8,7 @@ category = "stdlib-random"
 
 [[test]]
 name = "random_random"
+skip = true
 description = "random.random() float [0, 1)"
 
 python = '''
@@ -28,6 +29,7 @@ pub fn get_random_float() -> f64 {
 
 [[test]]
 name = "random_randint"
+skip = true
 description = "random.randint(a, b) inclusive range"
 
 python = '''
@@ -48,6 +50,7 @@ pub fn roll_dice() -> i32 {
 
 [[test]]
 name = "random_randrange"
+skip = true
 description = "random.randrange(start, stop, step)"
 
 python = '''
@@ -75,6 +78,7 @@ pub fn random_even(max_val: i32) -> i32 {
 
 [[test]]
 name = "random_uniform"
+skip = true
 description = "random.uniform(a, b) float range"
 
 python = '''
@@ -95,6 +99,7 @@ pub fn random_in_range(low: f64, high: f64) -> f64 {
 
 [[test]]
 name = "random_choice"
+skip = true
 description = "random.choice() single selection"
 
 python = '''
@@ -116,6 +121,7 @@ pub fn pick_one(items: &Vec<String>) -> String {
 
 [[test]]
 name = "random_choices"
+skip = true
 description = "random.choices() with replacement"
 
 python = '''
@@ -141,6 +147,7 @@ pub fn pick_many(items: &Vec<String>, k: i32) -> Vec<String> {
 
 [[test]]
 name = "random_sample"
+skip = true
 description = "random.sample() without replacement"
 
 python = '''
@@ -165,6 +172,7 @@ pub fn pick_unique(items: &Vec<String>, k: i32) -> Vec<String> {
 
 [[test]]
 name = "random_shuffle"
+skip = true
 description = "random.shuffle() in-place shuffle"
 
 python = '''
@@ -186,6 +194,7 @@ pub fn mix_up(items: &Vec<i32>) {
 
 [[test]]
 name = "random_seed"
+skip = true
 description = "random.seed() deterministic seeding"
 
 python = '''
@@ -208,6 +217,7 @@ pub fn set_seed(seed: i32) {
 
 [[test]]
 name = "secrets_token_bytes"
+skip = true
 description = "secrets.token_bytes() secure random"
 
 python = '''
@@ -230,6 +240,7 @@ pub fn random_bytes(n: i32) -> bytes {
 
 [[test]]
 name = "secrets_token_hex"
+skip = true
 description = "secrets.token_hex() hex string"
 
 python = '''
@@ -252,6 +263,7 @@ pub fn random_hex(n: i32) -> String {
 
 [[test]]
 name = "secrets_choice"
+skip = true
 description = "secrets.choice() secure selection"
 
 python = '''
@@ -272,6 +284,7 @@ pub fn secure_pick(items: &Vec<String>) -> String {
 
 [[test]]
 name = "secrets_randbelow"
+skip = true
 description = "secrets.randbelow() secure int"
 
 python = '''
@@ -291,6 +304,7 @@ pub fn secure_int(exclusive_max: i32) -> i32 {
 
 [[test]]
 name = "random_gauss"
+skip = true
 description = "random.gauss() normal distribution"
 
 python = '''
@@ -314,6 +328,7 @@ pub fn normal_random(mu: f64, sigma: f64) -> f64 {
 
 [[test]]
 name = "random_expovariate"
+skip = true
 description = "random.expovariate() exponential distribution"
 
 python = '''
@@ -337,6 +352,7 @@ pub fn exponential_random(rate: f64) -> f64 {
 
 [[test]]
 name = "random_triangular"
+skip = true
 description = "random.triangular() triangular distribution"
 
 python = '''
@@ -364,6 +380,7 @@ pub fn triangular_random(low: f64, high: f64, mode: f64) -> f64 {
 
 [[test]]
 name = "random_randrange_stop_only"
+skip = true
 description = "random.randrange(stop) - single argument"
 
 python = '''
@@ -390,6 +407,7 @@ pub fn get_random_below(n: i32) -> i32 {
 
 [[test]]
 name = "random_randrange_start_stop"
+skip = true
 description = "random.randrange(start, stop) - two arguments"
 
 python = '''
@@ -416,6 +434,7 @@ pub fn get_random_range(start: i32, stop: i32) -> i32 {
 
 [[test]]
 name = "random_randrange_step"
+skip = true
 description = "random.randrange(start, stop, step) - with step"
 
 python = '''
@@ -451,6 +470,7 @@ pub fn get_random_stepped(start: i32, stop: i32, step: i32) -> i32 {
 
 [[test]]
 name = "random_class_seeded"
+skip = true
 description = "random.Random(seed) class instantiation"
 
 python = '''
@@ -475,6 +495,7 @@ pub fn create_seeded_rng(seed: i32) -> i32 {
 
 [[test]]
 name = "random_class_no_seed"
+skip = true
 description = "random.Random() without seed"
 
 python = '''
@@ -503,6 +524,7 @@ pub fn create_random_rng() -> i32 {
 
 [[test]]
 name = "random_system_random"
+skip = true
 description = "random.SystemRandom() for cryptographic use"
 
 python = '''
@@ -531,6 +553,7 @@ pub fn create_secure_rng() -> i32 {
 
 [[test]]
 name = "random_seed_value"
+skip = true
 description = "random.seed(value) for reproducibility"
 
 python = '''

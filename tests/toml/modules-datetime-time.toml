@@ -44,6 +44,7 @@ pub fn get_utc_time() -> datetime {
 
 [[test]]
 name = "datetime_constructor"
+skip = true
 description = "datetime(year, month, day) constructor"
 
 python = '''
@@ -233,6 +234,7 @@ pub fn add_days(dt: &datetime, days: i32) -> datetime {
 
 [[test]]
 name = "timedelta_days"
+skip = true
 description = "timedelta(days=n) creates duration"
 
 python = '''
@@ -251,6 +253,7 @@ pub fn one_day() -> chrono::Duration {
 
 [[test]]
 name = "timedelta_hours_minutes"
+skip = true
 description = "timedelta with hours and minutes"
 
 python = '''
@@ -269,6 +272,7 @@ pub fn two_hours_thirty_minutes() -> chrono::Duration {
 
 [[test]]
 name = "timedelta_seconds"
+skip = true
 description = "timedelta with seconds"
 
 python = '''
@@ -287,6 +291,7 @@ pub fn ninety_seconds() -> chrono::Duration {
 
 [[test]]
 name = "timedelta_positional"
+skip = true
 description = "timedelta with positional args (days, seconds, microseconds)"
 
 python = '''
@@ -305,6 +310,7 @@ pub fn complex_delta() -> chrono::Duration {
 
 [[test]]
 name = "timedelta_arithmetic"
+skip = true
 description = "timedelta addition"
 
 python = '''

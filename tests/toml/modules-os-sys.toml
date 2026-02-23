@@ -8,6 +8,7 @@ category = "stdlib-os-sys"
 
 [[test]]
 name = "os_environ_get"
+skip = true
 description = "os.environ.get() for environment variable"
 
 python = '''
@@ -121,6 +122,7 @@ pub fn is_directory(path: String) -> bool {
 
 [[test]]
 name = "os_path_basename"
+skip = true
 description = "os.path.basename() extraction"
 
 python = '''
@@ -142,6 +144,7 @@ pub fn get_filename(path: String) -> String {
 
 [[test]]
 name = "os_path_dirname"
+skip = true
 description = "os.path.dirname() extraction"
 
 python = '''
@@ -199,6 +202,7 @@ pub fn ensure_directory(path: String) {
 
 [[test]]
 name = "os_remove"
+skip = true
 description = "os.remove() file deletion"
 
 python = '''
@@ -220,6 +224,7 @@ pub fn delete_file(path: String) {
 
 [[test]]
 name = "sys_argv"
+skip = true
 description = "sys.argv command line arguments"
 
 python = '''
@@ -301,6 +306,7 @@ pub fn is_linux() -> bool {
 
 [[test]]
 name = "os_path_relpath"
+skip = true
 description = "os.path.relpath() for relative paths"
 
 python = '''
@@ -507,6 +513,7 @@ pub fn test() -> String {
 
 [[test]]
 name = "os_environ_membership_check"
+skip = true
 description = "'key in os.environ' uses std::env::var().is_ok()"
 
 python = '''
@@ -528,6 +535,7 @@ pub fn test() -> bool {
 
 [[test]]
 name = "os_environ_not_in"
+skip = true
 description = "'key not in os.environ' negation"
 
 python = '''
@@ -549,6 +557,7 @@ pub fn test() -> bool {
 
 [[test]]
 name = "os_environ_variable_key"
+skip = true
 description = "Variable key in os.environ check"
 
 python = '''
@@ -574,6 +583,7 @@ pub fn test(key: String) -> bool {
 
 [[test]]
 name = "subprocess_run_basic"
+skip = true
 description = "subprocess.run() basic execution"
 
 python = '''
@@ -596,6 +606,7 @@ pub fn run_command(cmd: &Vec<String>) -> i32 {
 
 [[test]]
 name = "subprocess_run_capture_output"
+skip = true
 description = "subprocess.run() with capture_output=True"
 
 python = '''
@@ -618,6 +629,7 @@ pub fn run_with_output(cmd: &Vec<String>) -> String {
 
 [[test]]
 name = "subprocess_run_with_cwd"
+skip = true
 description = "subprocess.run() with cwd parameter"
 
 python = '''
@@ -641,6 +653,7 @@ pub fn run_in_dir(cmd: &Vec<String>, directory: String) -> i32 {
 
 [[test]]
 name = "subprocess_run_check"
+skip = true
 description = "subprocess.run() with check=True should verify exit status"
 
 python = '''

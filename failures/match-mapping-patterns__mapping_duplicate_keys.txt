@@ -1,8 +1,0 @@
-  match-mapping-patterns.toml :: mapping_duplicate_keys
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− // case {'a': x, 'a': y}: syntax error
-−     let result = true; // Placeholder
-+ pub const result: bool = true;
-────────────────────────────────────────────────────────────

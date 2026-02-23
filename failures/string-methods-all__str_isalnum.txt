@@ -1,7 +1,0 @@
-  string-methods-all.toml :: str_isalnum
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− pub const result: bool = "abc123".chars().all(|c| c.is_alphanumeric());
-+ 
-────────────────────────────────────────────────────────────

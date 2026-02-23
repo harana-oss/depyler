@@ -1,9 +1,0 @@
-  bytes-strings.toml :: bytes_hex_escape
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-  pub fn test_bytes_hex_escape() -> bool {
-−     return b"\x41" == b"A";
-+     return b"A" == b"A";
-  }
-────────────────────────────────────────────────────────────

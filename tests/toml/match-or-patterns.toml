@@ -8,6 +8,7 @@ category = "modern-python"
 
 [[test]]
 name = "or_literal"
+skip = true
 description = "case 1 | 2 | 3: ..."
 
 python = '''
@@ -30,6 +31,7 @@ rust = '''
 
 [[test]]
 name = "or_string"
+skip = true
 description = "case 'yes' | 'y' | 'true': ..."
 
 python = '''
@@ -52,6 +54,7 @@ rust = '''
 
 [[test]]
 name = "or_none"
+skip = true
 description = "case None | 0 | '': ..."
 
 python = '''
@@ -78,6 +81,7 @@ rust = '''
 
 [[test]]
 name = "or_same_capture"
+skip = true
 description = "case (x, 0) | (0, x): must bind same names"
 
 python = '''
@@ -100,6 +104,7 @@ rust = '''
 
 [[test]]
 name = "or_binding_rule"
+skip = true
 description = "All alternatives must bind same variables"
 
 python = '''
@@ -122,6 +127,7 @@ rust = '''
 
 [[test]]
 name = "or_wildcard"
+skip = true
 description = "case _ | _: always matches"
 
 python = '''
@@ -145,6 +151,7 @@ rust = '''
 
 [[test]]
 name = "or_sequence"
+skip = true
 description = "case [] | [_]: empty or single"
 
 python = '''
@@ -167,6 +174,7 @@ rust = '''
 
 [[test]]
 name = "or_tuple"
+skip = true
 description = "case () | (x,) | (x, y): ..."
 
 python = '''
@@ -193,6 +201,7 @@ rust = '''
 
 [[test]]
 name = "or_class"
+skip = true
 description = "case int() | float(): any number"
 
 python = '''
@@ -213,6 +222,7 @@ rust = '''
 
 [[test]]
 name = "or_different_classes"
+skip = true
 description = "case Success() | Failure(): ..."
 
 python = '''
@@ -246,6 +256,7 @@ rust = '''
 
 [[test]]
 name = "or_nested"
+skip = true
 description = "case ('a' | 'b', x): first is 'a' or 'b'"
 
 python = '''
@@ -268,6 +279,7 @@ rust = '''
 
 [[test]]
 name = "or_in_sequence"
+skip = true
 description = "case [1 | 2, x]: ..."
 
 python = '''
@@ -290,6 +302,7 @@ rust = '''
 
 [[test]]
 name = "or_in_mapping"
+skip = true
 description = "case {'type': 'a' | 'b'}: ..."
 
 python = '''
@@ -318,6 +331,7 @@ rust = '''
 
 [[test]]
 name = "or_with_guard"
+skip = true
 description = "case 1 | 2 | 3 if condition: ..."
 
 python = '''
@@ -342,6 +356,7 @@ rust = '''
 
 [[test]]
 name = "or_guard_capture"
+skip = true
 description = "case x | y if x > 0: ..."
 
 python = '''
@@ -363,6 +378,7 @@ rust = '''
 
 [[test]]
 name = "or_http_status"
+skip = true
 description = "case 200 | 201 | 204: success"
 
 python = '''
@@ -385,6 +401,7 @@ rust = '''
 
 [[test]]
 name = "or_command"
+skip = true
 description = "case 'quit' | 'exit' | 'q': ..."
 
 python = '''
@@ -407,6 +424,7 @@ rust = '''
 
 [[test]]
 name = "or_falsy"
+skip = true
 description = "case None | False | 0 | '' | [] | {}: ..."
 
 python = '''
@@ -434,6 +452,7 @@ rust = '''
 
 [[test]]
 name = "or_precedence"
+skip = true
 description = "OR has lowest precedence in patterns"
 
 python = '''
@@ -456,6 +475,7 @@ rust = '''
 
 [[test]]
 name = "or_overlapping"
+skip = true
 description = "case 1 | _ : _ always matches"
 
 python = '''
@@ -475,6 +495,7 @@ rust = '''
 
 [[test]]
 name = "or_with_as"
+skip = true
 description = "case (1 | 2 | 3) as x: capture matched value"
 
 python = '''

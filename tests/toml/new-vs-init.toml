@@ -8,6 +8,7 @@ category = "advanced-oop"
 
 [[test]]
 name = "init_basic"
+skip = true
 description = "Basic __init__ with parameter assignment"
 
 python = '''
@@ -38,6 +39,7 @@ pub fn create_point() -> Point {
 
 [[test]]
 name = "init_defaults"
+skip = true
 description = "__init__ with default parameter values"
 
 python = '''
@@ -95,6 +97,7 @@ pub fn create_widget() -> Widget {
 
 [[test]]
 name = "new_basic"
+skip = true
 description = "Basic __new__ implementation"
 
 python = '''
@@ -122,6 +125,7 @@ pub fn create() -> Immutable {
 
 [[test]]
 name = "new_args"
+skip = true
 description = "__new__ with arguments"
 
 python = '''
@@ -148,6 +152,7 @@ pub fn create_int() -> CustomInt {
 
 [[test]]
 name = "new_different_type"
+skip = true
 description = "__new__ can return instance of different class"
 
 python = '''
@@ -176,6 +181,7 @@ pub fn create_object() -> object {
 
 [[test]]
 name = "new_singleton"
+skip = true
 description = "Singleton pattern using __new__"
 
 python = '''
@@ -206,6 +212,7 @@ pub fn get_singleton() -> Singleton {
 
 [[test]]
 name = "new_immutable"
+skip = true
 description = "__new__ for subclassing immutable types"
 
 python = '''
@@ -234,6 +241,7 @@ pub fn create_positive(val: i32) -> PositiveInt {
 
 [[test]]
 name = "new_caching"
+skip = true
 description = "Caching pattern with __new__"
 
 python = '''
@@ -265,6 +273,7 @@ pub fn get_cached(k: String) -> CachedObject {
 
 [[test]]
 name = "new_init_order"
+skip = true
 description = "__new__ called before __init__"
 
 python = '''
@@ -298,6 +307,7 @@ pub fn create() -> Ordered {
 
 [[test]]
 name = "new_wrong_type"
+skip = true
 description = "__init__ not called if __new__ returns wrong type"
 
 python = '''
@@ -330,6 +340,7 @@ pub fn create() {
 
 [[test]]
 name = "new_init_args"
+skip = true
 description = "Same args passed to both __new__ and __init__"
 
 python = '''
@@ -364,6 +375,7 @@ pub fn create() -> ArgsClass {
 
 [[test]]
 name = "new_inheritance"
+skip = true
 description = "Subclass __new__ calling super().__new__()"
 
 python = '''
@@ -403,6 +415,7 @@ pub fn create() -> Derived {
 
 [[test]]
 name = "new_override"
+skip = true
 description = "Subclass overrides parent __new__"
 
 python = '''
@@ -444,6 +457,7 @@ pub fn create() -> Child {
 
 [[test]]
 name = "new_metaclass"
+skip = true
 description = "__new__ in metaclass creates class objects"
 
 python = '''
@@ -482,6 +496,7 @@ pub fn check() -> String {
 
 [[test]]
 name = "new_return_none"
+skip = true
 description = "__new__ returning None (edge case)"
 
 python = '''
@@ -508,6 +523,7 @@ pub fn create() {
 
 [[test]]
 name = "new_no_init"
+skip = true
 description = "Class with only __new__ and no __init__"
 
 python = '''

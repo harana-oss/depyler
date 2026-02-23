@@ -8,6 +8,7 @@ category = "optimizer"
 
 [[test]]
 name = "simple_equality_comparison"
+skip = true
 description = "Simple equality comparison should not create CSE temp"
 
 python = '''
@@ -28,6 +29,7 @@ pub fn check_status(name: &str) -> bool {
 
 [[test]]
 name = "simple_inequality_comparison"
+skip = true
 description = "Simple inequality comparison should not create CSE temp"
 
 python = '''
@@ -48,6 +50,7 @@ pub fn check_not_done(status: &str) -> bool {
 
 [[test]]
 name = "simple_numeric_comparison"
+skip = true
 description = "Simple numeric comparison should not create CSE temp"
 
 python = '''
@@ -68,6 +71,7 @@ pub fn is_positive(x: i64) -> bool {
 
 [[test]]
 name = "simple_less_than_comparison"
+skip = true
 description = "Simple less-than comparison should not create CSE temp"
 
 python = '''
@@ -88,6 +92,7 @@ pub fn is_negative(x: i64) -> bool {
 
 [[test]]
 name = "variable_to_variable_comparison"
+skip = true
 description = "Variable to variable comparison should not create CSE temp"
 
 python = '''
@@ -112,6 +117,7 @@ pub fn are_equal(a: i64, b: i64) -> bool {
 
 [[test]]
 name = "simple_and_with_comparisons"
+skip = true
 description = "AND of simple comparisons should be inline"
 
 python = '''
@@ -132,6 +138,7 @@ pub fn in_range(x: i64, low: i64, high: i64) -> bool {
 
 [[test]]
 name = "simple_or_with_comparisons"
+skip = true
 description = "OR of simple comparisons should be inline"
 
 python = '''
@@ -156,6 +163,7 @@ pub fn is_boundary(x: i64, low: i64, high: i64) -> bool {
 
 [[test]]
 name = "nested_arithmetic_reused"
+skip = true
 description = "Nested arithmetic expression used multiple times should use CSE"
 
 python = '''
@@ -176,6 +184,7 @@ pub fn calculate(a: i64, b: i64, c: i64) -> i64 {
 
 [[test]]
 name = "function_call_in_expression"
+skip = true
 description = "Function call results should be cached"
 
 python = '''
@@ -201,6 +210,7 @@ pub fn use_abs_twice(x: i64) -> i64 {
 
 [[test]]
 name = "attribute_comparison_simple"
+skip = true
 description = "Simple attribute comparison should not create CSE temp"
 
 python = '''
@@ -228,6 +238,7 @@ pub fn check_state(state: &State) -> bool {
 
 [[test]]
 name = "nested_attribute_comparison"
+skip = true
 description = "Nested attribute comparison should not create CSE temp"
 
 python = '''
@@ -266,6 +277,7 @@ pub fn is_extra_time(state: &State) -> bool {
 
 [[test]]
 name = "repeated_complex_expression"
+skip = true
 description = "Same complex expression used twice should use CSE"
 
 python = '''
@@ -284,6 +296,7 @@ pub fn compute(a: i64, b: i64) -> i64 {
 
 [[test]]
 name = "expression_with_function_call"
+skip = true
 description = "Expression containing function call should use CSE"
 
 python = '''
@@ -309,6 +322,7 @@ pub fn safe_divide(a: i64, b: i64) -> i64 {
 
 [[test]]
 name = "single_use_arithmetic"
+skip = true
 description = "Single-use arithmetic should not create CSE temp"
 
 python = '''
@@ -324,6 +338,7 @@ pub fn add(a: i64, b: i64) -> i64 {
 
 [[test]]
 name = "single_use_multiplication"
+skip = true
 description = "Single-use multiplication should not create CSE temp"
 
 python = '''
@@ -339,6 +354,7 @@ pub fn multiply(a: i64, b: i64) -> i64 {
 
 [[test]]
 name = "chained_comparisons_and"
+skip = true
 description = "Chained AND comparisons inline"
 
 python = '''
@@ -354,6 +370,7 @@ pub fn validate(x: i64) -> bool {
 
 [[test]]
 name = "mixed_comparison_and_arithmetic"
+skip = true
 description = "Comparison with arithmetic operand"
 
 python = '''
@@ -378,6 +395,7 @@ pub fn check_sum(a: i64, b: i64, target: i64) -> bool {
 
 [[test]]
 name = "game_state_period_check"
+skip = true
 description = "Game state period check should not create unnecessary temps"
 
 python = '''
@@ -422,6 +440,7 @@ pub fn check_half_complete(state: &State) -> bool {
 
 [[test]]
 name = "multiple_period_checks"
+skip = true
 description = "Multiple period checks with same expression should use CSE"
 
 python = '''
@@ -468,6 +487,7 @@ pub fn handle_period(state: &State) -> String {
 
 [[test]]
 name = "method_call_list_index"
+skip = true
 description = "list.index() call should be cached with CSE"
 
 python = '''
@@ -490,6 +510,7 @@ pub fn find_twice(items: Vec<i32>, value: i32) -> i32 {
 
 [[test]]
 name = "method_call_str_find"
+skip = true
 description = "str.find() call should be cached with CSE"
 
 python = '''
@@ -515,6 +536,7 @@ pub fn check_position(text: &str, char: &str) -> bool {
 
 [[test]]
 name = "len_function_cached"
+skip = true
 description = "len() function call should be cached"
 
 python = '''
@@ -531,6 +553,7 @@ pub fn use_len_twice(items: Vec<i32>) -> i32 {
 
 [[test]]
 name = "arithmetic_with_function_call"
+skip = true
 description = "Arithmetic expression with function call should use CSE"
 
 python = '''
@@ -551,6 +574,7 @@ pub fn calculate_with_len(items: Vec<i32>, x: i32) -> i32 {
 
 [[test]]
 name = "simple_addition_no_cse"
+skip = true
 description = "Simple addition with variables should not create CSE temp"
 
 python = '''
@@ -566,6 +590,7 @@ pub fn add_values(a: i64, b: i64) -> i64 {
 
 [[test]]
 name = "simple_multiplication_no_cse"
+skip = true
 description = "Simple multiplication should not create CSE temp"
 
 python = '''

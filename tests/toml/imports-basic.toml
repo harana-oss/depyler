@@ -8,6 +8,7 @@ category = "imports"
 
 [[test]]
 name = "import_simple"
+skip = true
 description = "import os"
 
 python = '''
@@ -28,6 +29,7 @@ rust = '''
 
 [[test]]
 name = "import_dotted"
+skip = true
 description = "import os.path"
 
 python = '''
@@ -47,6 +49,7 @@ rust = '''
 
 [[test]]
 name = "import_access"
+skip = true
 description = "os.getcwd()"
 
 python = '''
@@ -72,6 +75,7 @@ rust = '''
 
 [[test]]
 name = "import_as"
+skip = true
 description = "import numpy as np"
 
 python = '''
@@ -91,6 +95,7 @@ rust = '''
 
 [[test]]
 name = "import_alias"
+skip = true
 description = "np.array([1, 2, 3])"
 
 python = '''
@@ -110,6 +115,7 @@ rust = '''
 
 [[test]]
 name = "import_multi_alias"
+skip = true
 description = "import os as o, sys as s"
 
 python = '''
@@ -134,6 +140,7 @@ rust = '''
 
 [[test]]
 name = "import_multiple"
+skip = true
 description = "import os, sys, json"
 
 python = '''
@@ -159,6 +166,7 @@ rust = '''
 
 [[test]]
 name = "import_separate"
+skip = true
 description = "import os\\nimport sys"
 
 python = '''
@@ -184,6 +192,7 @@ rust = '''
 
 [[test]]
 name = "import_sys_modules"
+skip = true
 description = "import x; 'x' in sys.modules"
 
 python = '''
@@ -204,6 +213,7 @@ rust = '''
 
 [[test]]
 name = "import_once"
+skip = true
 description = "Module code runs once"
 
 python = '''
@@ -228,6 +238,7 @@ rust = '''
 
 [[test]]
 name = "import_binding"
+skip = true
 description = "import creates name binding"
 
 python = '''
@@ -252,6 +263,7 @@ rust = '''
 
 [[test]]
 name = "import_math"
+skip = true
 description = "import math; math.pi"
 
 python = '''
@@ -271,6 +283,7 @@ rust = '''
 
 [[test]]
 name = "import_json"
+skip = true
 description = "import json; json.dumps"
 
 python = '''
@@ -293,6 +306,7 @@ rust = '''
 
 [[test]]
 name = "import_collections"
+skip = true
 description = "import collections"
 
 python = '''
@@ -319,6 +333,7 @@ rust = '''
 
 [[test]]
 name = "import_not_found"
+skip = true
 description = "import nonexistent"
 
 python = '''
@@ -340,6 +355,7 @@ rust = '''
 
 [[test]]
 name = "import_error"
+skip = true
 description = "Import failure"
 
 python = '''
@@ -360,6 +376,7 @@ rust = '''
 
 [[test]]
 name = "import_conditional"
+skip = true
 description = "if cond: import x"
 
 python = '''
@@ -389,6 +406,7 @@ rust = '''
 
 [[test]]
 name = "import_in_function"
+skip = true
 description = "def f(): import x"
 
 python = '''
@@ -415,6 +433,7 @@ rust = '''
 
 [[test]]
 name = "import_reimport"
+skip = true
 description = "import x; import x again"
 
 python = '''

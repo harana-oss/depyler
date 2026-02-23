@@ -1,8 +1,0 @@
-  ellipsis.toml :: ellipsis_comparison
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− log::info!("Ellipsis equals itself: true");
-− log::info!("Ellipsis is itself: true");
-+ 
-────────────────────────────────────────────────────────────

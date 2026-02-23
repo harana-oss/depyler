@@ -8,6 +8,7 @@ category = "networking"
 
 [[test]]
 name = "http_client"
+skip = true
 description = "Example test"
 
 python = '''

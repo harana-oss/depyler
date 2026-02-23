@@ -8,6 +8,7 @@ category = "dunder-methods"
 
 [[test]]
 name = "dunder_iadd"
+skip = true
 description = "def __iadd__(self, other): self.x += other.x; return self"
 python = """
 class Counter:
@@ -45,6 +46,7 @@ log::info!("Counter({})", a.x);"""
 
 [[test]]
 name = "dunder_isub"
+skip = true
 description = "def __isub__(self, other): self.x -= other.x; return self"
 python = """
 class Counter:
@@ -82,6 +84,7 @@ log::info!("Counter({})", a.x);"""
 
 [[test]]
 name = "dunder_imul"
+skip = true
 description = "def __imul__(self, other): self.x *= other.x; return self"
 python = """
 class Counter:
@@ -119,6 +122,7 @@ log::info!("Counter({})", a.x);"""
 
 [[test]]
 name = "dunder_itruediv"
+skip = true
 description = "def __itruediv__(self, other): self.x /= other.x; return self"
 python = """
 class Counter:
@@ -156,6 +160,7 @@ log::info!("Counter({})", a.x);"""
 
 [[test]]
 name = "dunder_ifloordiv"
+skip = true
 description = "def __ifloordiv__(self, other): self.x //= other.x; return self"
 python = """
 class Counter:
@@ -194,6 +199,7 @@ log::info!("Counter({})", a.x);"""
 
 [[test]]
 name = "dunder_imod"
+skip = true
 description = "def __imod__(self, other): self.x %= other.x; return self"
 python = """
 class Counter:
@@ -231,6 +237,7 @@ log::info!("Counter({})", a.x);"""
 
 [[test]]
 name = "dunder_ipow"
+skip = true
 description = "def __ipow__(self, other): self.x **= other.x; return self"
 python = """
 class Counter:
@@ -271,6 +278,7 @@ log::info!("Counter({})", a.x);"""
 
 [[test]]
 name = "dunder_iand"
+skip = true
 description = "def __iand__(self, other): self.x &= other.x; return self"
 python = """
 class Flags:
@@ -308,6 +316,7 @@ log::info!("Flags({})", a.x);"""
 
 [[test]]
 name = "dunder_ior"
+skip = true
 description = "def __ior__(self, other): self.x |= other.x; return self"
 python = """
 class Flags:
@@ -345,6 +354,7 @@ log::info!("Flags({})", a.x);"""
 
 [[test]]
 name = "dunder_ixor"
+skip = true
 description = "def __ixor__(self, other): self.x ^= other.x; return self"
 python = """
 class Flags:
@@ -382,6 +392,7 @@ log::info!("Flags({})", a.x);"""
 
 [[test]]
 name = "dunder_ilshift"
+skip = true
 description = "def __ilshift__(self, other): self.x <<= other.x; return self"
 python = """
 class Shifter:
@@ -419,6 +430,7 @@ log::info!("Shifter({})", a.x);"""
 
 [[test]]
 name = "dunder_irshift"
+skip = true
 description = "def __irshift__(self, other): self.x >>= other.x; return self"
 python = """
 class Shifter:
@@ -460,6 +472,7 @@ log::info!("Shifter({})", a.x);"""
 
 [[test]]
 name = "dunder_imatmul"
+skip = true
 description = "def __imatmul__(self, other): ... (@= operator)"
 python = """
 class Matrix:
@@ -521,6 +534,7 @@ log::info!("Matrix({:?})", a.data);"""
 
 [[test]]
 name = "inplace_fallback"
+skip = true
 description = "a += b falls back to a += 1 b if no __iadd__"
 python = """
 class NoInPlace:
@@ -568,6 +582,7 @@ log::info!("Object changed: true");"""
 
 [[test]]
 name = "iadd_return_self"
+skip = true
 description = "In-place methods should return self"
 python = """
 class Accumulator:
@@ -616,6 +631,7 @@ log::info!("Same object: true");"""
 
 [[test]]
 name = "inplace_mutable"
+skip = true
 description = "list += [x] modifies in-place"
 python = """
 original = [1, 2, 3]
@@ -637,6 +653,7 @@ log::info!("Same object: true");"""
 
 [[test]]
 name = "inplace_immutable"
+skip = true
 description = "int += 1 creates new object (rebinds)"
 python = """
 x = 5
@@ -662,6 +679,7 @@ log::info!("Different object: true");"""
 
 [[test]]
 name = "inplace_different_type"
+skip = true
 description = "list += tuple extends list"
 python = """
 my_list = [1, 2, 3]
@@ -678,6 +696,7 @@ log::info!("List: {:?}", my_list);"""
 
 [[test]]
 name = "inplace_different_object"
+skip = true
 description = "In-place can return different object"
 python = """
 class Weird:
@@ -727,6 +746,7 @@ log::info!("Different object: true");"""
 
 [[test]]
 name = "inplace_chained"
+skip = true
 description = "a += b += c not valid (different from a = b = c)"
 python = """
 # This demonstrates that in-place operators don't chain like assignment

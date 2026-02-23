@@ -1,9 +1,0 @@
-  template-strings.toml :: template_escape
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− // Rust: literal dollar sign
-−     let result = String::from("Price: $10");
-−     assert_eq!(result, "Price: $10");
-+ 
-────────────────────────────────────────────────────────────

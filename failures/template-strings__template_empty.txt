@@ -1,9 +1,0 @@
-  template-strings.toml :: template_empty
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− // Rust: empty string
-−     let result = String::from("");
-−     assert_eq!(result, "");
-+ 
-────────────────────────────────────────────────────────────

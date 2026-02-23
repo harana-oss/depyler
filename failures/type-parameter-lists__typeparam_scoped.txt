@@ -1,8 +1,0 @@
-  type-parameter-lists.toml :: typeparam_scoped
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− // Type parameter scope limited to definition
-−     let result = true; // Placeholder
-+ pub const result: bool = true;
-────────────────────────────────────────────────────────────

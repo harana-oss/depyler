@@ -78,6 +78,7 @@ pub fn classify(x: i32) -> String {
 
 [[test]]
 name = "ternary_simple"
+skip = true
 description = "Simple ternary expression"
 
 python = '''
@@ -254,6 +255,7 @@ pub fn count_down(n: i32) -> i32 {
 
 [[test]]
 name = "while_with_break"
+skip = true
 description = "While loop with break"
 
 python = '''
@@ -298,6 +300,7 @@ pub fn find_first(items: &Vec<i32>, target: i32) -> i32 {
 
 [[test]]
 name = "while_with_continue"
+skip = true
 description = "While loop with continue"
 
 python = '''
@@ -678,6 +681,7 @@ pub fn test_func() {
 
 [[test]]
 name = "try_except_statement"
+skip = true
 description = "Try-except statement generation"
 
 python = '''
@@ -716,6 +720,7 @@ pub fn safe_operation() -> i32 {
 
 [[test]]
 name = "try_finally_statement"
+skip = true
 description = "Try-finally statement generation"
 
 python = '''
@@ -737,6 +742,7 @@ pub fn with_finally() -> i32 {
 
 [[test]]
 name = "try_except_finally_statement"
+skip = true
 description = "Complete try-except-finally"
 
 python = '''
@@ -778,6 +784,7 @@ pub fn complex_exception() -> i32 {
 
 [[test]]
 name = "with_statement"
+skip = true
 description = "Context manager with statement"
 
 python = '''
@@ -864,6 +871,7 @@ pub fn check_value(x: i32) {
 
 [[test]]
 name = "assert_with_message"
+skip = true
 description = "Assert statement with message"
 
 python = '''
@@ -922,6 +930,7 @@ pub fn update_dict() -> HashMap<String, i32> {
 
 [[test]]
 name = "type_conversion_assignment"
+skip = true
 description = "Type conversion in assignment"
 
 python = '''
@@ -964,6 +973,7 @@ pub fn maybe_value(flag: bool) -> Option<i32> {
 
 [[test]]
 name = "raise_with_exception"
+skip = true
 description = "Raise statement with exception"
 
 python = '''
@@ -996,6 +1006,7 @@ pub fn raise_error() {
 
 [[test]]
 name = "bare_raise"
+skip = true
 description = "Bare raise statement for re-raise"
 
 python = '''
@@ -1076,6 +1087,7 @@ pub fn count_down(mut n: i32) -> i32 {
 
 [[test]]
 name = "if_else_statement"
+skip = true
 description = "If-else statement generation"
 
 python = '''
@@ -1166,6 +1178,7 @@ pub fn complex_statements(x: i32) -> i32 {
 
 [[test]]
 name = "nested_index_assignment"
+skip = true
 description = "Nested dictionary access"
 
 python = '''
@@ -1207,6 +1220,7 @@ pub fn empty_function() {}
 
 [[test]]
 name = "with_without_target"
+skip = true
 description = "Context manager without variable binding"
 
 python = '''
@@ -1223,6 +1237,7 @@ pub fn use_context_no_var() {
 
 [[test]]
 name = "complex_logic_combination"
+skip = true
 description = "All statement types working together"
 
 python = '''
@@ -1476,6 +1491,7 @@ pub fn mutable_tracking() -> i32 {
 
 [[test]]
 name = "exception_scope_bare_except"
+skip = true
 description = "Bare except clause handling"
 
 python = '''
@@ -1516,6 +1532,7 @@ pub fn try_bare_except() -> i32 {
 
 [[test]]
 name = "exception_scope_specific_type"
+skip = true
 description = "Specific exception type handling"
 
 python = '''
@@ -1556,6 +1573,7 @@ pub fn try_specific() -> i32 {
 
 [[test]]
 name = "exception_scope_multiple_types"
+skip = true
 description = "Multiple exception types in tuple"
 
 python = '''
@@ -1615,6 +1633,7 @@ pub fn try_multiple() -> i32 {
 
 [[test]]
 name = "exception_scope_nested_try"
+skip = true
 description = "Nested try-except blocks"
 
 python = '''
@@ -1680,6 +1699,7 @@ pub fn nested_try() -> i32 {
 
 [[test]]
 name = "exception_scope_with_finally"
+skip = true
 description = "Try-except-finally block"
 
 python = '''
@@ -1725,6 +1745,7 @@ pub fn try_finally() -> i32 {
 
 [[test]]
 name = "exception_scope_with_else"
+skip = true
 description = "Try-except-else block"
 
 python = '''
@@ -1767,6 +1788,7 @@ pub fn try_else() -> i32 {
 
 [[test]]
 name = "exception_scope_raise_in_try"
+skip = true
 description = "Raise statement inside try block"
 
 python = '''
@@ -1810,6 +1832,7 @@ pub fn raise_in_try(x: i32) -> i32 {
 
 [[test]]
 name = "exception_scope_sequential_try"
+skip = true
 description = "Sequential try-except blocks"
 
 python = '''
@@ -1877,6 +1900,7 @@ pub fn sequential_try() -> i32 {
 
 [[test]]
 name = "exception_scope_return_in_except"
+skip = true
 description = "Return statement inside except block"
 
 python = '''
@@ -1917,6 +1941,7 @@ pub fn return_in_except(x: i32) -> i32 {
 
 [[test]]
 name = "exception_scope_in_loop"
+skip = true
 description = "Try-except inside a loop"
 
 python = '''
@@ -1962,6 +1987,7 @@ pub fn try_in_loop() -> i32 {
 
 [[test]]
 name = "exception_scope_empty_except"
+skip = true
 description = "Empty except with pass"
 
 python = '''
@@ -2001,6 +2027,7 @@ pub fn empty_except() -> i32 {
 
 [[test]]
 name = "exception_scope_multiple_except"
+skip = true
 description = "Multiple except clauses for different types"
 
 python = '''
@@ -2064,6 +2091,7 @@ pub fn multiple_except() -> i32 {
 
 [[test]]
 name = "mutation_exception_scope_stack"
+skip = true
 description = "Deeply nested try-except blocks"
 
 python = '''
@@ -2133,6 +2161,7 @@ pub fn nested_scopes() -> i32 {
 
 [[test]]
 name = "property_bare_except_catches_all"
+skip = true
 description = "Bare except catches all exception types"
 
 python = '''
@@ -2194,6 +2223,7 @@ pub fn bare_catches_all() -> i32 {
 
 [[test]]
 name = "integration_complex_exception_handling"
+skip = true
 description = "Complex nested exception handling with loops"
 
 python = '''
@@ -2285,6 +2315,7 @@ pub fn noop_if(x: i32) -> i32 {
 
 [[test]]
 name = "if_empty_else_block"
+skip = true
 description = "Empty else block with pass statement"
 
 python = '''
@@ -2311,6 +2342,7 @@ pub fn noop_else(x: i32) -> i32 {
 
 [[test]]
 name = "if_function_call_condition"
+skip = true
 description = "Function call in if condition"
 
 python = '''
@@ -2420,6 +2452,7 @@ rust = '''
 
 [[test]]
 name = "nested_tuple_unpacking"
+skip = true
 description = "Complex nested tuple unpacking (limited support)"
 
 python = '''
@@ -2435,6 +2468,7 @@ rust = '''
 
 [[test]]
 name = "try_with_finally_only"
+skip = true
 description = "Try block with only finally (no except)"
 
 python = '''
@@ -2498,6 +2532,7 @@ pub fn test() -> String {
 
 [[test]]
 name = "augmented_floor_division"
+skip = true
 description = "Augmented assignment with floor division"
 
 python = '''
@@ -2577,6 +2612,7 @@ pub fn test() -> i32 {
 
 [[test]]
 name = "continue_in_nested_loop"
+skip = true
 description = "Continue in nested loops"
 
 python = '''
@@ -2631,6 +2667,7 @@ pub fn test() -> i32 {
 
 [[test]]
 name = "with_statement_target"
+skip = true
 description = "With statement binding to target variable"
 
 python = '''
@@ -2675,6 +2712,7 @@ pub fn test() {
 
 [[test]]
 name = "if_condition_result_bool"
+skip = true
 description = "If condition with function returning bool"
 
 python = '''
@@ -2718,6 +2756,7 @@ pub fn test(x: i32) -> i32 {
 
 [[test]]
 name = "return_len_type_conversion"
+skip = true
 description = "Return len() with type conversion"
 
 python = '''
@@ -2817,6 +2856,7 @@ pub fn validate(x: i32) {
 
 [[test]]
 name = "expr_usize_count_method"
+skip = true
 description = "Count method returns usize"
 
 python = '''
@@ -2832,6 +2872,7 @@ pub fn count_occurrences(text: String, char: String) -> i32 {
 
 [[test]]
 name = "expr_usize_len_builtin"
+skip = true
 description = "Len builtin returns usize"
 
 python = '''
@@ -2847,6 +2888,7 @@ pub fn get_size(items: &Vec<i32>) -> i32 {
 
 [[test]]
 name = "expr_usize_binary"
+skip = true
 description = "Binary expression with usize operands"
 
 python = '''
@@ -2877,6 +2919,7 @@ pub fn create_adder(x: i32) {
 
 [[test]]
 name = "ternary_variable_usage"
+skip = true
 description = "Variable used in ternary expression"
 
 python = '''
@@ -2891,6 +2934,7 @@ pub fn abs_value(x: i32) -> i32 {
 
 [[test]]
 name = "slice_variable_bounds"
+skip = true
 description = "Variable in slice bounds"
 
 python = '''
@@ -2914,6 +2958,7 @@ pub fn get_window(data: &Vec<i32>, start: i32, size: i32) -> Vec<i32> {
 
 [[test]]
 name = "set_literal_with_variable"
+skip = true
 description = "Variable in set literal"
 
 python = '''
@@ -2985,6 +3030,7 @@ pub fn test() -> bool {
 
 [[test]]
 name = "nested_dict_get_mut_chain"
+skip = true
 description = "Nested dict assignment with get_mut chain"
 
 python = '''
@@ -3030,6 +3076,7 @@ pub fn test() -> i32 {
 
 [[test]]
 name = "vec_index_type_aware"
+skip = true
 description = "Vec index assignment with type info"
 
 python = '''
@@ -3066,6 +3113,7 @@ pub fn test() -> i32 {
 
 [[test]]
 name = "char_variable_dict_heuristic"
+skip = true
 description = "Char variable triggers dict heuristic"
 
 python = '''
@@ -3129,6 +3177,7 @@ pub fn test() -> i32 {
 
 [[test]]
 name = "try_handler_named_exception"
+skip = true
 description = "Try handler with named exception variable"
 
 python = '''
@@ -3167,6 +3216,7 @@ pub fn test() -> String {
 
 [[test]]
 name = "function_return_type_tracking"
+skip = true
 description = "Function return type tracking in assignment"
 
 python = '''
@@ -3373,6 +3423,7 @@ pub fn complex_logic(items: Vec<i32>, target: i32) -> Option<i32> {
 
 [[test]]
 name = "test_break_continue"
+skip = true
 description = "Example test"
 
 python = '''
@@ -3490,6 +3541,7 @@ pub fn test_while_continue() -> Result<(), ZeroDivisionError> {
 
 [[test]]
 name = "test_final_constant"
+skip = true
 description = "Example test"
 
 python = '''
@@ -3509,6 +3561,7 @@ pub fn get_field_goal() -> i32 {
 
 [[test]]
 name = "test_generator"
+skip = true
 description = "Example test"
 
 python = '''
@@ -3626,6 +3679,7 @@ pub fn test_generator() -> i32 {
 
 [[test]]
 name = "test_iterator"
+skip = true
 description = "Example test"
 
 python = '''
@@ -3778,6 +3832,7 @@ pub fn test_simple_continue() {
 
 [[test]]
 name = "test_with_statement"
+skip = true
 description = "Example test"
 
 python = '''

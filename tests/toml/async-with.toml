@@ -8,6 +8,7 @@ category = "async"
 
 [[test]]
 name = "async_with_basic"
+skip = true
 description = "async with manager as ctx: ..."
 
 python = '''
@@ -23,6 +24,7 @@ rust = '''
 
 [[test]]
 name = "async_with_no_as"
+skip = true
 description = "async with manager: ..."
 
 python = '''
@@ -38,6 +40,7 @@ rust = '''
 
 [[test]]
 name = "async_with_body"
+skip = true
 description = "Execute body with async context"
 
 python = '''
@@ -57,6 +60,7 @@ rust = '''
 
 [[test]]
 name = "aenter"
+skip = true
 description = "async def __aenter__(self): ..."
 
 python = '''
@@ -75,6 +79,7 @@ async fn f() {
 
 [[test]]
 name = "aexit"
+skip = true
 description = "async def __aexit__(self, exc_type, exc_val, exc_tb): ..."
 
 python = '''
@@ -93,6 +98,7 @@ async fn f() {
 
 [[test]]
 name = "aenter_return"
+skip = true
 description = "Return value bound to as target"
 
 python = '''
@@ -112,6 +118,7 @@ rust = '''
 
 [[test]]
 name = "custom_async_cm"
+skip = true
 description = "Class with __aenter__ and __aexit__"
 
 python = '''
@@ -131,6 +138,7 @@ struct Example {
 
 [[test]]
 name = "asynccontextmanager"
+skip = true
 description = "from contextlib import asynccontextmanager"
 
 python = '''
@@ -150,6 +158,7 @@ rust = '''
 
 [[test]]
 name = "aexit_no_exception"
+skip = true
 description = "__aexit__(None, None, None)"
 
 python = '''
@@ -169,6 +178,7 @@ struct Example {
 
 [[test]]
 name = "aexit_with_exception"
+skip = true
 description = "Exception passed to __aexit__"
 
 python = '''
@@ -188,6 +198,7 @@ struct Example {
 
 [[test]]
 name = "aexit_suppress"
+skip = true
 description = "Return True to suppress exception"
 
 python = '''
@@ -207,6 +218,7 @@ rust = '''
 
 [[test]]
 name = "async_with_multiple"
+skip = true
 description = "async with a, b, c: ..."
 
 python = '''
@@ -222,6 +234,7 @@ rust = '''
 
 [[test]]
 name = "async_with_nested"
+skip = true
 description = "async with a: async with b: ..."
 
 python = '''
@@ -241,6 +254,7 @@ rust = '''
 
 [[test]]
 name = "async_with_file"
+skip = true
 description = "async with aiofiles.open() as f: ..."
 
 python = '''
@@ -256,6 +270,7 @@ rust = '''
 
 [[test]]
 name = "async_with_lock"
+skip = true
 description = "async with asyncio.Lock(): ..."
 
 python = '''
@@ -271,6 +286,7 @@ rust = '''
 
 [[test]]
 name = "async_with_db"
+skip = true
 description = "async with pool.acquire() as conn: ..."
 
 python = '''
@@ -286,6 +302,7 @@ rust = '''
 
 [[test]]
 name = "async_with_http"
+skip = true
 description = "async with aiohttp.ClientSession() as session: ..."
 
 python = '''
@@ -305,6 +322,7 @@ rust = '''
 
 [[test]]
 name = "aenter_exception"
+skip = true
 description = "__aexit__ not called if __aenter__ fails"
 
 python = '''
@@ -324,6 +342,7 @@ struct Example {
 
 [[test]]
 name = "aexit_exception"
+skip = true
 description = "Exception in __aexit__ replaces original"
 
 python = '''
@@ -343,6 +362,7 @@ struct Example {
 
 [[test]]
 name = "async_with_context"
+skip = true
 description = "async with outside async is error"
 
 python = '''

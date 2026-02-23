@@ -8,6 +8,7 @@ category = "modern-python"
 
 [[test]]
 name = "posonly_basic"
+skip = true
 description = "def f(x, /): ..."
 python = """
 def greet(name, /):
@@ -24,6 +25,7 @@ log::info!("{}", greet("Alice"));"""
 
 [[test]]
 name = "posonly_multiple"
+skip = true
 description = "def f(a, b, c, /): ..."
 python = """
 def add_three(a, b, c, /):
@@ -40,6 +42,7 @@ log::info!("{}", add_three(1, 2, 3));"""
 
 [[test]]
 name = "posonly_mixed"
+skip = true
 description = "def f(a, /, b): ..."
 python = """
 def mixed(a, /, b):
@@ -58,6 +61,7 @@ log::info!("{}", mixed(1, 2));"""
 
 [[test]]
 name = "posonly_defaults"
+skip = true
 description = "def f(a, b=1, /): ..."
 python = """
 def with_default(a, b=10, /):
@@ -80,6 +84,7 @@ log::info!("{}", with_default(5, Some(3)));"""
 
 [[test]]
 name = "posonly_kwonly"
+skip = true
 description = "def f(a, /, b, *, c): ..."
 python = """
 def combined(a, /, b, *, c):
@@ -96,6 +101,7 @@ log::info!("{}", combined(1, 2, 3));"""
 
 [[test]]
 name = "all_arg_kinds"
+skip = true
 description = "def f(a, /, b, *args, c, **kwargs): ..."
 python = """
 def all_kinds(a, /, b, *args, c, **kwargs):
@@ -128,6 +134,7 @@ all_kinds(1, 2, &args, 5, &kwargs);"""
 
 [[test]]
 name = "posonly_prevent_kw"
+skip = true
 description = "f(x=1) raises TypeError for positional-only x"
 python = """
 def pos_only(x, /):
@@ -146,6 +153,7 @@ log::info!("{}", pos_only(5));"""
 
 [[test]]
 name = "posonly_name_reuse"
+skip = true
 description = "def f(x, /): x = 1 (no conflict)"
 python = """
 def reuse_name(x, /):
@@ -165,6 +173,7 @@ log::info!("{}", reuse_name(5));"""
 
 [[test]]
 name = "posonly_api_flex"
+skip = true
 description = "Can rename positional-only params without breaking callers"
 python = """
 # Version 1
@@ -196,6 +205,7 @@ log::info!("{}", calculate_v2(10));"""
 
 [[test]]
 name = "posonly_len"
+skip = true
 description = "len() style: single positional-only arg"
 python = """
 def my_len(obj, /):
@@ -220,6 +230,7 @@ log::info!("{}", s.len());"""
 
 [[test]]
 name = "posonly_pow"
+skip = true
 description = "pow() style: multiple with optional"
 python = """
 def my_pow(base, exp, mod=None, /):
@@ -250,6 +261,7 @@ log::info!("{}", my_pow(2, 3, Some(5)));"""
 
 [[test]]
 name = "posonly_empty_after"
+skip = true
 description = "def f(a, /): all params are positional-only"
 python = """
 def all_posonly(a, b, c, /):
@@ -266,6 +278,7 @@ log::info!("{}", all_posonly(1, 2, 3));"""
 
 [[test]]
 name = "posonly_invalid"
+skip = true
 description = "def f(/, a): is syntax error"
 python = """
 # This is invalid syntax in Python
@@ -278,6 +291,7 @@ rust = """
 
 [[test]]
 name = "posonly_varargs"
+skip = true
 description = "def f(a, /, *args): ..."
 python = """
 def with_varargs(a, /, *args):

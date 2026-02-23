@@ -1,9 +1,0 @@
-  string-encoding.toml :: uppercase
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− pub fn uppercase(s: &str) -> String {
-+ pub fn uppercase(s: String) -> String {
-      return s.to_uppercase();
-  }
-────────────────────────────────────────────────────────────

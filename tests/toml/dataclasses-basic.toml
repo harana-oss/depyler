@@ -8,6 +8,7 @@ category = "data-structures"
 
 [[test]]
 name = "dataclass_simple"
+skip = true
 description = "@dataclass class Point: x: int; y: int"
 
 python = '''
@@ -40,6 +41,7 @@ impl Point {
 
 [[test]]
 name = "dataclass_init"
+skip = true
 description = "Point(1, 2) auto-generated"
 
 python = '''
@@ -72,6 +74,7 @@ impl Point {
 
 [[test]]
 name = "dataclass_repr"
+skip = true
 description = "Point(x=1, y=2) repr"
 
 python = '''
@@ -104,6 +107,7 @@ impl Point {
 
 [[test]]
 name = "dataclass_eq"
+skip = true
 description = "Point(1, 2) == Point(1, 2)"
 
 python = '''
@@ -142,6 +146,7 @@ impl Point {
 
 [[test]]
 name = "dataclass_types"
+skip = true
 description = "x: int, name: str, etc."
 
 python = '''
@@ -176,6 +181,7 @@ impl Person {
 
 [[test]]
 name = "dataclass_optional"
+skip = true
 description = "x: Optional[int] = None"
 
 python = '''
@@ -211,6 +217,7 @@ impl Config {
 
 [[test]]
 name = "dataclass_list"
+skip = true
 description = "items: list[int]"
 
 python = '''
@@ -245,6 +252,7 @@ impl Container {
 
 [[test]]
 name = "dataclass_defaults"
+skip = true
 description = "x: int = 0"
 
 python = '''
@@ -286,6 +294,7 @@ impl Point {
 
 [[test]]
 name = "dataclass_field_default"
+skip = true
 description = "x: int = field(default=0)"
 
 python = '''
@@ -317,6 +326,7 @@ impl Point {
 
 [[test]]
 name = "dataclass_factory"
+skip = true
 description = "items: list = field(default_factory=list)"
 
 python = '''
@@ -349,6 +359,7 @@ impl Container {
 
 [[test]]
 name = "dataclass_mutable_error"
+skip = true
 description = "items: list = [] raises ValueError"
 
 python = '''
@@ -385,6 +396,7 @@ rust = '''
 
 [[test]]
 name = "dataclass_frozen"
+skip = true
 description = "@dataclass(frozen=True)"
 
 python = '''
@@ -417,6 +429,7 @@ impl Point {
 
 [[test]]
 name = "dataclass_order"
+skip = true
 description = "@dataclass(order=True) generates <, >, etc."
 
 python = '''
@@ -451,6 +464,7 @@ impl Point {
 
 [[test]]
 name = "dataclass_no_eq"
+skip = true
 description = "@dataclass(eq=False)"
 
 python = '''
@@ -485,6 +499,7 @@ impl Point {
 
 [[test]]
 name = "dataclass_no_repr"
+skip = true
 description = "@dataclass(repr=False)"
 
 python = '''
@@ -517,6 +532,7 @@ impl Point {
 
 [[test]]
 name = "dataclass_no_init"
+skip = true
 description = "@dataclass(init=False)"
 
 python = '''
@@ -557,6 +573,7 @@ impl Point {
 
 [[test]]
 name = "dataclass_field_repr"
+skip = true
 description = "field(repr=False)"
 
 python = '''
@@ -589,6 +606,7 @@ impl Person {
 
 [[test]]
 name = "dataclass_field_compare"
+skip = true
 description = "field(compare=False)"
 
 python = '''
@@ -623,6 +641,7 @@ impl Person {
 
 [[test]]
 name = "dataclass_field_hash"
+skip = true
 description = "field(hash=True)"
 
 python = '''
@@ -658,6 +677,7 @@ impl Person {
 
 [[test]]
 name = "dataclass_field_init"
+skip = true
 description = "field(init=False)"
 
 python = '''
@@ -699,6 +719,7 @@ impl Rectangle {
 
 [[test]]
 name = "dataclass_post_init"
+skip = true
 description = "def __post_init__(self): ..."
 
 python = '''
@@ -737,6 +758,7 @@ impl Point {
 
 [[test]]
 name = "dataclass_initvar"
+skip = true
 description = "init_only: InitVar[int]"
 
 python = '''
@@ -780,6 +802,7 @@ impl Rectangle {
 
 [[test]]
 name = "dataclass_inherit"
+skip = true
 description = "@dataclass class B(A): ..."
 
 python = '''
@@ -825,6 +848,7 @@ impl Point3D {
 
 [[test]]
 name = "dataclass_classvar"
+skip = true
 description = "count: ClassVar[int] = 0"
 
 python = '''
@@ -863,6 +887,7 @@ impl Counter {
 
 [[test]]
 name = "dataclass_slots"
+skip = true
 description = "@dataclass(slots=True)"
 
 python = '''

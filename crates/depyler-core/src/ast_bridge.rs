@@ -448,11 +448,16 @@ impl AstBridge {
             return false;
         }
 
-        // Check if RHS is a type expression
-        matches!(
-            assign.value.as_ref(),
-            ast::Expr::Name(_) | ast::Expr::Subscript(_) | ast::Expr::Call(_)
-        )
+        match assign.value.as_ref() {
+            // Simple alias: UserId = int
+            ast::Expr::Name(_) => true,
+            // Generic alias: UserId = Optional[int]
+            ast::Expr::Subscript(_) => true,
+            // NewType/TypeVar call: UserId = NewType('UserId', int)
+            // Only match calls where the function is a simple name (not a method call)
+            ast::Expr::Call(call) => matches!(call.func.as_ref(), ast::Expr::Name(_)),
+            _ => false,
+        }
     }
 
     fn try_convert_type_alias(&self, assign: &ast::StmtAssign) -> Result<Option<TypeAlias>> {
@@ -788,10 +793,13 @@ impl AstBridge {
                     .map_or(false, |name| name.as_str() == "metaclass")
                     && matches!(&kw.value, ast::Expr::Name(n) if n.id.as_str() == "ABCMeta")
             });
-        
+
         // Debug output
         if !base_classes.is_empty() {
-            eprintln!("Class: {}, base_classes: {:?}, is_abc: {}", class.name, base_classes, is_abc);
+            eprintln!(
+                "Class: {}, base_classes: {:?}, is_abc: {}",
+                class.name, base_classes, is_abc
+            );
         }
 
         // Convert methods and fields

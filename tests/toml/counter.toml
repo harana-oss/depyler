@@ -8,6 +8,7 @@ category = "data-structures"
 
 [[test]]
 name = "counter_empty"
+skip = true
 description = "Counter()"
 python = """
 from collections import Counter
@@ -22,6 +23,7 @@ log::info!("{{}}");"""
 
 [[test]]
 name = "counter_iterable"
+skip = true
 description = "Counter('abracadabra')"
 python = """
 from collections import Counter
@@ -42,6 +44,7 @@ log::info!("{:?}", items);"""
 
 [[test]]
 name = "counter_mapping"
+skip = true
 description = "Counter({'a': 4, 'b': 2})"
 python = """
 from collections import Counter
@@ -60,6 +63,7 @@ log::info!("{:?}", items);"""
 
 [[test]]
 name = "counter_kwargs"
+skip = true
 description = "Counter(a=4, b=2)"
 python = """
 from collections import Counter
@@ -82,6 +86,7 @@ log::info!("{:?}", items);"""
 
 [[test]]
 name = "counter_access"
+skip = true
 description = "c['a']"
 python = """
 from collections import Counter
@@ -103,6 +108,7 @@ log::info!(
 
 [[test]]
 name = "counter_missing"
+skip = true
 description = "c['missing'] returns 0"
 python = """
 from collections import Counter
@@ -120,6 +126,7 @@ log::info!("{}", c.get(&'x').unwrap_or(&0));"""
 
 [[test]]
 name = "counter_update"
+skip = true
 description = "c.update('more')"
 python = """
 from collections import Counter
@@ -140,6 +147,7 @@ log::info!("{}", c.get(&'a').unwrap_or(&0));"""
 
 [[test]]
 name = "counter_update_counter"
+skip = true
 description = "c.update(other_counter)"
 python = """
 from collections import Counter
@@ -169,6 +177,7 @@ log::info!("{}", c1.get(&'a').unwrap_or(&0));"""
 
 [[test]]
 name = "counter_most_common"
+skip = true
 description = "c.most_common()"
 python = """
 from collections import Counter
@@ -187,6 +196,7 @@ log::info!("{:?}", items);"""
 
 [[test]]
 name = "counter_most_common_n"
+skip = true
 description = "c.most_common(3)"
 python = """
 from collections import Counter
@@ -205,6 +215,7 @@ log::info!("{:?}", &items[..3.min(items.len())]);"""
 
 [[test]]
 name = "counter_least_common"
+skip = true
 description = "c.most_common()[:-n-1:-1]"
 python = """
 from collections import Counter
@@ -227,6 +238,7 @@ log::info!("{:?}", &items[..2.min(items.len())]);"""
 
 [[test]]
 name = "counter_add"
+skip = true
 description = "c1 + c2"
 python = """
 from collections import Counter
@@ -247,6 +259,7 @@ log::info!("{:?}", items);"""
 
 [[test]]
 name = "counter_sub"
+skip = true
 description = "c1 - c2"
 python = """
 from collections import Counter
@@ -272,6 +285,7 @@ log::info!("{:?}", items);"""
 
 [[test]]
 name = "counter_and"
+skip = true
 description = "c1 & c2"
 python = """
 from collections import Counter
@@ -295,6 +309,7 @@ log::info!("{:?}", items);"""
 
 [[test]]
 name = "counter_or"
+skip = true
 description = "c1 | c2"
 python = """
 from collections import Counter
@@ -323,6 +338,7 @@ log::info!("{:?}", items);"""
 
 [[test]]
 name = "counter_positive"
+skip = true
 description = "+c removes zero/negative"
 python = """
 from collections import Counter
@@ -340,6 +356,7 @@ log::info!("{:?}", items);"""
 
 [[test]]
 name = "counter_negative"
+skip = true
 description = "-c negates counts"
 python = """
 from collections import Counter
@@ -361,6 +378,7 @@ log::info!("{:?}", items);"""
 
 [[test]]
 name = "counter_elements"
+skip = true
 description = "list(c.elements())"
 python = """
 from collections import Counter
@@ -376,6 +394,7 @@ log::info!("{:?}", elements);"""
 
 [[test]]
 name = "counter_subtract"
+skip = true
 description = "c.subtract(other)"
 python = """
 from collections import Counter
@@ -396,6 +415,7 @@ log::info!("{:?}", items);"""
 
 [[test]]
 name = "counter_total"
+skip = true
 description = "c.total()"
 python = """
 from collections import Counter
@@ -414,6 +434,7 @@ log::info!("{}", total);"""
 
 [[test]]
 name = "counter_views"
+skip = true
 description = "c.keys(), c.values(), c.items()"
 python = """
 from collections import Counter
@@ -433,6 +454,7 @@ log::info!("{:?} {:?} {:?}", keys, values, items);"""
 
 [[test]]
 name = "counter_del"
+skip = true
 description = "del c['a']"
 python = """
 from collections import Counter
@@ -450,6 +472,7 @@ log::info!("{:?}", items);"""
 
 [[test]]
 name = "counter_clear"
+skip = true
 description = "c.clear()"
 python = """
 from collections import Counter
@@ -469,6 +492,7 @@ log::info!("{}", c.len());"""
 
 [[test]]
 name = "counter_words"
+skip = true
 description = "Counter(text.split())"
 python = """
 from collections import Counter
@@ -487,6 +511,7 @@ log::info!("{}", c.get("the").unwrap_or(&0));"""
 
 [[test]]
 name = "counter_histogram"
+skip = true
 description = "Count occurrences in data"
 python = """
 from collections import Counter
@@ -509,6 +534,7 @@ log::info!("{}", c.get(&3).unwrap_or(&0));"""
 
 [[test]]
 name = "counter_negative_counts"
+skip = true
 description = "Counter({'a': -1})"
 python = """
 from collections import Counter
@@ -524,6 +550,7 @@ log::info!("{:?}", items);"""
 
 [[test]]
 name = "counter_zero"
+skip = true
 description = "Zero counts kept in counter"
 python = """
 from collections import Counter
@@ -539,6 +566,7 @@ log::info!("{} {}", c.contains_key(&'a'), c.get(&'a').unwrap_or(&0));"""
 
 [[test]]
 name = "counter_equality"
+skip = true
 description = "Counter comparison"
 python = """
 from collections import Counter

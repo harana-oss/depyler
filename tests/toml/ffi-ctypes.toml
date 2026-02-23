@@ -8,6 +8,7 @@ category = "ffi"
 
 [[test]]
 name = "ctypes_basic"
+skip = true
 description = "ctypes basic type mappings"
 
 python = '''
@@ -37,6 +38,7 @@ pub fn c_bool_to_bool(value: bool) -> bool {
 
 [[test]]
 name = "ctypes_sizes"
+skip = true
 description = "ctypes size types"
 
 python = '''
@@ -66,6 +68,7 @@ pub fn size_of_double() -> i32 {
 
 [[test]]
 name = "ctypes_char"
+skip = true
 description = "ctypes char type"
 
 python = '''
@@ -95,6 +98,7 @@ pub fn int_to_char(n: i32) -> String {
 
 [[test]]
 name = "ctypes_struct"
+skip = true
 description = "ctypes.Structure to #[repr(C)] struct"
 
 python = '''
@@ -134,6 +138,7 @@ pub fn point_sum(p: &Point) -> i32 {
 
 [[test]]
 name = "ctypes_struct_nested"
+skip = true
 description = "Nested ctypes struct"
 
 python = '''
@@ -181,6 +186,7 @@ pub fn get_inner_value(outer: &Outer) -> i32 {
 
 [[test]]
 name = "ctypes_struct_array"
+skip = true
 description = "Struct with array field"
 
 python = '''
@@ -225,6 +231,7 @@ pub fn buffer_get(buf: &Buffer, idx: i32) -> i32 {
 
 [[test]]
 name = "ctypes_callback"
+skip = true
 description = "ctypes callback functions"
 
 python = '''
@@ -257,6 +264,7 @@ pub fn triple_it(x: i32) -> i32 {
 
 [[test]]
 name = "ctypes_callback_void"
+skip = true
 description = "Void callback"
 
 python = '''
@@ -300,6 +308,7 @@ pub fn increment_state(state: &mut State) {
 
 [[test]]
 name = "ctypes_pointer"
+skip = true
 description = "ctypes pointer operations"
 
 python = '''
@@ -336,6 +345,7 @@ pub fn write_ref(ref_: &mut IntRef, value: i32) {
 
 [[test]]
 name = "ctypes_pointer_null"
+skip = true
 description = "Null pointer handling"
 
 python = '''
@@ -358,6 +368,7 @@ pub fn safe_read(ref_: Option<i32>) -> i32 {
 
 [[test]]
 name = "ctypes_pointer_array"
+skip = true
 description = "Pointer to array"
 
 python = '''

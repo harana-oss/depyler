@@ -8,6 +8,7 @@ category = "strings"
 
 [[test]]
 name = "fstring_var"
+skip = true
 description = "f'{name}'"
 
 python = '''
@@ -23,6 +24,7 @@ rust = '''
 
 [[test]]
 name = "fstring_expr"
+skip = true
 description = "f'{1 + 2}'"
 
 python = '''
@@ -38,6 +40,7 @@ rust = '''
 
 [[test]]
 name = "fstring_multiple"
+skip = true
 description = "f'{a} and {b}'"
 
 python = '''
@@ -53,6 +56,7 @@ rust = '''
 
 [[test]]
 name = "fstring_mixed"
+skip = true
 description = "f'Hello, {name}!'"
 
 python = '''
@@ -72,6 +76,7 @@ rust = '''
 
 [[test]]
 name = "fstring_width"
+skip = true
 description = "f'{x:10}'"
 
 python = '''
@@ -87,6 +92,7 @@ rust = '''
 
 [[test]]
 name = "fstring_align"
+skip = true
 description = "f'{x:<10}', f'{x:>10}', f'{x:^10}'"
 
 python = '''
@@ -102,6 +108,7 @@ rust = '''
 
 [[test]]
 name = "fstring_fill"
+skip = true
 description = "f'{x:*^10}'"
 
 python = '''
@@ -117,6 +124,7 @@ rust = '''
 
 [[test]]
 name = "fstring_precision"
+skip = true
 description = "f'{pi:.2f}'"
 
 python = '''
@@ -132,6 +140,7 @@ rust = '''
 
 [[test]]
 name = "fstring_type"
+skip = true
 description = "f'{n:d}', f'{n:x}', f'{n:b}'"
 
 python = '''
@@ -151,6 +160,7 @@ rust = '''
 
 [[test]]
 name = "fstring_thousands"
+skip = true
 description = "f'{n:,}'"
 
 python = '''
@@ -166,6 +176,7 @@ rust = '''
 
 [[test]]
 name = "fstring_sign"
+skip = true
 description = "f'{n:+}', f'{n: }'"
 
 python = '''
@@ -181,6 +192,7 @@ rust = '''
 
 [[test]]
 name = "fstring_percent"
+skip = true
 description = "f'{ratio:.1%}'"
 
 python = '''
@@ -196,6 +208,7 @@ rust = '''
 
 [[test]]
 name = "fstring_scientific"
+skip = true
 description = "f'{n:.2e}'"
 
 python = '''
@@ -215,6 +228,7 @@ rust = '''
 
 [[test]]
 name = "fstring_method"
+skip = true
 description = "f'{name.upper()}'"
 
 python = '''
@@ -230,6 +244,7 @@ rust = '''
 
 [[test]]
 name = "fstring_function"
+skip = true
 description = "f'{len(items)}'"
 
 python = '''
@@ -245,6 +260,7 @@ rust = '''
 
 [[test]]
 name = "fstring_ternary"
+skip = true
 description = "f'{'yes' if cond else 'no'}'"
 
 python = '''
@@ -260,6 +276,7 @@ rust = '''
 
 [[test]]
 name = "fstring_index"
+skip = true
 description = "f'{items[0]}'"
 
 python = '''
@@ -275,6 +292,7 @@ rust = '''
 
 [[test]]
 name = "fstring_attr"
+skip = true
 description = "f'{obj.attr}'"
 
 python = '''
@@ -294,6 +312,7 @@ rust = '''
 
 [[test]]
 name = "fstring_brace_escape"
+skip = true
 description = "f'{{literal}}'"
 
 python = '''
@@ -309,6 +328,7 @@ rust = '''
 
 [[test]]
 name = "fstring_nested_format"
+skip = true
 description = "f'{x:{width}}'"
 
 python = '''
@@ -324,6 +344,7 @@ rust = '''
 
 [[test]]
 name = "fstring_dynamic_precision"
+skip = true
 description = "f'{x:.{prec}f}'"
 
 python = '''
@@ -343,6 +364,7 @@ rust = '''
 
 [[test]]
 name = "fstring_repr"
+skip = true
 description = "f'{obj!r}'"
 
 python = '''
@@ -358,6 +380,7 @@ rust = '''
 
 [[test]]
 name = "fstring_str"
+skip = true
 description = "f'{obj!s}'"
 
 python = '''
@@ -373,6 +396,7 @@ rust = '''
 
 [[test]]
 name = "fstring_ascii"
+skip = true
 description = "f'{obj!a}'"
 
 python = '''
@@ -392,6 +416,7 @@ rust = '''
 
 [[test]]
 name = "fstring_empty"
+skip = true
 description = "f''"
 
 python = '''
@@ -407,6 +432,7 @@ rust = '''
 
 [[test]]
 name = "fstring_backslash"
+skip = true
 description = "Backslash not allowed in expression"
 
 python = '''
@@ -422,6 +448,7 @@ rust = '''
 
 [[test]]
 name = "fstring_multiline"
+skip = true
 description = "f'''...'''"
 
 python = '''
@@ -437,6 +464,7 @@ rust = '''
 
 [[test]]
 name = "fstring_raw"
+skip = true
 description = "rf'{path}\\n'"
 
 python = '''

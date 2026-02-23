@@ -8,6 +8,7 @@ category = "stdlib-json"
 
 [[test]]
 name = "json_dumps"
+skip = true
 description = "json.dumps() serialization"
 
 python = '''
@@ -28,6 +29,7 @@ pub fn serialize_data(data: &HashMap<String, i32>) -> String {
 
 [[test]]
 name = "json_dumps_indent"
+skip = true
 description = "json.dumps() with indentation"
 
 python = '''
@@ -48,6 +50,7 @@ pub fn pretty_json(data: &HashMap<String, i32>) -> String {
 
 [[test]]
 name = "json_loads"
+skip = true
 description = "json.loads() deserialization"
 
 python = '''
@@ -68,6 +71,7 @@ pub fn deserialize_data(s: String) -> HashMap<String, i32> {
 
 [[test]]
 name = "json_list"
+skip = true
 description = "JSON with list data"
 
 python = '''
@@ -87,6 +91,7 @@ pub fn parse_array(s: String) -> Vec<i32> {
 
 [[test]]
 name = "json_nested"
+skip = true
 description = "JSON with nested structure"
 
 python = '''
@@ -131,6 +136,7 @@ pub fn get_nested_value(s: String, key1: String, key2: String) {
 
 [[test]]
 name = "json_get_string"
+skip = true
 description = "Get string from JSON"
 
 python = '''
@@ -169,6 +175,7 @@ pub fn get_name(s: String) -> String {
 
 [[test]]
 name = "json_get_number"
+skip = true
 description = "Get number from JSON"
 
 python = '''

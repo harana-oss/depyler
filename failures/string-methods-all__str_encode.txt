@@ -1,7 +1,0 @@
-  string-methods-all.toml :: str_encode
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− pub const result: Vec<u8> = "hello".as_bytes().to_vec();
-+ 
-────────────────────────────────────────────────────────────

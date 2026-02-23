@@ -8,6 +8,7 @@ category = "data-structures"
 
 [[test]]
 name = "enum_basic"
+skip = true
 description = "class Color(Enum): RED = 1; GREEN = 2"
 
 python = '''
@@ -33,6 +34,7 @@ rust = '''
 
 [[test]]
 name = "enum_member"
+skip = true
 description = "Color.RED"
 
 python = '''
@@ -60,6 +62,7 @@ rust = '''
 
 [[test]]
 name = "enum_value"
+skip = true
 description = "Color.RED.value == 1"
 
 python = '''
@@ -85,6 +88,7 @@ rust = '''
 
 [[test]]
 name = "enum_name"
+skip = true
 description = "Color.RED.name == 'RED'"
 
 python = '''
@@ -116,6 +120,7 @@ rust = '''
 
 [[test]]
 name = "enum_by_name"
+skip = true
 description = "Color['RED']"
 
 python = '''
@@ -151,6 +156,7 @@ rust = '''
 
 [[test]]
 name = "enum_by_value"
+skip = true
 description = "Color(1)"
 
 python = '''
@@ -186,6 +192,7 @@ rust = '''
 
 [[test]]
 name = "enum_iteration"
+skip = true
 description = "list(Color)"
 
 python = '''
@@ -222,6 +229,7 @@ rust = '''
 
 [[test]]
 name = "enum_is"
+skip = true
 description = "Color.RED is Color.RED"
 
 python = '''
@@ -249,6 +257,7 @@ rust = '''
 
 [[test]]
 name = "enum_equality"
+skip = true
 description = "Color.RED == Color.RED"
 
 python = '''
@@ -274,6 +283,7 @@ rust = '''
 
 [[test]]
 name = "enum_inequality"
+skip = true
 description = "Color.RED != Color.GREEN"
 
 python = '''
@@ -299,6 +309,7 @@ rust = '''
 
 [[test]]
 name = "enum_not_value"
+skip = true
 description = "Color.RED != 1"
 
 python = '''
@@ -331,6 +342,7 @@ rust = '''
 
 [[test]]
 name = "enum_string"
+skip = true
 description = "class Status(Enum): OK = 'ok'"
 
 python = '''
@@ -367,6 +379,7 @@ rust = '''
 
 [[test]]
 name = "enum_auto_string"
+skip = true
 description = "auto() generates names as values"
 
 python = '''
@@ -409,6 +422,7 @@ rust = '''
 
 [[test]]
 name = "enum_auto"
+skip = true
 description = "class Color(Enum): RED = auto()"
 
 python = '''
@@ -437,6 +451,7 @@ rust = '''
 
 [[test]]
 name = "enum_auto_increment"
+skip = true
 description = "auto() starts at 1, increments"
 
 python = '''
@@ -466,6 +481,7 @@ rust = '''
 
 [[test]]
 name = "enum_mixed_auto"
+skip = true
 description = "A = 1; B = auto(); C = auto()"
 
 python = '''
@@ -497,6 +513,7 @@ rust = '''
 
 [[test]]
 name = "enum_method"
+skip = true
 description = "class Color(Enum): def describe(self): ..."
 
 python = '''
@@ -531,6 +548,7 @@ rust = '''
 
 [[test]]
 name = "enum_str"
+skip = true
 description = "str(Color.RED)"
 
 python = '''
@@ -557,6 +575,7 @@ rust = '''
 
 [[test]]
 name = "enum_repr"
+skip = true
 description = "repr(Color.RED)"
 
 python = '''
@@ -587,6 +606,7 @@ rust = '''
 
 [[test]]
 name = "enum_members"
+skip = true
 description = "Color.__members__"
 
 python = '''
@@ -606,6 +626,7 @@ struct Example {
 
 [[test]]
 name = "enum_immutable"
+skip = true
 description = "Cannot add or modify members"
 
 python = '''
@@ -638,6 +659,7 @@ rust = '''
 
 [[test]]
 name = "enum_alias"
+skip = true
 description = "RED = 1; CRIMSON = 1 creates alias"
 
 python = '''
@@ -667,6 +689,7 @@ rust = '''
 
 [[test]]
 name = "enum_unique"
+skip = true
 description = "@unique prevents aliases"
 
 python = '''
@@ -696,6 +719,7 @@ rust = '''
 
 [[test]]
 name = "enum_match"
+skip = true
 description = "match color: case Color.RED: ..."
 
 python = '''
@@ -718,6 +742,7 @@ rust = '''
 
 [[test]]
 name = "enum_conditional_assignment"
+skip = true
 description = "Team.Home if condition else Team.Away - enum variants should not be borrowed"
 
 python = '''

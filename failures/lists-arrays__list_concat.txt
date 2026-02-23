@@ -1,9 +1,0 @@
-  lists-arrays.toml :: list_concat
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-  pub fn concat_lists(a: &Vec<i32>, b: &Vec<i32>) -> Vec<i32> {
-      return a.iter().chain(b.iter()).cloned().collect::<Vec<_>>();
-− };
-+ }
-────────────────────────────────────────────────────────────

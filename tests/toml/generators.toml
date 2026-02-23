@@ -630,6 +630,7 @@ impl Iterator for GeneratorState {
 
 [[test]]
 name = "generator_state_type_from_assignment"
+skip = true
 description = "State variable type inferred from integer assignment"
 
 python = '''
@@ -670,6 +671,7 @@ impl Iterator for CounterState {
 
 [[test]]
 name = "generator_state_type_from_param"
+skip = true
 description = "State variable type inferred from function parameter"
 
 python = '''

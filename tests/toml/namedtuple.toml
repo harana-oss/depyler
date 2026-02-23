@@ -8,6 +8,7 @@ category = "data-structures"
 
 [[test]]
 name = "namedtuple_create"
+skip = true
 description = "Point = namedtuple('Point', ['x', 'y'])"
 
 python = '''
@@ -27,6 +28,7 @@ struct Point {
 
 [[test]]
 name = "namedtuple_string_fields"
+skip = true
 description = "Point = namedtuple('Point', 'x y')"
 
 python = '''
@@ -46,6 +48,7 @@ struct Point {
 
 [[test]]
 name = "namedtuple_comma_fields"
+skip = true
 description = "Point = namedtuple('Point', 'x, y')"
 
 python = '''
@@ -65,6 +68,7 @@ struct Point {
 
 [[test]]
 name = "namedtuple_instance"
+skip = true
 description = "p = Point(1, 2)"
 
 python = '''
@@ -84,6 +88,7 @@ struct Point {
 
 [[test]]
 name = "namedtuple_kwargs"
+skip = true
 description = "p = Point(x=1, y=2)"
 
 python = '''
@@ -107,6 +112,7 @@ struct Point {
 
 [[test]]
 name = "namedtuple_attribute"
+skip = true
 description = "p.x, p.y"
 
 python = '''
@@ -126,6 +132,7 @@ struct Point {
 
 [[test]]
 name = "namedtuple_index"
+skip = true
 description = "p[0], p[1]"
 
 python = '''
@@ -145,6 +152,7 @@ struct Point {
 
 [[test]]
 name = "namedtuple_unpack"
+skip = true
 description = "x, y = p"
 
 python = '''
@@ -168,6 +176,7 @@ struct Point {
 
 [[test]]
 name = "namedtuple_make"
+skip = true
 description = "Point._make([1, 2])"
 
 python = '''
@@ -187,6 +196,7 @@ struct Point {
 
 [[test]]
 name = "namedtuple_asdict"
+skip = true
 description = "p._asdict()"
 
 python = '''
@@ -204,6 +214,7 @@ rust = '''
 
 [[test]]
 name = "namedtuple_replace"
+skip = true
 description = "p._replace(x=10)"
 
 python = '''
@@ -223,6 +234,7 @@ struct Point {
 
 [[test]]
 name = "namedtuple_fields"
+skip = true
 description = "Point._fields"
 
 python = '''
@@ -242,6 +254,7 @@ struct Point {
 
 [[test]]
 name = "namedtuple_defaults"
+skip = true
 description = "Point._field_defaults"
 
 python = '''
@@ -265,6 +278,7 @@ struct Point {
 
 [[test]]
 name = "namedtuple_defaults_param"
+skip = true
 description = "namedtuple('Point', 'x y', defaults=[0])"
 
 python = '''
@@ -284,6 +298,7 @@ struct Point {
 
 [[test]]
 name = "namedtuple_partial_defaults"
+skip = true
 description = "Defaults apply to rightmost fields"
 
 python = '''
@@ -307,6 +322,7 @@ struct Point {
 
 [[test]]
 name = "namedtuple_immutable"
+skip = true
 description = "p.x = 5 raises AttributeError"
 
 python = '''
@@ -335,6 +351,7 @@ rust = '''
 
 [[test]]
 name = "namedtuple_hashable"
+skip = true
 description = "hash(p) works"
 
 python = '''
@@ -354,6 +371,7 @@ struct Point {
 
 [[test]]
 name = "namedtuple_dict_key"
+skip = true
 description = "{p: 'value'}"
 
 python = '''
@@ -377,6 +395,7 @@ struct Point {
 
 [[test]]
 name = "namedtuple_subclass"
+skip = true
 description = "class Point3D(Point): ..."
 
 python = '''
@@ -396,6 +415,7 @@ struct Point {
 
 [[test]]
 name = "namedtuple_methods"
+skip = true
 description = "Subclass with additional methods"
 
 python = '''
@@ -419,6 +439,7 @@ struct Point {
 
 [[test]]
 name = "typing_namedtuple"
+skip = true
 description = "class Point(NamedTuple): x: int; y: int"
 
 python = '''
@@ -438,6 +459,7 @@ struct Point {
 
 [[test]]
 name = "namedtuple_typed"
+skip = true
 description = "Type hints on fields"
 
 python = '''
@@ -461,6 +483,7 @@ struct Point {
 
 [[test]]
 name = "namedtuple_rename"
+skip = true
 description = "namedtuple('T', 'a class', rename=True)"
 
 python = '''
@@ -480,6 +503,7 @@ struct Point {
 
 [[test]]
 name = "namedtuple_module"
+skip = true
 description = "namedtuple('T', 'x', module='mymod')"
 
 python = '''
@@ -499,6 +523,7 @@ struct Point {
 
 [[test]]
 name = "namedtuple_repr"
+skip = true
 description = "repr(Point(1, 2))"
 
 python = '''

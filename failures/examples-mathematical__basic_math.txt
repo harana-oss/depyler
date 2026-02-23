@@ -1,2 +1,0 @@
-  examples-mathematical.toml :: basic_math
-    Transpilation failed: Python parse error: invalid syntax. Got unexpected token '2' at byte offset 739

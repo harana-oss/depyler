@@ -1,8 +1,0 @@
-  match-guards.toml :: guard_and
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− // case x if x > 0 and x < 100: ...
-−     let result = true; // Placeholder
-+ pub const result: bool = true;
-────────────────────────────────────────────────────────────

@@ -1,8 +1,0 @@
-  async-with.toml :: async_with_basic
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− // async with manager as ctx: ...
-−     let result = true; // Placeholder
-+ pub const result: bool = true;
-────────────────────────────────────────────────────────────

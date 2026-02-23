@@ -1,9 +1,0 @@
-  functions.toml :: async_function
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-  pub async fn fetch_data(url: String) -> String {
-      return "data".to_string();
-− }
-+     }
-────────────────────────────────────────────────────────────

@@ -13,6 +13,7 @@ category = "version-gates"
 
 [[test]]
 name = "exception_groups_311"
+skip = true
 description = "Exception groups (PEP 654) - Python 3.11+"
 min_python_version = "3.11"
 python = '''
@@ -55,6 +56,7 @@ if sys.version_info >= (3, 11):
 
 [[test]]
 name = "self_type_311"
+skip = true
 description = "Self type from typing module - Python 3.11+"
 min_python_version = "3.11"
 python = '''

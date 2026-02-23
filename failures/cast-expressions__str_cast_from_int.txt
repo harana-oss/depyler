@@ -1,9 +1,0 @@
-  cast-expressions.toml :: str_cast_from_int
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-  pub fn int_to_string(x: i32) -> String {
-−     return x.to_string();
-+     return (x).to_string();
-  }
-────────────────────────────────────────────────────────────

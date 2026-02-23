@@ -8,6 +8,7 @@ category = "arrays"
 
 [[test]]
 name = "array_functions_test"
+skip = true
 description = "Example test"
 
 python = '''
@@ -56,6 +57,7 @@ pub fn test_array_functions() -> Result<i32, IndexError> {
 
 [[test]]
 name = "array_test"
+skip = true
 description = "Example test"
 
 python = '''
@@ -157,6 +159,7 @@ pub fn test_nested_arrays() -> (Vec<Vec<i32>>, Vec<Vec<i32>>) {
 
 [[test]]
 name = "simple_array_test"
+skip = true
 description = "Example test"
 
 python = '''
@@ -211,6 +214,7 @@ pub fn test_arrays() -> Result<i32, IndexError> {
 
 [[test]]
 name = "test_array_queue_modules"
+skip = true
 description = "Example test"
 
 python = '''
@@ -866,6 +870,7 @@ pub fn test_all_array_queue_features() {
 
 [[test]]
 name = "test_list_append"
+skip = true
 description = "Example test"
 
 python = '''

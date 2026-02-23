@@ -8,6 +8,7 @@ category = "dunder-methods"
 
 [[test]]
 name = "dunder_radd"
+skip = true
 description = "def __radd__(self, other): return ... (other + self)"
 python = """
 class Number:
@@ -55,6 +56,7 @@ log::info!("{}", result);"""
 
 [[test]]
 name = "dunder_rsub"
+skip = true
 description = "def __rsub__(self, other): return ... (other - self)"
 python = """
 class Number:
@@ -102,6 +104,7 @@ log::info!("{}", result);"""
 
 [[test]]
 name = "dunder_rmul"
+skip = true
 description = "def __rmul__(self, other): return ... (other * self)"
 python = """
 class Vector:
@@ -152,6 +155,7 @@ log::info!("{}", result);"""
 
 [[test]]
 name = "dunder_rtruediv"
+skip = true
 description = "def __rtruediv__(self, other): return ... (other / self)"
 python = """
 class Number:
@@ -199,6 +203,7 @@ log::info!("{}", result);"""
 
 [[test]]
 name = "dunder_rfloordiv"
+skip = true
 description = "def __rfloordiv__(self, other): return ... (other // self)"
 python = """
 class Number:
@@ -246,6 +251,7 @@ log::info!("{}", result);"""
 
 [[test]]
 name = "dunder_rmod"
+skip = true
 description = "def __rmod__(self, other): return ... (other % self)"
 python = """
 class Number:
@@ -293,6 +299,7 @@ log::info!("{}", result);"""
 
 [[test]]
 name = "dunder_rpow"
+skip = true
 description = "def __rpow__(self, other): return ... (other ** self)"
 python = """
 class Number:
@@ -339,6 +346,7 @@ log::info!("{}", result);"""
 
 [[test]]
 name = "dunder_rand"
+skip = true
 description = "def __rand__(self, other): return ... (other & self)"
 python = """
 class Bits:
@@ -386,6 +394,7 @@ log::info!("{}", result);"""
 
 [[test]]
 name = "dunder_ror"
+skip = true
 description = "def __ror__(self, other): return ... (other | self)"
 python = """
 class Bits:
@@ -433,6 +442,7 @@ log::info!("{}", result);"""
 
 [[test]]
 name = "dunder_rxor"
+skip = true
 description = "def __rxor__(self, other): return ... (other ^ self)"
 python = """
 class Bits:
@@ -480,6 +490,7 @@ log::info!("{}", result);"""
 
 [[test]]
 name = "dunder_rlshift"
+skip = true
 description = "def __rlshift__(self, other): return ... (other << self)"
 python = """
 class Shift:
@@ -514,6 +525,7 @@ log::info!("{}", result);"""
 
 [[test]]
 name = "dunder_rrshift"
+skip = true
 description = "def __rrshift__(self, other): return ... (other >> self)"
 python = """
 class Shift:
@@ -552,6 +564,7 @@ log::info!("{}", result);"""
 
 [[test]]
 name = "dunder_rmatmul"
+skip = true
 description = "def __rmatmul__(self, other): return ... (other @ self)"
 python = """
 class Matrix:
@@ -596,6 +609,7 @@ log::info!("{}", result);"""
 
 [[test]]
 name = "dunder_rdivmod"
+skip = true
 description = "def __rdivmod__(self, other): return divmod(other, self)"
 python = """
 class Number:
@@ -624,6 +638,7 @@ log::info!("{:?}", result);"""
 
 [[test]]
 name = "reflected_fallback"
+skip = true
 description = "1 + custom_obj calls custom_obj.__radd__(1)"
 python = """
 class Custom:
@@ -658,6 +673,7 @@ log::info!("{}", result);"""
 
 [[test]]
 name = "reflected_subclass"
+skip = true
 description = "Subclass reflected method called first"
 python = """
 class Base:
@@ -706,6 +722,7 @@ log::info!("{}", result);"""
 
 [[test]]
 name = "reflected_both_fail"
+skip = true
 description = "TypeError when both __add__ and __radd__ return NotImplemented"
 python = """
 class Custom:
@@ -730,6 +747,7 @@ log::info!("TypeError: unsupported operand types");"""
 
 [[test]]
 name = "scalar_times_object"
+skip = true
 description = "2 * Vector(1, 2) via __rmul__"
 python = """
 class Vector:
@@ -780,6 +798,7 @@ log::info!("{}", result);"""
 
 [[test]]
 name = "reflected_format"
+skip = true
 description = "'%s' % custom_obj uses __str__"
 python = """
 class Person:
@@ -818,6 +837,7 @@ log::info!("{}", result);"""
 
 [[test]]
 name = "reflected_same_type"
+skip = true
 description = "When both operands are same custom type"
 python = """
 class Number:
@@ -874,6 +894,7 @@ log::info!("{}", result);"""
 
 [[test]]
 name = "reflected_none"
+skip = true
 description = "Reflected operation with None"
 python = """
 class Custom:

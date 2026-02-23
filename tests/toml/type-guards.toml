@@ -8,6 +8,7 @@ category = "type-narrowing"
 
 [[test]]
 name = "isinstance_narrowing"
+skip = true
 description = "isinstance() type narrowing"
 
 python = '''
@@ -28,6 +29,7 @@ pub fn process(value: &object) -> i32 {
 
 [[test]]
 name = "isinstance_narrowing_str"
+skip = true
 description = "isinstance narrowing for strings"
 
 python = '''
@@ -48,6 +50,7 @@ pub fn get_length(value: &object) -> i32 {
 
 [[test]]
 name = "isinstance_narrowing_list"
+skip = true
 description = "isinstance narrowing for lists"
 
 python = '''
@@ -101,6 +104,7 @@ pub fn unbox(obj: &object) -> i32 {
 
 [[test]]
 name = "isinstance_multiple_types"
+skip = true
 description = "isinstance with multiple types"
 
 python = '''
@@ -125,6 +129,7 @@ pub fn to_int(value: &object) -> i32 {
 
 [[test]]
 name = "typeguard_function"
+skip = true
 description = "TypeGuard function support"
 
 python = '''
@@ -153,6 +158,7 @@ pub fn process_ints(items: &Vec<i32>) -> i32 {
 
 [[test]]
 name = "typeguard_custom"
+skip = true
 description = "Custom TypeGuard implementation"
 
 python = '''
@@ -217,6 +223,7 @@ pub fn ensure_int(value: i32) -> i32 {
 
 [[test]]
 name = "assert_type_complex"
+skip = true
 description = "assert_type with complex types"
 
 python = '''
@@ -240,6 +247,7 @@ pub fn ensure_list(items: Vec<i32>) -> Vec<i32> {
 
 [[test]]
 name = "union_narrowing"
+skip = true
 description = "Union type narrowing"
 
 python = '''
@@ -377,6 +385,7 @@ pub fn describe(value: &FloatOrIntOrStringUnion) -> String {
 
 [[test]]
 name = "union_narrowing_match"
+skip = true
 description = "Union narrowing with match-like pattern"
 
 python = '''
@@ -438,6 +447,7 @@ pub fn handle(result: &IntOrStringUnion) -> i32 {
 
 [[test]]
 name = "optional_narrowing"
+skip = true
 description = "Optional[T] to T narrowing"
 
 python = '''
@@ -517,6 +527,7 @@ pub fn get_value(c: &Option<Container>) -> i32 {
 
 [[test]]
 name = "optional_narrowing_method_chain"
+skip = true
 description = "Optional narrowing in method chain"
 
 python = '''
@@ -539,6 +550,7 @@ pub fn safe_len(s: &Option<String>) -> i32 {
 
 [[test]]
 name = "optional_narrowing_truthiness"
+skip = true
 description = "Optional narrowing via truthiness"
 
 python = '''

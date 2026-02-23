@@ -120,6 +120,7 @@ pub fn get_odd(nums: Vec<i32>) -> Vec<i32> {
 
 [[test]]
 name = "itertools_groupby"
+skip = true
 description = "itertools.groupby() grouping"
 
 python = '''

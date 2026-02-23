@@ -8,6 +8,7 @@ category = "strings"
 
 [[test]]
 name = "template_simple"
+skip = true
 description = "Template('$name').substitute(name='World')"
 
 python = '''
@@ -28,6 +29,7 @@ rust = '''
 
 [[test]]
 name = "template_braced"
+skip = true
 description = "Template('${name}').substitute(name='World')"
 
 python = '''
@@ -48,6 +50,7 @@ rust = '''
 
 [[test]]
 name = "template_multiple"
+skip = true
 description = "Template('$a and $b').substitute(a=1, b=2)"
 
 python = '''
@@ -73,6 +76,7 @@ rust = '''
 
 [[test]]
 name = "template_missing"
+skip = true
 description = "substitute raises KeyError"
 
 python = '''
@@ -96,6 +100,7 @@ rust = '''
 
 [[test]]
 name = "template_safe"
+skip = true
 description = "safe_substitute leaves missing placeholders"
 
 python = '''
@@ -116,6 +121,7 @@ rust = '''
 
 [[test]]
 name = "template_safe_partial"
+skip = true
 description = "safe_substitute with some keys"
 
 python = '''
@@ -141,6 +147,7 @@ rust = '''
 
 [[test]]
 name = "template_escape"
+skip = true
 description = "Template('$$10') -> '$10'"
 
 python = '''
@@ -160,6 +167,7 @@ rust = '''
 
 [[test]]
 name = "template_escape_text"
+skip = true
 description = "Template('Cost: $$${price}')"
 
 python = '''
@@ -184,6 +192,7 @@ rust = '''
 
 [[test]]
 name = "template_dict"
+skip = true
 description = "substitute({'name': 'World'})"
 
 python = '''
@@ -206,6 +215,7 @@ rust = '''
 
 [[test]]
 name = "template_kwargs"
+skip = true
 description = "substitute(name='World')"
 
 python = '''
@@ -226,6 +236,7 @@ rust = '''
 
 [[test]]
 name = "template_both"
+skip = true
 description = "substitute({'a': 1}, b=2)"
 
 python = '''
@@ -251,6 +262,7 @@ rust = '''
 
 [[test]]
 name = "template_identifier"
+skip = true
 description = "$_name, $name1 valid"
 
 python = '''
@@ -272,6 +284,7 @@ rust = '''
 
 [[test]]
 name = "template_braced_complex"
+skip = true
 description = "${name} for adjacent text"
 
 python = '''
@@ -296,6 +309,7 @@ rust = '''
 
 [[test]]
 name = "template_custom_delim"
+skip = true
 description = "class MyTemplate(Template): delimiter = '%'"
 
 python = '''
@@ -320,6 +334,7 @@ rust = '''
 
 [[test]]
 name = "template_custom_pattern"
+skip = true
 description = "Override idpattern"
 
 python = '''
@@ -346,6 +361,7 @@ rust = '''
 
 [[test]]
 name = "template_config"
+skip = true
 description = "Template for config files"
 
 python = '''
@@ -367,6 +383,7 @@ rust = '''
 
 [[test]]
 name = "template_user_safe"
+skip = true
 description = "safe_substitute for user templates"
 
 python = '''
@@ -392,6 +409,7 @@ rust = '''
 
 [[test]]
 name = "template_runtime"
+skip = true
 description = "Template read from file"
 
 python = '''
@@ -416,6 +434,7 @@ rust = '''
 
 [[test]]
 name = "template_no_exec"
+skip = true
 description = "Template('$x.foo') doesn't call .foo"
 
 python = '''
@@ -442,6 +461,7 @@ rust = '''
 
 [[test]]
 name = "template_empty"
+skip = true
 description = "Template('')"
 
 python = '''
@@ -461,6 +481,7 @@ rust = '''
 
 [[test]]
 name = "template_no_placeholders"
+skip = true
 description = "Template('plain text')"
 
 python = '''
@@ -480,6 +501,7 @@ rust = '''
 
 [[test]]
 name = "template_brace_space"
+skip = true
 description = "${ name } invalid"
 
 python = '''

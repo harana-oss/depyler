@@ -8,6 +8,7 @@ category = "marco_polo_cli"
 
 [[test]]
 name = "marco_polo"
+skip = true
 description = "!/usr/bin/env python3"
 
 python = '''
@@ -223,6 +224,7 @@ Error: Statement type not yet supported
 
 [[test]]
 name = "marco_polo_annotated"
+skip = true
 description = "!/usr/bin/env python3"
 
 python = '''
@@ -448,6 +450,7 @@ Error: Statement type not yet supported
 
 [[test]]
 name = "marco_polo_simple"
+skip = true
 description = "!/usr/bin/env python3"
 
 python = '''

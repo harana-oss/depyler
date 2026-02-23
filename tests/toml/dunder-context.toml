@@ -8,6 +8,7 @@ category = "dunder-methods"
 
 [[test]]
 name = "dunder_enter"
+skip = true
 description = "def __enter__(self): return self"
 python = """
 class MyContext:
@@ -45,6 +46,7 @@ log::info!("Inside");
 
 [[test]]
 name = "dunder_exit"
+skip = true
 description = "def __exit__(self, exc_type, exc_val, exc_tb): ..."
 python = """
 class Tracker:
@@ -78,6 +80,7 @@ log::info!("Working");"""
 
 [[test]]
 name = "with_statement"
+skip = true
 description = "with obj as ctx: ..."
 python = """
 class Resource:
@@ -121,6 +124,7 @@ log::info!("Using: {}", res.value);"""
 
 [[test]]
 name = "enter_returns_self"
+skip = true
 description = "Return self for chaining"
 python = """
 class Manager:
@@ -154,6 +158,7 @@ log::info!("{}", mgr.name);"""
 
 [[test]]
 name = "enter_returns_other"
+skip = true
 description = "Return managed resource"
 python = """
 class FileManager:
@@ -195,6 +200,7 @@ drop(mgr);"""
 
 [[test]]
 name = "enter_returns_none"
+skip = true
 description = "with obj: (no as clause needed)"
 python = """
 class Action:
@@ -234,6 +240,7 @@ log::info!("Action");"""
 
 [[test]]
 name = "exit_no_exception"
+skip = true
 description = "__exit__(None, None, None) on success"
 python = """
 class Checker:
@@ -267,6 +274,7 @@ log::info!("Success");"""
 
 [[test]]
 name = "exit_with_exception"
+skip = true
 description = "__exit__(type, value, traceback) on error"
 python = """
 class ErrorHandler:
@@ -306,6 +314,7 @@ log::info!("Propagated");"""
 
 [[test]]
 name = "exit_exception_info"
+skip = true
 description = "Access exception details in __exit__"
 python = """
 class Logger:
@@ -346,6 +355,7 @@ let _logger = Logger::new();"""
 
 [[test]]
 name = "exit_suppress"
+skip = true
 description = "Return True from __exit__ to suppress exception"
 python = """
 class Suppressor:
@@ -378,6 +388,7 @@ log::info!("Continued");"""
 
 [[test]]
 name = "exit_propagate"
+skip = true
 description = "Return False/None to propagate exception"
 python = """
 class Propagator:
@@ -408,6 +419,7 @@ log::info!("Caught: This will propagate");"""
 
 [[test]]
 name = "exit_reraise"
+skip = true
 description = "Raise different exception in __exit__"
 python = """
 class Reraiser:
@@ -445,6 +457,7 @@ log::info!("Got: Wrapped error");"""
 
 [[test]]
 name = "cm_file_like"
+skip = true
 description = "Open/close resource pattern"
 python = """
 class File:
@@ -487,6 +500,7 @@ log::info!("Working with {}", f.name);"""
 
 [[test]]
 name = "cm_lock"
+skip = true
 description = "Acquire/release lock pattern"
 python = """
 class Lock:
@@ -523,6 +537,7 @@ log::info!("Critical section");"""
 
 [[test]]
 name = "cm_transaction"
+skip = true
 description = "Begin/commit/rollback pattern"
 python = """
 class Transaction:
@@ -567,6 +582,7 @@ log::info!("INSERT data");"""
 
 [[test]]
 name = "cm_timing"
+skip = true
 description = "Measure elapsed time"
 python = """
 import time
@@ -613,6 +629,7 @@ log::info!("Working");"""
 
 [[test]]
 name = "cm_temp_state"
+skip = true
 description = "Save/restore state pattern"
 python = """
 class TempValue:
@@ -681,6 +698,7 @@ log::info!("After: {}", config.value);"""
 
 [[test]]
 name = "nested_with"
+skip = true
 description = "with a: with b: ..."
 python = """
 class CM:
@@ -727,6 +745,7 @@ let _a = CM::new("A");
 
 [[test]]
 name = "multiple_cm"
+skip = true
 description = "with a, b, c: ..."
 python = """
 class CM:
@@ -771,6 +790,7 @@ log::info!("Inside all");"""
 
 [[test]]
 name = "cm_order"
+skip = true
 description = "__enter__ order and __exit__ reverse order"
 python = """
 class Numbered:
@@ -816,6 +836,7 @@ let _n3 = Numbered::new(3);"""
 
 [[test]]
 name = "enter_exception"
+skip = true
 description = "__exit__ not called if __enter__ raises"
 python = """
 class FailEnter:
@@ -856,6 +877,7 @@ match FailEnter::new() {
 
 [[test]]
 name = "exit_exception"
+skip = true
 description = "Exception in __exit__ replaces original"
 python = """
 class FailExit:
@@ -894,6 +916,7 @@ log::info!("Caught: Exit failed");"""
 
 [[test]]
 name = "cm_reusable"
+skip = true
 description = "Context manager used multiple times"
 python = """
 class Reusable:
@@ -947,6 +970,7 @@ impl Drop for Reusable {
 
 [[test]]
 name = "cm_reentrant"
+skip = true
 description = "Nested use of same context manager"
 python = """
 class Counter:

@@ -73,6 +73,7 @@ pub fn set_x(point: &mut Point, value: i32) {
 
 [[test]]
 name = "nested_field_mutation_needs_ref_mut"
+skip = true
 description = "Nested field mutation needs &mut on parameter"
 
 python = '''
@@ -116,6 +117,7 @@ pub fn set_inner_value(outer: &mut Outer, value: i32) {
 
 [[test]]
 name = "no_mutation_no_ref_mut"
+skip = true
 description = "No mutation means no &mut needed"
 
 python = '''

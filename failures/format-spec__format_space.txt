@@ -1,9 +1,0 @@
-  format-spec.toml :: format_space
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-  pub fn format_space_sign() -> String {
-−     return format!(" {}", 42);
-+     return format!("{: }", 42);
-  }
-────────────────────────────────────────────────────────────

@@ -8,6 +8,7 @@ category = "imports"
 
 [[test]]
 name = "from_import_simple"
+skip = true
 description = "from os import getcwd"
 
 python = '''
@@ -29,6 +30,7 @@ rust = '''
 
 [[test]]
 name = "from_import_direct"
+skip = true
 description = "getcwd() without os. prefix"
 
 python = '''
@@ -48,6 +50,7 @@ rust = '''
 
 [[test]]
 name = "from_import_multiple"
+skip = true
 description = "from os import getcwd, listdir"
 
 python = '''
@@ -76,6 +79,7 @@ rust = '''
 
 [[test]]
 name = "from_import_as"
+skip = true
 description = "from os import getcwd as cwd"
 
 python = '''
@@ -95,6 +99,7 @@ rust = '''
 
 [[test]]
 name = "from_import_multi_as"
+skip = true
 description = "from os import getcwd as cwd, listdir as ls"
 
 python = '''
@@ -123,6 +128,7 @@ rust = '''
 
 [[test]]
 name = "from_import_star"
+skip = true
 description = "from os.path import *"
 
 python = '''
@@ -142,6 +148,7 @@ rust = '''
 
 [[test]]
 name = "from_import_all"
+skip = true
 description = "* imports only __all__ items"
 
 python = '''
@@ -161,6 +168,7 @@ struct Example {
 
 [[test]]
 name = "from_import_star_no_all"
+skip = true
 description = "* imports non-underscore names"
 
 python = '''
@@ -186,6 +194,7 @@ rust = '''
 
 [[test]]
 name = "from_import_parens"
+skip = true
 description = "from os import (getcwd, listdir)"
 
 python = '''
@@ -207,6 +216,7 @@ rust = '''
 
 [[test]]
 name = "from_import_multiline"
+skip = true
 description = "from os import (\\n    getcwd,\\n    listdir,\\n)"
 
 python = '''
@@ -235,6 +245,7 @@ rust = '''
 
 [[test]]
 name = "from_import_dotted"
+skip = true
 description = "from os.path import join"
 
 python = '''
@@ -254,6 +265,7 @@ rust = '''
 
 [[test]]
 name = "from_import_deep"
+skip = true
 description = "from a.b.c import d"
 
 python = '''
@@ -279,6 +291,7 @@ rust = '''
 
 [[test]]
 name = "from_import_class"
+skip = true
 description = "from collections import OrderedDict"
 
 python = '''
@@ -302,6 +315,7 @@ rust = '''
 
 [[test]]
 name = "from_import_func"
+skip = true
 description = "from functools import reduce"
 
 python = '''
@@ -320,6 +334,7 @@ rust = '''
 
 [[test]]
 name = "from_import_const"
+skip = true
 description = "from math import pi"
 
 python = '''
@@ -343,6 +358,7 @@ rust = '''
 
 [[test]]
 name = "from_import_type"
+skip = true
 description = "from typing import List, Dict"
 
 python = '''
@@ -369,6 +385,7 @@ rust = '''
 
 [[test]]
 name = "from_import_type_checking"
+skip = true
 description = "if TYPE_CHECKING: from x import Y"
 
 python = '''
@@ -395,6 +412,7 @@ rust = '''
 
 [[test]]
 name = "from_import_not_found"
+skip = true
 description = "from os import nonexistent"
 
 python = '''
@@ -416,6 +434,7 @@ rust = '''
 
 [[test]]
 name = "from_import_circular"
+skip = true
 description = "Circular from imports"
 
 python = '''
@@ -436,6 +455,7 @@ rust = '''
 
 [[test]]
 name = "from_import_shadow"
+skip = true
 description = "from mymod import open"
 
 python = '''

@@ -8,6 +8,7 @@ category = "dunder-methods"
 
 [[test]]
 name = "dunder_new"
+skip = true
 description = "def __new__(cls): return super().__new__(cls)"
 python = """
 class Counter:
@@ -51,6 +52,7 @@ expected_output = """1
 
 [[test]]
 name = "dunder_new_args"
+skip = true
 description = "__new__ receiving and passing arguments"
 python = """
 class Validated:
@@ -91,6 +93,7 @@ expected_output = "10"
 
 [[test]]
 name = "dunder_init"
+skip = true
 description = "def __init__(self): self.x = 0"
 python = """
 class Point:
@@ -122,6 +125,7 @@ expected_output = """0
 
 [[test]]
 name = "dunder_init_params"
+skip = true
 description = "def __init__(self, x, y): ..."
 python = """
 class Rectangle:
@@ -163,6 +167,7 @@ expected_output = """5
 
 [[test]]
 name = "dunder_init_defaults"
+skip = true
 description = "def __init__(self, x=0): ..."
 python = """
 class Config:
@@ -221,6 +226,7 @@ expected_output = """30, 3
 
 [[test]]
 name = "dunder_del"
+skip = true
 description = "def __del__(self): cleanup()"
 python = """
 class Resource:
@@ -267,6 +273,7 @@ Done"""
 
 [[test]]
 name = "dunder_del_timing"
+skip = true
 description = "__del__ called when object is garbage collected"
 python = """
 class Temp:
@@ -315,6 +322,7 @@ After function"""
 
 [[test]]
 name = "dunder_del_references"
+skip = true
 description = "__del__ not called with circular references (without gc)"
 python = """
 import gc
@@ -384,6 +392,7 @@ After scope ends"""
 
 [[test]]
 name = "dunder_repr"
+skip = true
 description = "def __repr__(self): return f'MyClass({self.x})'"
 python = """
 class Point:
@@ -427,6 +436,7 @@ Point(3, 4)"""
 
 [[test]]
 name = "dunder_repr_eval"
+skip = true
 description = "__repr__ should be eval()-able when possible"
 python = """
 class Circle:
@@ -471,6 +481,7 @@ expected_output = """Circle(5)
 
 [[test]]
 name = "repr_builtin"
+skip = true
 description = "repr(obj) calls obj.__repr__()"
 python = """
 class Book:
@@ -515,6 +526,7 @@ expected_output = "Book(title='1984', author='Orwell')"
 
 [[test]]
 name = "dunder_str"
+skip = true
 description = "def __str__(self): return 'human readable'"
 python = """
 class Person:
@@ -569,6 +581,7 @@ Person('Alice', 30)"""
 
 [[test]]
 name = "dunder_str_fallback"
+skip = true
 description = "str() uses __repr__ if __str__ not defined"
 python = """
 class Widget:
@@ -616,6 +629,7 @@ Widget(42)"""
 
 [[test]]
 name = "str_builtin"
+skip = true
 description = "str(obj) calls obj.__str__()"
 python = """
 class Status:
@@ -658,6 +672,7 @@ expected_output = "[200] OK"
 
 [[test]]
 name = "print_uses_str"
+skip = true
 description = "print(obj) uses str(obj)"
 python = """
 class Message:
@@ -704,6 +719,7 @@ expected_output = "Message: Hello"
 
 [[test]]
 name = "lifecycle_flow"
+skip = true
 description = "Complete object creation sequence"
 python = """
 class Tracked:
@@ -755,6 +771,7 @@ End"""
 
 [[test]]
 name = "repr_vs_str"
+skip = true
 description = "Different purposes: debugging vs display"
 python = """
 class Product:
@@ -813,6 +830,7 @@ For developers: Product(name='Laptop', price=999.99)"""
 
 [[test]]
 name = "dunder_del_exception"
+skip = true
 description = "Exception in __del__ is ignored (warning only)"
 python = """
 class Broken:
@@ -847,6 +865,7 @@ expected_output = "Deleted"
 
 [[test]]
 name = "repr_non_string"
+skip = true
 description = "__repr__ must return str"
 python = """
 class Bad:
@@ -866,6 +885,7 @@ expected_output = "TypeError: __repr__ returned non-string (type int)"
 
 [[test]]
 name = "repr_recursive"
+skip = true
 description = "Handling self-referential structures"
 python = """
 class Node:

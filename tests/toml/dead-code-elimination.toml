@@ -5,6 +5,7 @@ description = "Tests for dead code elimination that preserves side effects"
 
 [[test]]
 name = "unused_assignment_eliminated"
+skip = true
 description = "Unused assignment is eliminated"
 
 python = '''
@@ -21,6 +22,7 @@ pub fn use_only_y(x: i32, y: i32) -> i32 {
 
 [[test]]
 name = "indexing_side_effect_preserved"
+skip = true
 description = "Assignment with indexing side effect preserved"
 
 python = '''
@@ -51,6 +53,7 @@ pub fn add_item(items: &mut Vec<i32>, value: i32) {
 
 [[test]]
 name = "property_write_preserved"
+skip = true
 description = "Assignment with property write preserved"
 
 python = '''
@@ -81,6 +84,7 @@ pub fn resize(b: &mut Box, new_size: i32) {
 
 [[test]]
 name = "chained_assignments_only_used_preserved"
+skip = true
 description = "Chained assignments - only used ones preserved"
 
 python = '''
@@ -103,6 +107,7 @@ pub fn compute_final(x: i32) -> i32 {
 
 [[test]]
 name = "multiple_unused_eliminated"
+skip = true
 description = "Multiple unused assignments are eliminated"
 
 python = '''

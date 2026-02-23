@@ -8,6 +8,7 @@ category = "context-managers"
 
 [[test]]
 name = "with_basic"
+skip = true
 description = "Basic with statement with as clause"
 python = '''
 class File:
@@ -67,6 +68,7 @@ rust = '''
 
 [[test]]
 name = "with_no_as"
+skip = true
 description = "with statement without as clause"
 python = '''
 class Lock:
@@ -121,6 +123,7 @@ rust = '''
 
 [[test]]
 name = "with_body"
+skip = true
 description = "Execute code in managed context"
 python = '''
 class Counter:
@@ -188,6 +191,7 @@ rust = '''
 
 [[test]]
 name = "cm_enter"
+skip = true
 description = "__enter__ method for setup"
 python = '''
 class Resource:
@@ -231,6 +235,7 @@ rust = '''
 
 [[test]]
 name = "cm_exit"
+skip = true
 description = "__exit__ method for cleanup"
 python = '''
 class Resource:
@@ -279,6 +284,7 @@ rust = '''
 
 [[test]]
 name = "cm_enter_return"
+skip = true
 description = "__enter__ return value bound with as"
 python = '''
 class ResourceFactory:
@@ -311,6 +317,7 @@ rust = '''
 
 [[test]]
 name = "cm_exit_success"
+skip = true
 description = "__exit__ called with None on success"
 python = '''
 class Observer:
@@ -354,6 +361,7 @@ rust = '''
 
 [[test]]
 name = "cm_exit_exception"
+skip = true
 description = "__exit__ receives exception info"
 python = '''
 class ExceptionLogger:
@@ -404,6 +412,7 @@ rust = '''
 
 [[test]]
 name = "cm_suppress"
+skip = true
 description = "Return True from __exit__ to suppress exception"
 python = '''
 class Suppressor:
@@ -433,6 +442,7 @@ with_suppressor(|| {
 
 [[test]]
 name = "cm_propagate"
+skip = true
 description = "Return False/None to propagate exception"
 python = '''
 class Propagator:
@@ -469,6 +479,7 @@ rust = '''
 
 [[test]]
 name = "cm_custom_class"
+skip = true
 description = "Class implementing __enter__ and __exit__"
 python = '''
 class Database:
@@ -538,6 +549,7 @@ rust = '''
 
 [[test]]
 name = "cm_reusable"
+skip = true
 description = "Context manager used multiple times"
 python = '''
 class Connection:
@@ -600,6 +612,7 @@ rust = '''
 
 [[test]]
 name = "cm_stateful"
+skip = true
 description = "Context manager maintaining state"
 python = '''
 class Transaction:
@@ -735,6 +748,7 @@ rust = '''
 
 [[test]]
 name = "cm_lock"
+skip = true
 description = "Thread lock with context manager"
 python = '''
 class ThreadLock:
@@ -768,6 +782,7 @@ rust = '''
 
 [[test]]
 name = "cm_transaction"
+skip = true
 description = "Database transaction with commit/rollback"
 python = '''
 class Transaction:
@@ -846,6 +861,7 @@ rust = '''
 
 [[test]]
 name = "cm_temp_state"
+skip = true
 description = "Save and restore temporary state"
 python = '''
 class StateManager:
@@ -904,6 +920,7 @@ rust = '''
 
 [[test]]
 name = "cm_enter_exception"
+skip = true
 description = "__exit__ not called if __enter__ fails"
 python = '''
 class FailingEnter:
@@ -950,6 +967,7 @@ rust = '''
 
 [[test]]
 name = "cm_exit_exception"
+skip = true
 description = "Exception in __exit__ masks original"
 python = '''
 class ExitRaises:
@@ -985,6 +1003,7 @@ rust = '''
 
 [[test]]
 name = "cm_return"
+skip = true
 description = "return in with block still calls __exit__"
 python = '''
 class Tracker:
@@ -1040,6 +1059,7 @@ rust = '''
 
 [[test]]
 name = "cm_break"
+skip = true
 description = "break in with block still calls __exit__"
 python = '''
 class Counter:

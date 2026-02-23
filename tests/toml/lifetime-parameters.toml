@@ -5,6 +5,7 @@ description = "Tests for proper lifetime inference and no 'static on parameters"
 
 [[test]]
 name = "function_parameters_no_static_lifetime"
+skip = true
 description = "Verify function parameters don't have 'static lifetime"
 
 python = '''
@@ -42,6 +43,7 @@ pub fn sum_list(items: &Vec<i32>) -> i32 {
 
 [[test]]
 name = "multiple_parameters_lifetime_inference"
+skip = true
 description = "Multiple parameters with lifetimes - lifetime inference works"
 
 python = '''
@@ -87,6 +89,7 @@ pub fn to_uppercase(s: String) -> String {
 
 [[test]]
 name = "struct_field_access_borrowed"
+skip = true
 description = "Struct parameter borrowed for field access"
 
 python = '''

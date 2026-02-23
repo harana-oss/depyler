@@ -1,9 +1,0 @@
-  imports-dynamic.toml :: dynamic_plugin
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− // Load plugins dynamically
-−     // Use dlopen or libloading crate for dynamic plugins
-−     let result = true;
-+ pub const result: bool = true;
-────────────────────────────────────────────────────────────

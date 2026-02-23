@@ -1,8 +1,0 @@
-  async-with.toml :: async_with_http
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− // async with aiohttp.ClientSession() as session: ...
-−     let result = true; // Placeholder
-+ pub const result: bool = true;
-────────────────────────────────────────────────────────────

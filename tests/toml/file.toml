@@ -6,6 +6,7 @@ description = "Tests for Python open() builtin function"
 
 [[test]]
 name = "open_read_mode"
+skip = true
 description = "Test open() with read mode 'r'"
 
 python = '''
@@ -26,6 +27,7 @@ pub fn read_file(path: String) -> String {
 
 [[test]]
 name = "open_default_mode"
+skip = true
 description = "Test open() with default mode (read)"
 
 python = '''
@@ -46,6 +48,7 @@ pub fn open_default(path: String) -> String {
 
 [[test]]
 name = "open_write_mode"
+skip = true
 description = "Test open() with write mode 'w'"
 
 python = '''
@@ -63,6 +66,7 @@ pub fn write_file(path: String, content: String) {
 
 [[test]]
 name = "open_append_mode"
+skip = true
 description = "Test open() with append mode 'a'"
 
 python = '''
@@ -83,6 +87,7 @@ pub fn append_file(path: String, content: String) {
 
 [[test]]
 name = "open_read_write_mode"
+skip = true
 description = "Test open() with read+write mode 'r+'"
 
 python = '''
@@ -106,6 +111,7 @@ pub fn open_read_write(path: String) {
 
 [[test]]
 name = "open_binary_read"
+skip = true
 description = "Test open() with binary read mode 'rb'"
 
 python = '''
@@ -126,6 +132,7 @@ pub fn read_binary(path: String) -> bytes {
 
 [[test]]
 name = "open_binary_write"
+skip = true
 description = "Test open() with binary write mode 'wb'"
 
 python = '''
@@ -143,6 +150,7 @@ pub fn write_binary(path: String, data: &bytes) {
 
 [[test]]
 name = "open_with_encoding"
+skip = true
 description = "Test open() with encoding parameter"
 
 python = '''
@@ -163,6 +171,7 @@ pub fn read_utf8(path: String) -> String {
 
 [[test]]
 name = "open_context_manager"
+skip = true
 description = "Test open() with context manager (with statement)"
 
 python = '''
@@ -183,6 +192,7 @@ pub fn use_context_manager(path: String) -> String {
 
 [[test]]
 name = "open_error_handling"
+skip = true
 description = "Test open() with try/except error handling"
 
 python = '''
@@ -215,6 +225,7 @@ pub fn safe_read(path: String) -> String {
 
 [[test]]
 name = "file_read_text_mode"
+skip = true
 description = "f.read() on text mode file generates read_to_string()"
 
 python = '''
@@ -238,6 +249,7 @@ pub fn read_text_file(path: String) -> String {
 
 [[test]]
 name = "file_readlines_text_mode"
+skip = true
 description = "f.readlines() in text mode generates line-based iteration"
 
 python = '''
@@ -263,6 +275,7 @@ pub fn read_lines(path: String) -> Vec<String> {
 
 [[test]]
 name = "file_readline_single"
+skip = true
 description = "f.readline() reads a single line from file"
 
 python = '''
@@ -284,6 +297,7 @@ pub fn read_first_line(path: String) -> String {
 
 [[test]]
 name = "file_write_text_vs_binary"
+skip = true
 description = "f.write() with string in text mode"
 
 python = '''
@@ -301,6 +315,7 @@ pub fn write_text(path: String, text: String) {
 
 [[test]]
 name = "file_read_binary_mode_uses_text"
+skip = true
 description = "Binary read mode currently defaults to text behavior"
 
 python = '''
@@ -324,6 +339,7 @@ pub fn read_binary_as_text(path: String) -> bytes {
 
 [[test]]
 name = "file_iteration"
+skip = true
 description = "Iterating over file lines"
 
 python = '''

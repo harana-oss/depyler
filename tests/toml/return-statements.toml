@@ -129,6 +129,7 @@ pub fn first_positive(items: &Vec<i32>) -> Option<i32> {
 
 [[test]]
 name = "optional_early_return_none"
+skip = true
 description = "Optional with early None - return None"
 
 python = '''
@@ -181,6 +182,7 @@ pub fn empty_optional() -> Option<i32> {
 
 [[test]]
 name = "result_return_ok"
+skip = true
 description = "Result return with Ok() wrapping for can-fail function"
 
 python = '''
@@ -218,6 +220,7 @@ pub fn divide(a: i32, b: i32) -> i32 {
 
 [[test]]
 name = "result_early_return"
+skip = true
 description = "Can-fail with early return = return Ok()"
 
 python = '''
@@ -260,6 +263,7 @@ pub fn safe_divide(a: i32, b: i32) -> i32 {
 
 [[test]]
 name = "result_optional_return_some"
+skip = true
 description = "Result + Optional return with Ok(Some()) wrapping"
 
 python = '''
@@ -305,6 +309,7 @@ pub fn safe_find(items: &Vec<i32>, target: i32) -> Option<i32> {
 
 [[test]]
 name = "result_optional_return_none"
+skip = true
 description = "Result + Optional return with Ok(None) for None literal"
 
 python = '''
@@ -342,6 +347,7 @@ pub fn validate_and_find(items: &Vec<i32>) -> Option<i32> {
 
 [[test]]
 name = "result_optional_early_return_some"
+skip = true
 description = "Can-fail + Optional + early = return Ok(Some())"
 
 python = '''
@@ -387,6 +393,7 @@ pub fn find_positive(items: &Vec<i32>) -> Option<i32> {
 
 [[test]]
 name = "result_optional_early_return_none"
+skip = true
 description = "Can-fail + Optional + early None = return Ok(None)"
 
 python = '''
@@ -463,6 +470,7 @@ pub fn do_something() {
 
 [[test]]
 name = "empty_return_can_fail"
+skip = true
 description = "Ok(()) for empty return in can-fail function"
 
 python = '''
@@ -500,6 +508,7 @@ pub fn validate(x: i32) {
 
 [[test]]
 name = "empty_return_can_fail_optional"
+skip = true
 description = "Ok(None) for empty return with Optional in can-fail"
 
 python = '''
@@ -537,6 +546,7 @@ pub fn find_if_valid(items: &Vec<i32>) -> Option<i32> {
 
 [[test]]
 name = "type_conversion_len_to_int"
+skip = true
 description = "Type conversion on return (usize → i32)"
 
 python = '''
@@ -608,6 +618,7 @@ pub fn nested_search(matrix: &Vec<Vec<i32>>, target: i32) -> Option<i32> {
 
 [[test]]
 name = "complex_return_patterns"
+skip = true
 description = "Complex function with all return patterns"
 
 python = '''

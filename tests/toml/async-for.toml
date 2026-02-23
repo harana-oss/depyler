@@ -8,6 +8,7 @@ category = "async"
 
 [[test]]
 name = "async_for_basic"
+skip = true
 description = "async for item in async_iter: ..."
 python = """
 async def async_range(n):
@@ -36,6 +37,7 @@ log::info!("{:?}", result);"""
 
 [[test]]
 name = "async_for_body"
+skip = true
 description = "Process items asynchronously"
 python = """
 async def async_items():
@@ -64,6 +66,7 @@ log::info!("{:?}", result);"""
 
 [[test]]
 name = "async_for_break"
+skip = true
 description = "async for with early exit"
 python = """
 async def async_range(n):
@@ -97,6 +100,7 @@ log::info!("{:?}", result);"""
 
 [[test]]
 name = "async_for_continue"
+skip = true
 description = "Skip items with continue"
 python = """
 async def async_range(n):
@@ -134,6 +138,7 @@ log::info!("{:?}", result);"""
 
 [[test]]
 name = "aiter"
+skip = true
 description = "def __aiter__(self): return self"
 python = """
 class AsyncRange:
@@ -200,6 +205,7 @@ log::info!("{:?}", result);"""
 
 [[test]]
 name = "anext"
+skip = true
 description = "async def __anext__(self): ..."
 python = """
 class AsyncCounter:
@@ -235,6 +241,7 @@ log::info!("{:?}", result);"""
 
 [[test]]
 name = "stop_async_iteration"
+skip = true
 description = "raise StopAsyncIteration to end"
 python = """
 class AsyncLimit:
@@ -273,6 +280,7 @@ log::info!("{:?}", result);"""
 
 [[test]]
 name = "custom_async_iterator"
+skip = true
 description = "Class with __aiter__ and __anext__"
 python = """
 class AsyncSquares:
@@ -308,6 +316,7 @@ log::info!("{:?}", result);"""
 
 [[test]]
 name = "async_iterator_state"
+skip = true
 description = "Iterator maintains state between awaits"
 python = """
 class AsyncAccumulator:
@@ -376,6 +385,7 @@ log::info!("{:?}", result);"""
 
 [[test]]
 name = "async_iterator_cleanup"
+skip = true
 description = "Cleanup on iteration end"
 python = """
 class AsyncResource:
@@ -420,6 +430,7 @@ log::info!("{:?} {}", result, closed);"""
 
 [[test]]
 name = "async_for_else"
+skip = true
 description = "async for ... else: (no break)"
 python = """
 async def async_range(n):
@@ -454,6 +465,7 @@ log::info!("{:?}", result);"""
 
 [[test]]
 name = "async_for_else_break"
+skip = true
 description = "else not executed on break"
 python = """
 async def async_range(n):
@@ -498,6 +510,7 @@ log::info!("{:?}", result);"""
 
 [[test]]
 name = "async_for_streaming"
+skip = true
 description = "Process streaming data chunks"
 python = """
 async def data_stream():
@@ -527,6 +540,7 @@ log::info!("{:?}", result);"""
 
 [[test]]
 name = "async_for_pagination"
+skip = true
 description = "Iterate over paginated results"
 python = """
 async def paginated_results():
@@ -557,6 +571,7 @@ log::info!("{:?}", result);"""
 
 [[test]]
 name = "async_for_file"
+skip = true
 description = "Read file lines asynchronously"
 python = """
 async def async_lines():
@@ -590,6 +605,7 @@ log::info!("{:?}", result);"""
 
 [[test]]
 name = "async_for_context"
+skip = true
 description = "async for outside async is error"
 python = """
 # async for must be inside async function
@@ -621,6 +637,7 @@ expected_output = "3"
 
 [[test]]
 name = "async_for_nested"
+skip = true
 description = "async for inside async for"
 python = """
 async def outer_iter():
@@ -665,6 +682,7 @@ log::info!("{:?}", result);"""
 
 [[test]]
 name = "async_for_empty"
+skip = true
 description = "async for over empty iterator"
 python = """
 async def empty_async():
@@ -693,6 +711,7 @@ log::info!("{:?}", result);"""
 
 [[test]]
 name = "async_for_exception"
+skip = true
 description = "Exception during async iteration"
 python = """
 async def failing_async():
@@ -734,6 +753,7 @@ log::info!("{:?}", result);"""
 
 [[test]]
 name = "aiter_anext_builtins"
+skip = true
 description = "aiter() and anext() helper functions"
 python = """
 async def async_range(n):

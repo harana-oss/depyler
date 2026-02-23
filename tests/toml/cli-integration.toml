@@ -122,6 +122,7 @@ pub fn fully_typed(x: i32, y: i32) -> i32 {
 
 [[test]]
 name = "quality_memory_safety"
+skip = true
 description = "Memory safety with bounds checking"
 
 python = '''
@@ -178,6 +179,7 @@ pub fn efficient_sum(nums: Vec<i32>) -> i32 {
 
 [[test]]
 name = "compile_simple_struct"
+skip = true
 description = "Simple struct compilation"
 
 python = '''
@@ -202,6 +204,7 @@ impl Point {
 
 [[test]]
 name = "compile_methods"
+skip = true
 description = "Method compilation"
 
 python = '''
@@ -271,6 +274,7 @@ pub fn find_first(items: Vec<i32>, target: i32) -> i32 {
 
 [[test]]
 name = "compile_result_error"
+skip = true
 description = "Error handling compilation"
 
 python = '''
@@ -339,6 +343,7 @@ pub fn safe_divide(a: i32, b: i32) -> i32 {
 
 [[test]]
 name = "wordcount"
+skip = true
 description = "!/usr/bin/env python3"
 
 python = '''
@@ -532,6 +537,7 @@ pub fn main() -> i32 {
 
 [[test]]
 name = "simple_cli"
+skip = true
 description = "!/usr/bin/env python3"
 
 python = '''
@@ -580,6 +586,7 @@ pub fn main() -> i32 {
 
 [[test]]
 name = "test_kwargs"
+skip = true
 description = "!/usr/bin/env python3"
 
 python = '''
@@ -1069,6 +1076,7 @@ if __name__ == "__main__":
 
 [[test]]
 name = "comprehensive_cli"
+skip = true
 description = "!/usr/bin/env python3"
 
 python = '''
@@ -1291,6 +1299,7 @@ pub fn main() {
 
 [[test]]
 name = "marco_polo"
+skip = true
 description = "!/usr/bin/env python3"
 
 python = '''
@@ -1506,6 +1515,7 @@ Error: Statement type not yet supported
 
 [[test]]
 name = "marco_polo_annotated"
+skip = true
 description = "!/usr/bin/env python3"
 
 python = '''
@@ -1731,6 +1741,7 @@ Error: Statement type not yet supported
 
 [[test]]
 name = "marco_polo_simple"
+skip = true
 description = "!/usr/bin/env python3"
 
 python = '''

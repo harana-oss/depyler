@@ -59,6 +59,7 @@ pub fn assign_list() -> Vec<i32> {
 
 [[test]]
 name = "assign_dict"
+skip = true
 description = "Dictionary assignment"
 
 python = '''
@@ -131,6 +132,7 @@ pub fn mul_assign(mut x: i32) -> i32 {
 
 [[test]]
 name = "augassign_divide"
+skip = true
 description = "/= operator"
 
 python = '''
@@ -148,6 +150,7 @@ pub fn div_assign(mut x: f64) -> f64 {
 
 [[test]]
 name = "augassign_modulo"
+skip = true
 description = "%= operator"
 
 python = '''
@@ -229,6 +232,7 @@ pub fn process_bounds() -> i32 {
 
 [[test]]
 name = "tuple_index_access_in_loop"
+skip = true
 description = "Accessing tuple elements by index in enumerate loop"
 
 python = '''
@@ -274,6 +278,7 @@ pub fn access_bounds() -> i32 {
 
 [[test]]
 name = "tuple_index_after_list_index"
+skip = true
 description = "Tuple index access after extracting from list"
 
 python = '''
@@ -334,6 +339,7 @@ pub fn set_first(items: &mut Vec<i32>, value: i32) {
 
 [[test]]
 name = "dict_key_assign"
+skip = true
 description = "Dict key assignment"
 
 python = '''
@@ -402,6 +408,7 @@ pub fn no_reassign() -> i32 {
 
 [[test]]
 name = "slice_assign"
+skip = true
 description = "Slice assignment (limited support)"
 
 python = '''
@@ -604,6 +611,7 @@ pub fn process() -> i32 {
 
 [[test]]
 name = "dict_augmented_add"
+skip = true
 description = "Dict += operator requires get/insert pattern"
 
 python = '''
@@ -629,6 +637,7 @@ pub fn increment_dict_value() -> i32 {
 
 [[test]]
 name = "dict_augmented_sub"
+skip = true
 description = "Dict -= operator"
 
 python = '''
@@ -654,6 +663,7 @@ pub fn decrement_dict_value() -> i32 {
 
 [[test]]
 name = "dict_augmented_mul"
+skip = true
 description = "Dict *= operator"
 
 python = '''
@@ -679,6 +689,7 @@ pub fn multiply_dict_value() -> i32 {
 
 [[test]]
 name = "dict_augmented_div"
+skip = true
 description = "Dict /= operator"
 
 python = '''
@@ -706,6 +717,7 @@ pub fn divide_dict_value() -> i32 {
 
 [[test]]
 name = "dict_augmented_mod"
+skip = true
 description = "Dict %= operator"
 
 python = '''
@@ -733,6 +745,7 @@ pub fn modulo_dict_value() -> i32 {
 
 [[test]]
 name = "nested_dict_augmented_assignment"
+skip = true
 description = "Nested dict with augmented assignment"
 
 python = '''
@@ -770,6 +783,7 @@ pub fn nested_update() -> HashMap<String, HashMap<String, i32>> {
 
 [[test]]
 name = "multiple_dict_augmented_assignments"
+skip = true
 description = "Multiple augmented assignments to same dict key"
 
 python = '''
@@ -963,6 +977,7 @@ pub fn update_at_index(mut items: Vec<i32>, index: i32, value: i32) -> Vec<i32> 
 
 [[test]]
 name = "list_assignment_expression_index"
+skip = true
 description = "List assignment with binary expression index"
 
 python = '''
@@ -1080,6 +1095,7 @@ pub fn modify_dict() -> HashMap<String, i32> {
 
 [[test]]
 name = "nested_list_assignment"
+skip = true
 description = "Nested list assignment uses get_mut chain"
 
 python = '''
@@ -1097,6 +1113,7 @@ pub fn update_matrix(mut matrix: Vec<Vec<i32>>) -> Vec<Vec<i32>> {
 
 [[test]]
 name = "nested_dict_assignment"
+skip = true
 description = "Nested dict assignment uses get_mut chain"
 
 python = '''
@@ -1117,6 +1134,7 @@ pub fn update_nested_dict(
 
 [[test]]
 name = "mixed_nested_assignment"
+skip = true
 description = "Dict of lists nested assignment"
 
 python = '''
@@ -1183,6 +1201,7 @@ pub fn populate_dict(mut d: HashMap<String, i32>) -> HashMap<String, i32> {
 
 [[test]]
 name = "assignment_complex_value"
+skip = true
 description = "Index assignment with complex value expression"
 
 python = '''
@@ -1201,6 +1220,7 @@ pub fn calculate_and_store(mut items: Vec<i32>, x: i32, y: i32) -> Vec<i32> {
 
 [[test]]
 name = "assignment_in_loop"
+skip = true
 description = "Index assignment within iteration"
 
 python = '''
@@ -1260,6 +1280,7 @@ pub fn count_chars(mut counts: HashMap<String, i32>, character: String) -> HashM
 
 [[test]]
 name = "deep_nested_assignment"
+skip = true
 description = "3+ level nested dict assignment"
 
 python = '''

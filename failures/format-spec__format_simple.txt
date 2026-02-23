@@ -1,9 +1,0 @@
-  format-spec.toml :: format_simple
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-  pub fn format_decimal() -> String {
-−     return format!("{}", 42);
-+     return format(42, "d".to_string());
-  }
-────────────────────────────────────────────────────────────

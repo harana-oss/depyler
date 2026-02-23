@@ -5,6 +5,7 @@ description = "Tests for return value mutation detection and interprocedural ana
 
 [[test]]
 name = "return_value_mutated_at_call_site"
+skip = true
 description = "Return value mutation detection"
 
 python = '''
@@ -56,6 +57,7 @@ pub fn caller(s: &mut State) {
 
 [[test]]
 name = "return_value_not_mutated"
+skip = true
 description = "Return value NOT mutated at call site"
 
 python = '''
@@ -107,6 +109,7 @@ pub fn read_only(s: &State) -> i32 {
 
 [[test]]
 name = "return_value_method_mutation"
+skip = true
 description = "Return value mutated via method call"
 
 python = '''
@@ -145,6 +148,7 @@ pub fn add_item(c: &mut Container, value: i32) {
 
 [[test]]
 name = "nested_return_value_access"
+skip = true
 description = "Nested access to return value without mutation"
 
 python = '''

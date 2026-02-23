@@ -1,8 +1,0 @@
-  type-parameter-lists.toml :: typeparam_nested
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− // Generic function inside generic function
-−     let result = true; // Placeholder
-+ pub const result: bool = true;
-────────────────────────────────────────────────────────────

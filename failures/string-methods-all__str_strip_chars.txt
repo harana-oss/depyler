@@ -1,9 +1,0 @@
-  string-methods-all.toml :: str_strip_chars
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− pub const result: String = "xxhelloxx"
-−     .trim_matches(|c: char| "x".contains(c))
-−     .to_string();
-+ 
-────────────────────────────────────────────────────────────

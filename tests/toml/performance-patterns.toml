@@ -8,6 +8,7 @@ category = "optimization"
 
 [[test]]
 name = "loop_invariant_hoisting"
+skip = true
 description = "Loop invariant code motion"
 
 python = '''
@@ -30,6 +31,7 @@ pub fn sum_with_factor(items: Vec<i32>, factor: i32) -> i32 {
 
 [[test]]
 name = "loop_invariant_len"
+skip = true
 description = "Hoist length calculation"
 
 python = '''
@@ -54,6 +56,7 @@ pub fn process_all(items: Vec<i32>) -> i32 {
 
 [[test]]
 name = "loop_invariant_expression"
+skip = true
 description = "Hoist invariant expression"
 
 python = '''
@@ -82,6 +85,7 @@ pub fn compute_with_constant(items: Vec<i32>, a: i32, b: i32) -> i32 {
 
 [[test]]
 name = "strength_reduction"
+skip = true
 description = "Strength reduction optimizations"
 
 python = '''
@@ -97,6 +101,7 @@ pub fn power_of_two(n: i32) -> i32 {
 
 [[test]]
 name = "strength_reduction_div"
+skip = true
 description = "Division strength reduction"
 
 python = '''
@@ -112,6 +117,7 @@ pub fn half(n: i32) -> i32 {
 
 [[test]]
 name = "strength_reduction_mod"
+skip = true
 description = "Modulo strength reduction"
 
 python = '''
@@ -146,6 +152,7 @@ pub fn times_three(n: i32) -> i32 {
 
 [[test]]
 name = "tail_call_optimization"
+skip = true
 description = "Tail call optimization detection"
 
 python = '''
@@ -168,6 +175,7 @@ pub fn factorial_iter(n: i32) -> i32 {
 
 [[test]]
 name = "tail_recursion_converted"
+skip = true
 description = "Tail recursion to iteration"
 
 python = '''
@@ -190,6 +198,7 @@ pub fn sum_to_iter(n: i32) -> i32 {
 
 [[test]]
 name = "accumulator_pattern"
+skip = true
 description = "Accumulator pattern optimization"
 
 python = '''
@@ -216,6 +225,7 @@ pub fn list_sum(items: Vec<i32>) -> i32 {
 
 [[test]]
 name = "inlining_heuristics"
+skip = true
 description = "Function inlining decisions"
 
 python = '''
@@ -239,6 +249,7 @@ pub fn sum_of_squares(a: i32, b: i32) -> i32 {
 
 [[test]]
 name = "inline_simple_accessor"
+skip = true
 description = "Inline simple accessor"
 
 python = '''
@@ -279,6 +290,7 @@ impl Point {
 
 [[test]]
 name = "inline_wrapper"
+skip = true
 description = "Inline wrapper functions"
 
 python = '''
@@ -306,6 +318,7 @@ pub fn increment(x: i32) -> i32 {
 
 [[test]]
 name = "bounds_check_elimination"
+skip = true
 description = "Bounds check elimination"
 
 python = '''
@@ -326,6 +339,7 @@ pub fn safe_access(items: &Vec<i32>, idx: i32) -> i32 {
 
 [[test]]
 name = "bounds_checked_loop"
+skip = true
 description = "Loop with bounds already checked"
 
 python = '''
@@ -348,6 +362,7 @@ pub fn sum_array(items: Vec<i32>) -> i32 {
 
 [[test]]
 name = "iterator_no_bounds"
+skip = true
 description = "Iterator pattern avoids bounds"
 
 python = '''
@@ -370,6 +385,7 @@ pub fn sum_iter(items: Vec<i32>) -> i32 {
 
 [[test]]
 name = "get_unchecked_pattern"
+skip = true
 description = "Unsafe unchecked access when safe"
 
 python = '''

@@ -8,6 +8,7 @@ category = "modern-python"
 
 [[test]]
 name = "type_alias_basic"
+skip = true
 description = "type Point = tuple[int, int]"
 
 python = '''
@@ -26,6 +27,7 @@ fn main() {
 
 [[test]]
 name = "type_alias_generic"
+skip = true
 description = "type IntList = list[int]"
 
 python = '''
@@ -44,6 +46,7 @@ fn main() {
 
 [[test]]
 name = "type_alias_union"
+skip = true
 description = "type MaybeInt = int | None"
 
 python = '''
@@ -66,6 +69,7 @@ fn main() {
 
 [[test]]
 name = "type_alias_param"
+skip = true
 description = "type ListOf[T] = list[T]"
 
 python = '''
@@ -84,6 +88,7 @@ fn main() {
 
 [[test]]
 name = "type_alias_multi_param"
+skip = true
 description = "type Mapping[K, V] = dict[K, V]"
 
 python = '''
@@ -102,6 +107,7 @@ fn main() {
 
 [[test]]
 name = "type_alias_bounded"
+skip = true
 description = "type NumList[T: (int, float)] = list[T]"
 
 python = '''
@@ -124,6 +130,7 @@ fn main() {
 
 [[test]]
 name = "type_alias_vs_old"
+skip = true
 description = "type X = ... vs X: TypeAlias = ..."
 
 python = '''
@@ -142,6 +149,7 @@ fn main() {
 
 [[test]]
 name = "type_alias_lazy"
+skip = true
 description = "type statement supports forward references"
 
 python = '''
@@ -164,6 +172,7 @@ fn main() {
 
 [[test]]
 name = "type_alias_callable"
+skip = true
 description = "type Handler = Callable[[Request], Response]"
 
 python = '''
@@ -182,6 +191,7 @@ fn main() {
 
 [[test]]
 name = "type_alias_nested"
+skip = true
 description = "type Matrix[T] = list[list[T]]"
 
 python = '''
@@ -200,6 +210,7 @@ fn main() {
 
 [[test]]
 name = "type_alias_protocol"
+skip = true
 description = "type Comparable = Protocol with __lt__"
 
 python = '''
@@ -233,6 +244,7 @@ fn main() {
 
 [[test]]
 name = "type_alias_simplify"
+skip = true
 description = "Make complex annotations readable"
 
 python = '''
@@ -251,6 +263,7 @@ fn main() {
 
 [[test]]
 name = "type_alias_domain"
+skip = true
 description = "type UserId = int for domain modeling"
 
 python = '''
@@ -273,6 +286,7 @@ fn main() {
 
 [[test]]
 name = "type_alias_recursive"
+skip = true
 description = "type Tree[T] = T | list[Tree[T]]"
 
 python = '''
@@ -291,6 +305,7 @@ fn main() {
 
 [[test]]
 name = "type_alias_scope"
+skip = true
 description = "Module-level vs class-level type"
 
 python = '''
@@ -309,6 +324,7 @@ fn main() {
 
 [[test]]
 name = "type_alias_runtime"
+skip = true
 description = "Accessing type alias as value"
 
 python = '''

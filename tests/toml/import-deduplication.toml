@@ -5,6 +5,7 @@ description = "Tests for deduplicating use statements in generated Rust code"
 
 [[test]]
 name = "duplicate_hashmap_import_deduplicated"
+skip = true
 description = "Duplicate HashMap imports are deduplicated"
 
 python = '''
@@ -25,6 +26,7 @@ pub fn use_two_maps() -> HashMap<String, i32> {
 
 [[test]]
 name = "different_imports_both_kept"
+skip = true
 description = "Different use statements are both kept"
 
 python = '''

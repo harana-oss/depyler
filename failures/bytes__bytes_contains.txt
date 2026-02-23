@@ -1,8 +1,0 @@
-  bytes.toml :: bytes_contains
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− let result = b"hello".contains(&b'l');
-+ pub const result: serde_json::Value = b"hello".contains(&b"l");
-+ use serde_json;
-────────────────────────────────────────────────────────────

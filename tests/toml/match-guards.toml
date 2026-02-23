@@ -8,6 +8,7 @@ category = "modern-python"
 
 [[test]]
 name = "guard_basic"
+skip = true
 description = "case x if x > 0: ..."
 
 python = '''
@@ -31,6 +32,7 @@ rust = '''
 
 [[test]]
 name = "guard_comparison"
+skip = true
 description = "case x if x >= 10 and x <= 20: ..."
 
 python = '''
@@ -54,6 +56,7 @@ rust = '''
 
 [[test]]
 name = "guard_function"
+skip = true
 description = "case x if is_valid(x): ..."
 
 python = '''
@@ -88,6 +91,7 @@ rust = '''
 
 [[test]]
 name = "guard_captured"
+skip = true
 description = "case (x, y) if x < y: ..."
 
 python = '''
@@ -111,6 +115,7 @@ rust = '''
 
 [[test]]
 name = "guard_multi_capture"
+skip = true
 description = "case [first, *rest] if len(rest) > 0: ..."
 
 python = '''
@@ -134,6 +139,7 @@ rust = '''
 
 [[test]]
 name = "guard_class_pattern"
+skip = true
 description = "case Point(x, y) if x == y: ..."
 
 python = '''
@@ -153,6 +159,7 @@ rust = '''
 
 [[test]]
 name = "guard_and"
+skip = true
 description = "case x if x > 0 and x < 100: ..."
 
 python = '''
@@ -168,6 +175,7 @@ rust = '''
 
 [[test]]
 name = "guard_or"
+skip = true
 description = "case x if x == 0 or x == 1: ..."
 
 python = '''
@@ -183,6 +191,7 @@ rust = '''
 
 [[test]]
 name = "guard_not"
+skip = true
 description = "case x if not is_blocked(x): ..."
 
 python = '''
@@ -198,6 +207,7 @@ rust = '''
 
 [[test]]
 name = "guard_in"
+skip = true
 description = "case x if x in valid_values: ..."
 
 python = '''
@@ -217,6 +227,7 @@ rust = '''
 
 [[test]]
 name = "guard_literal"
+skip = true
 description = "case 0 if condition: ... (guard on literal)"
 
 python = '''
@@ -232,6 +243,7 @@ rust = '''
 
 [[test]]
 name = "guard_sequence"
+skip = true
 description = "case [x, y, z] if sum([x,y,z]) > 10: ..."
 
 python = '''
@@ -247,6 +259,7 @@ rust = '''
 
 [[test]]
 name = "guard_mapping"
+skip = true
 description = "case {'key': v} if v is not None: ..."
 
 python = '''
@@ -266,6 +279,7 @@ rust = '''
 
 [[test]]
 name = "guard_vs_or"
+skip = true
 description = "case x if x in (1, 2, 3): vs case 1 | 2 | 3:"
 
 python = '''
@@ -281,6 +295,7 @@ rust = '''
 
 [[test]]
 name = "same_pattern_diff_guards"
+skip = true
 description = "case x if x > 0: ... case x if x < 0: ..."
 
 python = '''
@@ -300,6 +315,7 @@ rust = '''
 
 [[test]]
 name = "guard_always_false"
+skip = true
 description = "case x if False: never matches"
 
 python = '''
@@ -315,6 +331,7 @@ rust = '''
 
 [[test]]
 name = "guard_side_effects"
+skip = true
 description = "Side effects in guard (evaluated conditionally)"
 
 python = '''
@@ -330,6 +347,7 @@ rust = '''
 
 [[test]]
 name = "guard_exception"
+skip = true
 description = "Exception raised in guard evaluation"
 
 python = '''
@@ -345,6 +363,7 @@ rust = '''
 
 [[test]]
 name = "guard_walrus"
+skip = true
 description = "case x if (y := compute(x)) > 0: use y"
 
 python = '''

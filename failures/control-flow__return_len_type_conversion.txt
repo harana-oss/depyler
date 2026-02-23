@@ -1,9 +1,0 @@
-  control-flow.toml :: return_len_type_conversion
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-  pub fn get_length(items: &Vec<i32>) -> i32 {
-−     return items.len() as i32;
-+     return items.len() as i32 as i32;
-  }
-────────────────────────────────────────────────────────────

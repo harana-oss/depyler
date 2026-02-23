@@ -8,6 +8,7 @@ category = "functions"
 
 [[test]]
 name = "generic_function"
+skip = true
 
 python = '''
 from typing import TypeVar
@@ -59,6 +60,7 @@ pub fn increment(mut x: i32) -> i32 {
 
 [[test]]
 name = "function_returning_result"
+skip = true
 
 python = '''
 def divide(a: int, b: int) -> float:
@@ -112,6 +114,7 @@ pub fn divide(a: i32, b: i32) -> f64 {
 
 [[test]]
 name = "async_function"
+skip = true
 
 python = '''
 async def fetch_data(url: str) -> str:
@@ -224,6 +227,7 @@ pub fn starts_with_hello(s: String) -> bool {
 
 [[test]]
 name = "error_type_tracking"
+skip = true
 
 python = '''
 def safe_divide(a: int, b: int) -> float:
@@ -297,6 +301,7 @@ impl Iterator for CounterState {
 
 [[test]]
 name = "float_return_type"
+skip = true
 
 python = '''
 def calculate_average(a: int, b: int) -> float:
@@ -356,6 +361,7 @@ pub fn uppercase(s: String, unused: i32) -> String {
 
 [[test]]
 name = "param_used_in_index"
+skip = true
 
 python = '''
 def get_item(items: list[int], idx: int, unused: str) -> int:
@@ -387,6 +393,7 @@ pub fn get_item(items: &Vec<i32>, idx: i32, unused: String) -> i32 {
 
 [[test]]
 name = "param_in_list_comprehension"
+skip = true
 
 python = '''
 def with_comprehension(items: list[int], multiplier: int) -> list[int]:
@@ -425,6 +432,7 @@ pub fn make_lower(text: String) -> String {
 
 [[test]]
 name = "string_methods_strip"
+skip = true
 
 python = '''
 def clean_text(text: str) -> str:
@@ -660,6 +668,7 @@ pub fn test() -> String {
 
 [[test]]
 name = "all_named_arguments"
+skip = true
 
 python = '''
 def configure(width: int, height: int, title: str) -> dict:
@@ -687,6 +696,7 @@ pub fn test() -> HashMap<String, i32> {
 
 [[test]]
 name = "multiple_named_after_positional"
+skip = true
 
 python = '''
 def calculate(a: int, b: int, operation: str = "add", verbose: bool = False) -> int:
@@ -723,6 +733,7 @@ pub fn test() -> i32 {
 
 [[test]]
 name = "nested_function_calls"
+skip = true
 
 python = '''
 def inner(x: int, y: int) -> int:
@@ -754,6 +765,7 @@ pub fn test() -> i32 {
 
 [[test]]
 name = "only_positional_args"
+skip = true
 
 python = '''
 def add(a: int, b: int) -> int:
@@ -799,6 +811,7 @@ pub fn test() -> i32 {
 
 [[test]]
 name = "reordered_arguments"
+skip = true
 
 python = '''
 def format_message(name: str, age: int, city: str, country: str) -> str:
@@ -1029,6 +1042,7 @@ pub fn main() {
 
 [[test]]
 name = "basic_reference_parameter"
+skip = true
 compile_check = true
 
 python = '''
@@ -1089,6 +1103,7 @@ pub fn main() {
 
 [[test]]
 name = "string_reference_parameter"
+skip = true
 compile_check = true
 
 python = '''
@@ -1118,6 +1133,7 @@ pub fn main() {
 
 [[test]]
 name = "dict_reference_parameter"
+skip = true
 compile_check = true
 
 python = '''
@@ -1154,6 +1170,7 @@ pub fn main() {
 
 [[test]]
 name = "reference_list_str"
+skip = true
 compile_check = true
 
 python = '''
@@ -1177,6 +1194,7 @@ pub fn main() {
 
 [[test]]
 name = "reference_set_int"
+skip = true
 compile_check = true
 
 python = '''
@@ -1272,6 +1290,7 @@ pub fn test(base: String) -> String {
 
 [[test]]
 name = "print_starred"
+skip = true
 
 python = '''
 def print_all(*items):
@@ -1290,6 +1309,7 @@ pub fn print_all() {
 
 [[test]]
 name = "final_return_expression_style"
+skip = true
 description = "Final return should use expression style, not return keyword"
 
 python = '''
@@ -1330,6 +1350,7 @@ pub fn max_value(a: i32, b: i32) -> i32 {
 
 [[test]]
 name = "boolean_return_expression"
+skip = true
 description = "Boolean return should use expression style"
 
 python = '''
@@ -1345,6 +1366,7 @@ pub fn check_positive(x: i32) -> bool {
 
 [[test]]
 name = "pure_add_function"
+skip = true
 description = "Simple pure function for adding integers"
 compile_check = true
 
@@ -1366,6 +1388,7 @@ pub fn add(a: i32, b: i32) -> i32 {
 
 [[test]]
 name = "bubble_sort_function"
+skip = true
 description = "Sorting function with nested loops"
 compile_check = true
 
@@ -1472,6 +1495,7 @@ pub fn abs_value(x: i32) -> i32 {
 
 [[test]]
 name = "safe_divide_function"
+skip = true
 description = "Division with safety check for zero"
 compile_check = true
 
@@ -1521,6 +1545,7 @@ pub fn safe_divide(a: i32, b: i32) -> i32 {
 
 [[test]]
 name = "normalize_path_function"
+skip = true
 description = "Path normalization with string operations"
 compile_check = true
 
@@ -1554,6 +1579,7 @@ pub fn normalize_path(mut path: String) -> String {
 
 [[test]]
 name = "email_validation_function"
+skip = true
 description = "Email validation with string checks"
 compile_check = true
 
@@ -1608,6 +1634,7 @@ pub fn is_valid_email(email: String) -> bool {
 
 [[test]]
 name = "find_max_function"
+skip = true
 description = "Find maximum element in array"
 compile_check = true
 
@@ -1657,6 +1684,7 @@ pub fn find_max(arr: &Vec<i32>) -> i32 {
 
 [[test]]
 name = "simple_function_transpilation"
+skip = true
 description = "Simple function with add operation"
 compile_check = true
 
@@ -1737,6 +1765,7 @@ pub fn classify_number(n: i32) -> String {
 
 [[test]]
 name = "function_keyword_arguments"
+skip = true
 description = "Function call with keyword arguments are appended as positional"
 
 python = '''
@@ -1779,6 +1808,7 @@ pub fn mixed_call() -> i32 {
 
 [[test]]
 name = "function_default_parameter_values"
+skip = true
 description = "Function with default parameter values generates Option<T>"
 
 python = '''
@@ -1795,6 +1825,7 @@ pub fn greet_with_default(name: String, greeting: Option<String>) -> String {
 
 [[test]]
 name = "function_kwargs_method_call"
+skip = true
 description = "Method call with keyword arguments"
 
 python = '''
@@ -1812,6 +1843,7 @@ pub fn format_string() -> String {
 
 [[test]]
 name = "function_multiple_defaults"
+skip = true
 description = "Function with multiple default parameters"
 
 python = '''

@@ -1,9 +1,0 @@
-  cse-optimization.toml :: single_use_multiplication
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− pub fn multiply(a: i64, b: i64) -> i64 {
-+ pub fn multiply(a: i32, b: i32) -> i32 {
-      return a * b;
-  }
-────────────────────────────────────────────────────────────

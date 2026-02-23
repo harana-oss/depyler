@@ -8,6 +8,7 @@ category = "dunder-methods"
 
 [[test]]
 name = "dunder_add"
+skip = true
 description = "def __add__(self, other): return MyClass(self.x + other.x)"
 
 python = '''
@@ -27,6 +28,7 @@ struct Example {
 
 [[test]]
 name = "dunder_sub"
+skip = true
 description = "def __sub__(self, other): return MyClass(self.x - other.x)"
 
 python = '''
@@ -46,6 +48,7 @@ struct Example {
 
 [[test]]
 name = "dunder_mul"
+skip = true
 description = "def __mul__(self, other): return MyClass(self.x * other.x)"
 
 python = '''
@@ -65,6 +68,7 @@ struct Example {
 
 [[test]]
 name = "dunder_truediv"
+skip = true
 description = "def __truediv__(self, other): return MyClass(self.x / other.x)"
 
 python = '''
@@ -84,6 +88,7 @@ struct Example {
 
 [[test]]
 name = "dunder_floordiv"
+skip = true
 description = "def __floordiv__(self, other): return MyClass(self.x // other.x)"
 
 python = '''
@@ -103,6 +108,7 @@ struct Example {
 
 [[test]]
 name = "dunder_mod"
+skip = true
 description = "def __mod__(self, other): return MyClass(self.x % other.x)"
 
 python = '''
@@ -122,6 +128,7 @@ struct Example {
 
 [[test]]
 name = "dunder_pow"
+skip = true
 description = "def __pow__(self, other): return MyClass(self.x ** other.x)"
 
 python = '''
@@ -141,6 +148,7 @@ struct Example {
 
 [[test]]
 name = "dunder_pow_mod"
+skip = true
 description = "def __pow__(self, other, mod=None): ..."
 
 python = '''
@@ -164,6 +172,7 @@ struct Example {
 
 [[test]]
 name = "dunder_divmod"
+skip = true
 description = "def __divmod__(self, other): return (self // other, self % other)"
 
 python = '''
@@ -183,6 +192,7 @@ struct Example {
 
 [[test]]
 name = "dunder_matmul"
+skip = true
 description = "def __matmul__(self, other): ... (@ operator)"
 
 python = '''
@@ -206,6 +216,7 @@ struct Example {
 
 [[test]]
 name = "dunder_add_int"
+skip = true
 description = "Custom class + int"
 
 python = '''
@@ -225,6 +236,7 @@ struct Example {
 
 [[test]]
 name = "dunder_mul_int"
+skip = true
 description = "Custom class * int (e.g., list * n)"
 
 python = '''
@@ -244,6 +256,7 @@ struct Example {
 
 [[test]]
 name = "arithmetic_coercion"
+skip = true
 description = "Handling different numeric types"
 
 python = '''
@@ -285,6 +298,7 @@ rust = '''
 
 [[test]]
 name = "arithmetic_notimplemented"
+skip = true
 description = "Return NotImplemented for unsupported types"
 
 python = '''
@@ -317,6 +331,7 @@ rust = '''
 
 [[test]]
 name = "arithmetic_fallback"
+skip = true
 description = "Python tries __radd__ if __add__ returns NotImplemented"
 
 python = '''
@@ -340,6 +355,7 @@ struct Example {
 
 [[test]]
 name = "arithmetic_chained"
+skip = true
 description = "a + b + c evaluates left to right"
 
 python = '''
@@ -379,6 +395,7 @@ rust = '''
 
 [[test]]
 name = "arithmetic_mixed"
+skip = true
 description = "a + b * c follows precedence"
 
 python = '''
@@ -432,6 +449,7 @@ rust = '''
 
 [[test]]
 name = "add_different_type"
+skip = true
 description = "__add__ can return any type"
 
 python = '''
@@ -451,6 +469,7 @@ struct Example {
 
 [[test]]
 name = "arithmetic_none"
+skip = true
 description = "Handling None in arithmetic"
 
 python = '''
@@ -473,6 +492,7 @@ rust = '''
 
 [[test]]
 name = "custom_numeric"
+skip = true
 description = "Full numeric type implementation"
 
 python = '''

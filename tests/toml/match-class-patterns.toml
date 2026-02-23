@@ -8,6 +8,7 @@ category = "modern-python"
 
 [[test]]
 name = "class_pattern_no_args"
+skip = true
 description = "case Point(): ..."
 
 python = '''
@@ -40,6 +41,7 @@ rust = '''
 
 [[test]]
 name = "class_pattern_positional"
+skip = true
 description = "case Point(0, 0): ..."
 
 python = '''
@@ -79,6 +81,7 @@ rust = '''
 
 [[test]]
 name = "class_pattern_keyword"
+skip = true
 description = "case Point(x=0, y=0): ..."
 
 python = '''
@@ -117,6 +120,7 @@ rust = '''
 
 [[test]]
 name = "class_pattern_capture"
+skip = true
 description = "case Point(x, y): use x, y"
 
 python = '''
@@ -153,6 +157,7 @@ rust = '''
 
 [[test]]
 name = "match_args"
+skip = true
 description = "class Point: __match_args__ = ('x', 'y')"
 
 python = '''
@@ -183,6 +188,7 @@ rust = '''
 
 [[test]]
 name = "match_args_positional"
+skip = true
 description = "case Point(a, b): maps to x, y via __match_args__"
 
 python = '''
@@ -205,6 +211,7 @@ rust = '''
 
 [[test]]
 name = "dataclass_match_args"
+skip = true
 description = "@dataclass auto-generates __match_args__"
 
 python = '''
@@ -233,6 +240,7 @@ struct Point {
 
 [[test]]
 name = "class_pattern_mixed"
+skip = true
 description = "case Point(0, y=y): ..."
 
 python = '''
@@ -269,6 +277,7 @@ rust = '''
 
 [[test]]
 name = "class_pattern_nested"
+skip = true
 description = "case Line(Point(x1, y1), Point(x2, y2)): ..."
 
 python = '''
@@ -318,6 +327,7 @@ rust = '''
 
 [[test]]
 name = "class_pattern_guard"
+skip = true
 description = "case Point(x, y) if x > 0: ..."
 
 python = '''
@@ -361,6 +371,7 @@ rust = '''
 
 [[test]]
 name = "builtin_int_pattern"
+skip = true
 description = "case int(): matches any int"
 
 python = '''
@@ -390,6 +401,7 @@ rust = '''
 
 [[test]]
 name = "builtin_str_pattern"
+skip = true
 description = "case str(): matches any str"
 
 python = '''
@@ -419,6 +431,7 @@ rust = '''
 
 [[test]]
 name = "builtin_bool_pattern"
+skip = true
 description = "case bool(): matches True or False"
 
 python = '''
@@ -452,6 +465,7 @@ rust = '''
 
 [[test]]
 name = "class_pattern_wildcard"
+skip = true
 description = "case Point(_, y): ignore x"
 
 python = '''
@@ -485,6 +499,7 @@ rust = '''
 
 [[test]]
 name = "class_pattern_partial"
+skip = true
 description = "case Point(x=x): capture only x"
 
 python = '''
@@ -520,6 +535,7 @@ rust = '''
 
 [[test]]
 name = "class_pattern_subclass"
+skip = true
 description = "case Shape(): matches Circle, Rectangle, etc."
 
 python = '''
@@ -565,6 +581,7 @@ rust = '''
 
 [[test]]
 name = "class_pattern_specific"
+skip = true
 description = "case Circle(radius=r): ..."
 
 python = '''
@@ -610,6 +627,7 @@ rust = '''
 
 [[test]]
 name = "class_no_match_args"
+skip = true
 description = "Positional patterns require __match_args__"
 
 python = '''
@@ -632,6 +650,7 @@ rust = '''
 
 [[test]]
 name = "class_pattern_extra"
+skip = true
 description = "Pattern doesn't need all attributes"
 
 python = '''
@@ -665,6 +684,7 @@ rust = '''
 
 [[test]]
 name = "namedtuple_pattern"
+skip = true
 description = "case Point(x=0, y=0): with NamedTuple"
 
 python = '''

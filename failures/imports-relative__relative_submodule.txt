@@ -1,9 +1,0 @@
-  imports-relative.toml :: relative_submodule
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-− // from .sub.mod import item
-−     // In Rust: use super::sub::mod::item;
-−     let result = true;
-+ pub const result: bool = true;
-────────────────────────────────────────────────────────────

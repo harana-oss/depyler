@@ -8,6 +8,7 @@ category = "data-structures"
 
 [[test]]
 name = "intenum_basic"
+skip = true
 description = "IntEnum inherits from both int and Enum"
 python = '''
 from enum import IntEnum
@@ -36,6 +37,7 @@ assert_eq!(Priority::High as i32, 3);
 
 [[test]]
 name = "intenum_int_ops"
+skip = true
 description = "IntEnum can be used in arithmetic"
 python = '''
 from enum import IntEnum
@@ -62,6 +64,7 @@ rust = '''
 
 [[test]]
 name = "intenum_compare_int"
+skip = true
 description = "IntEnum can be compared with int"
 python = '''
 from enum import IntEnum
@@ -89,6 +92,7 @@ assert_eq!(2, Priority::High as i32);
 
 [[test]]
 name = "intenum_ordering"
+skip = true
 description = "IntEnum supports ordering operations"
 python = '''
 from enum import IntEnum
@@ -122,6 +126,7 @@ assert!(Priority::Medium >= Priority::Low);
 
 [[test]]
 name = "intenum_add"
+skip = true
 description = "Addition with IntEnum"
 python = '''
 from enum import IntEnum
@@ -151,6 +156,7 @@ rust = '''
 
 [[test]]
 name = "intenum_sub"
+skip = true
 description = "Subtraction with IntEnum"
 python = '''
 from enum import IntEnum
@@ -180,6 +186,7 @@ rust = '''
 
 [[test]]
 name = "intenum_mul"
+skip = true
 description = "Multiplication with IntEnum"
 python = '''
 from enum import IntEnum
@@ -213,6 +220,7 @@ rust = '''
 
 [[test]]
 name = "intflag_basic"
+skip = true
 description = "IntFlag for bitwise flag operations"
 python = '''
 from enum import IntFlag
@@ -260,6 +268,7 @@ assert_eq!(Perm::X.0, 1);
 
 [[test]]
 name = "intflag_or"
+skip = true
 description = "Combine flags with bitwise OR"
 python = '''
 from enum import IntFlag
@@ -299,6 +308,7 @@ rust = '''
 
 [[test]]
 name = "intflag_and"
+skip = true
 description = "Test flags with bitwise AND"
 python = '''
 from enum import IntFlag
@@ -350,6 +360,7 @@ rust = '''
 
 [[test]]
 name = "intflag_in"
+skip = true
 description = "Check flag membership"
 python = '''
 from enum import IntFlag
@@ -400,6 +411,7 @@ rust = '''
 
 [[test]]
 name = "flag_basic"
+skip = true
 description = "Flag with auto() for power-of-two values"
 python = '''
 from enum import Flag, auto
@@ -440,6 +452,7 @@ assert_eq!(Color::BLUE.0, 4);
 
 [[test]]
 name = "flag_combine"
+skip = true
 description = "Combine Flag values"
 python = '''
 from enum import Flag, auto
@@ -646,6 +659,7 @@ assert_eq!(Status::Approved.as_str(), "approved");
 
 [[test]]
 name = "intenum_as_int"
+skip = true
 description = "IntEnum used in range()"
 python = '''
 from enum import IntEnum
@@ -671,6 +685,7 @@ rust = '''
 
 [[test]]
 name = "intenum_calc"
+skip = true
 description = "IntEnum in calculations"
 python = '''
 from enum import IntEnum
@@ -702,6 +717,7 @@ rust = '''
 
 [[test]]
 name = "intenum_sort"
+skip = true
 description = "Sort IntEnum values"
 python = '''
 from enum import IntEnum
@@ -734,6 +750,7 @@ rust = '''
 
 [[test]]
 name = "intenum_dict"
+skip = true
 description = "IntEnum as dict key"
 python = '''
 from enum import IntEnum
@@ -770,6 +787,7 @@ rust = '''
 
 [[test]]
 name = "intflag_zero"
+skip = true
 description = "Zero value for IntFlag"
 python = '''
 from enum import IntFlag

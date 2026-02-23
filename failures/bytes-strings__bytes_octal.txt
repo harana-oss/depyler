@@ -1,9 +1,0 @@
-  bytes-strings.toml :: bytes_octal
-    Output mismatch
-
-────────────────────────────────────────────────────────────
-  pub fn test_bytes_octal() -> bool {
-−     return b"\x41" == b"A";
-+     return b"A" == b"A";
-  }
-────────────────────────────────────────────────────────────

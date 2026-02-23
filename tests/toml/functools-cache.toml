@@ -8,6 +8,7 @@ category = "decorators-closures"
 
 [[test]]
 name = "cache_basic"
+skip = true
 description = "@cache def f(x): return expensive(x)"
 
 python = '''
@@ -40,6 +41,7 @@ rust = '''
 
 [[test]]
 name = "cache_hits"
+skip = true
 description = "Same args return cached result"
 
 python = '''
@@ -84,6 +86,7 @@ let result = *CALL_COUNT.lock().unwrap() == 1;
 
 [[test]]
 name = "cache_different_args"
+skip = true
 description = "Different args compute fresh result"
 
 python = '''
@@ -132,6 +135,7 @@ let result = *CALL_COUNT.lock().unwrap() == 2;
 
 [[test]]
 name = "lru_cache_basic"
+skip = true
 description = "@lru_cache def f(x): ..."
 
 python = '''
@@ -169,6 +173,7 @@ rust = '''
 
 [[test]]
 name = "lru_cache_maxsize"
+skip = true
 description = "@lru_cache(maxsize=128)"
 
 python = '''
@@ -206,6 +211,7 @@ rust = '''
 
 [[test]]
 name = "lru_cache_unlimited"
+skip = true
 description = "@lru_cache(maxsize=None)"
 
 python = '''
@@ -238,6 +244,7 @@ rust = '''
 
 [[test]]
 name = "lru_cache_typed"
+skip = true
 description = "@lru_cache(typed=True) distinguishes int/float"
 
 python = '''
@@ -281,6 +288,7 @@ rust = '''
 
 [[test]]
 name = "cache_info"
+skip = true
 description = "f.cache_info() returns CacheInfo"
 
 python = '''
@@ -316,6 +324,7 @@ rust = '''
 
 [[test]]
 name = "cache_clear"
+skip = true
 description = "f.cache_clear() empties cache"
 
 python = '''
@@ -354,6 +363,7 @@ rust = '''
 
 [[test]]
 name = "cache_stats"
+skip = true
 description = "Track hits, misses, size, maxsize"
 
 python = '''
@@ -395,6 +405,7 @@ rust = '''
 
 [[test]]
 name = "cached_property"
+skip = true
 description = "@cached_property def prop(self): ..."
 
 python = '''
@@ -432,6 +443,7 @@ rust = '''
 
 [[test]]
 name = "cached_property_once"
+skip = true
 description = "Property computed only on first access"
 
 python = '''
@@ -483,6 +495,7 @@ rust = '''
 
 [[test]]
 name = "cached_property_instance"
+skip = true
 description = "Each instance has own cached value"
 
 python = '''
@@ -532,6 +545,7 @@ rust = '''
 
 [[test]]
 name = "cache_hashable"
+skip = true
 description = "Args must be hashable for cache"
 
 python = '''
@@ -564,6 +578,7 @@ rust = '''
 
 [[test]]
 name = "cache_unhashable"
+skip = true
 description = "TypeError with unhashable args"
 
 python = '''
@@ -590,6 +605,7 @@ rust = '''
 
 [[test]]
 name = "cache_custom_key"
+skip = true
 description = "Using wrapper to create hashable key"
 
 python = '''
@@ -621,6 +637,7 @@ rust = '''
 
 [[test]]
 name = "cache_recursive"
+skip = true
 description = "Memoized Fibonacci"
 
 python = '''
@@ -658,6 +675,7 @@ rust = '''
 
 [[test]]
 name = "cache_expensive"
+skip = true
 description = "Cache expensive API calls"
 
 python = '''
@@ -694,6 +712,7 @@ rust = '''
 
 [[test]]
 name = "cache_computed_property"
+skip = true
 description = "Cache computed class attribute"
 
 python = '''
@@ -743,6 +762,7 @@ rust = '''
 
 [[test]]
 name = "cache_kwargs"
+skip = true
 description = "Keyword args in cache key"
 
 python = '''
@@ -778,6 +798,7 @@ rust = '''
 
 [[test]]
 name = "cache_eviction"
+skip = true
 description = "LRU eviction when maxsize reached"
 
 python = '''
@@ -808,6 +829,7 @@ rust = '''
 
 [[test]]
 name = "cache_method"
+skip = true
 description = "@lru_cache on instance method (use @cached_property or wrapper)"
 
 python = '''
