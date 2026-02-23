@@ -1,0 +1,13 @@
+  assignment.toml :: nested_dict_assignment
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use std::collections::HashMap;
+  pub fn update_nested_dict(
+−     mut d: HashMap<String, HashMap<String, i32>>,
++     d: HashMap<String, HashMap<String, i32>>,
+  ) -> HashMap<String, HashMap<String, i32>> {
+      d.get_mut(&"outer").unwrap().insert("inner".to_string(), 42);
+      return d;
+  }
+────────────────────────────────────────────────────────────

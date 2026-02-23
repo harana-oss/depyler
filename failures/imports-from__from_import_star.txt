@@ -1,0 +1,10 @@
+  imports-from.toml :: from_import_star
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust: glob import (discouraged)
+−     use std::path::*;
+−     let result = Path::new("a").join("b");
+−     assert!(result.to_str().is_some());
++ use std;
+────────────────────────────────────────────────────────────

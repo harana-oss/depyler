@@ -1,0 +1,30 @@
+  functools-cache.toml :: lru_cache_basic
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // @lru_cache def f(x): ...
+−     use lru::LruCache;
+−     use std::sync::Mutex;
+− 
+−     lazy_static::lazy_static! {
+−         static ref CACHE: Mutex<LruCache<i32, i32>> = Mutex::new(LruCache::new(128.try_into().unwrap()));
+−     }
+− 
+−     fn func(x: i32) -> i32 {
+−         let mut cache = CACHE.lock().unwrap();
+−         if let Some(&val) = cache.get(&x) {
+−             return val;
+−         }
+−         let val = x * x;
+−         cache.put(x, val);
+−         val
+−     }
+− 
+−     let result = func(3) == 9;
++ use std;
++ pub const result: serde_json::Value = func(3) == 9;
++ use serde_json;
++ pub fn func(x: i32) {
++     return x * x;
++ }
+────────────────────────────────────────────────────────────

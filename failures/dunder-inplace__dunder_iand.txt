@@ -1,0 +1,28 @@
+  dunder-inplace.toml :: dunder_iand
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::ops::BitAndAssign;
+− 
+− #[derive(Debug)]
+− struct Flags {
+−     x: i32,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Flags {
++     pub x: serde_json::Value,
+  }
+− 
+− impl BitAndAssign for Flags {
+−     fn bitand_assign(&mut self, other: Flags) {
+−         self.x &= other.x;
++ impl Flags {
++     pub fn new(x: serde_json::Value) -> Self {
++         Self { x }
+      }
+  }
+− 
+− let mut a = Flags { x: 0b1100 };
+− a &= Flags { x: 0b1010 };
+− log::info!("Flags({})", a.x);
+────────────────────────────────────────────────────────────

@@ -1,0 +1,17 @@
+  ffi-ctypes.toml :: ctypes_pointer_null
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn safe_read(ref_: Option<i32>) -> i32 {
+−     if let Some(value) = ref_ {
+−         return value;
+−     }
+−     return 0;
++ pub fn safe_read(ref: & Option<i32>) -> i32 {
++     if r#ref.is_some() {
++     return r#ref.unwrap();
++    
+  }
++ return 0;
++     }
+────────────────────────────────────────────────────────────

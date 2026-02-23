@@ -1,0 +1,37 @@
+  argparse.toml :: subcommand_multiple_fields
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use clap::Parser;
+  #[derive(clap::Subcommand)]
+  enum Commands {
+      Clone {
+          url: String,
+          #[arg(long)]
+          branch: String,
+      },
+  }
+  #[derive(Debug, clap::Parser)]
+  struct Args {
+      #[command(subcommand)]
+      command: Commands,
+  }
+  pub fn main() {
+      let args = Args::parse();
+      match args.command {
+          Commands::Clone { url, branch } => {
+              handle_clone(&args);
+          }
+      }
+  }
+  pub fn handle_clone(args: &Args) {
+      if let Commands::Clone { branch, url } = &args.command {
+          log::info!("{}", format!("Clone {}(branch: {})", url, branch));
+      }
+  }
+− fn main() {
+−     if __name__ == "__main__" {
+−         main();
+−     }
+− }
+────────────────────────────────────────────────────────────

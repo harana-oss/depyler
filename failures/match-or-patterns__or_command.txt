@@ -1,0 +1,11 @@
+  match-or-patterns.toml :: or_command
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− let cmd = "q";
+−     let result = match cmd {
+−         "quit" | "exit" | "q" => true,
+−         _ => false,
+−     };
++ 
+────────────────────────────────────────────────────────────

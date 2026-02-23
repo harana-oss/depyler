@@ -1,0 +1,14 @@
+  control-flow.toml :: try_with_finally_only
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn test() -> i32 {
+−     {
+−         let x = 1;
+−         log::info!("{}", "cleanup");
+−     }
++     let x = 1;
++     log::info!("{}", "cleanup");
+      return x;
+  }
+────────────────────────────────────────────────────────────

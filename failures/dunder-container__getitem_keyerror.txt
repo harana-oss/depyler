@@ -1,0 +1,45 @@
+  dunder-container.toml :: getitem_keyerror
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::collections::HashMap;
+− 
+− struct CustomDict {
+−     data: HashMap<String, i32>,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct CustomDict {
++     pub data: HashMap<serde_json::Value, serde_json::Value>,
+  }
+− 
+  impl CustomDict {
+−     fn new() -> Self {
+−         CustomDict {
+−             data: HashMap::new(),
++     pub fn new() -> Self {
++         Self {
++             data: {
++                 let mut map = HashMap::new();
++                 map
++             },
+          }
+      }
+− 
+−     fn get(&self, key: &str) -> Option<&i32> {
+−         // Returns None for missing key (Rust's safer equivalent)
+−         self.data.get(key)
+−     }
+− 
+−     fn insert(&mut self, key: String, value: i32) {
+−         self.data.insert(key, value);
+−     }
+− }
+− 
+− fn main() {
+−     let mut d = CustomDict::new();
+−     d.insert("exists".to_string(), 42);
+− 
+−     let result = d.get("missing").is_none();
+−     log::info!("Missing key returns None: {}", result);
+  }
+────────────────────────────────────────────────────────────

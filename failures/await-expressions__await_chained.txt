@@ -1,0 +1,30 @@
+  await-expressions.toml :: await_chained
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::future::Future;
+− use std::pin::Pin;
+− 
+− async fn inner() -> i32 {
+−     55
++ pub async fn inner() -> i32 {
++     return 55;
++    
+  }
+− 
+− async fn get_coro() -> fn() -> Pin<Box<dyn Future<Output = i32>>> {
+−     || Box::pin(inner())
++ pub async fn get_coro() {
++     return inner;
++    
+  }
+− 
+− async fn test_await_chained() -> i32 {
++ pub async fn test_await_chained() -> i32 {
+      let coro_func = get_coro().await;
+−     coro_func().await
+− }
++     let result = coro_func().await;
++     return result;
++     }
+────────────────────────────────────────────────────────────

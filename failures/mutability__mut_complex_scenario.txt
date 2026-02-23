@@ -1,0 +1,21 @@
+  mutability.toml :: mut_complex_scenario
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn complex_mutations(mut initial: i32) -> Vec<i32> {
++ use serde_json;
++ pub fn complex_mutations(mut initial: i32) -> Vec<serde_json::Value> {
+      initial *= 2;
+      let mut results = vec![];
+      results.push(initial);
+      let mut counter = 0;
+      while counter < 3 {
+          results.push(counter);
+          counter += 1;
+      }
+      if results.len() as i32 > 0 {
+          results.pop().unwrap();
+      }
+      return results;
+  }
+────────────────────────────────────────────────────────────

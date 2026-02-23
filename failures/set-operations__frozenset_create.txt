@@ -1,0 +1,9 @@
+  set-operations.toml :: frozenset_create
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub const result: std::sync::Arc<HashSet<i32>> =
+−     std::sync::Arc::new(vec![1, 2, 3].into_iter().collect::<HashSet<_>>());
+− use std::collections::HashSet;
++ 
+────────────────────────────────────────────────────────────

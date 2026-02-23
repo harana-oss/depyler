@@ -1,0 +1,13 @@
+  positional-only-args.toml :: posonly_varargs
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− fn with_varargs(a: i32, args: &[i32]) -> String {
+−     format!("a={}, args={:?}", a, args)
++ pub fn with_varargs() -> String {
++     return format!("a={}, args={}", a, args);
+  }
+− 
+− log::info!("{}", with_varargs(1, &[]));
+− log::info!("{}", with_varargs(1, &[2, 3, 4]));
+────────────────────────────────────────────────────────────

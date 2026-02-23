@@ -1,0 +1,30 @@
+  root-test-files.toml :: complex_dataclass
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::collections::HashMap;
+− use std::collections::HashSet;
+  #[derive(Debug, Clone, PartialEq, Default)]
+  pub struct ComplexState {
+      pub events: HashSet<String>,
+      pub items: Vec<i32>,
+      pub metadata: HashMap<String, i32>,
+      pub count: i32,
+      pub name: String,
+      pub enabled: bool,
+      pub id: i32,
+  }
+  impl ComplexState {
+      pub fn new(id: i32) -> Self {
+          Self {
+              events: HashSet::new(),
+              items: Vec::new(),
+              metadata: HashMap::new(),
+              count: 0,
+              name: "unknown".to_string(),
+              enabled: Default::default(),
+              id,
+          }
+      }
+  }
+────────────────────────────────────────────────────────────

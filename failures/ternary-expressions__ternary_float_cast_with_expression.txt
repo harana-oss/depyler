@@ -1,0 +1,29 @@
+  ternary-expressions.toml :: ternary_float_cast_with_expression
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct State {
+−     ball_location_y: i32,
++ #[derive(Debug, Copy, Clone)]
++ pub struct State {
++     pub ball_location_y: i32,
+  }
+− 
+  impl State {
+−     fn new() -> Self {
++     pub fn new() -> Self {
+          Self {
+              ball_location_y: 100,
+          }
+      }
+  }
+− 
+− let state = State::new();
+− let is_home = true;
+− let result = (if is_home {
+−     state.ball_location_y
+− } else {
+−     700 - state.ball_location_y
+− }) as f64;
+− log::info!("{}", result);
+────────────────────────────────────────────────────────────

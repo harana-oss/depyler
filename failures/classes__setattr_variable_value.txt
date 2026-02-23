@@ -1,0 +1,22 @@
+  classes.toml :: setattr_variable_value
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug, Copy, Clone]
++ #[derive(Debug, Copy, Clone)]
+  pub struct Counter {
+      pub count: i32,
+  }
+  impl Counter {
+      pub fn new(count: i32) -> Self {
+          Self { count }
+      }
+  }
+− pub fn set_count(c: &mut Counter, new_count: i32) {
++ pub fn set_count(c: &Counter, new_count: i32) {
+      {
+          c.count = new_count;
+−     }
++     };
++ }
+────────────────────────────────────────────────────────────

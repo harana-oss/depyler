@@ -1,0 +1,9 @@
+  numeric-arrays.toml :: memoryview_cast
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn to_bytes(value: i32) -> Vec<i32> {
+−     return (0..4).map(|i| (value >> (i * 8)) & 0xFF).collect();
++     return (0..4).map(|i| value >> i * 8 & 255).collect::<Vec<_>>();
+  }
+────────────────────────────────────────────────────────────

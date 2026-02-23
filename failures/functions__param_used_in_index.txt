@@ -1,0 +1,27 @@
+  functions.toml :: param_used_in_index
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  #[derive(Debug, Clone)]
+  pub struct IndexError {
+      message: String,
+  }
+  impl std::fmt::Display for IndexError {
+      fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+          write!(f, "index out of range: {}", self.message)
+      }
+  }
+  impl std::error::Error for IndexError {}
+  impl IndexError {
+      pub fn new(message: impl Into<String>) -> Self {
+          Self {
+              message: message.into(),
+          }
+      }
+  }
+− pub fn get_item(items: &Vec<i32>, idx: i32, unused: String) -> i32 {
+−     return items.get(idx as usize).cloned().unwrap();
++ pub fn get_item(items: &Vec<i32>, idx: i32, unused: String) -> Result<i32, IndexError> {
++     return Ok(items.get(idx as usize).cloned().unwrap());
+  }
+────────────────────────────────────────────────────────────

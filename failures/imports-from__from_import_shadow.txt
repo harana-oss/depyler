@@ -1,0 +1,11 @@
+  imports-from.toml :: from_import_shadow
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // from mymod import open
+−     // Rust prevents shadowing across scopes without explicit imports
+−     use std::fs::File;
+−     // use mymod::open; // Would shadow File::open
+−     let result = true;
++ 
+────────────────────────────────────────────────────────────

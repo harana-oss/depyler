@@ -1,0 +1,69 @@
+  multiple-inheritance.toml :: mixin_basic
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // class MyClass(Mixin1, Mixin2, Base): ...
+−     trait Mixin1 {
+−         fn feature1(&self) -> &str {
+−             "feature1"
+−         }
++ #[derive(Debug, Copy, Clone)]
++ pub struct Mixin1 {}
++ impl Mixin1 {
++     pub fn new() -> Self {
++         Self {}
++     }
++     pub fn feature1(&self) -> String {
++         return "feature1".to_string();
++     }
++ }
++ #[derive(Debug, Copy, Clone)]
++ pub struct Mixin2 {}
++ impl Mixin2 {
++     pub fn new() -> Self {
++         Self {}
+      }
+− 
+−     trait Mixin2 {
+−         fn feature2(&self) -> &str {
+−             "feature2"
+−         }
++     pub fn feature2(&self) -> String {
++         return "feature2".to_string();
++     }
++ }
++ #[derive(Debug, Copy, Clone)]
++ pub struct Base {}
++ impl Base {
++     pub fn new() -> Self {
++         Self {}
+      }
+− 
+−     trait Base {
+−         fn base_method(&self) -> &str {
+−             "base"
+−         }
++     pub fn base_method(&self) -> String {
++         return "base".to_string();
+      }
+− 
+−     struct MyClass;
+− 
+−     impl Mixin1 for MyClass {}
+−     impl Mixin2 for MyClass {}
+−     impl Base for MyClass {}
+− 
+−     pub fn test_mixin_basic() -> bool {
+−         let obj = MyClass;
+−         obj.feature1() == "feature1" && obj.feature2() == "feature2" && obj.base_method() == "base"
++ }
++ #[derive(Debug, Copy, Clone)]
++ pub struct MyClass {}
++ impl MyClass {
++     pub fn new() -> Self {
++         Self {}
+      }
+− 
+−     let result = test_mixin_basic();
++ }
+────────────────────────────────────────────────────────────

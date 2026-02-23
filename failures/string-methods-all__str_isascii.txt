@@ -1,0 +1,7 @@
+  string-methods-all.toml :: str_isascii
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub const result: bool = "hello".is_ascii();
++ 
+────────────────────────────────────────────────────────────

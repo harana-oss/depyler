@@ -1,0 +1,29 @@
+  global-nonlocal.toml :: global_nested
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::cell::Cell;
+− 
+− thread_local! {
+−     static X: Cell<i32> = Cell::new(100);
+− }
+− 
+− fn outer() {
+−     let x = 50; // Local to outer
+− 
+−     fn inner() {
+−         X.with(|x| x.set(200));
++ pub fn outer() {
++     let x = 50;
++     fn inner() -> () {
++         x = 200;
+      }
+− 
+      inner();
+−     log::info!("Outer's x: {}", x);
++     log::info!("{}", format!("Outer's x: {}", x));
+  }
+− 
+− outer();
+− log::info!("Global x: {}", X.with(|x| x.get()));
+────────────────────────────────────────────────────────────

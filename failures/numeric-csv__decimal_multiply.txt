@@ -1,0 +1,9 @@
+  numeric-csv.toml :: decimal_multiply
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn multiply_decimals(a: &Decimal, b: &Decimal) -> Decimal {
+      return a * b;
+− };
++ }
+────────────────────────────────────────────────────────────

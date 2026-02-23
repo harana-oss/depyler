@@ -1,0 +1,39 @@
+  dataclasses-advanced.toml :: dataclass_inherit_order
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug)]
+− struct Base {
+−     x: i32,
++ #[derive(Debug, Copy, Clone, PartialEq, Default)]
++ pub struct Base {
++     pub x: i32,
+  }
+− 
+− #[derive(Debug)]
+− struct Child {
+−     x: i32,
+−     y: i32,
++ impl Base {
++     pub fn new(x: i32) -> Self {
++         Self { x }
++     }
++ }
++ #[derive(Debug, Copy, Clone, PartialEq, Default)]
++ pub struct Child {
++     pub y: i32,
+  }
+− 
+− pub fn test_dataclass_inherit_order() -> (i32, i32) {
+−     let c = Child { x: 1, y: 2 };
+−     (c.x, c.y)
++ impl Child {
++     pub fn new(y: i32) -> Self {
++         Self { y }
++     }
++ }
++ pub fn test_dataclass_inherit_order() -> () {
++     let c = Child::new(1, 2);
++     return (c.x, c.y);
+  }
+────────────────────────────────────────────────────────────

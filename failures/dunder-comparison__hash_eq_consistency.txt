@@ -1,0 +1,35 @@
+  dunder-comparison.toml :: hash_eq_consistency
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::collections::hash_map::DefaultHasher;
+− use std::hash::{Hash, Hasher};
+− 
+− #[derive(PartialEq, Eq, Hash)]
+− struct HashableValue {
+−     x: i32,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct HashableValue {
++     pub x: serde_json::Value,
+  }
+− 
+  impl HashableValue {
+−     fn new(x: i32) -> Self {
+−         HashableValue { x }
++     pub fn new(x: serde_json::Value) -> Self {
++         Self { x }
+      }
+  }
+− 
+− fn calculate_hash<T: Hash>(t: &T) -> u64 {
+−     let mut s = DefaultHasher::new();
+−     t.hash(&mut s);
+−     s.finish()
+− }
+− 
+− let v1 = HashableValue::new(42);
+− let v2 = HashableValue::new(42);
+− log::info!("{}", v1 == v2);
+− log::info!("{}", calculate_hash(&v1) == calculate_hash(&v2));
+────────────────────────────────────────────────────────────

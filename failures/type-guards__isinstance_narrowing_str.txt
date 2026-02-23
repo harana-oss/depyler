@@ -1,0 +1,12 @@
+  type-guards.toml :: isinstance_narrowing_str
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn get_length(value: &object) -> i32 {
+      if true {
+−         return value.len() as i32;
++         return value.len() as i32 as i32;
+      }
+      return 0;
+  }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,44 @@
+  decorators-basic.toml :: decorator_timing
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::time::Instant;
+− 
+−     fn timing_decorator<F>(f: F) -> impl Fn() -> String
+−     where
+−         F: Fn() -> String,
+−     {
+−         move || {
+−             let start = Instant::now();
+−             let result = f();
+−             let _elapsed = start.elapsed();
+−             result
+−         }
++ use serde_json;
++ pub fn timing_decorator(f: &serde_json::Value) {
++     fn wrapper() -> () {
++         let start = std::time::SystemTime::now()
++             .duration_since(std::time::UNIX_EPOCH)
++             .unwrap()
++             .as_secs_f64();
++         let result = f();
++         let elapsed = std::time::SystemTime::now()
++             .duration_since(std::time::UNIX_EPOCH)
++             .unwrap()
++             .as_secs_f64()
++             - start;
++         return result;
+      }
+− 
+−     fn slow_function_impl() -> String {
+−         "done".to_string()
+−     }
+− 
+−     let slow_function = timing_decorator(slow_function_impl);
+−     let result = slow_function();
++     return wrapper;
++ }
++ pub fn slow_function() -> String {
++     return "done".to_string();
++ }
+────────────────────────────────────────────────────────────

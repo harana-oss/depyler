@@ -1,0 +1,37 @@
+  dunder-format.toml :: format_number
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct Fraction {
+−     num: i32,
+−     den: i32,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Fraction {
++     pub num: serde_json::Value,
++     pub den: serde_json::Value,
+  }
+− 
+  impl Fraction {
+−     fn new(num: i32, den: i32) -> Self {
+−         Fraction { num, den }
+−     }
+− 
+−     fn format_spec(&self, spec: &str) -> String {
+−         match spec {
+−             "dec" => format!("{:.2}", self.num as f64 / self.den as f64),
+−             "perc" => format!("{:.1}%", 100.0 * self.num as f64 / self.den as f64),
+−             _ => format!("{}/{}", self.num, self.den),
++     pub fn new(numerator: serde_json::Value, denominator: serde_json::Value) -> Self {
++         Self {
++             num: numerator,
++             den: denominator,
+          }
+      }
+  }
+− 
+− let f = Fraction::new(3, 4);
+− log::info!("{}", f.format_spec(""));
+− log::info!("{}", f.format_spec("dec"));
+− log::info!("{}", f.format_spec("perc"));
+────────────────────────────────────────────────────────────

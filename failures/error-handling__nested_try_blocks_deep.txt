@@ -1,0 +1,34 @@
+  error-handling.toml :: nested_try_blocks_deep
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  #[derive(Debug, Clone)]
+  pub struct ZeroDivisionError {
+      message: String,
+  }
+  impl std::fmt::Display for ZeroDivisionError {
+      fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+          write!(f, "division by zero: {}", self.message)
+      }
+  }
+  impl std::error::Error for ZeroDivisionError {}
+  impl ZeroDivisionError {
+      pub fn new(message: impl Into<String>) -> Self {
+          Self {
+              message: message.into(),
+          }
+      }
+  }
+  pub fn nested_try() -> i32 {
+      {
+−         {
+−             return 42 / 0;
++         if 0 == 0 {
+              return -1;
++         } else {
++             return (42 as f64) / (0 as f64);
+          }
+          return -2;
+      }
+  }
+────────────────────────────────────────────────────────────

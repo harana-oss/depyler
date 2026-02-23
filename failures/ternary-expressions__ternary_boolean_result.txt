@@ -1,0 +1,9 @@
+  ternary-expressions.toml :: ternary_boolean_result
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− let x = 10;
+− let result = if x > 5 { true } else { false };
+− log::info!("{}", result);
++ 
+────────────────────────────────────────────────────────────

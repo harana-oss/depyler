@@ -1,0 +1,10 @@
+  template-strings.toml :: template_kwargs
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust: direct variable substitution
+−     let name = "World";
+−     let result = format!("Hello {}", name);
+−     assert_eq!(result, "Hello World");
++ 
+────────────────────────────────────────────────────────────

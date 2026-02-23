@@ -23,10 +23,10 @@ result = (p.x, p.y)
 '''
 
 rust = '''
-pub const p: serde_json::Value = Point::new(1, 2);
-pub const result: (serde_json::Value, serde_json::Value) = (p.x, p.y);
+pub const p: Point = Point::new(1, 2);
+pub const result: (i32, i32) = (p.x, p.y);
 use serde_json;
-#[derive(Debug, Clone, PartialEq, Default)]
+#[derive(Debug, Copy, Clone, PartialEq, Default)]
 pub struct Point {
     pub x: i32,
     pub y: i32,
@@ -34,34 +34,6 @@ pub struct Point {
 impl Point {
     pub fn new(x: i32, y: i32) -> Self {
         Self { x, y }
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
-            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "x" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.x = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "y" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.y = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 '''
@@ -83,10 +55,10 @@ result = (p.x, p.y)
 '''
 
 rust = '''
-pub const p: serde_json::Value = Point::new(1, 2);
-pub const result: (serde_json::Value, serde_json::Value) = (p.x, p.y);
+pub const p: Point = Point::new(1, 2);
+pub const result: (i32, i32) = (p.x, p.y);
 use serde_json;
-#[derive(Debug, Clone, PartialEq, Default)]
+#[derive(Debug, Copy, Clone, PartialEq, Default)]
 pub struct Point {
     pub x: i32,
     pub y: i32,
@@ -94,34 +66,6 @@ pub struct Point {
 impl Point {
     pub fn new(x: i32, y: i32) -> Self {
         Self { x, y }
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
-            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "x" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.x = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "y" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.y = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 '''
@@ -143,10 +87,10 @@ result = repr(p)
 '''
 
 rust = '''
-pub const p: serde_json::Value = Point::new(1, 2);
-pub const result: serde_json::Value = format!("{:?}", p);
+pub const p: Point = Point::new(1, 2);
+pub const result: String = format!("{:?}", p);
 use serde_json;
-#[derive(Debug, Clone, PartialEq, Default)]
+#[derive(Debug, Copy, Clone, PartialEq, Default)]
 pub struct Point {
     pub x: i32,
     pub y: i32,
@@ -154,34 +98,6 @@ pub struct Point {
 impl Point {
     pub fn new(x: i32, y: i32) -> Self {
         Self { x, y }
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
-            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "x" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.x = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "y" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.y = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 '''
@@ -204,11 +120,11 @@ result = p1 == p2
 '''
 
 rust = '''
-pub const p1: serde_json::Value = Point::new(1, 2);
-pub const p2: serde_json::Value = Point::new(1, 2);
-pub const result: serde_json::Value = p1 == p2;
-use serde_json;
-#[derive(Debug, Clone, PartialEq, Default)]
+pub const p1: Point = Point::new(1, 2);
+pub const p2: Point = Point::new(1, 2);
+pub const result: bool = p1 == p2;
+
+#[derive(Debug, Copy, Clone, PartialEq, Default)]
 pub struct Point {
     pub x: i32,
     pub y: i32,
@@ -216,34 +132,6 @@ pub struct Point {
 impl Point {
     pub fn new(x: i32, y: i32) -> Self {
         Self { x, y }
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
-            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "x" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.x = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "y" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.y = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 '''
@@ -270,9 +158,8 @@ result = (p.name, p.age, p.height)
 '''
 
 rust = '''
-pub const p: serde_json::Value = Person::new("Alice".to_string(), 30, 5.5);
-pub const result: (serde_json::Value, serde_json::Value, serde_json::Value) =
-    (p.name, p.age, p.height);
+pub const p: Person = Person::new("Alice".to_string(), 30, 5.5);
+pub const result: (String, i32, f64) = (p.name, p.age, p.height);
 use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Person {
@@ -283,43 +170,6 @@ pub struct Person {
 impl Person {
     pub fn new(name: String, age: i32, height: f64) -> Self {
         Self { name, age, height }
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "name" => Some(Box::new(self.name.clone()) as Box<dyn std::any::Any>),
-            "age" => Some(Box::new(self.age.clone()) as Box<dyn std::any::Any>),
-            "height" => Some(Box::new(self.height.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "name" => {
-                if let Some(v) = value.downcast_ref::<String>() {
-                    self.name = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "age" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.age = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "height" => {
-                if let Some(v) = value.downcast_ref::<f64>() {
-                    self.height = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 '''
@@ -343,9 +193,9 @@ result = (c1.value, c2.value)
 '''
 
 rust = '''
-pub const c1: serde_json::Value = Config::new("test".to_string());
-pub const c2: serde_json::Value = Config::new("test".to_string(), 42);
-pub const result: (serde_json::Value, serde_json::Value) = (c1.value, c2.value);
+pub const c1: Config = Config::new("test".to_string());
+pub const c2: Config = Config::new("test".to_string(), 42);
+pub const result: (i32, i32) = (c1.value, c2.value);
 use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Config {
@@ -355,25 +205,6 @@ impl Config {
     pub const value: Option<i32> = ();
     pub fn new(name: String) -> Self {
         Self { name }
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "name" => Some(Box::new(self.name.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "name" => {
-                if let Some(v) = value.downcast_ref::<String>() {
-                    self.name = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 '''
@@ -396,13 +227,12 @@ result = len(c.items)
 '''
 
 rust = '''
-pub const c: serde_json::Value = Container::new();
-pub const result: serde_json::Value = c.items.len() as i32;
-use serde_json;
+pub const c: Container = Container::new();
+pub const result: i32 = c.items.len() as i32;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Container {}
 impl Container {
-    pub const items: Vec<serde_json::Value> = field();
+    pub const items: Vec<i32> = field();
     pub fn new() -> Self {
         Self {}
     }
@@ -432,18 +262,17 @@ result = (p1.x, p1.y, p2.x, p2.y, p3.x, p3.y)
 '''
 
 rust = '''
-pub const p1: serde_json::Value = Point::new();
-pub const p2: serde_json::Value = Point::new(5);
-pub const p3: serde_json::Value = Point::new(5, 10);
+pub const p1: Point = Point::new();
+pub const p2: Point = Point::new(5);
+pub const p3: Point = Point::new(5, 10);
 pub const result: (
-    serde_json::Value,
-    serde_json::Value,
-    serde_json::Value,
-    serde_json::Value,
-    serde_json::Value,
-    serde_json::Value,
+    i32,
+    i32,
+    i32,
+    i32,
+    i32,
+    i32,
 ) = (p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
-use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Point {}
 impl Point {
@@ -472,8 +301,8 @@ result = (p.x, p.y)
 '''
 
 rust = '''
-pub const p: serde_json::Value = Point::new();
-pub const result: (serde_json::Value, serde_json::Value) = (p.x, p.y);
+pub const p: Point = Point::new();
+pub const result: (i32, i32) = (p.x, p.y);
 use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Point {}
@@ -504,15 +333,14 @@ result = (len(c1.items), len(c2.items))
 '''
 
 rust = '''
-pub const c1: serde_json::Value = Container::new();
-pub const c2: serde_json::Value = Container::new();
-pub const result: (serde_json::Value, serde_json::Value) =
+pub const c1: Container = Container::new();
+pub const c2: Container = Container::new();
+pub const result: (i32, i32) =
     (c1.items.len() as i32, c2.items.len() as i32);
-use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Container {}
 impl Container {
-    pub const items: Vec<serde_json::Value> = field();
+    pub const items: Vec<i32> = field();
     pub fn new() -> Self {
         Self {}
     }
@@ -572,10 +400,10 @@ result = (p.x, p.y)
 '''
 
 rust = '''
-pub const p: serde_json::Value = Point::new(1, 2);
-pub const result: (serde_json::Value, serde_json::Value) = (p.x, p.y);
+pub const p: Point = Point::new(1, 2);
+pub const result: (i32, i32) = (p.x, p.y);
 use serde_json;
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone]
 pub struct Point {
     pub x: i32,
     pub y: i32,
@@ -583,34 +411,6 @@ pub struct Point {
 impl Point {
     pub fn new(x: i32, y: i32) -> Self {
         Self { x, y }
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
-            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "x" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.x = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "y" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.y = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 '''
@@ -633,11 +433,11 @@ result = p1 < p2
 '''
 
 rust = '''
-pub const p1: serde_json::Value = Point::new(1, 2);
-pub const p2: serde_json::Value = Point::new(2, 3);
-pub const result: serde_json::Value = p1 < p2;
+pub const p1: Point = Point::new(1, 2);
+pub const p2: Point = Point::new(2, 3);
+pub const result: bool = p1 < p2;
 use serde_json;
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone]
 pub struct Point {
     pub x: i32,
     pub y: i32,
@@ -645,34 +445,6 @@ pub struct Point {
 impl Point {
     pub fn new(x: i32, y: i32) -> Self {
         Self { x, y }
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
-            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "x" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.x = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "y" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.y = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 '''
@@ -695,11 +467,11 @@ result = p1 is p2
 '''
 
 rust = '''
-pub const p1: serde_json::Value = Point::new(1, 2);
-pub const p2: serde_json::Value = Point::new(1, 2);
-pub const result: serde_json::Value = p1 == p2;
+pub const p1: Point = Point::new(1, 2);
+pub const p2: Point = Point::new(1, 2);
+pub const result: bool = p1 == p2;
 use serde_json;
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone]
 pub struct Point {
     pub x: i32,
     pub y: i32,
@@ -707,34 +479,6 @@ pub struct Point {
 impl Point {
     pub fn new(x: i32, y: i32) -> Self {
         Self { x, y }
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
-            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "x" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.x = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "y" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.y = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 '''
@@ -756,10 +500,10 @@ result = 'Point' not in repr(p)
 '''
 
 rust = '''
-pub const p: serde_json::Value = Point::new(1, 2);
-pub const result: serde_json::Value = !format!("{:?}", p).contains(&"Point");
+pub const p: Point = Point::new(1, 2);
+pub const result: bool = !format!("{:?}", p).contains(&"Point");
 use serde_json;
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone]
 pub struct Point {
     pub x: i32,
     pub y: i32,
@@ -767,34 +511,6 @@ pub struct Point {
 impl Point {
     pub fn new(x: i32, y: i32) -> Self {
         Self { x, y }
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
-            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "x" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.x = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "y" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.y = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 '''
@@ -820,10 +536,10 @@ result = (p.x, p.y)
 '''
 
 rust = '''
-pub const p: serde_json::Value = Point::new();
-pub const result: (serde_json::Value, serde_json::Value) = (p.x, p.y);
+pub const p: Point = Point::new();
+pub const result: (i32, i32) = (p.x, p.y);
 use serde_json;
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone]
 pub struct Point {
     pub x: i32,
     pub y: i32,
@@ -831,34 +547,6 @@ pub struct Point {
 impl Point {
     pub fn new() -> Self {
         Self { x: 0, y: 0 }
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
-            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "x" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.x = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "y" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.y = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 '''
@@ -884,8 +572,8 @@ result = 'secret' not in repr(p)
 '''
 
 rust = '''
-pub const p: serde_json::Value = Person::new("Alice".to_string(), "secret".to_string());
-pub const result: serde_json::Value = !format!("{:?}", p).contains(&"secret");
+pub const p: Person = Person::new("Alice".to_string(), "secret".to_string());
+pub const result: bool = !format!("{:?}", p).contains(&"secret");
 use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Person {
@@ -895,25 +583,6 @@ impl Person {
     pub const password: String = field();
     pub fn new(name: String) -> Self {
         Self { name }
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "name" => Some(Box::new(self.name.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "name" => {
-                if let Some(v) = value.downcast_ref::<String>() {
-                    self.name = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 '''
@@ -936,9 +605,9 @@ result = p1 == p2
 '''
 
 rust = '''
-pub const p1: serde_json::Value = Person::new("Alice".to_string(), 30);
-pub const p2: serde_json::Value = Person::new("Alice".to_string(), 40);
-pub const result: serde_json::Value = p1 == p2;
+pub const p1: Person = Person::new("Alice".to_string(), 30);
+pub const p2: Person = Person::new("Alice".to_string(), 40);
+pub const result: bool = p1 == p2;
 use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Person {
@@ -948,25 +617,6 @@ impl Person {
     pub const age: i32 = field();
     pub fn new(name: String) -> Self {
         Self { name }
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "name" => Some(Box::new(self.name.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "name" => {
-                if let Some(v) = value.downcast_ref::<String>() {
-                    self.name = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 '''
@@ -988,8 +638,8 @@ result = hash(p)
 '''
 
 rust = '''
-pub const p: serde_json::Value = Person::new("Alice".to_string(), 123);
-pub const result: serde_json::Value = {
+pub const p: Person = Person::new("Alice".to_string(), 123);
+pub const result: i64 = {
     use std::collections::hash_map::DefaultHasher;
     use std::hash::{Hash, Hasher};
     let mut hasher = DefaultHasher::new();
@@ -1003,25 +653,6 @@ pub struct Person {
 }
 impl Person {
     pub const id: i32 = field();
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "name" => Some(Box::new(self.name.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "name" => {
-                if let Some(v) = value.downcast_ref::<String>() {
-                    self.name = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
-    }
 }
 '''
 
@@ -1046,8 +677,8 @@ result = r.area
 '''
 
 rust = '''
-pub const r: serde_json::Value = Rectangle::new(3, 4);
-pub const result: serde_json::Value = r.area;
+pub const r: Rectangle = Rectangle::new(3, 4);
+pub const result: i32 = r.area;
 use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Rectangle {
@@ -1058,34 +689,6 @@ impl Rectangle {
     pub const area: i32 = field();
     pub fn new(width: i32, height: i32) -> Self {
         Self { width, height }
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "width" => Some(Box::new(self.width.clone()) as Box<dyn std::any::Any>),
-            "height" => Some(Box::new(self.height.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "width" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.width = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "height" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.height = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 '''
@@ -1117,10 +720,10 @@ result = (p.x, p.y)
 '''
 
 rust = '''
-pub const p: serde_json::Value = Point::new(-5, -10);
-pub const result: (serde_json::Value, serde_json::Value) = (p.x, p.y);
+pub const p: Point = Point::new(-5, -10);
+pub const result: (i32, i32) = (p.x, p.y);
 use serde_json;
-#[derive(Debug, Clone, PartialEq, Default)]
+#[derive(Debug, Copy, Clone, PartialEq, Default)]
 pub struct Point {
     pub x: i32,
     pub y: i32,
@@ -1128,34 +731,6 @@ pub struct Point {
 impl Point {
     pub fn new(x: i32, y: i32) -> Self {
         Self { x, y }
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
-            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "x" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.x = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "y" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.y = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 '''
@@ -1182,8 +757,8 @@ result = r.area
 '''
 
 rust = '''
-pub const r: serde_json::Value = Rectangle::new(3, 4, 2);
-pub const result: serde_json::Value = r.area;
+pub const r: Rectangle = Rectangle::new(3, 4, 2);
+pub const result: i32 = r.area;
 use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Rectangle {
@@ -1195,34 +770,6 @@ impl Rectangle {
     pub const area: i32 = field();
     pub fn new(width: i32, height: i32) -> Self {
         Self { width, height }
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "width" => Some(Box::new(self.width.clone()) as Box<dyn std::any::Any>),
-            "height" => Some(Box::new(self.height.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "width" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.width = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "height" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.height = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 '''
@@ -1252,10 +799,10 @@ result = (p.x, p.y, p.z)
 '''
 
 rust = '''
-pub const p: serde_json::Value = Point3D::new(1, 2, 3);
-pub const result: (serde_json::Value, serde_json::Value, serde_json::Value) = (p.x, p.y, p.z);
+pub const p: Point3D = Point3D::new(1, 2, 3);
+pub const result: (i32, i32, i32) = (p.x, p.y, p.z);
 use serde_json;
-#[derive(Debug, Clone, PartialEq, Default)]
+#[derive(Debug, Copy, Clone, PartialEq, Default)]
 pub struct Point2D {
     pub x: i32,
     pub y: i32,
@@ -1264,61 +811,14 @@ impl Point2D {
     pub fn new(x: i32, y: i32) -> Self {
         Self { x, y }
     }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
-            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "x" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.x = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "y" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.y = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
-    }
 }
-#[derive(Debug, Clone, PartialEq, Default)]
+#[derive(Debug, Copy, Clone, PartialEq, Default)]
 pub struct Point3D {
     pub z: i32,
 }
 impl Point3D {
     pub fn new(z: i32) -> Self {
         Self { z }
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "z" => Some(Box::new(self.z.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "z" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.z = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 '''
@@ -1345,9 +845,9 @@ result = Counter.total
 '''
 
 rust = '''
-pub const c1: serde_json::Value = Counter::new(5);
-pub const c2: serde_json::Value = Counter::new(10);
-pub const result: serde_json::Value = Counter.total;
+pub const c1: Counter = Counter::new(5);
+pub const c2: Counter = Counter::new(10);
+pub const result: i32 = Counter.total;
 use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Counter {
@@ -1357,25 +857,6 @@ impl Counter {
     pub const total: ClassVar<i32> = 0;
     pub fn new(value: i32) -> Self {
         Self { value }
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "value" => Some(Box::new(self.value.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "value" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.value = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 '''
@@ -1397,10 +878,10 @@ result = (p.x, p.y)
 '''
 
 rust = '''
-pub const p: serde_json::Value = Point::new(1, 2);
-pub const result: (serde_json::Value, serde_json::Value) = (p.x, p.y);
+pub const p: Point = Point::new(1, 2);
+pub const result: (i32, i32) = (p.x, p.y);
 use serde_json;
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone]
 pub struct Point {
     pub x: i32,
     pub y: i32,
@@ -1408,34 +889,6 @@ pub struct Point {
 impl Point {
     pub fn new(x: i32, y: i32) -> Self {
         Self { x, y }
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
-            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "x" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.x = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "y" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.y = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 '''

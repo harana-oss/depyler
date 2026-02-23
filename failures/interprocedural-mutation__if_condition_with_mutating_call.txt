@@ -1,0 +1,31 @@
+  interprocedural-mutation.toml :: if_condition_with_mutating_call
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  #[derive(Debug, Clone, PartialEq, Default)]
+  pub struct State {
+      pub active: bool,
+      pub data: Vec<i32>,
+  }
+  impl State {
+      pub fn new(active: bool, data: Vec<i32>) -> Self {
+          Self { active, data }
+      }
+  }
+  pub fn is_active(state: &State) -> bool {
+      return state.active;
+  }
+− pub fn get_data<'a>(state: &'a mut State) -> &'a mut Vec<i32> {
+−     return &mut state.data;
++ pub fn get_data(state: &State) -> Vec<i32> {
++     return state.data;
+  }
+− pub fn conditional_update(state: &mut State) {
+−     if is_active(state) {
+−         get_data(state).push(42);
++ pub fn conditional_update(state: &State) {
++     if is_active(&state) {
++         get_data(&state).push(42);
+      }
+  }
+────────────────────────────────────────────────────────────

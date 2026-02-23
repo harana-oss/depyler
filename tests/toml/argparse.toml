@@ -322,7 +322,7 @@ def count_lines(text: str) -> int:
 rust = '''
 pub fn count_lines(text: String) -> i32 {
     let lines = text.lines().map(|s| s.to_string()).collect::<Vec<String>>();
-    return lines.len() as i32 as i32;
+    return lines.len() as i32;
 }
 '''
 
@@ -342,7 +342,7 @@ pub fn count_words(text: String) -> i32 {
         .split_whitespace()
         .map(|s| s.to_string())
         .collect::<Vec<String>>();
-    return words.len() as i32 as i32;
+    return words.len() as i32;
 }
 '''
 
@@ -423,52 +423,6 @@ pub struct Stats {
     pub filename: String,
 }
 impl Stats {
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "lines" => Some(Box::new(self.lines.clone()) as Box<dyn std::any::Any>),
-            "words" => Some(Box::new(self.words.clone()) as Box<dyn std::any::Any>),
-            "chars" => Some(Box::new(self.chars.clone()) as Box<dyn std::any::Any>),
-            "filename" => Some(Box::new(self.filename.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "lines" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.lines = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "words" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.words = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "chars" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.chars = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "filename" => {
-                if let Some(v) = value.downcast_ref::<String>() {
-                    self.filename = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
-    }
 }
 #[derive(Debug, clap::Parser)]
 #[command(about = "Count words")]

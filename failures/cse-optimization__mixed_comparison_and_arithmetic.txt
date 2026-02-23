@@ -1,0 +1,14 @@
+  cse-optimization.toml :: mixed_comparison_and_arithmetic
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn check_sum(a: i64, b: i64, target: i64) -> bool {
+−     if a + b == target {
++ pub fn check_sum(a: i32, b: i32, target: i32) -> bool {
++     let _cse_temp_0 = a + b == target;
++     if _cse_temp_0 {
+          return true;
+      }
+      return false;
+  }
+────────────────────────────────────────────────────────────

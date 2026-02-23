@@ -1,0 +1,12 @@
+  format-spec.toml :: format_datetime
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Requires chrono crate - skipped for now
++ use chrono::NaiveDate;
+  pub fn format_datetime_str() -> String {
+−     return "2023-12-25".to_string();
++     let d = chrono::NaiveDate::from_ymd_opt(2023 as i32, 12 as u32, 25 as u32).unwrap();
++     return format!("{:%Y-%m-%}", d);
+  }
+────────────────────────────────────────────────────────────

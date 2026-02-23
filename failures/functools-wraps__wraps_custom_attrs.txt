@@ -1,0 +1,22 @@
+  functools-wraps.toml :: wraps_custom_attrs
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Custom attributes on original function
+−     #[allow(dead_code)]
+−     #[derive(Debug)]
+−     struct Version;
+− 
+−     fn original() {}
+− 
+−     let result = true;
++ use serde_json;
++ use std;
++ pub fn my_decorator(f: &serde_json::Value) {
++     fn wrapper() -> () {
++         return f(args);
++     }
++     return wrapper;
++ }
++ pub fn original() {}
+────────────────────────────────────────────────────────────

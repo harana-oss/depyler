@@ -1,0 +1,36 @@
+  enum-methods.toml :: enum_missing
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // In Rust, we implement a from_value method with fallback
+− #[derive(Debug, Clone, Copy)]
+− enum ErrorCode {
+−     Success = 0,
+−     Error = 1,
+−     Unknown = 999,
+− }
+− 
++ use serde_json;
++ #[derive(Debug, Copy, Clone)]
++ pub struct ErrorCode {}
+  impl ErrorCode {
+−     fn from_value(value: i32) -> Self {
+−         match value {
+−             0 => ErrorCode::Success,
+−             1 => ErrorCode::Error,
+−             _ => ErrorCode::Unknown,
+−         }
++     pub const SUCCESS: i32 = 0;
++     pub const ERROR: i32 = 1;
++     pub const UNKNOWN: i32 = 999;
++     pub fn new() -> Self {
++         Self {}
++     }
++     pub fn _missing_(value: serde_json::Value) {
++         return Self::UNKNOWN;
+      }
+  }
+− 
+− log::info!("{:?}", ErrorCode::from_value(0));
+− log::info!("{:?}", ErrorCode::from_value(100));
+────────────────────────────────────────────────────────────

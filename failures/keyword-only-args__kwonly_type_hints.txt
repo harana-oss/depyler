@@ -1,0 +1,33 @@
+  keyword-only-args.toml :: kwonly_type_hints
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct TypedFuncArgs {
+−     count: i32,
+−     message: String,
+− }
+− 
+− impl TypedFuncArgs {
+−     fn new(count: i32) -> Self {
+−         TypedFuncArgs {
+−             count,
+−             message: "default".to_string(),
+−         }
+−     }
+− }
+− 
+− fn typed_func(args: TypedFuncArgs) -> String {
+−     format!("{}: {}", args.message, args.count)
++ pub fn typed_func() -> String {
++     return format!("{}: {}", message, count);
+  }
+− 
+− log::info!("{}", typed_func(TypedFuncArgs::new(42)));
+− log::info!(
+−     "{}",
+−     typed_func(TypedFuncArgs {
+−         count: 5,
+−         message: "Items".to_string(),
+−     })
+− );
+────────────────────────────────────────────────────────────

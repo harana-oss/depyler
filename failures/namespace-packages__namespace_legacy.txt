@@ -1,0 +1,8 @@
+  namespace-packages.toml :: namespace_legacy
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // pkg_resources.declare_namespace
+−     let result = true; // Placeholder
++ pub const result: bool = true;
+────────────────────────────────────────────────────────────

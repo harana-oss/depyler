@@ -1,0 +1,18 @@
+  control-flow.toml :: slice_variable_bounds
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn get_window(data: &Vec<i32>, start: i32, size: i32) -> Vec<i32> {
+      return {
+          let base = &data;
+          let start = (start).max(0) as usize;
+          let stop = (start + size).max(0) as usize;
+          if start < base.len() {
+              base[start..stop.min(base.len())].to_vec()
+          } else {
+              Vec::new()
+          }
+−     }
++     };
++ }
+────────────────────────────────────────────────────────────

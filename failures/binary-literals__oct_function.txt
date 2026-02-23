@@ -1,0 +1,11 @@
+  binary-literals.toml :: oct_function
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− fn oct(n: i32) -> String {
+−         format!("0o{:o}", n)
+−     }
+−     let result = oct(64) == "0o100";
++ pub const result: serde_json::Value = format!("0o{:o}", 64) == "0o100";
++ use serde_json;
+────────────────────────────────────────────────────────────

@@ -1,0 +1,16 @@
+  functions.toml :: function_multiple_defaults
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn create_user(name: String, age: Option<i32>, active: Option<bool>) -> String {
+−     let age = age.unwrap_or(0);
+−     let active = active.unwrap_or(true);
++ pub fn create_user(name: String, age: i32, active: bool) -> String {
+      if active {
+−         return format!("{} is active", name);
++         return format!("{}{}", name, " is active");
+      }
+−     return format!("{} is inactive", name);
++     return format!("{}{}", name, " is inactive");
+  }
+────────────────────────────────────────────────────────────

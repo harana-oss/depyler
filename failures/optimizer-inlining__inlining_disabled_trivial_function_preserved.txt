@@ -1,0 +1,13 @@
+  optimizer-inlining.toml :: inlining_disabled_trivial_function_preserved
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn add_one(x: i32) -> i32 {
+      return x + 1;
+  }
+− pub fn use_add_one(n: i32) -> i32 {
++ pub fn use_add_one(n: &i32) -> i32 {
+      let result = add_one(n);
+      return result;
+  }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,9 @@
+  constant-type-inference.toml :: int_builtin_call_type
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn cast_to_int(x: f64) -> i32 {
+−     return x as i32;
++     return (x) as i32;
+  }
+────────────────────────────────────────────────────────────

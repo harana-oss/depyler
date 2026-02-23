@@ -1,0 +1,12 @@
+  positional-only-args.toml :: posonly_prevent_kw
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− fn pos_only(x: i32) -> i32 {
+−     x * 2
++ pub fn pos_only() -> i32 {
++     return x * 2;
+  }
+− 
+− log::info!("{}", pos_only(5));
+────────────────────────────────────────────────────────────

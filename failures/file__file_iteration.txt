@@ -1,0 +1,20 @@
+  file.toml :: file_iteration
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::io::BufRead;
+− pub fn count_lines(path: String) -> i32 {
++ pub fn count_lines(path: String) -> Result<i32, std::io::Error> {
+      let count = 0;
+      let mut f = std::fs::File::open(path)?;
+−     for line in std::io::BufReader::new(&f).lines() {
++     for _line in std::io::BufReader::new(f)
++         .lines()
++         .map(|l| l.unwrap_or_default())
++     {
+          count += 1;
+      }
+−     return count;
++     return Ok(count);
+  }
+────────────────────────────────────────────────────────────

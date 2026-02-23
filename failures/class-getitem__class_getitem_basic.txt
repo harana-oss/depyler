@@ -1,0 +1,27 @@
+  class-getitem.toml :: class_getitem_basic
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // In Rust, __class_getitem__ is typically replaced with generics
+− // For runtime type information, we use std::any::type_name
+− struct MyClass<T> {
+−     _marker: std::marker::PhantomData<T>,
+− }
+− 
+− impl<T> MyClass<T> {
+−     fn type_name() -> String
+−     where
+−         T: 'static,
+−     {
+−         format!("MyClass[{}]", std::any::type_name::<T>())
++ #[derive(Debug, Copy, Clone)]
++ pub struct MyClass {}
++ impl MyClass {
++     pub fn new() -> Self {
++         Self {}
+      }
+  }
+− 
+− let result = MyClass::<i32>::type_name();
+− log::info!("{}", result);
+────────────────────────────────────────────────────────────

@@ -1,0 +1,9 @@
+  counter.toml :: counter_total
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use std::collections::HashMap;
+− let c: HashMap<char, i32> = [('a', 2), ('b', 3), ('c', 1)].iter().cloned().collect();
+− let total: i32 = c.values().sum();
+− log::info!("{}", total);
+────────────────────────────────────────────────────────────

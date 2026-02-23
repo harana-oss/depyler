@@ -1,0 +1,18 @@
+  decorators-with-args.toml :: decorator_dual
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust procedural macro
+− // #[decorator]
+− // fn f() -> i32 { 42 }
++ use serde_json;
++ pub fn decorator(func: &serde_json::Value) {
++     fn wrapper() -> () {
++         return func(args);
++     }
++     return wrapper;
++ }
++ pub fn f() -> i32 {
++     return 42;
++ }
+────────────────────────────────────────────────────────────

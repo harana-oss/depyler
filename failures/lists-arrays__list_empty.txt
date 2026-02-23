@@ -1,0 +1,10 @@
+  lists-arrays.toml :: list_empty
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn create_empty() -> Vec<i32> {
++ use serde_json;
++ pub fn create_empty() -> Vec<serde_json::Value> {
+      return vec![];
+  }
+────────────────────────────────────────────────────────────

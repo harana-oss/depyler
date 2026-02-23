@@ -43,13 +43,10 @@ impl BitAnd for MyClass {
     }
 }
 
-fn main() {
-    let a = MyClass { x: 0b1100 };
-    let b = MyClass { x: 0b1010 };
-    let result = a & b;
-    log::info!("MyClass({})", result.x);
-}
-"""
+let a = MyClass { x: 0b1100 };
+let b = MyClass { x: 0b1010 };
+let result = a & b;
+log::info!("MyClass({})", result.x);"""
 
 [[test]]
 name = "dunder_or"
@@ -88,13 +85,10 @@ impl BitOr for MyClass {
     }
 }
 
-fn main() {
-    let a = MyClass { x: 0b1100 };
-    let b = MyClass { x: 0b1010 };
-    let result = a | b;
-    log::info!("MyClass({})", result.x);
-}
-"""
+let a = MyClass { x: 0b1100 };
+let b = MyClass { x: 0b1010 };
+let result = a | b;
+log::info!("MyClass({})", result.x);"""
 
 [[test]]
 name = "dunder_xor"
@@ -133,13 +127,10 @@ impl BitXor for MyClass {
     }
 }
 
-fn main() {
-    let a = MyClass { x: 0b1100 };
-    let b = MyClass { x: 0b1010 };
-    let result = a ^ b;
-    log::info!("MyClass({})", result.x);
-}
-"""
+let a = MyClass { x: 0b1100 };
+let b = MyClass { x: 0b1010 };
+let result = a ^ b;
+log::info!("MyClass({})", result.x);"""
 
 # =============================================================================
 # Shift Operations
@@ -179,12 +170,9 @@ impl Shl<i32> for MyClass {
     }
 }
 
-fn main() {
-    let a = MyClass { x: 5 };
-    let result = a << 2;
-    log::info!("MyClass({})", result.x);
-}
-"""
+let a = MyClass { x: 5 };
+let result = a << 2;
+log::info!("MyClass({})", result.x);"""
 
 [[test]]
 name = "dunder_rshift"
@@ -220,12 +208,9 @@ impl Shr<i32> for MyClass {
     }
 }
 
-fn main() {
-    let a = MyClass { x: 20 };
-    let result = a >> 2;
-    log::info!("MyClass({})", result.x);
-}
-"""
+let a = MyClass { x: 20 };
+let result = a >> 2;
+log::info!("MyClass({})", result.x);"""
 
 # =============================================================================
 # Bitwise with Integers
@@ -269,12 +254,9 @@ impl BitAnd<i32> for CustomFlags {
     }
 }
 
-fn main() {
-    let flags = CustomFlags { value: 0xFF00 };
-    let result = flags & 0xFF;
-    log::info!("CustomFlags({:#x})", result.value);
-}
-"""
+let flags = CustomFlags { value: 0xFF00 };
+let result = flags & 0xFF;
+log::info!("CustomFlags({:#x})", result.value);"""
 
 [[test]]
 name = "bitwise_int_custom"
@@ -312,12 +294,9 @@ impl BitAnd<CustomFlags> for i32 {
     }
 }
 
-fn main() {
-    let flags = CustomFlags { value: 0xFF00 };
-    let result = 0xFF & flags;
-    log::info!("CustomFlags({:#x})", result.value);
-}
-"""
+let flags = CustomFlags { value: 0xFF00 };
+let result = 0xFF & flags;
+log::info!("CustomFlags({:#x})", result.value);"""
 
 # =============================================================================
 # Use Cases: Flags
@@ -341,13 +320,10 @@ const READ: i32 = 1;
 const WRITE: i32 = 2;
 const EXECUTE: i32 = 4;
 
-fn main() {
-    let permissions = READ | WRITE;
-    log::info!("Permissions: {}", permissions);
-    log::info!("Has read: {}", (permissions & READ) != 0);
-    log::info!("Has execute: {}", (permissions & EXECUTE) != 0);
-}
-"""
+let permissions = READ | WRITE;
+log::info!("Permissions: {}", permissions);
+log::info!("Has read: {}", (permissions & READ) != 0);
+log::info!("Has execute: {}", (permissions & EXECUTE) != 0);"""
 
 [[test]]
 name = "flags_and"
@@ -367,15 +343,12 @@ rust = """
 const READ: i32 = 1;
 const WRITE: i32 = 2;
 
-fn main() {
-    let permissions = 3; // READ | WRITE
-    let has_read = (permissions & READ) != 0;
-    let has_write = (permissions & WRITE) != 0;
+let permissions = 3; // READ | WRITE
+let has_read = (permissions & READ) != 0;
+let has_write = (permissions & WRITE) != 0;
 
-    log::info!("Has read: {}", has_read);
-    log::info!("Has write: {}", has_write);
-}
-"""
+log::info!("Has read: {}", has_read);
+log::info!("Has write: {}", has_write);"""
 
 [[test]]
 name = "flags_xor"
@@ -397,17 +370,14 @@ rust = """
 const READ: i32 = 1;
 const WRITE: i32 = 2;
 
-fn main() {
-    let mut flags = READ;
-    log::info!("Initial: {}", flags);
+let mut flags = READ;
+log::info!("Initial: {}", flags);
 
-    flags = flags ^ WRITE; // Add WRITE
-    log::info!("After adding WRITE: {}", flags);
+flags = flags ^ WRITE; // Add WRITE
+log::info!("After adding WRITE: {}", flags);
 
-    flags = flags ^ WRITE; // Remove WRITE
-    log::info!("After removing WRITE: {}", flags);
-}
-"""
+flags = flags ^ WRITE; // Remove WRITE
+log::info!("After removing WRITE: {}", flags);"""
 
 # =============================================================================
 # Use Cases: Bitmasks
@@ -422,11 +392,8 @@ masks = [1 << i for i in range(5)]
 print(f"Bitmasks: {masks}")
 """
 rust = """
-fn main() {
-    let masks: Vec<i32> = (0..5).map(|i| 1 << i).collect();
-    log::info!("Bitmasks: {:?}", masks);
-}
-"""
+let masks: Vec<i32> = (0..5).map(|i| 1 << i).collect();
+log::info!("Bitmasks: {:?}", masks);"""
 
 [[test]]
 name = "bitmask_extract"
@@ -443,23 +410,20 @@ byte3 = (value >> 24) & 0xFF
 print(f"Bytes: {hex(byte0)}, {hex(byte1)}, {hex(byte2)}, {hex(byte3)}")
 """
 rust = """
-fn main() {
-    let value: u32 = 0x12345678;
+let value: u32 = 0x12345678;
 
-    let byte0 = value & 0xFF;
-    let byte1 = (value >> 8) & 0xFF;
-    let byte2 = (value >> 16) & 0xFF;
-    let byte3 = (value >> 24) & 0xFF;
+let byte0 = value & 0xFF;
+let byte1 = (value >> 8) & 0xFF;
+let byte2 = (value >> 16) & 0xFF;
+let byte3 = (value >> 24) & 0xFF;
 
-    log::info!(
-        "Bytes: {:#x}, {:#x}, {:#x}, {:#x}",
-        byte0,
-        byte1,
-        byte2,
-        byte3
-    );
-}
-"""
+log::info!(
+    "Bytes: {:#x}, {:#x}, {:#x}, {:#x}",
+    byte0,
+    byte1,
+    byte2,
+    byte3
+);"""
 
 # =============================================================================
 # Use Cases: Sets (using bitwise for sets)
@@ -477,15 +441,12 @@ print(sorted(result))
 rust = """
 use std::collections::HashSet;
 
-fn main() {
-    let set1: HashSet<_> = vec![1, 2, 3, 4].into_iter().collect();
-    let set2: HashSet<_> = vec![3, 4, 5, 6].into_iter().collect();
-    let result: Vec<_> = set1.intersection(&set2).copied().collect();
-    let mut sorted = result;
-    sorted.sort();
-    log::info!("{:?}", sorted);
-}
-"""
+let set1: HashSet<_> = vec![1, 2, 3, 4].into_iter().collect();
+let set2: HashSet<_> = vec![3, 4, 5, 6].into_iter().collect();
+let result: Vec<_> = set1.intersection(&set2).copied().collect();
+let mut sorted = result;
+sorted.sort();
+log::info!("{:?}", sorted);"""
 
 [[test]]
 name = "set_or"
@@ -499,15 +460,12 @@ print(sorted(result))
 rust = """
 use std::collections::HashSet;
 
-fn main() {
-    let set1: HashSet<_> = vec![1, 2, 3].into_iter().collect();
-    let set2: HashSet<_> = vec![3, 4, 5].into_iter().collect();
-    let result: Vec<_> = set1.union(&set2).copied().collect();
-    let mut sorted = result;
-    sorted.sort();
-    log::info!("{:?}", sorted);
-}
-"""
+let set1: HashSet<_> = vec![1, 2, 3].into_iter().collect();
+let set2: HashSet<_> = vec![3, 4, 5].into_iter().collect();
+let result: Vec<_> = set1.union(&set2).copied().collect();
+let mut sorted = result;
+sorted.sort();
+log::info!("{:?}", sorted);"""
 
 [[test]]
 name = "set_xor"
@@ -521,15 +479,12 @@ print(sorted(result))
 rust = """
 use std::collections::HashSet;
 
-fn main() {
-    let set1: HashSet<_> = vec![1, 2, 3, 4].into_iter().collect();
-    let set2: HashSet<_> = vec![3, 4, 5, 6].into_iter().collect();
-    let result: Vec<_> = set1.symmetric_difference(&set2).copied().collect();
-    let mut sorted = result;
-    sorted.sort();
-    log::info!("{:?}", sorted);
-}
-"""
+let set1: HashSet<_> = vec![1, 2, 3, 4].into_iter().collect();
+let set2: HashSet<_> = vec![3, 4, 5, 6].into_iter().collect();
+let result: Vec<_> = set1.symmetric_difference(&set2).copied().collect();
+let mut sorted = result;
+sorted.sort();
+log::info!("{:?}", sorted);"""
 
 # =============================================================================
 # Edge Cases
@@ -547,11 +502,8 @@ except ValueError as e:
 """
 rust = """
 // In Rust, negative shifts panic in debug mode
-fn main() {
-    // This would panic, so we simulate the error
-    log::info!("ValueError: negative shift count");
-}
-"""
+// This would panic, so we simulate the error
+log::info!("ValueError: negative shift count");"""
 
 [[test]]
 name = "large_shift"
@@ -564,12 +516,9 @@ rust = """
 use num_bigint::BigInt;
 use num_traits::One;
 
-fn main() {
-    let x = BigInt::one() << 100;
-    let digits = x.to_string().len();
-    log::info!("Large shift result has {} digits", digits);
-}
-"""
+let x = BigInt::one() << 100;
+let digits = x.to_string().len();
+log::info!("Large shift result has {} digits", digits);"""
 
 [[test]]
 name = "bitwise_bool"
@@ -584,13 +533,10 @@ print(f"True | False = {result2}")
 print(f"True ^ False = {result3}")
 """
 rust = """
-fn main() {
-    let result1 = true & false;
-    let result2 = true | false;
-    let result3 = true ^ false;
+let result1 = true & false;
+let result2 = true | false;
+let result3 = true ^ false;
 
-    log::info!("True & False = {}", result1);
-    log::info!("True | False = {}", result2);
-    log::info!("True ^ False = {}", result3);
-}
-"""
+log::info!("True & False = {}", result1);
+log::info!("True | False = {}", result2);
+log::info!("True ^ False = {}", result3);"""

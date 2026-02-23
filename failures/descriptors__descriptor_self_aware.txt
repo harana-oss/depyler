@@ -1,0 +1,51 @@
+  descriptors.toml :: descriptor_self_aware
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::cell::Cell;
+− 
+− struct NamedDescriptor {
+−     name: &'static str,
+−     value: Cell<Option<i32>>,
+− }
+− 
++ use serde_json;
++ #[derive(Debug, Copy, Clone)]
++ pub struct NamedDescriptor {}
+  impl NamedDescriptor {
+−     fn new(name: &'static str) -> Self {
+−         NamedDescriptor {
+−             name,
+−             value: Cell::new(None),
+−         }
++     pub fn new() -> Self {
++         Self {}
+      }
+− 
+−     fn get(&self) -> Option<i32> {
+−         self.value.get()
+−     }
+− 
+−     fn set(&self, val: i32) {
+−         self.value.set(Some(val));
++ }
++ #[derive(Debug, Copy, Clone)]
++ pub struct MyClass {}
++ impl MyClass {
++     pub const value: serde_json::Value = NamedDescriptor::new();
++     pub fn new() -> Self {
++         Self {}
+      }
+  }
+− 
+− struct MyClass {
+−     value: NamedDescriptor,
+− }
+− 
+− let instance = MyClass {
+−     value: NamedDescriptor::new("value"),
+− };
+− instance.value.set(42);
+− log::info!("{}", instance.value.get().unwrap());
+− log::info!("Private: true");
+────────────────────────────────────────────────────────────

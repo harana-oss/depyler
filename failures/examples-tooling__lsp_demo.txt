@@ -1,0 +1,198 @@
+  examples-tooling.toml :: lsp_demo
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− Error: Statement type not yet supported
++ use serde_json;
++ use serde_json as json;
++ use std::collections::HashMap;
++ use std::f64 as math;
++ #[derive(Debug, Clone)]
++ pub struct IndexError {
++     message: String,
++ }
++ impl std::fmt::Display for IndexError {
++     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
++         write!(f, "index out of range: {}", self.message)
++     }
++ }
++ impl std::error::Error for IndexError {}
++ impl IndexError {
++     pub fn new(message: impl Into<String>) -> Self {
++         Self {
++             message: message.into(),
++         }
++     }
++ }
++ #[derive(Debug, Clone)]
++ pub struct ValueError {
++     message: String,
++ }
++ impl std::fmt::Display for ValueError {
++     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
++         write!(f, "value error: {}", self.message)
++     }
++ }
++ impl std::error::Error for ValueError {}
++ impl ValueError {
++     pub fn new(message: impl Into<String>) -> Self {
++         Self {
++             message: message.into(),
++         }
++     }
++ }
++ #[derive(Debug, Clone)]
++ pub struct User {
++     pub name: String,
++     pub age: i32,
++     pub created_at: (),
++ }
++ impl User {
++     pub fn new(name: String, age: i32) -> Self {
++         Self {
++             name,
++             age,
++             created_at: (),
++         }
++     }
++     pub fn greet(&self) -> String {
++         return format!("Hello, I'm {}!", self.name);
++     }
++     pub fn is_adult(&self) -> bool {
++         return self.age >= 18;
++     }
++ }
++ #[derive(Debug, Clone)]
++ pub struct AdminUser {
++     pub permissions: Vec<String>,
++ }
++ impl AdminUser {
++     pub fn new(name: String, age: i32, permissions: Vec<String>) -> Self {
++         Self { permissions }
++     }
++     pub fn has_permission(&self, permission: String) -> bool {
++         return self.permissions.contains_key(&permission);
++     }
++     pub fn greet(&self) -> String {
++         return format!("Hello, I'm Admin {}!", self.name);
++     }
++ }
++ #[derive(Debug, Clone)]
++ pub struct FileManager {
++     pub filename: String,
++     pub mode: String,
++     pub file: (),
++ }
++ impl FileManager {
++     pub fn new(filename: String, mode: String) -> Self {
++         Self {
++             filename,
++             mode,
++             file: (),
++         }
++     }
++     pub fn __enter__(&mut self) {
++         self.file = open(self.filename, self.mode);
++         return self.file;
++     }
++     pub fn __exit__(
++         &mut self,
++         exc_type: serde_json::Value,
++         exc_val: serde_json::Value,
++         exc_tb: serde_json::Value,
++     ) {
++         if self.file {
++             self.file.close();
++         }
++     }
++ }
++ #[doc = "Calculate the nth Fibonacci number.\n    \n    The Fibonacci sequence is defined as:\n    - F(0) = 0\n    - F(1) = 1\n    - F(n) = F(n-1) + F(n-2) for n>1\n    \n    Args:\n        n: The position in the Fibonacci sequence\n        \n    Returns:\n        The nth Fibonacci number\n        \n    Raises:\n        ValueError: If n is negative\n        \n    Examples:\n      >>>calculate_fibonacci(0)\n        0\n      >>>calculate_fibonacci(1)\n        1\n      >>>calculate_fibonacci(10)\n        55\n    "]
++ pub fn calculate_fibonacci(n: i32) -> Result<i32, ValueError> {
++     if n < 0 {
++         return Err(ValueError::new("n must be non-negative"));
++     }
++     if n <= 1 {
++         return Ok(n);
++     }
++     let (mut prev, mut curr) = (0, 1);
++     for __ in 2..n + 1 {
++         (prev, curr) = (curr, prev + curr);
++     }
++     return Ok(curr);
++ }
++ #[doc = "Process and categorize users.\n    \n    Args:\n        users: List of User objects to process\n        filter_adults: Whether to filter only adult users\n        \n    Returns:\n        Dictionary with 'adults' and 'minors' keys\n    "]
++ pub fn process_users(users: &Vec<User>, filter_adults: bool) -> HashMap<String, Vec<User>> {
++     let result = {
++         let mut map = HashMap::new();
++         map.insert("adults".to_string(), vec![]);
++         map.insert("minors".to_string(), vec![]);
++         map
++     };
++     for user in users.iter().cloned() {
++         if user.is_adult() {
++             result.get("adults").cloned().unwrap().push(user);
++         } else {
++             result.get("minors").cloned().unwrap().push(user);
++         }
++     }
++     if DEBUG_MODE {
++         log::info!("{}", format!("Processed {} users", users.len() as i32));
++     }
++     return result;
++ }
++ #[doc = "Create a message handler with a prefix."]
++ pub fn create_handler(prefix: String) {
++     fn handler(message: String) -> String {
++         return format!("{}: {}", prefix, message);
++     }
++     return handler;
++ }
++ #[doc = "Validate if age is in acceptable range."]
++ pub fn validate_age(age: i32) -> bool {
++     let MIN_AGE = 0;
++     let MAX_AGE = 150;
++     if age < MIN_AGE {
++         return false;
++     }
++     if age > MAX_AGE {
++         return false;
++     }
++     return age >= 0;
++ }
++ #[doc = "Function that might trigger LSP diagnostics."]
++ pub fn problematic_function() -> String {
++     let unused_var = 42;
++     let result: i32 = "not an int";
++     return result;
++ }
++ #[doc = "Process numbers using various transformations."]
++ pub fn process_numbers(numbers: &Vec<i32>) -> Vec<i32> {
++     let doubled = numbers
++         .iter()
++         .cloned()
++         .map(|n| (data_processors.get("double").cloned().unwrap())(n))
++         .collect::<Vec<_>>();
++     let matrix = (0..3)
++         .map(|i| (0..3).map(|j| i * j).collect::<Vec<_>>())
++         .collect::<Vec<_>>();
++     let sum_of_squares = numbers
++         .iter()
++         .copied()
++         .filter(|n| n > 0)
++         .map(|n| n.pow(2 as u32))
++         .sum::<i32>();
++     return doubled;
++ }
++ #[doc = "Decorator to log function calls."]
++ pub fn log_calls(func: &serde_json::Value) {
++     fn wrapper() -> () {
++         log::info!("{}", format!("Calling {}", func.__name__));
++         return func(args);
++     }
++     return wrapper;
++ }
++ #[doc = "An important operation that should be logged."]
++ pub fn important_operation(value: String) -> String {
++     return value.to_uppercase();
++ }
+────────────────────────────────────────────────────────────

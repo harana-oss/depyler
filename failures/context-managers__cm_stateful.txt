@@ -1,0 +1,68 @@
+  context-managers.toml :: cm_stateful
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct Transaction {
+−         depth: i32,
+−         committed: bool,
++ use serde_json;
++ #[derive(Debug, Copy, Clone)]
++ pub struct Transaction {
++     pub depth: i32,
++     pub committed: bool,
++ }
++ impl Transaction {
++     pub fn new() -> Self {
++         Self {
++             depth: 0,
++             committed: false,
++         }
++     }
++     pub fn __enter__(&mut self) -> &Self {
++         self.depth += 1;
++         return self;
+      }
+− 
+−     impl Transaction {
+−         fn new() -> Self {
+−             Transaction {
+−                 depth: 0,
+−                 committed: false,
+−             }
++     pub fn __exit__(
++         &mut self,
++         exc_type: serde_json::Value,
++         exc_val: serde_json::Value,
++         exc_tb: serde_json::Value,
++     ) -> bool {
++         self.depth -= 1;
++         if self.depth == 0 && exc_type.is_none() {
++             self.committed = true;
+          }
+− 
+−         fn begin(&mut self) {
+−             self.depth += 1;
+−         }
+− 
+−         fn end(&mut self, success: bool) {
+−             self.depth -= 1;
+−             if self.depth == 0 && success {
+−                 self.committed = true;
+−             }
+−         }
++         return false;
+      }
+− 
+−     let mut txn = Transaction::new();
+−     assert_eq!(txn.depth, 0);
+−     txn.begin();
+−     assert_eq!(txn.depth, 1);
+−     txn.begin();
+−     assert_eq!(txn.depth, 2);
+−     txn.end(true);
+−     assert_eq!(txn.depth, 1);
+−     txn.end(true);
+−     assert_eq!(txn.depth, 0);
+−     assert!(txn.committed);
++ }
+────────────────────────────────────────────────────────────

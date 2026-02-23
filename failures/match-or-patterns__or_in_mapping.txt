@@ -1,0 +1,13 @@
+  match-or-patterns.toml :: or_in_mapping
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::collections::HashMap;
+−     let mut data = HashMap::new();
+−     data.insert("type", "a");
+−     let result = match data.get("type").map(|s| s.as_str()) {
+−         Some("a" | "b") => true,
+−         _ => false,
+−     };
++ 
+────────────────────────────────────────────────────────────

@@ -1,0 +1,18 @@
+  string-methods-all.toml :: str_rpartition
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub const result: (String, String, String) = {
+−     let s = "hello";
+−     let sep = "l";
+−     match s.rfind(sep) {
+−         Some(pos) => (
+−             s[..pos].to_string(),
+−             sep.to_string(),
+−             s[pos + sep.len()..].to_string(),
+−         ),
+−         None => (String::new(), String::new(), s.to_string()),
+−     }
+− };
++ 
+────────────────────────────────────────────────────────────

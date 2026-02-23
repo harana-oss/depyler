@@ -1,0 +1,10 @@
+  namedtuple.toml :: namedtuple_repr
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct Point {
+−     x: i32,
+−     y: i32,
+− }
++ use std::collections::namedtuple;
+────────────────────────────────────────────────────────────

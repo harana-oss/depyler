@@ -1,0 +1,9 @@
+  numeric-precision.toml :: inf_check
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn is_positive_inf(value: f64) -> bool {
+−     return value.is_infinite() && value > 0.0;
++     return ((value as f64).is_infinite()) && (value > 0);
+  }
+────────────────────────────────────────────────────────────

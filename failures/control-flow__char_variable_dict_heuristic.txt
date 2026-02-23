@@ -1,0 +1,34 @@
+  control-flow.toml :: char_variable_dict_heuristic
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use std::collections::HashMap;
+  #[derive(Debug, Clone)]
+  pub struct IndexError {
+      message: String,
+  }
+  impl std::fmt::Display for IndexError {
+      fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+          write!(f, "index out of range: {}", self.message)
+      }
+  }
+  impl std::error::Error for IndexError {}
+  impl IndexError {
+      pub fn new(message: impl Into<String>) -> Self {
+          Self {
+              message: message.into(),
+          }
+      }
+  }
+− pub fn test() {
++ pub fn test() -> Result<i32, IndexError> {
+      let mut freq: HashMap<String, i32> = {
+          let map = HashMap::new();
+          map
+      };
+      let char = "a".to_string();
+      freq.insert(char, 1);
+−     return freq.get(&char).cloned().unwrap();
++     return Ok(freq.get(&char).cloned().unwrap());
+  }
+────────────────────────────────────────────────────────────

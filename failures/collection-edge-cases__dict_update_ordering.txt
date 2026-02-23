@@ -1,0 +1,11 @@
+  collection-edge-cases.toml :: dict_update_ordering
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use std::collections::HashMap;
+− 
+  pub fn update_dict(mut d: HashMap<String, i32>, key: String, value: i32) -> HashMap<String, i32> {
+      d.insert(key, value);
+      return d;
+  }
+────────────────────────────────────────────────────────────

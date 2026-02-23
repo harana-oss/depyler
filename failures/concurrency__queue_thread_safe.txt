@@ -1,0 +1,29 @@
+  concurrency.toml :: queue_thread_safe
+    Output mismatch
+
+────────────────────────────────────────────────────────────
++ use serde_json;
++ #[derive(Debug, Clone)]
+  pub struct SimpleQueue {
+−     pub items: Vec<i32>,
++     pub items: Vec<serde_json::Value>,
+  }
+− 
+  impl SimpleQueue {
+      pub fn new() -> Self {
+          Self { items: vec![] }
+      }
+− 
+      pub fn put(&mut self, item: i32) {
+          self.items.push(item);
+      }
+− 
+      pub fn get(&mut self) -> i32 {
+          if self.items.len() > 0 {
+−             return self.items.remove(0);
++             return self.items.remove(0 as usize);
+          }
+          return -1;
+      }
+  }
+────────────────────────────────────────────────────────────

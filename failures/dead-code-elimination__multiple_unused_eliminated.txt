@@ -1,0 +1,13 @@
+  dead-code-elimination.toml :: multiple_unused_eliminated
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn only_uses_c(a: i32, b: i32, c: i32) -> i32 {
++     let x = a + 1;
++     let y = b * 2;
+      let z = c - 1;
++     let unused1 = x * y;
++     let unused2 = y + x;
+      return z;
+  }
+────────────────────────────────────────────────────────────

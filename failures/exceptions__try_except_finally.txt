@@ -1,0 +1,47 @@
+  exceptions.toml :: try_except_finally
+    Output mismatch
+
+────────────────────────────────────────────────────────────
++ #[derive(Debug, Clone)]
++ pub struct ZeroDivisionError {
++     message: String,
++ }
++ impl std::fmt::Display for ZeroDivisionError {
++     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
++         write!(f, "division by zero: {}", self.message)
++     }
++ }
++ impl std::error::Error for ZeroDivisionError {}
++ impl ZeroDivisionError {
++     pub fn new(message: impl Into<String>) -> Self {
++         Self {
++             message: message.into(),
++         }
++     }
++ }
+  pub fn safe_divide(a: i32, b: i32) -> i32 {
+      {
+          if b == 0 {
+              return 0;
+          } else {
+              return {
+                  let a = a;
+                  let b = b;
+                  let q = a / b;
+                  let r = a % b;
+                  let r_negative = r < 0;
+                  let b_negative = b < 0;
+                  let r_nonzero = r != 0;
+                  let signs_differ = r_negative != b_negative;
+                  let needs_adjustment = r_nonzero && signs_differ;
+                  if needs_adjustment {
+                      q - 1
+                  } else {
+                      q
+                  }
+              };
+          }
+          log::info!("{}", "operation complete");
+      }
+  }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,40 @@
+  slots.toml :: slots_subclass_extend
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct Point2D {
+−     x: i32,
+−     y: i32,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Point2D {
++     pub x: serde_json::Value,
++     pub y: serde_json::Value,
+  }
+− 
+− struct Point3D {
+−     point2d: Point2D,
+−     z: i32,
++ impl Point2D {
++     pub const __slots__: Vec<String> = vec!["x".to_string(), "y".to_string()];
++     pub fn new(x: serde_json::Value, y: serde_json::Value) -> Self {
++         Self { x, y }
++     }
+  }
+− 
+− let p = Point3D {
+−     point2d: Point2D { x: 1, y: 2 },
+−     z: 3,
+− };
+− log::info!("{} {} {}", p.point2d.x, p.point2d.y, p.z);
++ #[derive(Debug, Clone)]
++ pub struct Point3D {
++     pub z: serde_json::Value,
++ }
++ impl Point3D {
++     pub const __slots__: Vec<String> = vec!["z".to_string()];
++     pub fn new(x: serde_json::Value, y: serde_json::Value, z: serde_json::Value) -> Self {
++         Self { z }
++     }
++ }
+────────────────────────────────────────────────────────────

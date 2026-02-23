@@ -1,0 +1,23 @@
+  collection-edge-cases.toml :: dict_key_ordering
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use indexmap::IndexMap;
+− 
++ use std::collections::HashMap;
+  pub fn ordered_keys() -> Vec<String> {
+−     let mut d = IndexMap::new();
+−     d.insert("c".to_string(), 3);
+−     d.insert("a".to_string(), 1);
+−     d.insert("b".to_string(), 2);
+−     return d.keys().cloned().collect();
++     let d = {
++         let mut map = HashMap::new();
++         map.insert("c".to_string(), 3);
++         map.insert("a".to_string(), 1);
++         map.insert("b".to_string(), 2);
++         map
++     };
++     return d.keys().cloned().collect::<Vec<_>>();
+  }
+────────────────────────────────────────────────────────────

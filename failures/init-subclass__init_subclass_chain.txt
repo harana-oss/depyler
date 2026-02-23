@@ -1,0 +1,48 @@
+  init-subclass.toml :: init_subclass_chain
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust: trait methods are called explicitly
+−     trait A {
+−         fn init() -> Vec<&'static str> {
+−             vec!["A"]
+−         }
++ use serde_json;
++ #[derive(Debug, Copy, Clone)]
++ pub struct A {}
++ impl A {
++     pub const chain: Vec<serde_json::Value> = vec![];
++     pub fn new() -> Self {
++         Self {}
+      }
+− 
+−     trait B: A {
+−         fn init() -> Vec<&'static str> {
+−             let mut chain = <Self as A>::init();
+−             chain.push("B");
+−             chain
+−         }
++ }
++ #[derive(Debug, Copy, Clone)]
++ pub struct B {}
++ impl B {
++     pub fn new() -> Self {
++         Self {}
++     }
++ }
++ #[derive(Debug, Copy, Clone)]
++ pub struct C {}
++ impl C {
++     pub fn new() -> Self {
++         Self {}
+      }
+− 
+−     struct C;
+−     impl A for C {}
+−     impl B for C {}
+− 
+−     let chain = <C as B>::init();
+−     assert!(chain.contains(&"A"));
+−     assert!(chain.contains(&"B"));
++ }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,12 @@
+  bytes.toml :: bytes_raw
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− let raw = br"\n";
+−     let escaped = b"\n";
+−     let result = (raw.len(), escaped.len());
++ pub const raw: serde_json::Value = b"\\n";
++ pub const escaped: serde_json::Value = b"\n";
++ pub const result: serde_json::Value = (raw.len() as i32, escaped.len() as i32);
++ use serde_json;
+────────────────────────────────────────────────────────────

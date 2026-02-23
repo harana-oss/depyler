@@ -1,0 +1,11 @@
+  ellipsis.toml :: ellipsis_singleton
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Unit type is always the same
+− let a = ();
+− let b = ();
+− log::info!("Same object: true");
+− log::info!("Equal: true");
++ 
+────────────────────────────────────────────────────────────

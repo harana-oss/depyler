@@ -19,8 +19,7 @@ def check_positive(x: int) -> bool:
 
 rust = '''
 pub fn check_positive(x: i32) -> bool {
-    let _cse_temp_0 = x > 0;
-    if _cse_temp_0 {
+        if x > 0 {
         return true;
     }
     return false;
@@ -41,8 +40,7 @@ def sign(x: int) -> str:
 
 rust = '''
 pub fn sign(x: i32) -> String {
-    let _cse_temp_0 = x >= 0;
-    if _cse_temp_0 {
+        if x >= 0 {
         return "non-negative".to_string();
     } else {
         return "negative".to_string();
@@ -66,12 +64,10 @@ def classify(x: int) -> str:
 
 rust = '''
 pub fn classify(x: i32) -> String {
-    let _cse_temp_0 = x > 0;
-    if _cse_temp_0 {
+        if x > 0 {
         return "positive".to_string();
     } else {
-        let _cse_temp_1 = x < 0;
-        if _cse_temp_1 {
+                if x < 0 {
             return "negative".to_string();
         } else {
             return "zero".to_string();
@@ -113,7 +109,8 @@ pub fn classify(x: i32) -> String {
         } else {
             "negative".to_string()
         }
-    }
+    };
+}
 '''
 
 [[test]]
@@ -132,7 +129,7 @@ rust = '''
 pub fn sum_to_n(n: i32) -> i32 {
     let mut total = 0;
     for i in 0..n {
-        total = total + i;
+        total += i;
     }
     return total;
 }
@@ -154,7 +151,7 @@ rust = '''
 pub fn sum_range(start: i32, stop: i32) -> i32 {
     let mut total = 0;
     for i in start..stop {
-        total = total + i;
+        total += i;
     }
     return total;
 }
@@ -182,7 +179,7 @@ pub fn sum_evens(n: i32) -> i32 {
         }
         (0..n).step_by(step)
     } {
-        total = total + i;
+        total += i;
     }
     return total;
 }
@@ -204,7 +201,7 @@ rust = '''
 pub fn sum_list(items: &Vec<i32>) -> i32 {
     let mut total = 0;
     for item in items.iter().cloned() {
-        total = total + item;
+        total += item;
     }
     return total;
 }
@@ -249,7 +246,7 @@ rust = '''
 pub fn count_down(n: i32) -> i32 {
     let mut count = n;
     while count > 0 {
-        count = count - 1;
+        count -= 1;
     }
     return count;
 }
@@ -289,11 +286,11 @@ impl IndexError {
 }
 pub fn find_first(items: &Vec<i32>, target: i32) -> i32 {
     let mut i = 0;
-    while i < items.clone().len() as i32 {
+    while i < items.len() as i32 {
         if items.get(i as usize).cloned().unwrap() == target {
             break;
         }
-        i = i + 1;
+        i += 1;
     }
     return i;
 }
@@ -337,13 +334,13 @@ impl IndexError {
 pub fn sum_positive(items: &Vec<i32>) -> i32 {
     let mut total = 0;
     let mut i = 0;
-    while i < items.clone().len() as i32 {
+    while i < items.len() as i32 {
         if items.clone().get(i as usize).cloned().unwrap() < 0 {
-            i = i + 1;
+            i += 1;
             continue;
         }
-        total = total + items.get(i as usize).cloned().unwrap();
-        i = i + 1;
+        total += items.get(i as usize).cloned().unwrap();
+        i += 1;
     }
     return total;
 }
@@ -416,8 +413,7 @@ def shadow_test(x: int) -> int:
 rust = '''
 pub fn shadow_test(x: i32) -> i32 {
     let mut result = 0;
-    let _cse_temp_0 = x > 0;
-    if _cse_temp_0 {
+        if x > 0 {
         result = 1;
     } else {
         result = -1;
@@ -441,7 +437,8 @@ pub fn check_sign(x: i32) -> String {
         "positive".to_string()
     } else {
         "non-positive".to_string()
-    }
+    };
+}
 '''
 
 [[test]]
@@ -455,7 +452,8 @@ def max_value(a: int, b: int) -> int:
 
 rust = '''
 pub fn max_value(a: i32, b: i32) -> i32 {
-    return if a > b { a } else { b }
+    return if a > b { a } else { b };
+}
 '''
 
 [[test]]
@@ -490,7 +488,8 @@ def check_range(x: int) -> bool:
 
 rust = '''
 pub fn check_range(x: i32) -> bool {
-    return if (x >= 0) && (x <= 100) { true } else { false }
+    return if (x >= 0) && (x <= 100) { true } else { false };
+}
 '''
 
 [[test]]
@@ -504,7 +503,8 @@ def compute(x: int, y: int) -> int:
 
 rust = '''
 pub fn compute(x: i32, y: i32) -> i32 {
-    return if x > 0 { x + y } else { x - y }
+    return if x > 0 { x + y } else { x - y };
+}
 '''
 
 [[test]]
@@ -874,7 +874,7 @@ def check_positive(x: int):
 
 rust = '''
 pub fn check_positive(x: i32) {
-    assert!(x > 0, "{}", "value must be positive");
+    assert!(x > 0, "value must be positive");
     return x;
 }
 '''
@@ -1040,7 +1040,7 @@ python = '''
 def iterate_items():
     total = 0
     for i in [1, 2, 3]:
-        total = total + i
+        total += i
     return total
 '''
 
@@ -1048,7 +1048,7 @@ rust = '''
 pub fn iterate_items() -> i32 {
     let mut total = 0;
     for i in vec![1, 2, 3] {
-        total = total + i;
+        total += i;
     }
     return total;
 }
@@ -1061,14 +1061,14 @@ description = "While loop generation"
 python = '''
 def count_down(n: int) -> int:
     while n > 0:
-        n = n - 1
+        n -= 1
     return n
 '''
 
 rust = '''
 pub fn count_down(mut n: i32) -> i32 {
     while n > 0 {
-        n = n - 1;
+        n -= 1;
     }
     return n;
 }
@@ -1088,8 +1088,7 @@ def abs_value(x: int) -> int:
 
 rust = '''
 pub fn abs_value(x: i32) -> i32 {
-    let _cse_temp_0 = x < 0;
-    if _cse_temp_0 {
+        if x < 0 {
         return (-x);
     } else {
         return x;
@@ -1147,18 +1146,17 @@ def complex_statements(x: int) -> int:
     if x > 0:
         total = 0
         for i in [1, 2, 3]:
-            total = total + i
+            total += i
         return total
     return 0
 '''
 
 rust = '''
 pub fn complex_statements(x: i32) -> i32 {
-    let _cse_temp_0 = x > 0;
-    if _cse_temp_0 {
+        if x > 0 {
         let mut total = 0;
         for i in vec![1, 2, 3] {
-            total = total + i;
+            total += i;
         }
         return total;
     }
@@ -1234,7 +1232,7 @@ def complex_logic(items: list) -> int:
     try:
         for item in items:
             if item > 0:
-                total = total + item
+                total += item
             elif item < 0:
                 continue
             else:
@@ -1267,12 +1265,12 @@ impl ValueError {
         }
     }
 }
-pub fn complex_logic(items: &Vec<serde_json::Value>) -> i32 {
+pub fn complex_logic(items: &Vec<i32>) -> i32 {
     let mut total = 0;
     {
         for item in items.iter().cloned() {
             if item.clone() > 0 {
-                total = total + item.clone();
+                total += item.clone();
             } else {
                 if item < 0 {
                     continue;
@@ -1382,7 +1380,7 @@ def loop_scope():
     total = 0
     for i in [1, 2, 3]:
         temp = i * 2
-        total = total + temp
+        total += temp
     return total
 '''
 
@@ -1391,7 +1389,7 @@ pub fn loop_scope() -> i32 {
     let mut total = 0;
     for i in vec![1, 2, 3] {
         let temp = i * 2;
-        total = total + temp;
+        total += temp;
     }
     return total;
 }
@@ -1462,16 +1460,16 @@ description = "Tracking mutable variable updates"
 python = '''
 def mutable_tracking():
     x = 0
-    x = x + 1
-    x = x + 2
+    x += 1
+    x += 2
     return x
 '''
 
 rust = '''
 pub fn mutable_tracking() -> i32 {
     let mut x = 0;
-    x = x + 1;
-    x = x + 2;
+    x += 1;
+    x += 2;
     return x;
 }
 '''
@@ -1692,7 +1690,7 @@ def try_finally():
     except:
         x = 1
     finally:
-        x = x + 1
+        x += 1
     return x
 '''
 
@@ -1719,7 +1717,7 @@ pub fn try_finally() -> i32 {
     {
         x = 1 / 0;
         x = 1;
-        x = x + 1;
+        x += 1;
     }
     return x;
 }
@@ -1736,7 +1734,7 @@ def try_else():
     except ValueError:
         x = 0
     else:
-        x = x + 1
+        x += 1
     return x
 '''
 
@@ -1926,9 +1924,9 @@ def try_in_loop():
     result = 0
     for i in [1, 2, 0, 3]:
         try:
-            result = result + 10 / i
+            result += 10 / i
         except ZeroDivisionError:
-            result = result + 0
+            result += 0
     return result
 '''
 
@@ -1955,7 +1953,7 @@ pub fn try_in_loop() -> i32 {
     for _i in vec![1, 2, 0, 3] {
         {
             result = (result as f64) + 10 / i;
-            result = result + 0;
+            result += 0;
         }
     }
     return result;
@@ -2211,7 +2209,7 @@ def complex_exceptions(values: list[int]):
         except ZeroDivisionError:
             result = 0
         finally:
-            total = total + result
+            total += result
     return total
 '''
 
@@ -2280,8 +2278,7 @@ def noop_if(x: int) -> int:
 
 rust = '''
 pub fn noop_if(x: i32) -> i32 {
-    let _cse_temp_0 = x > 0;
-    if _cse_temp_0 {}
+        if x > 0 {}
     return x;
 }
 '''
@@ -2303,8 +2300,7 @@ def noop_else(x: int) -> int:
 rust = '''
 pub fn noop_else(x: i32) -> i32 {
     let mut result = x;
-    let _cse_temp_0 = x > 0;
-    if _cse_temp_0 {
+        if x > 0 {
         let _cse_temp_1 = x * 2;
         result = _cse_temp_1;
     } else {
@@ -2382,24 +2378,19 @@ def complex_check(x: int, y: int) -> str:
 
 rust = '''
 pub fn complex_check(x: i32, y: i32) -> String {
-    let _cse_temp_0 = x > 0;
-    if _cse_temp_0 {
-        let _cse_temp_1 = y > 0;
-        if _cse_temp_1 {
+        if x > 0 {
+                if y > 0 {
             return "both positive".to_string();
         } else {
-            let _cse_temp_2 = y < 0;
-            if _cse_temp_2 {
+                        if y < 0 {
                 return "x positive, y negative".to_string();
             } else {
                 return "x positive, y zero".to_string();
             }
         }
     } else {
-        let _cse_temp_3 = x < 0;
-        if _cse_temp_3 {
-            let _cse_temp_4 = y > 0;
-            if _cse_temp_4 {
+                if x < 0 {
+                        if y > 0 {
                 return "x negative, y positive".to_string();
             } else {
                 return "x negative, y non-positive".to_string();
@@ -2595,10 +2586,10 @@ def test():
         for j in range(10):
             if j % 2 == 0:
                 continue
-            count = count + 1
+            count += 1
         if i % 2 == 0:
             continue
-        count = count + 100
+        count += 100
     return count
 '''
 
@@ -2627,12 +2618,12 @@ pub fn test() -> i32 {
             if j % 2 == 0 {
                 continue;
             }
-            count = count + 1;
+            count += 1;
         }
         if i % 2 == 0 {
             continue;
         }
-        count = count + 100;
+        count += 100;
     }
     return count;
 }
@@ -2736,7 +2727,7 @@ def get_length(items: list[int]) -> int:
 
 rust = '''
 pub fn get_length(items: &Vec<i32>) -> i32 {
-    return items.len() as i32 as i32;
+    return items.len() as i32;
 }
 '''
 
@@ -2817,8 +2808,7 @@ def validate(x: int):
 
 rust = '''
 pub fn validate(x: i32) {
-    let _cse_temp_0 = x < 0;
-    if _cse_temp_0 {
+        if x < 0 {
         return;
     }
     log::info!("{}", x);
@@ -2836,7 +2826,7 @@ def count_occurrences(text: str, char: str) -> int:
 
 rust = '''
 pub fn count_occurrences(text: String, char: String) -> i32 {
-    return text.matches(char).count() as i32 as i32;
+    return text.matches(char).count() as i32;
 }
 '''
 
@@ -2851,7 +2841,7 @@ def get_size(items: list[int]) -> int:
 
 rust = '''
 pub fn get_size(items: &Vec<i32>) -> i32 {
-    return items.len() as i32 as i32;
+    return items.len() as i32;
 }
 '''
 
@@ -2866,7 +2856,7 @@ def total_size(a: list[int], b: list[int]) -> int:
 
 rust = '''
 pub fn total_size(a: &Vec<i32>, b: &Vec<i32>) -> i32 {
-    return a.len() as i32 + b.len() as i32 as i32;
+    return a.len() as i32 + b.len() as i32;
 }
 '''
 
@@ -2959,7 +2949,7 @@ def test():
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct Point {
     pub x: i32,
     pub y: i32,
@@ -2967,34 +2957,6 @@ pub struct Point {
 impl Point {
     pub fn new(x: i32, y: i32) -> Self {
         Self { x, y }
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
-            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "x" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.x = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "y" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.y = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 pub fn test() {
@@ -3097,7 +3059,7 @@ impl IndexError {
 }
 pub fn test() -> i32 {
     let mut items: Vec<i32> = vec![1, 2, 3];
-    items.insert((0) as usize, 99);
+    items[0 as usize] = 99;
     return items.get(0usize).cloned().unwrap();
 }
 '''
@@ -3259,8 +3221,7 @@ def test_if():
 rust = '''
 pub fn test_if() -> i32 {
     let x = 10;
-    let _cse_temp_0 = x > 0;
-    if _cse_temp_0 {
+        if x > 0 {
         return 1;
     } else {
         return 0;
@@ -3276,7 +3237,7 @@ python = '''
 def test_while():
     x = 10
     while x > 0:
-        x = x - 1
+        x -= 1
     return x
 '''
 
@@ -3284,7 +3245,7 @@ rust = '''
 pub fn test_while() -> i32 {
     let mut x = 10;
     while x > 0 {
-        x = x - 1;
+        x -= 1;
     }
     return x;
 }
@@ -3378,7 +3339,7 @@ def complex_logic(items: list[int], target: int) -> Optional[int]:
         while count < 3:
             if count == 2:
                 break
-            count = count + 1
+            count += 1
             continue
 
     return None
@@ -3386,7 +3347,7 @@ def complex_logic(items: list[int], target: int) -> Optional[int]:
 
 rust = '''
 pub fn complex_logic(items: Vec<i32>, target: i32) -> Option<i32> {
-    if items.clone().is_empty() {
+    if items.is_empty() {
         return None;
     }
     for (i, item) in items.iter().enumerate().map(|(i, x)| (i as i32, x.clone())) {
@@ -3399,7 +3360,7 @@ pub fn complex_logic(items: Vec<i32>, target: i32) -> Option<i32> {
             if count == 2 {
                 break;
             }
-            count = count + 1;
+            count += 1;
             continue;
         }
     }
@@ -3511,14 +3472,14 @@ pub fn test_while_break() {
             break;
         }
         log::info!("{}", i);
-        i = i + 1;
+        i += 1;
     }
 }
 #[doc = "Test continue in while loop"]
 pub fn test_while_continue() -> Result<(), ZeroDivisionError> {
     let mut i = 0;
     while i < 10 {
-        i = i + 1;
+        i += 1;
         if i % 2 == 0 {
             continue;
         }
@@ -3718,7 +3679,7 @@ def test_for_with_iterator():
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone]
 pub struct Range {
     pub start: i32,
     pub stop: i32,
@@ -3751,7 +3712,7 @@ pub fn test_custom_iterator() -> i32 {
     let mut total = 0;
     let mut value = r.__next__();
     while value != -1 {
-        total = total + value;
+        total += value;
         value = r.__next__();
     }
     total
@@ -3761,7 +3722,7 @@ pub fn test_for_with_iterator() -> i32 {
     let mut r = Range::new(0, 5);
     let mut total = 0;
     for i in r.iter().cloned() {
-        total = total + i;
+        total += i;
     }
     total
 }

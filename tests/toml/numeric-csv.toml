@@ -22,7 +22,7 @@ def read_csv_file(filename: str) -> list:
 rust = '''
 use csv;
 use serde_json;
-pub fn read_csv_file(filename: String) -> Vec<serde_json::Value> {
+pub fn read_csv_file(filename: String) -> Vec<i32> {
     let mut f = std::fs::File::open(filename)?;
     let reader = csv::Reader::from_reader(f);
     return reader
@@ -47,7 +47,7 @@ def read_csv_with_delimiter(filename: str, delim: str) -> list:
 rust = '''
 use csv;
 use serde_json;
-pub fn read_csv_with_delimiter(filename: String, delim: String) -> Vec<serde_json::Value> {
+pub fn read_csv_with_delimiter(filename: String, delim: String) -> Vec<i32> {
     let mut f = std::fs::File::open(filename)?;
     let reader = csv::Reader::from_reader(f);
     return reader

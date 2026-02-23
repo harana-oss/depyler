@@ -1,0 +1,37 @@
+  keyword-only-args.toml :: kwonly_self_doc
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct ProcessFilesArgs {
+−     verbose: bool,
+−     recursive: bool,
+−     backup: bool,
+− }
+− 
+− fn process_files(args: ProcessFilesArgs) -> String {
+−     let mut flags = Vec::new();
+−     if args.verbose {
++ pub fn process_files() -> String {
++     let mut flags = vec![];
++     if verbose {
+          flags.push("verbose");
+      }
+−     if args.recursive {
++     if recursive {
+          flags.push("recursive");
+      }
+−     if args.backup {
++     if backup {
+          flags.push("backup");
+      }
+−     format!("Processing with: {}", flags.join(", "))
++     return format!("Processing with: {}", flags.join(", "));
+  }
+− 
+− let args = ProcessFilesArgs {
+−     verbose: true,
+−     recursive: false,
+−     backup: true,
+− };
+− log::info!("{}", process_files(args));
+────────────────────────────────────────────────────────────

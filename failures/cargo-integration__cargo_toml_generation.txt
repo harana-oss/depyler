@@ -1,0 +1,16 @@
+  cargo-integration.toml :: cargo_toml_generation
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn get_package_name() -> String {
+      return "my_project".to_string();
+  }
+− 
+  pub fn get_version() -> String {
+      return "0.1.0".to_string();
+  }
+− 
+  pub fn get_edition() -> String {
+      return "2021".to_string();
+  }
+────────────────────────────────────────────────────────────

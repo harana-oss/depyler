@@ -1,0 +1,79 @@
+  generator-liveness.toml :: generator_nested_loops_with_yields
+    Output mismatch
+
+────────────────────────────────────────────────────────────
++ use serde_json;
+  #[doc = " Generator state struct"]
+  #[derive(Debug)]
+  struct MatrixElementsState {
++     state: usize,
+      i: i32,
+      j: i32,
+      rows: i32,
+      cols: i32,
+−     state: usize,
+  }
+  #[doc = " Generator function - returns Iterator"]
+− pub fn matrix_elements(rows: i32, cols: i32) -> impl Iterator<Item = i32> {
+−     let i = 0;
++ pub fn matrix_elements(rows: i32, cols: i32) -> impl Iterator<Item = serde_json::Value> {
+      MatrixElementsState {
+−         i,
++         state: 0,
++         i: 0,
+          j: 0,
+−         rows,
+−         cols,
+−         state: 0,
++         rows: rows,
++         cols: cols,
+      }
+  }
+  impl Iterator for MatrixElementsState {
+−     type Item = i32;
++     type Item = serde_json::Value;
+      fn next(&mut self) -> Option<Self::Item> {
+          match self.state {
+              0 => {
+−                 self.state = 1usize;
++                 self.i = 0;
++                 self.state = 1;
++                 self.next()
+              }
+−             _ => {}
+−         }
+−         loop {
+−             if self.i < self.rows {
+−                 if self.state == 1usize {
++             1 => {
++                 if self.i < self.rows {
++                     let result = self.i * self.cols + self.j;
+                      self.j = 0;
+−                     self.state = 2usize;
+−                 }
+−                 loop {
+−                     if self.j < self.cols {
+−                         let result = self.i * self.cols + self.j;
++                     while self.j < self.cols {
++                         return Some(self.i * self.cols + self.j);
+                          self.j = self.j + 1;
+−                         return Some(result);
+−                     } else {
+−                         break;
+                      }
++                     self.i = self.i + 1;
++                     return Some(result);
++                 } else {
++                     self.state = 2;
++                     None
+                  }
+−                 self.i = self.i + 1;
+−                 self.state = 1usize;
+−             } else {
+−                 return None;
+              }
++             _ => None,
+          }
+      }
+  }
+────────────────────────────────────────────────────────────

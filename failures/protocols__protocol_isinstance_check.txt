@@ -1,0 +1,31 @@
+  protocols.toml :: protocol_isinstance_check
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub trait Iterable {
+−     fn iter_items(&self) -> Vec<i32>;
+− }
+− 
++ #[derive(Debug, Copy, Clone)]
+  pub struct Range {
+      pub start: i32,
+      pub end: i32,
+  }
+− 
+  impl Range {
+      pub fn new(start: i32, end: i32) -> Self {
+          Self { start, end }
+      }
+− }
+− 
+− impl Iterable for Range {
+−     fn iter_items(&self) -> Vec<i32> {
++     pub fn iter_items(&self) -> Vec<i32> {
+          let mut result = vec![];
+          for i in self.start..self.end {
+              result.push(i);
+          }
+          return result;
+      }
+  }
+────────────────────────────────────────────────────────────

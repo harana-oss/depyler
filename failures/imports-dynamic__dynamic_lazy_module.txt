@@ -1,0 +1,9 @@
+  imports-dynamic.toml :: dynamic_lazy_module
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Module loaded on first access
+−     // Use lazy_static! or OnceCell for lazy initialization
+−     let result = true;
++ pub const result: bool = true;
+────────────────────────────────────────────────────────────

@@ -1,0 +1,19 @@
+  numeric-arrays.toml :: array_slice
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn slice_array(arr: Vec<i32>, start: i32, end: i32) -> Vec<i32> {
+−     return arr[(start as usize)..(end as usize)].to_vec();
++ pub fn slice_array(arr: &Vec<i32>, start: i32, end: i32) -> Vec<i32> {
++     return {
++         let base = &arr;
++         let start = (start).max(0) as usize;
++         let stop = (end).max(0) as usize;
++         if start < base.len() {
++             base[start..stop.min(base.len())].to_vec()
++         } else {
++             Vec::new()
++         }
++     };
+  }
+────────────────────────────────────────────────────────────

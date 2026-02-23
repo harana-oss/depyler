@@ -18,7 +18,7 @@ class Point:
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct Point {
     pub x: i32,
     pub y: i32,
@@ -26,34 +26,6 @@ pub struct Point {
 impl Point {
     pub fn new(x: i32, y: i32) -> Self {
         Self { x, y }
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
-            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "x" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.x = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "y" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.y = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 '''
@@ -86,52 +58,6 @@ impl Student {
             age,
             grade,
             active,
-        }
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "name" => Some(Box::new(self.name.clone()) as Box<dyn std::any::Any>),
-            "age" => Some(Box::new(self.age.clone()) as Box<dyn std::any::Any>),
-            "grade" => Some(Box::new(self.grade.clone()) as Box<dyn std::any::Any>),
-            "active" => Some(Box::new(self.active.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "name" => {
-                if let Some(v) = value.downcast_ref::<String>() {
-                    self.name = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "age" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.age = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "grade" => {
-                if let Some(v) = value.downcast_ref::<f64>() {
-                    self.grade = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "active" => {
-                if let Some(v) = value.downcast_ref::<bool>() {
-                    self.active = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
         }
     }
 }
@@ -171,7 +97,7 @@ class Rectangle:
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone]
 pub struct Rectangle {
     pub width: i32,
     pub height: i32,
@@ -182,34 +108,6 @@ impl Rectangle {
     }
     pub fn area(&self) -> i32 {
         return self.width * self.height;
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "width" => Some(Box::new(self.width.clone()) as Box<dyn std::any::Any>),
-            "height" => Some(Box::new(self.height.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "width" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.width = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "height" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.height = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 '''
@@ -228,7 +126,7 @@ class Calculator:
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone]
 pub struct Calculator {
     pub value: i32,
 }
@@ -238,25 +136,6 @@ impl Calculator {
     }
     pub fn add(&self, n: i32) -> i32 {
         return format!("{}{}", self.value, n);
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "value" => Some(Box::new(self.value.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "value" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.value = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 '''
@@ -275,7 +154,7 @@ class Counter:
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone]
 pub struct Counter {
     pub count: i32,
 }
@@ -285,25 +164,6 @@ impl Counter {
     }
     pub fn increment(&mut self) {
         self.count = self.count + 1;
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "count" => Some(Box::new(self.count.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "count" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.count = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 '''
@@ -371,35 +231,16 @@ class Circle:
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct Circle {
     pub _radius: f64,
 }
 impl Circle {
     pub fn new(radius: f64) -> Self {
-        Self { _radius: 0.0 }
+        Self { _radius: radius }
     }
     pub fn radius(&self) -> f64 {
         return self._radius;
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "_radius" => Some(Box::new(self._radius.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "_radius" => {
-                if let Some(v) = value.downcast_ref::<f64>() {
-                    self._radius = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 '''
@@ -423,38 +264,19 @@ class Circle:
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct Circle {
     pub _radius: f64,
 }
 impl Circle {
     pub fn new(radius: f64) -> Self {
-        Self { _radius: 0.0 }
+        Self { _radius: radius }
     }
     pub fn radius(&self) -> f64 {
         return self._radius;
     }
     pub fn radius(&mut self, value: f64) {
         self._radius = value;
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "_radius" => Some(Box::new(self._radius.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "_radius" => {
-                if let Some(v) = value.downcast_ref::<f64>() {
-                    self._radius = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 '''
@@ -475,7 +297,7 @@ def create_point() -> Point:
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct Point {
     pub x: i32,
     pub y: i32,
@@ -483,34 +305,6 @@ pub struct Point {
 impl Point {
     pub fn new(x: i32, y: i32) -> Self {
         Self { x, y }
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
-            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "x" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.x = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "y" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.y = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 pub fn create_point() -> Point {
@@ -534,7 +328,7 @@ def get_x(p: Point) -> int:
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct Point {
     pub x: i32,
     pub y: i32,
@@ -542,34 +336,6 @@ pub struct Point {
 impl Point {
     pub fn new(x: i32, y: i32) -> Self {
         Self { x, y }
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
-            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "x" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.x = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "y" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.y = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 pub fn get_x(p: &Point) -> i32 {
@@ -588,32 +354,13 @@ class Counter:
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone]
 pub struct Counter {
     pub value: i32,
 }
 impl Counter {
     pub fn new(start: i32) -> Self {
-        Self { value: 0 }
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "value" => Some(Box::new(self.value.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "value" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.value = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
+        Self { value: start }
     }
 }
 '''
@@ -636,7 +383,7 @@ class Rectangle:
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct Point {
     pub x: i32,
     pub y: i32,
@@ -644,34 +391,6 @@ pub struct Point {
 impl Point {
     pub fn new(x: i32, y: i32) -> Self {
         Self { x, y }
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
-            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "x" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.x = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "y" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.y = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 #[derive(Debug, Clone)]
@@ -686,43 +405,6 @@ impl Rectangle {
             origin,
             width,
             height,
-        }
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "origin" => Some(Box::new(self.origin.clone()) as Box<dyn std::any::Any>),
-            "width" => Some(Box::new(self.width.clone()) as Box<dyn std::any::Any>),
-            "height" => Some(Box::new(self.height.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "origin" => {
-                if let Some(v) = value.downcast_ref::<Point>() {
-                    self.origin = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "width" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.width = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "height" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.height = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
         }
     }
 }
@@ -741,32 +423,13 @@ def set_config_value(c: Config) -> None:
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone]
 pub struct Config {
     pub value: i32,
 }
 impl Config {
     pub fn new(value: i32) -> Self {
         Self { value }
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "value" => Some(Box::new(self.value.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "value" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.value = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 pub fn set_config_value(c: &mut Config) {
@@ -793,25 +456,6 @@ pub struct Person {
     pub name: String,
 }
 impl Person {
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "name" => Some(Box::new(self.name.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "name" => {
-                if let Some(v) = value.downcast_ref::<String>() {
-                    self.name = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
-    }
 }
 pub fn set_name(p: &mut Person) {
     {
@@ -832,32 +476,13 @@ def set_count(c: Counter, new_count: int) -> None:
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone]
 pub struct Counter {
     pub count: i32,
 }
 impl Counter {
     pub fn new(count: i32) -> Self {
         Self { count }
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "count" => Some(Box::new(self.count.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "count" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.count = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 pub fn set_count(c: &mut Counter, new_count: i32) {
@@ -884,25 +509,6 @@ pub struct Person {
     pub name: String,
 }
 impl Person {
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "name" => Some(Box::new(self.name.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "name" => {
-                if let Some(v) = value.downcast_ref::<String>() {
-                    self.name = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
-    }
 }
 pub fn set_name(p: &mut Person, new_name: String) {
     {
@@ -923,32 +529,13 @@ def get_config_value(c: Config) -> int:
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone]
 pub struct Config {
     pub value: i32,
 }
 impl Config {
     pub fn new(value: i32) -> Self {
         Self { value }
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "value" => Some(Box::new(self.value.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "value" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.value = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 pub fn get_config_value(c: &Config) -> i32 {
@@ -974,25 +561,6 @@ pub struct Person {
     pub name: String,
 }
 impl Person {
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "name" => Some(Box::new(self.name.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "name" => {
-                if let Some(v) = value.downcast_ref::<String>() {
-                    self.name = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
-    }
 }
 pub fn get_name(p: &Person) -> String {
     return p.name;
@@ -1013,7 +581,7 @@ def update_state(s: State) -> None:
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone]
 pub struct State {
     pub temp: i32,
     pub result: i32,
@@ -1021,34 +589,6 @@ pub struct State {
 impl State {
     pub fn new(temp: i32, result: i32) -> Self {
         Self { temp, result }
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "temp" => Some(Box::new(self.temp.clone()) as Box<dyn std::any::Any>),
-            "result" => Some(Box::new(self.result.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "temp" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.temp = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "result" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.result = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 pub fn update_state(s: &mut State) {
@@ -1073,7 +613,7 @@ class Rectangle:
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone]
 pub struct Rectangle {
     pub width: i32,
     pub height: i32,
@@ -1084,34 +624,6 @@ impl Rectangle {
     }
     pub fn area(&self) -> i32 {
         return self.width * self.height;
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "width" => Some(Box::new(self.width.clone()) as Box<dyn std::any::Any>),
-            "height" => Some(Box::new(self.height.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "width" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.width = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "height" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.height = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 '''
@@ -1144,34 +656,6 @@ impl Person {
     pub fn full_name(&self) -> String {
         return format!("{}{}", self.first, " ".to_string()) + self.last;
     }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "first" => Some(Box::new(self.first.clone()) as Box<dyn std::any::Any>),
-            "last" => Some(Box::new(self.last.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "first" => {
-                if let Some(v) = value.downcast_ref::<String>() {
-                    self.first = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "last" => {
-                if let Some(v) = value.downcast_ref::<String>() {
-                    self.last = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
-    }
 }
 '''
 
@@ -1192,7 +676,7 @@ class Circle:
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone]
 pub struct Circle {
     pub radius: f64,
 }
@@ -1203,25 +687,6 @@ impl Circle {
     }
     pub fn circumference(&self) -> f64 {
         return 2 * Circle.PI * self.radius;
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "radius" => Some(Box::new(self.radius.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "radius" => {
-                if let Some(v) = value.downcast_ref::<f64>() {
-                    self.radius = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 '''
@@ -1263,43 +728,6 @@ impl Person {
     pub fn is_adult(&self) -> bool {
         return self.age >= 18;
     }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "first" => Some(Box::new(self.first.clone()) as Box<dyn std::any::Any>),
-            "last" => Some(Box::new(self.last.clone()) as Box<dyn std::any::Any>),
-            "age" => Some(Box::new(self.age.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "first" => {
-                if let Some(v) = value.downcast_ref::<String>() {
-                    self.first = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "last" => {
-                if let Some(v) = value.downcast_ref::<String>() {
-                    self.last = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "age" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.age = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
-    }
 }
 '''
 
@@ -1321,7 +749,7 @@ class Calculator:
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone]
 pub struct Calculator {
     pub value: i32,
 }
@@ -1334,25 +762,6 @@ impl Calculator {
     }
     pub fn doubled_value(&self) -> i32 {
         return self.double();
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "value" => Some(Box::new(self.value.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "value" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.value = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 '''
@@ -1378,7 +787,7 @@ class User:
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone]
 pub struct User {
     pub age: i32,
     pub premium: bool,
@@ -1397,34 +806,6 @@ impl User {
                 return "basic".to_string();
             };
         };
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "age" => Some(Box::new(self.age.clone()) as Box<dyn std::any::Any>),
-            "premium" => Some(Box::new(self.premium.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "age" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.age = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "premium" => {
-                if let Some(v) = value.downcast_ref::<bool>() {
-                    self.premium = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 '''
@@ -1451,7 +832,7 @@ class Account:
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone]
 pub struct Account {
     pub balance: f64,
 }
@@ -1467,25 +848,6 @@ impl Account {
     }
     pub fn is_positive(&self) -> bool {
         return self.balance > 0;
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "balance" => Some(Box::new(self.balance.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "balance" => {
-                if let Some(v) = value.downcast_ref::<f64>() {
-                    self.balance = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 '''
@@ -1513,7 +875,7 @@ class DataHolder:
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone]
 pub struct DataHolder {
     pub value: i32,
 }
@@ -1529,25 +891,6 @@ impl DataHolder {
     }
     pub fn as_float(&self) -> f64 {
         return float(self.value);
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "value" => Some(Box::new(self.value.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "value" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.value = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 '''
@@ -1582,25 +925,6 @@ impl CustomError {
     pub fn new(message: String) -> Self {
         Self { message }
     }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "message" => Some(Box::new(self.message.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "message" => {
-                if let Some(v) = value.downcast_ref::<String>() {
-                    self.message = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
-    }
 }
 #[derive(Debug, Clone)]
 pub struct DataProcessor {
@@ -1619,34 +943,6 @@ impl DataProcessor {
             );
         };
         return value * 2;
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "name" => Some(Box::new(self.name.clone()) as Box<dyn std::any::Any>),
-            "threshold" => Some(Box::new(self.threshold.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "name" => {
-                if let Some(v) = value.downcast_ref::<String>() {
-                    self.name = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "threshold" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.threshold = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 '''
@@ -1670,7 +966,6 @@ class Container(Generic[T]):
 '''
 
 rust = '''
-pub const T: serde_json::Value = TypeVar::new("T");
 use serde_json;
 #[derive(Debug, Clone)]
 pub struct Container {
@@ -1682,25 +977,6 @@ impl Container {
     }
     pub fn get(&self) -> T {
         return self.value.clone();
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "value" => Some(Box::new(self.value.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "value" => {
-                if let Some(v) = value.downcast_ref::<T>() {
-                    self.value = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 '''
@@ -1746,7 +1022,7 @@ class Point:
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct Point {
     pub x: i32,
     pub y: i32,
@@ -1774,34 +1050,6 @@ impl Point {
             }
         } as f64)
             .powf(0.5 as f64);
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
-            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "x" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.x = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "y" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.y = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 '''
@@ -1946,7 +1194,7 @@ class Rectangle:
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct Point {
     pub x: i32,
     pub y: i32,
@@ -1959,7 +1207,7 @@ impl Point {
         return 0;
     }
 }
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone]
 pub struct Rectangle {
     pub width: i32,
     pub height: i32,
@@ -2038,7 +1286,7 @@ impl Counter {
         return Counter::new(val);
     }
 }
-pub fn test_counter() -> (serde_json::Value, serde_json::Value) {
+pub fn test_counter() -> (i32, i32) {
     let mut c = Counter::new();
     c.increment();
     c.increment();
@@ -2233,7 +1481,7 @@ impl Point {
         return (self.x * self.x + self.y * self.y as f64).powf(0.5 as f64);
     }
 }
-pub fn test_point() -> (serde_json::Value, serde_json::Value) {
+pub fn test_point() -> (i32, i32) {
     let mut p1 = Point::new(0, 0);
     let p2 = Point::new(3, 4);
     p1.move_by(1, 1);
@@ -2269,7 +1517,7 @@ def test_property():
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct Point {
     pub x: i32,
     pub y: i32,
@@ -2330,7 +1578,7 @@ def test_point():
 
 rust = '''
 use serde_json;
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct Point {
     pub x: i32,
     pub y: i32,
@@ -2379,13 +1627,13 @@ def test_counter():
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone]
 pub struct Counter {
     pub count: i32,
 }
 impl Counter {
     pub fn new(n: i32) -> Self {
-        Self { count: 0 }
+        Self { count: n }
     }
     pub fn increment(&mut self) {
         self.count = self.count + 1;
@@ -2427,25 +1675,6 @@ impl Team {
     pub fn new(name: String) -> Self {
         Self { name }
     }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "name" => Some(Box::new(self.name.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "name" => {
-                if let Some(v) = value.downcast_ref::<String>() {
-                    self.name = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
-    }
 }
 #[derive(Debug, Clone)]
 pub struct PlayerOutputs {
@@ -2455,34 +1684,6 @@ pub struct PlayerOutputs {
 impl PlayerOutputs {
     pub fn new(executed: bool, team: Team) -> Self {
         Self { executed, team }
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "executed" => Some(Box::new(self.executed.clone()) as Box<dyn std::any::Any>),
-            "team" => Some(Box::new(self.team.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "executed" => {
-                if let Some(v) = value.downcast_ref::<bool>() {
-                    self.executed = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "team" => {
-                if let Some(v) = value.downcast_ref::<Team>() {
-                    self.team = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 #[doc = "Function takes team by reference but constructor needs owned."]

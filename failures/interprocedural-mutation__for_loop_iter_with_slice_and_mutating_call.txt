@@ -1,0 +1,41 @@
+  interprocedural-mutation.toml :: for_loop_iter_with_slice_and_mutating_call
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug, Clone, PartialEq, Default)]
++ #[derive(Debug, Copy, Clone, PartialEq, Default)]
+  pub struct Item {
+      pub score: f64,
+  }
+  impl Item {
+      pub fn new(score: f64) -> Self {
+          Self { score }
+      }
+  }
+  #[derive(Debug, Clone, PartialEq, Default)]
+  pub struct Data {
+      pub items: Vec<Item>,
+  }
+  impl Data {
+      pub fn new(items: Vec<Item>) -> Self {
+          Self { items }
+      }
+  }
+− pub fn get_items<'a>(data: &'a mut Data) -> &'a mut Vec<Item> {
+−     return &mut data.items;
++ pub fn get_items(data: &Data) -> Vec<Item> {
++     return data.items;
+  }
+− pub fn process_first_three(data: &mut Data) {
++ pub fn process_first_three(data: &Data) {
+      for mut item in {
+−         let base = &get_items(data);
++         let base = &get_items(&data);
+          let stop = (3).max(0) as usize;
+          base[..stop.min(base.len())].to_vec()
+      } {
+−         item.score = item.score + 1.0;
++         item.score += 1.0;
+      }
+  }
+────────────────────────────────────────────────────────────

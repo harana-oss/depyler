@@ -1,0 +1,12 @@
+  bytes-strings.toml :: bytes_concat
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn test_bytes_concat() -> Vec<u8> {
+−     let mut result = b"a".to_vec();
+−     result.extend_from_slice(b"b");
+−     return result;
++ pub fn test_bytes_concat() -> bytes {
++     return b"a" + b"b";
+  }
+────────────────────────────────────────────────────────────

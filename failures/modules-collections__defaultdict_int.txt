@@ -1,0 +1,37 @@
+  modules-collections.toml :: defaultdict_int
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use std::collections::HashMap;
+  #[derive(Debug, Clone)]
+  pub struct IndexError {
+      message: String,
+  }
+  impl std::fmt::Display for IndexError {
+      fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+          write!(f, "index out of range: {}", self.message)
+      }
+  }
+  impl std::error::Error for IndexError {}
+  impl IndexError {
+      pub fn new(message: impl Into<String>) -> Self {
+          Self {
+              message: message.into(),
+          }
+      }
+  }
+− pub fn count_words(words: &Vec<String>) -> HashMap<String, i32> {
++ pub fn count_words(words: &Vec<String>) -> Result<HashMap<String, i32>, IndexError> {
+      let mut counts = std::collections::HashMap(int);
+      for word in words.iter().cloned() {
+−         {
+−             let _key = word;
+−             let _old_val = counts.get(&_key).cloned().unwrap_or_default();
+−             counts.insert(_key, _old_val + 1);
+−         }
++         counts[word] += 1;
+      }
+−     return counts.into_iter().collect::<HashMap<_, _>>();
++     return Ok(counts.into_iter().collect::<HashMap<_, _>>());
+  }
+────────────────────────────────────────────────────────────

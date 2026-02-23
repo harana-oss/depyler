@@ -1,0 +1,24 @@
+  functions.toml :: multiple_named_after_positional
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn calculate(a: i32, b: i32, operation: String, verbose: bool) -> i32 {
+−     let _cse_temp_0 = operation == "add".to_string();
+−     let result;
+−     if _cse_temp_0 {
++     let mut result;
++     if operation == "add" {
+          result = a + b;
+      } else {
+          result = a - b;
+      }
+      if verbose {
+          log::info!("{}", format!("Result: {}", result));
+      }
+      return result;
+  }
+  pub fn test() -> i32 {
+−     return calculate(10, 20, "add".to_string(), true);
++     return calculate(10, 20, true, "add".to_string());
+  }
+────────────────────────────────────────────────────────────

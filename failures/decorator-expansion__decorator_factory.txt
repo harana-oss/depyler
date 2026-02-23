@@ -1,0 +1,26 @@
+  decorator-expansion.toml :: decorator_factory
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn multiply_by<F>(n: i32) -> impl Fn(F) -> Box<dyn Fn(i32) -> i32>
+− where
+−     F: Fn(i32) -> i32 + 'static,
+− {
+−     move |f: F| -> Box<dyn Fn(i32) -> i32> {
+−         let n = n;
+−         Box::new(move |x: i32| -> i32 {
++ pub fn multiply_by(n: i32) {
++     fn decorator(f: ()) -> () {
++         fn wrapper(x: i64) -> i64 {
+              return f(x) * n;
+−         })
++         }
++         return wrapper;
+      }
++     return decorator;
+  }
+− 
+  pub fn base(x: i32) -> i32 {
+      return x;
+  }
+────────────────────────────────────────────────────────────

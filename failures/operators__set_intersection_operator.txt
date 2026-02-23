@@ -1,0 +1,19 @@
+  operators.toml :: set_intersection_operator
+    Output mismatch
+
+────────────────────────────────────────────────────────────
++ use serde_json;
+  use std::collections::HashSet;
+− pub fn test_intersection(a: &HashSet<Point>, b: &HashSet<Point>) -> HashSet<Point> {
+−     return a.intersection(&b).cloned().collect::<std::collections::HashSet<_>>();
+− };
++ pub fn test_intersection(
++     a: &HashSet<serde_json::Value>,
++     b: &HashSet<serde_json::Value>,
++ ) -> HashSet<serde_json::Value> {
++     return a
++         .intersection(&b)
++         .cloned()
++         .collect::<std::collections::HashSet<_>>();
++ }
+────────────────────────────────────────────────────────────

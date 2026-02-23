@@ -1,0 +1,15 @@
+  file.toml :: open_with_encoding
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn read_utf8(path: String) -> String {
+−     let mut f = std::fs::File::open(path)?;
+−     return {
+−         let mut content = String::new();
+−         f.read_to_string(&mut content)?;
+−         content
+−     }
++ pub fn read_utf8(path: String) -> Result<String, std::io::Error> {
++     return std::fs::read_to_string(path).unwrap_or_default();
++ }
+────────────────────────────────────────────────────────────

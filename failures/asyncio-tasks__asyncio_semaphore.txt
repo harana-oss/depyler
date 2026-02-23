@@ -1,0 +1,18 @@
+  asyncio-tasks.toml :: asyncio_semaphore
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use tokio::sync::Semaphore;
+− 
+  pub async fn test_asyncio_semaphore() -> i32 {
+−     let sem = Semaphore::new(2);
+−     let _permit = sem.acquire().await.unwrap();
+−     1
++     let sem = asyncio.Semaphore(2);
++     {
++     let _ctx = sem;
++     return 1;
++    
++ }
+  }
+────────────────────────────────────────────────────────────

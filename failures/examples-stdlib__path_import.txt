@@ -1,0 +1,81 @@
+  examples-stdlib.toml :: path_import
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use std as os;
+  use std::path::splitext;
+  use std::path::Path::exists;
+  use std::path::Path::file_name;
+  use std::path::Path::join;
+  use std::path::Path::parent;
+  #[doc = "Build a file path from components"]
+  pub fn build_file_path(base_dir: String) -> String {
+−     std::path::Path::join(base_dir, components)
++     return std::path::Path::join(base_dir, components);
+  }
+  #[doc = "Check if a file exists"]
+  pub fn check_file_exists(path: String) -> bool {
+−     std::path::Path::exists(path)
++     return std::path::Path::exists(path);
+  }
+  #[doc = "Get directory, filename, and extension"]
+− pub fn get_file_info(path: String) -> (String, String, String) {
++ pub fn get_file_info(path: &str) -> (String, String, String) {
+      let dir_path = std::path::Path::parent(path);
+      let base_name = std::path::Path::file_name(path);
+      let (name, ext) = splitext(base_name);
+−     (dir_path, name, ext)
++     return (dir_path, name, ext);
+  }
+  #[doc = "Find all Python files in a directory"]
+− pub fn find_python_files(directory: &str) -> Vec<String> {
++ pub fn find_python_files(directory: String) -> Vec<String> {
+      let mut python_files = vec![];
+      for (root, _dirs, files) in os.walk(directory) {
+          for file in files.iter().cloned() {
+              if file.ends_with(".py") {
+                  python_files.push(std::path::Path::join(root, file));
+              }
+          }
+      }
+−     python_files
++     return python_files;
+  }
+  #[doc = "Normalize a file path"]
+− pub fn normalize_path(path: &str) -> String {
+−     std::path::Path.normpath(path)
++ pub fn normalize_path(path: String) -> String {
++     return {
++         let p = std::path::Path::new(path);
++         let mut components = Vec::new();
++         for component in p.components() {
++             match component {
++                 std::path::Component::CurDir => {}
++                 std::path::Component::ParentDir => {
++                     components.pop();
++                 }
++                 _ => components.push(component),
++             }
++         }
++         components
++             .iter()
++             .map(|c| c.as_os_str().to_string_lossy())
++             .collect::<Vec<_>>()
++             .join(std::path::MAIN_SEPARATOR_STR)
++     };
+  }
+  #[doc = "Get relative path from start to path"]
+− pub fn get_relative_path<'a, 'b>(path: &'a str, start: &'b str) -> String {
+−     std::path::Path.relpath(path, start)
+− };
++ pub fn get_relative_path(path: String, start: String) -> String {
++     return {
++         let path_obj = std::path::Path::new(path);
++         let start_obj = std::path::Path::new(start);
++         path_obj
++             .strip_prefix(start_obj)
++             .map(|p| p.to_string_lossy().to_string())
++             .unwrap_or_else(|_| path.to_string())
++     };
++ }
+────────────────────────────────────────────────────────────

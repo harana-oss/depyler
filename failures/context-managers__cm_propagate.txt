@@ -1,0 +1,33 @@
+  context-managers.toml :: cm_propagate
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust propagates errors explicitly with Result
+−     fn with_propagator<F>(f: F) -> Result<(), String>
+−     where
+−         F: FnOnce() -> Result<(), String>,
+−     {
+−         f() // Propagate error with ?
++ use serde_json;
++ #[derive(Debug, Copy, Clone)]
++ pub struct Propagator {}
++ impl Propagator {
++     pub fn new() -> Self {
++         Self {}
+      }
+− 
+−     let result = with_propagator(|| Err("This will propagate".to_string()));
+−     assert!(result.is_err());
++     pub fn __enter__(&self) -> &Self {
++         return self;
++     }
++     pub fn __exit__(
++         &self,
++         exc_type: serde_json::Value,
++         exc_val: serde_json::Value,
++         exc_tb: serde_json::Value,
++     ) -> bool {
++         return false;
++     }
++ }
+────────────────────────────────────────────────────────────

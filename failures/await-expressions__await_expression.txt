@@ -1,0 +1,26 @@
+  await-expressions.toml :: await_expression
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− async fn a() -> i32 {
+−     10
++ pub async fn a() -> i32 {
++     return 10;
++    
+  }
+− 
+− async fn b() -> i32 {
+−     20
++ pub async fn b() -> i32 {
++     return 20;
++    
+  }
+− 
+− async fn test_await_expression() -> i32 {
++ pub async fn test_await_expression() -> i32 {
+      let x = a().await + b().await;
+−     x
+− }
++     return x;
++     }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,829 @@
+[metadata]
+name = "for-loop"
+description = "Tests for for-loop code generation including variable usage detection"
+
+# ============================================================================
+# Unused Variable Detection
+# ============================================================================
+
+[[test]]
+name = "unused_loop_variable"
+description = "Test unused loop variable detection and underscore prefixing"
+
+python = '''
+def count_items(items: list[int]) -> int:
+    count = 0
+    for item in items:
+        count = count + 1
+    return count
+'''
+
+rust = '''
+pub fn count_items(items: &Vec<i32>) -> i32 {
+    let mut count = 0;
+    for _item in items.iter().cloned() {
+        count = count + 1;
+    }
+    return count;
+}
+'''
+
+[[test]]
+name = "used_loop_variable"
+description = "Test used loop variable should not be prefixed with underscore"
+
+python = '''
+def sum_items(items: list[int]) -> int:
+    total = 0
+    for item in items:
+        total = total + item
+    return total
+'''
+
+rust = '''
+pub fn sum_items(items: &Vec<i32>) -> i32 {
+    let mut total = 0;
+    for item in items.iter().cloned() {
+        total = total + item;
+    }
+    return total;
+}
+'''
+
+[[test]]
+name = "tuple_unpacking_all_used"
+description = "Test tuple unpacking with all elements used"
+
+python = '''
+def process_pairs(pairs: list[tuple[int, int]]) -> int:
+    total = 0
+    for a, b in pairs:
+        total = total + a + b
+    return total
+'''
+
+rust = '''
+pub fn process_pairs(pairs: &Vec<(i32, i32)>) -> i32 {
+    let mut total = 0;
+    for (a, b) in pairs.iter().cloned() {
+        total = total + a + b;
+    }
+    return total;
+}
+'''
+
+[[test]]
+name = "tuple_unpacking_first_unused"
+description = "Test tuple unpacking with first element unused"
+
+python = '''
+def process_values(items: list[tuple[int, str]]) -> str:
+    result = ""
+    for idx, val in items:
+        result = result + val
+    return result
+'''
+
+rust = '''
+pub fn process_values(items: &Vec<(i32, String)>) -> String {
+    let mut result = "".to_string();
+    for (_idx, val) in items.iter().cloned() {
+        result = format!("{}{}", result, val);
+    }
+    return result;
+}
+'''
+
+[[test]]
+name = "tuple_unpacking_second_unused"
+description = "Test tuple unpacking with second element unused"
+
+python = '''
+def count_by_index(items: list[tuple[int, str]]) -> int:
+    total = 0
+    for idx, val in items:
+        total = total + idx
+    return total
+'''
+
+rust = '''
+pub fn count_by_index(items: &Vec<(i32, String)>) -> i32 {
+    let mut total = 0;
+    for (idx, _val) in items.iter().cloned() {
+        total = total + idx;
+    }
+    return total;
+}
+'''
+
+[[test]]
+name = "tuple_unpacking_all_unused"
+description = "Test tuple unpacking with all elements unused"
+
+python = '''
+def count_pairs(pairs: list[tuple[int, int]]) -> int:
+    count = 0
+    for a, b in pairs:
+        count = count + 1
+    return count
+'''
+
+rust = '''
+pub fn count_pairs(pairs: &Vec<(i32, i32)>) -> i32 {
+    let mut count = 0;
+    for (_a, _b) in pairs.iter().cloned() {
+        count = count + 1;
+    }
+    return count;
+}
+'''
+
+[[test]]
+name = "string_iteration_singular"
+description = "Test string iteration detection with singular variable name"
+
+python = '''
+def count_chars(s: str) -> int:
+    count = 0
+    for c in s:
+        count = count + 1
+    return count
+'''
+
+rust = '''
+pub fn count_chars(s: String) -> i32 {
+    let mut count = 0;
+    for _c in s.chars() {
+        let c = _c.to_string();
+        count = count + 1;
+    }
+    return count;
+}
+'''
+
+[[test]]
+name = "string_iteration_string_name"
+description = "Test string iteration with 'string' variable name"
+
+python = '''
+def process_string(string: str) -> int:
+    total = 0
+    for char in string:
+        total = total + 1
+    return total
+'''
+
+rust = '''
+pub fn process_string(string: String) -> i32 {
+    let mut total = 0;
+    for _char in string.chars() {
+        let char = _char.to_string();
+        total = total + 1;
+    }
+    return total;
+}
+'''
+
+[[test]]
+name = "string_iteration_prefix"
+description = "Test string iteration with str_ prefix pattern"
+
+python = '''
+def process_str_data(str_input: str) -> int:
+    count = 0
+    for c in str_input:
+        count = count + 1
+    return count
+'''
+
+rust = '''
+pub fn process_str_data(str_input: String) -> i32 {
+    let mut count = 0;
+    for _c in str_input.chars() {
+        let c = _c.to_string();
+        count = count + 1;
+    }
+    return count;
+}
+'''
+
+[[test]]
+name = "string_iteration_suffix"
+description = "Test string iteration with _str suffix pattern"
+
+python = '''
+def process_input(input_str: str) -> int:
+    length = 0
+    for c in input_str:
+        length = length + 1
+    return length
+'''
+
+rust = '''
+pub fn process_input(input_str: String) -> i32 {
+    let mut length = 0;
+    for _c in input_str.chars() {
+        let c = _c.to_string();
+        length = length + 1;
+    }
+    return length;
+}
+'''
+
+[[test]]
+name = "string_iteration_text"
+description = "Test string iteration with 'text' variable name"
+
+python = '''
+def analyze_text(text: str) -> int:
+    vowels = 0
+    for c in text:
+        vowels = vowels + 1
+    return vowels
+'''
+
+rust = '''
+pub fn analyze_text(text: String) -> i32 {
+    let mut vowels = 0;
+    for _c in text.chars() {
+        let c = _c.to_string();
+        vowels = vowels + 1;
+    }
+    return vowels;
+}
+'''
+
+[[test]]
+name = "string_iteration_word"
+description = "Test string iteration with 'word' variable name"
+
+python = '''
+def count_letters(word: str) -> int:
+    count = 0
+    for letter in word:
+        count = count + 1
+    return count
+'''
+
+rust = '''
+pub fn count_letters(word: String) -> i32 {
+    let mut count = 0;
+    for _letter in word.chars() {
+        let letter = _letter.to_string();
+        count = count + 1;
+    }
+    return count;
+}
+'''
+
+[[test]]
+name = "collection_iteration"
+description = "Test collection iteration uses iter().cloned() not chars()"
+
+python = '''
+def sum_numbers(numbers: list[int]) -> int:
+    total = 0
+    for num in numbers:
+        total = total + num
+    return total
+'''
+
+rust = '''
+pub fn sum_numbers(numbers: &Vec<i32>) -> i32 {
+    let mut total = 0;
+    for num in numbers.iter().cloned() {
+        total = total + num;
+    }
+    return total;
+}
+'''
+
+[[test]]
+name = "plural_not_string"
+description = "Test plural form variable should not match string pattern"
+
+python = '''
+def process_strings(strings: list[str]) -> int:
+    count = 0
+    for s in strings:
+        count = count + 1
+    return count
+'''
+
+rust = '''
+pub fn process_strings(strings: &Vec<String>) -> i32 {
+    let mut count = 0;
+    for _s in strings.iter().cloned() {
+        count = count + 1;
+    }
+    return count;
+}
+'''
+
+[[test]]
+name = "enumerate_index_used"
+description = "Test enumerate with used index requires type cast"
+
+python = '''
+def indexed_sum(items: list[int]) -> int:
+    total = 0
+    for i, val in enumerate(items):
+        total = total + i + val
+    return total
+'''
+
+rust = '''
+pub fn indexed_sum(items: Vec<i32>) -> i32 {
+    let mut total = 0;
+    for (i, val) in items.iter().enumerate().map(|(i, x)| (i as i32, x.clone())) {
+        let i = i as i32;
+        total = total + i + val;
+    }
+    return total;
+}
+'''
+
+[[test]]
+name = "enumerate_value_unused"
+description = "Test enumerate with unused value"
+
+python = '''
+def count_items(items: list[int]) -> int:
+    count = 0
+    for i, val in enumerate(items):
+        count = count + i
+    return count
+'''
+
+rust = '''
+pub fn count_items(items: Vec<i32>) -> i32 {
+    let mut count = 0;
+    for (i, _val) in items.iter().enumerate().map(|(i, x)| (i as i32, x.clone())) {
+        let i = i as i32;
+        count = count + i;
+    }
+    return count;
+}
+'''
+
+[[test]]
+name = "char_to_string_conversion"
+description = "Test char-to-String conversion for dict keys"
+
+python = '''
+def char_frequency(s: str) -> dict[str, int]:
+    freq: dict[str, int] = {}
+    for char in s:
+        if char in freq:
+            freq[char] = freq[char] + 1
+        else:
+            freq[char] = 1
+    return freq
+'''
+
+rust = '''
+use std::collections::HashMap;
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn char_frequency(s: String) -> HashMap<String, i32> {
+    let mut freq: HashMap<String, i32> = {
+        let map = HashMap::new();
+        map
+    };
+    for _char in s.chars() {
+        let char = _char.to_string();
+        if freq.clone().get(&char).is_some() {
+            {
+                let _key = char;
+                let _old_val = freq.clone().get(&_key).cloned().unwrap_or_default();
+                freq.clone().insert(_key, _old_val + 1);
+            }
+        } else {
+            freq.insert(char, 1);
+        }
+    }
+    return freq;
+}
+'''
+
+[[test]]
+name = "range_loop"
+description = "Test range loop without enumerate"
+
+python = '''
+def sum_range(n: int) -> int:
+    total = 0
+    for i in range(n):
+        total = total + i
+    return total
+'''
+
+rust = '''
+pub fn sum_range(n: i32) -> i32 {
+    let mut total = 0;
+    for i in 0..n {
+        total = total + i;
+    }
+    return total;
+}
+'''
+
+[[test]]
+name = "nested_loops"
+description = "Test nested loops with mixed variable usage"
+
+python = '''
+def nested_sum(matrix: list[list[int]]) -> int:
+    total = 0
+    for row in matrix:
+        for val in row:
+            total = total + val
+    return total
+'''
+
+rust = '''
+pub fn nested_sum(matrix: &Vec<Vec<i32>>) -> i32 {
+    let mut total = 0;
+    for row in matrix.iter().cloned() {
+        for val in row.iter().cloned() {
+            total = total + val;
+        }
+    }
+    return total;
+}
+'''
+
+[[test]]
+name = "empty_loop_unused_variable"
+description = "Test empty loop body with pass and unused variable"
+
+python = '''
+def noop_loop(items: list[int]):
+    for item in items:
+        pass
+'''
+
+rust = '''
+pub fn noop_loop(items: &Vec<i32>) {
+    for _item in items.iter().cloned() {}
+}
+'''
+
+[[test]]
+name = "loop_variable_shadowing"
+description = "Test loop variable shadowing outer variable"
+
+python = '''
+def shadowing_test():
+    x = 10
+    for x in [1, 2, 3]:
+        print(x)
+    return x
+'''
+
+rust = '''
+pub fn shadowing_test() -> i32 {
+    let x = 10;
+    for x in vec![1, 2, 3] {
+        log::info!("{}", x);
+    }
+    return x;
+}
+'''
+
+[[test]]
+name = "complex_loop_patterns"
+description = "Test complex loop with enumerate, tuple unpacking, and type tracking"
+
+python = '''
+def complex_analysis(data: list[tuple[int, str]]) -> dict[str, int]:
+    result: dict[str, int] = {}
+    for idx, item in enumerate(data):
+        key, val = item
+        if idx > 0:
+            result[key] = len(val)
+    return result
+'''
+
+rust = '''
+use std::collections::HashMap;
+pub fn complex_analysis(data: Vec<(i32, String)>) -> HashMap<String, i32> {
+    let mut result: HashMap<String, i32> = {
+        let map = HashMap::new();
+        map
+    };
+    for (idx, item) in data.iter().enumerate().map(|(i, x)| (i as i32, x.clone())) {
+        let idx = idx as i32;
+        let (key, val) = item;
+        if idx > 0 {
+            result.insert(key, val.len() as i32);
+        }
+    }
+    return result;
+}
+'''
+
+[[test]]
+name = "for_loop_comparison_compiles"
+description = "For loop with comparison should compile (iterator dereferencing)"
+compile_check = true
+
+python = '''
+def find_min(numbers: list[int]) -> int:
+    if not numbers:
+        return 0
+    min_val = numbers[0]
+    for num in numbers:
+        if num < min_val:
+            min_val = num
+    return min_val
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn find_min(numbers: &Vec<i32>) -> i32 {
+    if numbers.clone().is_empty() {
+        return 0;
+    }
+    let mut min_val = numbers.clone().get(0usize).cloned().unwrap();
+    for num in numbers.iter().cloned() {
+        if num < min_val {
+            min_val = num;
+        }
+    }
+    return min_val;
+}
+'''
+
+[[test]]
+name = "for_loop_arithmetic_compiles"
+description = "For loop with arithmetic should compile"
+compile_check = true
+
+python = '''
+def sum_list(numbers: list[int]) -> int:
+    total = 0
+    for num in numbers:
+        total = total + num
+    return total
+'''
+
+rust = '''
+pub fn sum_list(numbers: &Vec<i32>) -> i32 {
+    let mut total = 0;
+    for num in numbers.iter().cloned() {
+        total = total + num;
+    }
+    return total;
+}
+'''
+
+[[test]]
+name = "for_loop_assignment_compiles"
+description = "For loop with conditional assignment should compile"
+compile_check = true
+
+python = '''
+def find_max(numbers: list[int]) -> int:
+    if not numbers:
+        return 0
+    max_val = numbers[0]
+    for num in numbers:
+        if num > max_val:
+            max_val = num
+    return max_val
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn find_max(numbers: &Vec<i32>) -> i32 {
+    if numbers.clone().is_empty() {
+        return 0;
+    }
+    let mut max_val = numbers.clone().get(0usize).cloned().unwrap();
+    for num in numbers.iter().cloned() {
+        if num > max_val {
+            max_val = num;
+        }
+    }
+    return max_val;
+}
+'''
+
+[[test]]
+name = "for_loop_string_compiles"
+description = "For loop over strings with len comparison should compile"
+compile_check = true
+
+python = '''
+def find_longest(words: list[str]) -> str:
+    if not words:
+        return ""
+    longest = words[0]
+    for word in words:
+        if len(word) > len(longest):
+            longest = word
+    return longest
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn find_longest(words: &Vec<String>) -> String {
+    if words.clone().is_empty() {
+        return "".to_string();
+    }
+    let mut longest = words.clone().get(0usize).cloned().unwrap();
+    for word in words.iter().cloned() {
+        if word.clone().len() as i32 > longest.clone().len() as i32 {
+            longest = word;
+        }
+    }
+    return longest;
+}
+'''
+
+[[test]]
+name = "fibonacci_unused_index_compiles"
+description = "Fibonacci with unused loop index should compile without warnings"
+compile_check = true
+
+python = '''
+def fibonacci(n: int) -> int:
+    """Calculate Fibonacci number."""
+    if n <= 1:
+        return n
+    a = 0
+    b = 1
+    for i in range(2, n + 1):
+        c = a + b
+        a = b
+        b = c
+    return b
+'''
+
+rust = '''
+#[doc = "Calculate Fibonacci number."]
+pub fn fibonacci(n: i32) -> i32 {
+    let _cse_temp_0 = n <= 1;
+    if _cse_temp_0 {
+        return n;
+    }
+    let mut a = 0;
+    let mut b = 1;
+    for _i in 2..n + 1 {
+        let c = a + b;
+        a = b;
+        b = c;
+    }
+    return b;
+}
+'''
+
+[[test]]
+name = "multiple_unused_loops_compile"
+description = "Multiple loops with unused variables should compile"
+compile_check = true
+
+python = '''
+def repeat_operations(n: int) -> int:
+    """Perform operations n times."""
+    result = 0
+    for i in range(n):
+        result = result + 1
+    for j in range(n):
+        result = result * 2
+    return result
+'''
+
+rust = '''
+#[doc = "Perform operations n times."]
+pub fn repeat_operations(n: i32) -> i32 {
+    let mut result = 0;
+    for _i in 0..n {
+        result = result + 1;
+    }
+    for _j in 0..n {
+        result = result * 2;
+    }
+    return result;
+}
+'''
+
+[[test]]
+name = "nested_loops_mixed_usage_compiles"
+description = "Nested loops where outer is unused and inner is used should compile"
+compile_check = true
+
+python = '''
+def nested_count(outer: list[int], inner: list[int]) -> int:
+    """Nested loops with unused outer variable."""
+    count = 0
+    for x in outer:
+        for y in inner:
+            count = count + y
+    return count
+'''
+
+rust = '''
+#[doc = "Nested loops with unused outer variable."]
+pub fn nested_count(outer: &Vec<i32>, inner: &Vec<i32>) -> i32 {
+    let mut count = 0;
+    for _x in outer.iter().cloned() {
+        for y in inner.iter().cloned() {
+            count = count + y;
+        }
+    }
+    return count;
+}
+'''
+
+[[test]]
+name = "enumerate_unused_index_compiles"
+description = "Enumerate with unused index should compile"
+compile_check = true
+
+python = '''
+def process_values(items: list[str]) -> int:
+    """Process list values, ignore indices."""
+    count = 0
+    for i, val in enumerate(items):
+        if val:
+            count = count + 1
+    return count
+'''
+
+rust = '''
+#[doc = "Process list values, ignore indices."]
+pub fn process_values(items: Vec<String>) -> i32 {
+    let mut count = 0;
+    for (_i, val) in items.iter().enumerate().map(|(i, x)| (i as i32, x.clone())) {
+        if !val.is_empty() {
+            count = count + 1;
+        }
+    }
+    return count;
+}
+'''

@@ -1,0 +1,41 @@
+  dunder-context.toml :: cm_timing
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::time::Instant;
+− 
+− struct Timer {
+−     start: Instant,
+− }
+− 
++ #[derive(Debug, Copy, Clone)]
++ pub struct Timer {}
+  impl Timer {
+−     fn new() -> Self {
+−         Timer {
+−             start: Instant::now(),
+−         }
++     pub fn new() -> Self {
++         Self {}
++     }
++     pub fn __enter__(&mut self) -> &Self {
++         self.start = time.time();
++         return self;
+      }
+− }
+− 
+− impl Drop for Timer {
+−     fn drop(&mut self) {
+−         let elapsed = self.start.elapsed();
+−         log::info!("Elapsed: {:.4}s", elapsed.as_secs_f64());
++     pub fn __exit__(&self) -> bool {
++         let mut elapsed = time.time() - self.start;
++         log::info!("{}", format!("Elapsed: {}s", elapsed));
++         return false;
+      }
+  }
+− 
+− let _timer = Timer::new();
+− std::thread::sleep(std::time::Duration::from_millis(10));
+− log::info!("Working");
+────────────────────────────────────────────────────────────

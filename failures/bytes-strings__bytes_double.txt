@@ -1,0 +1,10 @@
+  bytes-strings.toml :: bytes_double
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn test_bytes_double() -> Vec<u8> {
+−     return b"hello".to_vec();
++ pub fn test_bytes_double() -> bytes {
++     return b"hello";
+  }
+────────────────────────────────────────────────────────────

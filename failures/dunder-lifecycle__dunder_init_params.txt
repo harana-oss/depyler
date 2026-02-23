@@ -1,0 +1,33 @@
+  dunder-lifecycle.toml :: dunder_init_params
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct Rectangle {
+−     width: i32,
+−     height: i32,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Rectangle {
++     pub width: serde_json::Value,
++     pub height: serde_json::Value,
+  }
+− 
+  impl Rectangle {
+−     fn new(width: i32, height: i32) -> Self {
+−         Rectangle { width, height }
++     pub fn new(width: serde_json::Value, height: serde_json::Value) -> Self {
++         Self { width, height }
+      }
+− 
+−     fn area(&self) -> i32 {
+−         self.width * self.height
++     pub fn area(&self) {
++         return self.width * self.height;
+      }
+  }
+− 
+− let r = Rectangle::new(5, 3);
+− log::info!("{}", r.width);
+− log::info!("{}", r.height);
+− log::info!("{}", r.area());
+────────────────────────────────────────────────────────────

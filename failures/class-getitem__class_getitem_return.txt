@@ -1,0 +1,23 @@
+  class-getitem.toml :: class_getitem_return
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // In Rust, this pattern is handled by type aliases with PhantomData
+− use std::marker::PhantomData;
+− 
+− struct Box<T> {
+−     _marker: PhantomData<T>,
++ #[derive(Debug, Copy, Clone)]
++ pub struct Box {}
++ impl Box {
++     pub fn new() -> Self {
++         Self {}
++     }
+  }
+− 
+− // Type alias for Box<i32>
+− type IntBox = Box<i32>;
+− 
+− // Type information is compile-time; for runtime we use type_name
+− log::info!("{}", std::any::type_name::<i32>());
+────────────────────────────────────────────────────────────

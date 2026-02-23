@@ -1,0 +1,27 @@
+  resource-management.toml :: socket_auto_close
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug, Copy, Clone]
++ #[derive(Debug, Clone)]
+  pub struct AutoCloser {
+      pub open: bool,
+  }
+  impl AutoCloser {
+      pub fn new() -> Self {
+          Self { open: true }
+      }
+      pub fn close(&mut self) {
+          self.open = false;
+      }
+      pub fn is_open(&self) -> bool {
+          return self.open;
+      }
+  }
+  impl Drop for AutoCloser {
+      fn drop(&mut self) {
+          self.close();
+      }
+− }
++ }
+────────────────────────────────────────────────────────────

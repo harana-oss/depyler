@@ -1,0 +1,28 @@
+  dataclasses-field.toml :: field_lambda_factory
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug)]
+−     struct Numbers {
+−         values: Vec<i32>,
+−     }
+− 
+−     impl Default for Numbers {
+−         fn default() -> Self {
+−             Numbers { values: vec![1, 2] }
++ use serde_json;
++ #[derive(Debug, Clone, PartialEq, Default)]
++ pub struct Numbers {
++     pub values: Vec<serde_json::Value>,
++ }
++ impl Numbers {
++     pub fn new() -> Self {
++         Self {
++             values: Default::default(),
+          }
+      }
+− 
+−     let n = Numbers::default();
+−     let result = n.values == vec![1, 2];
++ }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,10 @@
+  type-alias-statement.toml :: type_alias_runtime
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− fn main() {
+−     type Point = (i32, i32);
+−     let result: Point = (1, 2);
+− }
++ 
+────────────────────────────────────────────────────────────

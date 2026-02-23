@@ -712,25 +712,6 @@ impl MyInt {
     pub fn new(value: serde_json::Value) -> Self {
         Self { _value: value }
     }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "_value" => Some(Box::new(self._value.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "_value" => {
-                if let Some(v) = value.downcast_ref::<serde_json::Value>() {
-                    self._value = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
-    }
 }
 pub fn test_numbers_abc() -> i32 {
     let num = MyInt::new(42);
@@ -865,25 +846,6 @@ pub struct Number {
 impl Number {
     pub fn new(value: serde_json::Value) -> Self {
         Self { value }
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "value" => Some(Box::new(self.value.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "value" => {
-                if let Some(v) = value.downcast_ref::<serde_json::Value>() {
-                    self.value = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 '''

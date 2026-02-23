@@ -132,7 +132,7 @@ class AutoCloser:
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone]
 pub struct AutoCloser {
     pub open: bool,
 }
@@ -244,7 +244,7 @@ class Inner:
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone]
 pub struct Inner {
     pub closed: bool,
 }

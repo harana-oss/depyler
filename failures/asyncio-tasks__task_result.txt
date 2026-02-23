@@ -1,0 +1,22 @@
+  asyncio-tasks.toml :: task_result
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use tokio::task;
+− 
+− async fn my_coro() -> i32 {
+−     42
++ pub async fn my_coro() -> i32 {
++     return 42;
++    
+  }
+− 
+  pub async fn test_task_result() -> i32 {
+−     let task = task::spawn(my_coro());
+−     task.await.unwrap()
+− }
++     let task = asyncio.create_task(my_coro());
++     task.await;
++     return task.result();
++     }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,14 @@
+  augmented-assignment.toml :: augmented_dict_value
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− let d = {
+−     let mut map = HashMap::new();
+−     map.insert("a".to_string(), 10);
+−     map.insert("b".to_string(), 20);
+−     map
+− };
+− d.insert("a".to_string(), d.get("a").cloned().unwrap() + 5);
+− log::info!("{}", d.get("a").cloned().unwrap());
++ 
+────────────────────────────────────────────────────────────

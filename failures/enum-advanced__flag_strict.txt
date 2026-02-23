@@ -1,0 +1,35 @@
+  enum-advanced.toml :: flag_strict
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug, Clone, Copy)]
+− struct Permission {
+−     value: u8,
+− }
+− 
++ #[derive(Debug, Copy, Clone)]
++ pub struct Permission {}
+  impl Permission {
+−     const READ: Self = Self { value: 1 };
+−     const WRITE: Self = Self { value: 2 };
+−     const EXECUTE: Self = Self { value: 4 }
+− 
+− impl std::ops::BitOr for Permission {
+−     type Output = Self;
+−     fn bitor(self, rhs: Self) -> Self {
+−         Self { value: self.value | rhs.value }
++     pub const READ: i32 = 1;
++     pub const WRITE: i32 = 2;
++     pub const EXECUTE: i32 = 4;
++     pub fn new() -> Self {
++         Self {}
+      }
+  }
+− 
+− pub fn test_flag_strict() -> u8 {
+−     (Permission::READ | Permission::WRITE).value
+− }
++ pub fn test_flag_strict() -> i32 {
++     return Permission::READ | Permission::WRITE.value;
++ }
+────────────────────────────────────────────────────────────

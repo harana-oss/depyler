@@ -1,0 +1,30 @@
+  dataclasses-field.toml :: field_initvar
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust uses builder pattern or constructor for similar functionality
+−     #[derive(Debug)]
+−     struct C {
+−         x: i32,
+−     }
+− 
+−     impl C {
+−         fn new(x: i32, init_value: i32) -> Self {
+−             C { x: x * init_value }
++ #[derive(Debug, Clone, PartialEq, Default)]
++ pub struct C {
++     pub x: i32,
++     pub init_value: InitVar<i32>,
++ }
++ impl C {
++     pub fn new(x: i32) -> Self {
++         Self {
++             x,
++             init_value: Default::default(),
+          }
+      }
+− 
+−     let c = C::new(5, 10);
+−     let result = c.x == 50;
++ }
+────────────────────────────────────────────────────────────

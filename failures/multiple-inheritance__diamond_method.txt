@@ -1,0 +1,73 @@
+  multiple-inheritance.toml :: diamond_method
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Which implementation is used in diamond
+−     trait A {
+−         fn method(&self) -> &str {
+−             "A"
+−         }
++ #[derive(Debug, Copy, Clone)]
++ pub struct A {}
++ impl A {
++     pub fn new() -> Self {
++         Self {}
+      }
+− 
+−     struct D;
+− 
+−     trait B: A {
+−         fn method_b(&self) -> &str {
+−             "B"
+−         }
++     pub fn method(&self) -> String {
++         return "A".to_string();
+      }
+− 
+−     trait C: A {
+−         fn method_c(&self) -> &str {
+−             "C"
+−         }
++ }
++ #[derive(Debug, Copy, Clone)]
++ pub struct B {}
++ impl B {
++     pub fn new() -> Self {
++         Self {}
+      }
+− 
+−     impl A for D {
+−         fn method(&self) -> &str {
+−             "B"
+−         } // Explicit implementation
++     pub fn method(&self) -> String {
++         return "B".to_string();
+      }
+− 
+−     impl B for D {}
+−     impl C for D {}
+− 
+−     pub fn test_diamond_method() -> bool {
+−         let d = D;
+−         d.method() == "B"
++ }
++ #[derive(Debug, Copy, Clone)]
++ pub struct C {}
++ impl C {
++     pub fn new() -> Self {
++         Self {}
++     }
++     pub fn method(&self) -> String {
++         return "C".to_string();
+      }
+− 
+−     let result = test_diamond_method();
++ }
++ #[derive(Debug, Copy, Clone)]
++ pub struct D {}
++ impl D {
++     pub fn new() -> Self {
++         Self {}
++     }
++ }
+────────────────────────────────────────────────────────────

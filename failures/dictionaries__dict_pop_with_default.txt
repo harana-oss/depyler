@@ -1,0 +1,15 @@
+  dictionaries.toml :: dict_pop_with_default
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use serde_json;
+  use std::collections::HashMap;
+− pub fn pop_value(d: &mut HashMap<String, i32>, key: String, default: String) -> String {
++ pub fn pop_value(
++     d: &mut HashMap<serde_json::Value, serde_json::Value>,
++     key: String,
++     default: String,
++ ) -> String {
+      return d.remove(key).unwrap_or(default);
+  }
+────────────────────────────────────────────────────────────

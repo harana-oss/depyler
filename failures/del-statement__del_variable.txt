@@ -1,0 +1,14 @@
+  del-statement.toml :: del_variable
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust: variables go out of scope automatically
+−     // Or explicitly drop:
+−     {
+−         let x = 42;
+−         assert_eq!(x, 42);
+−         drop(x);
+−         // x is no longer accessible
+−     }
++ 
+────────────────────────────────────────────────────────────

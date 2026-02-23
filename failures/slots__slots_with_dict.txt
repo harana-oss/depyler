@@ -1,0 +1,28 @@
+  slots.toml :: slots_with_dict
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::collections::HashMap;
+− 
+− struct Hybrid {
+−     x: i32,
+−     dict: HashMap<String, i32>,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Hybrid {
++     pub x: serde_json::Value,
++ }
++ impl Hybrid {
++     pub const __slots__: Vec<String> = vec!["x".to_string(), "__dict__".to_string()];
++     pub fn new(x: serde_json::Value) -> Self {
++         Self { x }
++     }
+  }
+− 
+− let mut h = Hybrid {
+−     x: 10,
+−     dict: HashMap::new(),
+− };
+− h.dict.insert("y".to_string(), 20);
+− log::info!("{} {}", h.x, h.dict.get("y").unwrap());
+────────────────────────────────────────────────────────────

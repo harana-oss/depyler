@@ -1,0 +1,9 @@
+  walrus-operator.toml :: walrus_scope
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− let result = 10 + 20;
+− if result > 25 {}
+− log::info!("{}", format!("Result: {}", result));
++ 
+────────────────────────────────────────────────────────────

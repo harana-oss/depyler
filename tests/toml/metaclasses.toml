@@ -62,12 +62,9 @@ impl Default for MyClass {
     }
 }
 
-fn main() {
-    let obj = MyClass::default();
-    log::info!("{}", true); // hasattr equivalent
-    log::info!("{}", obj.added_by_meta);
-}
-"""
+let obj = MyClass::default();
+log::info!("{}", true); // hasattr equivalent
+log::info!("{}", obj.added_by_meta);"""
 expected_output = """true
 true"""
 
@@ -98,11 +95,8 @@ impl MyClass {
     const X: i32 = 10; // Uppercase by convention
 }
 
-fn main() {
-    log::info!("{}", true); // MyClass has X
-    log::info!("{}", MyClass::X);
-}
-"""
+log::info!("{}", true); // MyClass has X
+log::info!("{}", MyClass::X);"""
 expected_output = """true
 10"""
 
@@ -143,12 +137,9 @@ fn register_class(name: &'static str) {
     TRACKED_CLASSES.lock().unwrap().push(name);
 }
 
-fn main() {
-    register_class("A");
-    register_class("B");
-    log::info!("{:?}", *TRACKED_CLASSES.lock().unwrap());
-}
-"""
+register_class("A");
+register_class("B");
+log::info!("{:?}", *TRACKED_CLASSES.lock().unwrap());"""
 expected_output = """["A", "B"]"""
 
 [[test]]
@@ -174,11 +165,8 @@ impl MyClass {
     const INITIALIZED: bool = true;
 }
 
-fn main() {
-    log::info!("Initialized MyClass");
-    log::info!("{}", MyClass::INITIALIZED);
-}
-"""
+log::info!("Initialized MyClass");
+log::info!("{}", MyClass::INITIALIZED);"""
 expected_output = """Initialized MyClass
 true"""
 
@@ -215,11 +203,8 @@ impl MyClass {
     }
 }
 
-fn main() {
-    let obj = MyClass::new(42);
-    log::info!("{}", obj.x);
-}
-"""
+let obj = MyClass::new(42);
+log::info!("{}", obj.x);"""
 expected_output = """Creating instance of MyClass
 Instance created
 42"""
@@ -258,10 +243,7 @@ impl MyClass {
     const C: i32 = 3;
 }
 
-fn main() {
-    log::info!("{:?}", MyClass::ORDERED_KEYS.to_vec());
-}
-"""
+log::info!("{:?}", MyClass::ORDERED_KEYS.to_vec());"""
 expected_output = """["a", "b", "c"]"""
 
 # =============================================================================
@@ -307,13 +289,10 @@ impl Database {
     }
 }
 
-fn main() {
-    let db1 = Database::get_instance();
-    let db2 = Database::get_instance();
-    log::info!("{}", std::ptr::eq(db1, db2));
-    log::info!("{}", db1.connection);
-}
-"""
+let db1 = Database::get_instance();
+let db2 = Database::get_instance();
+log::info!("{}", std::ptr::eq(db1, db2));
+log::info!("{}", db1.connection);"""
 expected_output = """true
 Connected"""
 
@@ -352,15 +331,12 @@ fn register(name: &'static str, _factory: fn()) {
     REGISTRY.lock().unwrap().insert(name, _factory);
 }
 
-fn main() {
-    register("PluginA", || {});
-    register("PluginB", || {});
+register("PluginA", || {});
+register("PluginB", || {});
 
-    let mut keys: Vec<_> = REGISTRY.lock().unwrap().keys().copied().collect();
-    keys.sort();
-    log::info!("{:?}", keys);
-}
-"""
+let mut keys: Vec<_> = REGISTRY.lock().unwrap().keys().copied().collect();
+keys.sort();
+log::info!("{:?}", keys);"""
 expected_output = """["PluginA", "PluginB"]"""
 
 [[test]]
@@ -401,11 +377,8 @@ impl HasRequiredMethod for Valid {
     }
 }
 
-fn main() {
-    let obj = Valid;
-    log::info!("{}", obj.required_method());
-}
-"""
+let obj = Valid;
+log::info!("{}", obj.required_method());"""
 expected_output = "OK"
 
 [[test]]
@@ -454,12 +427,9 @@ impl MyClass {
     }
 }
 
-fn main() {
-    let obj = MyClass::new(10, 20);
-    log::info!("{:?}", obj.to_dict());
-    log::info!("{}", MyClass::CLASS_NAME);
-}
-"""
+let obj = MyClass::new(10, 20);
+log::info!("{:?}", obj.to_dict());
+log::info!("{}", MyClass::CLASS_NAME);"""
 expected_output = """{"x": 10, "y": 20}
 MyClass"""
 
@@ -497,11 +467,8 @@ impl FromMeta for Base {}
 struct Derived;
 impl FromMeta for Derived {}
 
-fn main() {
-    log::info!("{}", true); // hasattr equivalent
-    log::info!("{}", Derived::FROM_META);
-}
-"""
+log::info!("{}", true); // hasattr equivalent
+log::info!("{}", Derived::FROM_META);"""
 expected_output = """true
 true"""
 
@@ -544,10 +511,7 @@ struct C;
 impl TraitA for C {}
 impl TraitB for C {}
 
-fn main() {
-    log::info!("Metaclass conflict handled");
-}
-"""
+log::info!("Metaclass conflict handled");"""
 expected_output = "Metaclass conflict handled"
 
 # =============================================================================
@@ -590,11 +554,8 @@ fn is_compatible<T: HasSpecialAttr>(_: &T) -> bool {
     true
 }
 
-fn main() {
-    let obj = Other;
-    log::info!("{}", is_compatible(&obj));
-}
-"""
+let obj = Other;
+log::info!("{}", is_compatible(&obj));"""
 expected_output = "true"
 
 [[test]]
@@ -635,10 +596,7 @@ fn is_implementation<T: Interface>() -> bool {
     true
 }
 
-fn main() {
-    log::info!("{}", is_implementation::<Implementation>());
-}
-"""
+log::info!("{}", is_implementation::<Implementation>());"""
 expected_output = "true"
 
 # Note: Full metaclass support is limited in transpilation

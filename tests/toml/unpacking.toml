@@ -14,11 +14,8 @@ a, b = (1, 2)
 print(f"a={a}, b={b}")
 """
 rust = """
-fn main() {
-    let (a, b) = (1, 2);
-    log::info!("{}", format!("a={}, b={}", a, b));
-}
-"""
+let (a, b) = (1, 2);
+log::info!("{}", format!("a={}, b={}", a, b));"""
 
 [[test]]
 name = "basic_list_unpacking"
@@ -28,11 +25,8 @@ a, b, c = [1, 2, 3]
 print(f"a={a}, b={b}, c={c}")
 """
 rust = """
-fn main() {
-    let (a, b, c) = vec![1, 2, 3];
-    log::info!("{}", format!("a={}, b={}, c={}", a, b, c));
-}
-"""
+let (a, b, c) = vec![1, 2, 3];
+log::info!("{}", format!("a={}, b={}, c={}", a, b, c));"""
 
 # =============================================================================
 # Starred Expressions
@@ -46,13 +40,10 @@ a, *rest = [1, 2, 3, 4]
 print(f"a={a}, rest={rest}")
 """
 rust = """
-fn main() {
-    let _data = vec![1, 2, 3, 4];
-    let a = _data[0];
-    let rest: Vec<_> = _data[1usize..].to_vec();
-    log::info!("{}", format!("a={}, rest={}", a, rest));
-}
-"""
+let _data = vec![1, 2, 3, 4];
+let a = _data[0];
+let rest: Vec<_> = _data[1usize..].to_vec();
+log::info!("{}", format!("a={}, rest={}", a, rest));"""
 
 [[test]]
 name = "starred_at_beginning"
@@ -62,13 +53,10 @@ python = """
 print(f"rest={rest}, last={last}")
 """
 rust = """
-fn main() {
-    let _data = vec![1, 2, 3, 4];
-    let rest: Vec<_> = _data[.._data.len() - 1usize].to_vec();
-    let last = _data[_data.len() - 0usize - 1];
-    log::info!("{}", format!("rest={}, last={}", rest, last));
-}
-"""
+let _data = vec![1, 2, 3, 4];
+let rest: Vec<_> = _data[.._data.len() - 1usize].to_vec();
+let last = _data[_data.len() - 0usize - 1];
+log::info!("{}", format!("rest={}, last={}", rest, last));"""
 
 [[test]]
 name = "starred_in_middle"
@@ -78,17 +66,14 @@ first, *middle, last = [1, 2, 3, 4, 5]
 print(f"first={first}, middle={middle}, last={last}")
 """
 rust = """
-fn main() {
-    let _data = vec![1, 2, 3, 4, 5];
-    let first = _data[0];
-    let middle: Vec<_> = _data[1usize.._data.len() - 1usize].to_vec();
-    let last = _data[_data.len() - 0usize - 1];
-    log::info!(
-        "{}",
-        format!("first={}, middle={}, last={}", first, middle, last)
-    );
-}
-"""
+let _data = vec![1, 2, 3, 4, 5];
+let first = _data[0];
+let middle: Vec<_> = _data[1usize.._data.len() - 1usize].to_vec();
+let last = _data[_data.len() - 0usize - 1];
+log::info!(
+    "{}",
+    format!("first={}, middle={}, last={}", first, middle, last)
+);"""
 
 [[test]]
 name = "starred_single_element"
@@ -98,13 +83,10 @@ a, *rest = [1]
 print(f"a={a}, rest={rest}")
 """
 rust = """
-fn main() {
-    let _data = vec![1];
-    let a = _data[0];
-    let rest: Vec<_> = _data[1usize..].to_vec();
-    log::info!("{}", format!("a={}, rest={}", a, rest));
-}
-"""
+let _data = vec![1];
+let a = _data[0];
+let rest: Vec<_> = _data[1usize..].to_vec();
+log::info!("{}", format!("a={}, rest={}", a, rest));"""
 
 # =============================================================================
 # Nested Unpacking
@@ -118,11 +100,8 @@ python = """
 print(f"a={a}, b={b}, c={c}")
 """
 rust = """
-fn main() {
-    let ((a, b), c) = ((1, 2), 3);
-    log::info!("{}", format!("a={}, b={}, c={}", a, b, c));
-}
-"""
+let ((a, b), c) = ((1, 2), 3);
+log::info!("{}", format!("a={}, b={}, c={}", a, b, c));"""
 
 [[test]]
 name = "deeply_nested_unpacking"
@@ -132,11 +111,8 @@ a, (b, (c, d)) = (1, (2, (3, 4)))
 print(f"a={a}, b={b}, c={c}, d={d}")
 """
 rust = """
-fn main() {
-    let (a, (b, (c, d))) = (1, (2, (3, 4)));
-    log::info!("{}", format!("a={}, b={}, c={}, d={}", a, b, c, d));
-}
-"""
+let (a, (b, (c, d))) = (1, (2, (3, 4)));
+log::info!("{}", format!("a={}, b={}, c={}, d={}", a, b, c, d));"""
 
 # =============================================================================
 # Unpacking in Function Calls
@@ -156,11 +132,8 @@ rust = """
 pub fn print_values() {
     log::info!("{}", format!("Values: {}", args));
 }
-fn main() {
-    let numbers = vec![1, 2, 3];
-    print_values(&numbers);
-}
-"""
+let numbers = vec![1, 2, 3];
+print_values(&numbers);"""
 
 [[test]]
 name = "double_starred_in_call"
@@ -183,16 +156,13 @@ pub fn print_kwargs() {
         log::info!("{}", format!("{}={}", key, value));
     }
 }
-fn main() {
-    let config = {
-        let mut map = HashMap::new();
-        map.insert("x".to_string(), 10);
-        map.insert("y".to_string(), 20);
-        map
-    };
-    print_kwargs();
-}
-"""
+let config = {
+    let mut map = HashMap::new();
+    map.insert("x".to_string(), 10);
+    map.insert("y".to_string(), 20);
+    map
+};
+print_kwargs();"""
 
 [[test]]
 name = "combined_unpacking_in_call"
@@ -211,17 +181,14 @@ pub fn combined_func() {
     log::info!("{}", format!("args: {}", args));
     log::info!("{}", format!("kwargs: {}", kwargs));
 }
-fn main() {
-    let args = vec![1, 2];
-    let kwargs = {
-        let mut map = HashMap::new();
-        map.insert("x".to_string(), 10);
-        map.insert("y".to_string(), 20);
-        map
-    };
-    combined_func(&args);
-}
-"""
+let args = vec![1, 2];
+let kwargs = {
+    let mut map = HashMap::new();
+    map.insert("x".to_string(), 10);
+    map.insert("y".to_string(), 20);
+    map
+};
+combined_func(&args);"""
 
 # =============================================================================
 # Unpacking in Loops
@@ -236,13 +203,10 @@ for a, b in pairs:
     print(f"a={a}, b={b}")
 """
 rust = """
-fn main() {
-    let pairs = vec![(1, 2), (3, 4), (5, 6)];
-    for (a, b) in pairs.iter().cloned() {
-        log::info!("{}", format!("a={}, b={}", a, b));
-    }
-}
-"""
+let pairs = vec![(1, 2), (3, 4), (5, 6)];
+for (a, b) in pairs.iter().cloned() {
+    log::info!("{}", format!("a={}, b={}", a, b));
+}"""
 
 [[test]]
 name = "nested_unpacking_in_for"
@@ -253,13 +217,10 @@ for (a, b), c in data:
     print(f"a={a}, b={b}, c={c}")
 """
 rust = """
-fn main() {
-    let data = vec![((1, 2), 3), ((4, 5), 6)];
-    for ((a, b), c) in data.iter().cloned() {
-        log::info!("{}", format!("a={}, b={}, c={}", a, b, c));
-    }
-}
-"""
+let data = vec![((1, 2), 3), ((4, 5), 6)];
+for ((a, b), c) in data.iter().cloned() {
+    log::info!("{}", format!("a={}, b={}, c={}", a, b, c));
+}"""
 
 # =============================================================================
 # Edge Cases
@@ -276,14 +237,11 @@ x, y = data
 print(f"x={x}, y={y}")
 """
 rust = """
-fn main() {
-    let data: (i32, i32) = (10, 20);
-    let x: i32;
-    let y: i32;
-    (x, y) = data;
-    log::info!("{}", format!("x={}, y={}", x, y));
-}
-"""
+let data: (i32, i32) = (10, 20);
+let x: i32;
+let y: i32;
+(x, y) = data;
+log::info!("{}", format!("x={}, y={}", x, y));"""
 
 [[test]]
 name = "unpacking_string"
@@ -293,11 +251,8 @@ a, b, c = 'abc'
 print(f"a={a}, b={b}, c={c}")
 """
 rust = """
-fn main() {
-    let (a, b, c) = "abc".to_string();
-    log::info!("{}", format!("a={}, b={}, c={}", a, b, c));
-}
-"""
+let (a, b, c) = "abc".to_string();
+log::info!("{}", format!("a={}, b={}, c={}", a, b, c));"""
 
 [[test]]
 name = "unpacking_range"
@@ -307,8 +262,5 @@ a, b, c = range(3)
 print(f"a={a}, b={b}, c={c}")
 """
 rust = """
-fn main() {
-    let (a, b, c) = 0..3;
-    log::info!("{}", format!("a={}, b={}, c={}", a, b, c));
-}
-"""
+let (a, b, c) = 0..3;
+log::info!("{}", format!("a={}, b={}, c={}", a, b, c));"""

@@ -1,0 +1,12 @@
+  const-evaluation.toml :: const_string_concat
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− lazy_static! {
+−     pub static ref GREETING: String = "Hello";
+−     pub static ref NAME: String = "World";
+− }
+− use lazy_static::lazy_static;
++ pub const GREETING: &str = "Hello";
++ pub const NAME: &str = "World";
+────────────────────────────────────────────────────────────

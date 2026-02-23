@@ -1,0 +1,44 @@
+  init-subclass.toml :: init_subclass_abc
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust: combine trait with static registration
+−     trait Base {
+−         fn process(&self) -> String;
++ use serde_json;
++ #[derive(Debug, Copy, Clone)]
++ pub struct Base {}
++ impl Base {
++     pub const registry: Vec<serde_json::Value> = vec![];
++     pub fn new() -> Self {
++         Self {}
+      }
+− 
+−     struct Concrete;
+−     impl Base for Concrete {
+−         fn process(&self) -> String {
+−             "processed".to_string()
+−         }
++     pub fn process(&self) {
++         {}
+      }
+− 
+−     // Registry would be built at compile-time or with lazy_static
+−     let registry = vec!["Concrete"];
+−     assert!(registry.contains(&"Concrete"));
+−     let obj = Concrete;
+−     assert_eq!(obj.process(), "processed");
++ }
++ #[derive(Debug, Copy, Clone)]
++ pub struct Concrete {}
++ impl Concrete {
++     pub fn new() -> Self {
++         Self {}
++     }
++ }
++ impl Base for Concrete {
++     fn process(&self) -> () {
++         return "processed".to_string();
++     }
++ }
+────────────────────────────────────────────────────────────

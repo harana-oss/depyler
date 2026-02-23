@@ -1,0 +1,14 @@
+  numeric-arrays.toml :: memoryview_advanced
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn view_sum(data: &[i32]) -> i32 {
++ pub fn view_sum(data: &Vec<i32>) -> i32 {
+      let mut total = 0;
+−     for value in data {
++     for value in data.iter().cloned() {
+          total += value;
+      }
+      return total;
+  }
+────────────────────────────────────────────────────────────

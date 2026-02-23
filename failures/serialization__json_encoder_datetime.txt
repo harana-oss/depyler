@@ -1,0 +1,36 @@
+  serialization.toml :: json_encoder_datetime
+    Output mismatch
+
+────────────────────────────────────────────────────────────
++ #[derive(Debug, Copy, Clone)]
+  pub struct Timestamp {
+      pub year: i32,
+      pub month: i32,
+      pub day: i32,
+  }
+− 
+  impl Timestamp {
+      pub fn new(year: i32, month: i32, day: i32) -> Self {
+          Self { year, month, day }
+      }
+− 
+      pub fn to_string(&self) -> String {
+−         return format!("{}-{:02}-{:02}", self.year, self.month, self.day);
++         return format!("{}-{}-{}", self.year, self.month, self.day);
+      }
+− 
+−     pub fn parse(s: &str) -> Timestamp {
+−         let parts: Vec<&str> = s.split('-').collect();
++     pub fn parse(s: String) -> Timestamp {
++         let mut parts = s.split("-".to_string()).map(|s| s.to_string()).collect();
+          return Timestamp::new(
+−             parts[0].parse().unwrap_or(0),
+−             parts[1].parse().unwrap_or(0),
+−             parts[2].parse().unwrap_or(0),
++             int(parts[0 as usize]),
++             int(parts[1 as usize]),
++             int(parts[2 as usize]),
+          );
+      }
+  }
+────────────────────────────────────────────────────────────

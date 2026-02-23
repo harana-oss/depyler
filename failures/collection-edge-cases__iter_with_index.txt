@@ -1,0 +1,15 @@
+  collection-edge-cases.toml :: iter_with_index
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn enumerate_items(items: Vec<String>) -> Vec<(i32, String)> {
+      let mut result = vec![];
+−     for (i, item) in items.into_iter().enumerate() {
+−         result.push((i as i32, item));
++     for (i, item) in items.iter().enumerate().map(|(i, x)| (i as i32, x.clone())) {
++         let i = i as i32;
++         result.push((i, item));
+      }
+      return result;
+  }
+────────────────────────────────────────────────────────────

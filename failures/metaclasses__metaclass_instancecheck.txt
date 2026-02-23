@@ -1,0 +1,43 @@
+  metaclasses.toml :: metaclass_instancecheck
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // In Rust, we use traits for type checking
+− trait HasSpecialAttr {
+−     fn has_special_attr() -> bool {
+−         true
++ #[derive(Debug, Copy, Clone)]
++ pub struct InstanceCheckMeta {}
++ impl InstanceCheckMeta {
++     pub fn new() -> Self {
++         Self {}
+      }
+  }
+− 
+− struct MyClass;
+− impl HasSpecialAttr for MyClass {}
+− 
+− struct Other;
+− impl HasSpecialAttr for Other {}
+− 
+− fn is_compatible<T: HasSpecialAttr>(_: &T) -> bool {
+−     true
++ #[derive(Debug, Copy, Clone)]
++ pub struct MyClass {}
++ impl MyClass {
++     pub fn new() -> Self {
++         Self {}
++     }
++ }
++ #[derive(Debug, Copy, Clone)]
++ pub struct Other {}
++ impl Other {
++     pub const special_attr: bool = true;
++     pub fn new() -> Self {
++         Self {}
++     }
+  }
+− 
+− let obj = Other;
+− log::info!("{}", is_compatible(&obj));
+────────────────────────────────────────────────────────────

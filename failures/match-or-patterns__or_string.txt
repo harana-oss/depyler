@@ -1,0 +1,11 @@
+  match-or-patterns.toml :: or_string
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− let s = "y";
+−     let result = match s {
+−         "yes" | "y" | "true" => true,
+−         _ => false,
+−     };
++ 
+────────────────────────────────────────────────────────────

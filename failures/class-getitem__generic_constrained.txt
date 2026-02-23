@@ -1,0 +1,41 @@
+  class-getitem.toml :: generic_constrained
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // In Rust, TypeVar constraints are handled via trait bounds or enums
+− // For int|str constraint, we use an enum to represent the allowed types
+− 
+− enum IntOrStr {
+−     Int(i32),
+−     Str(String),
+− }
+− 
+− impl std::fmt::Display for IntOrStr {
+−     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+−         match self {
+−             IntOrStr::Int(i) => write!(f, "{}", i),
+−             IntOrStr::Str(s) => write!(f, "{}", s),
+−         }
+−     }
+− }
+− 
+− struct Container {
+−     value: IntOrStr,
++ #[derive(Debug, Clone)]
++ pub struct Container {
++     pub value: T,
+  }
+− 
+  impl Container {
+−     fn new(value: IntOrStr) -> Self {
+−         Container { value }
++     pub fn new(value: T) -> Self {
++         Self { value }
+      }
+  }
+− 
+− let c1 = Container::new(IntOrStr::Int(42));
+− let c2 = Container::new(IntOrStr::Str("hello".to_string()));
+− log::info!("{}", c1.value);
+− log::info!("{}", c2.value);
+────────────────────────────────────────────────────────────

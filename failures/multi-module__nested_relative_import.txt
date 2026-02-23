@@ -1,0 +1,19 @@
+  multi-module.toml :: nested_relative_import
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn level_one(x: i32) -> i32 {
+      return x;
+  }
+− 
+− pub fn level_two(x: i32) -> i32 {
++ pub fn level_two(x: &i32) -> i32 {
+      return level_one(x) + 1;
+  }
+− 
+− pub fn level_three(x: i32) -> i32 {
+−     return level_two(x) + 1;
++ pub fn level_three(x: &i32) -> i32 {
++     return level_two(&x) + 1;
+  }
+────────────────────────────────────────────────────────────

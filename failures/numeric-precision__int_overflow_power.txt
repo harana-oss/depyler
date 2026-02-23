@@ -1,0 +1,13 @@
+  numeric-precision.toml :: int_overflow_power
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn power(base: i32, exp: i32) -> i32 {
+      let mut result = 1;
+−     for _ in 0..exp {
++     for __ in 0..exp {
+          result *= base;
+      }
+      return result;
+  }
+────────────────────────────────────────────────────────────

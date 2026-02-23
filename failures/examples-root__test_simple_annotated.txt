@@ -1,0 +1,23 @@
+  examples-root.toml :: test_simple_annotated
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn test_annotated_assignments() {
+−     let mut counter: i32 = 0;
+−     let mut name: String = "".to_string();
+−     let mut is_valid: bool = false;
+−     let mut score: f64 = 0.0;
++     let mut counter: i32;
++     let mut name: String;
++     let mut is_valid: bool;
++     let mut score: f64;
+      counter = 10;
+      name = "test".to_string();
+      is_valid = true;
+      score = 3.14;
+      log::info!("{}", counter);
+      log::info!("{}", name);
+      log::info!("{}", is_valid);
+      log::info!("{}", score);
+  }
+────────────────────────────────────────────────────────────

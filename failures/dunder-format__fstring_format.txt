@@ -1,0 +1,33 @@
+  dunder-format.toml :: fstring_format
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct Money {
+−     amount: f64,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Money {
++     pub amount: serde_json::Value,
+  }
+− 
+  impl Money {
+−     fn new(amount: f64) -> Self {
+−         Money { amount }
+−     }
+− 
+−     fn format_spec(&self, spec: &str) -> String {
+−         match spec {
+−             "USD" => format!("${:.2}", self.amount),
+−             "EUR" => format!("€{:.2}", self.amount),
+−             _ => format!("{:.2}", self.amount),
+−         }
++     pub fn new(amount: serde_json::Value) -> Self {
++         Self { amount }
+      }
+  }
+− 
+− let m = Money::new(42.5);
+− log::info!("{}", m.format_spec(""));
+− log::info!("{}", m.format_spec("USD"));
+− log::info!("{}", m.format_spec("EUR"));
+────────────────────────────────────────────────────────────

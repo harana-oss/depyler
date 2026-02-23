@@ -1,0 +1,21 @@
+  modules-random.toml :: random_choices
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use rand as random;
+− use rand::Rng;
+− use rand::prelude::*;
+− use rand::seq::SliceRandom;
+  pub fn pick_many(items: &Vec<String>, k: i32) -> Vec<String> {
+−     return {
+−         let mut rng = rand::thread_rng();
++     return DEPYLER_RNG.with(|rng| {
++         let mut rng = rng.borrow_mut();
+          (0..1)
+−             .map(|_| items.choose(&mut rng).cloned().unwrap())
++             .map(|_| items.choose(&mut *rng).cloned().unwrap())
+              .collect::<Vec<_>>()
+−     }
++     });
++ }
+────────────────────────────────────────────────────────────

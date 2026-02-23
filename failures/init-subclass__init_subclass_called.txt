@@ -1,0 +1,28 @@
+  init-subclass.toml :: init_subclass_called
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust: trait implementation is compile-time
+− // Conceptual equivalent using trait:
+− trait Base {
+−     const FROM_TRAIT: bool = true;
++ #[derive(Debug, Copy, Clone)]
++ pub struct Base {}
++ impl Base {
++     pub fn new() -> Self {
++         Self {}
++     }
++ }
++ #[derive(Debug, Copy, Clone)]
++ pub struct Sub {}
++ impl Sub {
++     pub fn new() -> Self {
++         Self {}
++     }
+  }
+− 
+− struct Sub;
+− impl Base for Sub {}
+− 
+− assert_eq!(Sub::FROM_TRAIT, true);
+────────────────────────────────────────────────────────────

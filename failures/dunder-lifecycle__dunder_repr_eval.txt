@@ -1,0 +1,33 @@
+  dunder-lifecycle.toml :: dunder_repr_eval
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct Circle {
+−     radius: i32,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Circle {
++     pub radius: serde_json::Value,
+  }
+− 
+  impl Circle {
+−     fn new(radius: i32) -> Self {
+−         Circle { radius }
+−     }
+− }
+− 
+− impl std::fmt::Display for Circle {
+−     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+−         write!(f, "Circle({})", self.radius)
++     pub fn new(radius: serde_json::Value) -> Self {
++         Self { radius }
+      }
+  }
+− 
+− let c1 = Circle::new(5);
+− log::info!("{}", c1);
+− 
+− // Rust doesn't have eval, but the concept is that repr should be clear
+− let c2 = Circle::new(5); // Simulating recreation
+− log::info!("{}", c2.radius);
+────────────────────────────────────────────────────────────

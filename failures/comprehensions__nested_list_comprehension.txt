@@ -1,0 +1,12 @@
+  comprehensions.toml :: nested_list_comprehension
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use serde_json;
+  pub fn nested_comp() -> Vec<Vec<serde_json::Value>> {
+      return (0..2)
+−         .map(|x| (0..3).map(|y| y).collect::<Vec<_>>())
++         .map(|x| (0..3).collect::<Vec<_>>())
+          .collect::<Vec<_>>();
+  }
+────────────────────────────────────────────────────────────

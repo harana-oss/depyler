@@ -1,0 +1,11 @@
+  crypto.toml :: base64_b32decode
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use data_encoding;
+− pub fn decode_base32(data: &[u8]) -> Vec<u8> {
++ use base64;
++ pub fn decode_base32(data: &bytes) -> bytes {
+      return data_encoding::BASE32.decode(data).unwrap();
+  }
+────────────────────────────────────────────────────────────

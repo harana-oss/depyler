@@ -1,0 +1,39 @@
+  dunder-reflected.toml :: dunder_rtruediv
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::fmt;
+− use std::ops::Div;
+− 
+− #[derive(Debug)]
+− struct Number {
+−     value: f64,
+− }
+− 
+− impl Div<Number> for i32 {
+−     type Output = Number;
+− 
+−     fn div(self, other: Number) -> Number {
+−         Number {
+−             value: self as f64 / other.value,
+−         }
+−     }
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Number {
++     pub value: serde_json::Value,
+  }
+− 
+− impl fmt::Display for Number {
+−     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+−         write!(f, "Number({:.1})", self.value)
++ impl Number {
++     pub fn new(value: serde_json::Value) -> Self {
++         Self { value }
+      }
+  }
+− 
+− let n = Number { value: 2.0 };
+− let result = 10 / n;
+− log::info!("{}", result);
+────────────────────────────────────────────────────────────

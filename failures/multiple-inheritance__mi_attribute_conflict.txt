@@ -1,0 +1,51 @@
+  multiple-inheritance.toml :: mi_attribute_conflict
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Same attribute name in multiple parents
+−     struct Child {
+−         name: String,
++ pub const result: serde_json::Value = Child::new().name == "parent1";
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Parent1 {
++     pub name: String,
++ }
++ impl Parent1 {
++     pub fn new() -> Self {
++         Self {
++             name: "parent1".to_string(),
++         }
+      }
+− 
+−     impl Child {
+−         fn new() -> Self {
+−             Child {
+−                 name: "parent1".to_string(),
+−             }
++ }
++ #[derive(Debug, Clone)]
++ pub struct Parent2 {
++     pub name: String,
++ }
++ impl Parent2 {
++     pub fn new() -> Self {
++         Self {
++             name: "parent2".to_string(),
+          }
+      }
+− 
+−     pub fn test_mi_attribute_conflict() -> bool {
+−         let child = Child::new();
+−         child.name == "parent1"
++ }
++ #[derive(Debug, Copy, Clone)]
++ pub struct Child {}
++ impl Child {
++     pub fn new() -> Self {
++         Self {}
+      }
+− 
+−     let result = test_mi_attribute_conflict();
++ }
+────────────────────────────────────────────────────────────

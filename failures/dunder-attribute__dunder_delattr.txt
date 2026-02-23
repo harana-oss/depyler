@@ -1,0 +1,39 @@
+  dunder-attribute.toml :: dunder_delattr
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::collections::HashMap;
+− 
+− struct TrackedDel {
+−     attrs: HashMap<String, i32>,
++ #[derive(Debug, Copy, Clone)]
++ pub struct TrackedDel {
++     pub x: i32,
+  }
+− 
+  impl TrackedDel {
+−     fn new() -> Self {
+−         let mut attrs = HashMap::new();
+−         attrs.insert("x".to_string(), 10);
+−         TrackedDel { attrs }
+−     }
+− 
+−     fn delete_attr(&mut self, name: &str) {
+−         log::info!("Deleting {}", name);
+−         self.attrs.remove(name);
+−     }
+− 
+−     fn get_attr(&self, name: &str) -> Option<&i32> {
+−         self.attrs.get(name)
++     pub fn new() -> Self {
++         Self { x: 10 }
+      }
+  }
+− 
+− let mut obj = TrackedDel::new();
+− log::info!("{}", obj.get_attr("x").unwrap());
+− obj.delete_attr("x");
+− if obj.get_attr("x").is_none() {
+−     log::info!("x was deleted");
+− }
+────────────────────────────────────────────────────────────

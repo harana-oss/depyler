@@ -1,0 +1,15 @@
+  optional-types.toml :: string_method_type_consistency
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn process_format(use_json: bool, format_str: String) -> String {
+−     let output_format;
++     let mut output_format;
+      if use_json {
+          output_format = "json".to_string();
+      } else {
+          output_format = format_str.to_lowercase();
+      }
+      return output_format;
+  }
+────────────────────────────────────────────────────────────

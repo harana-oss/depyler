@@ -1,0 +1,19 @@
+  param-attribute-access.toml :: non_matching_param
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug, Clone, PartialEq, Default)]
++ #[derive(Debug, Copy, Clone, PartialEq, Default)]
+  pub struct Data {
+      pub value: i32,
+  }
+  impl Data {
+      pub fn new(value: i32) -> Self {
+          Self { value }
+      }
+  }
+− pub fn process(state: &Data, other: &Data) -> i32 {
++ pub fn process<'a>(state: &Data, other: &'a Data) -> i32 {
+      return other.value;
+  }
+────────────────────────────────────────────────────────────

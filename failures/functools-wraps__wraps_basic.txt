@@ -1,0 +1,23 @@
+  functools-wraps.toml :: wraps_basic
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // @wraps(f) def wrapper(): ...
+−     // Rust uses proc macros for decoration, metadata preserved automatically
+−     fn hello() -> &'static str {
+−         "Hello"
++ use std;
++ pub const result: serde_json::Value = hello.__name__ == "hello";
++ use serde_json;
++ pub fn my_decorator(f: &serde_json::Value) {
++     fn wrapper() -> () {
++         return f(args);
+      }
+− 
+−     let result = true;
++     return wrapper;
++ }
++ pub fn hello() -> String {
++     return "Hello".to_string();
++ }
+────────────────────────────────────────────────────────────

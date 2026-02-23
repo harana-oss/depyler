@@ -1,0 +1,17 @@
+  mutability.toml :: mut_dict_insert
+    Output mismatch
+
+────────────────────────────────────────────────────────────
++ use serde_json;
+  use std::collections::HashMap;
+− pub fn build_dict() -> HashMap<String, i32> {
++ pub fn build_dict() -> HashMap<serde_json::Value, serde_json::Value> {
+      let mut d = {
+          let map = HashMap::new();
+          map
+      };
+      d.insert("a".to_string(), 1);
+      d.insert("b".to_string(), 2);
+      return d;
+  }
+────────────────────────────────────────────────────────────

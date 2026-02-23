@@ -1,0 +1,11 @@
+  deque.toml :: deque_reversed
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // reversed(d)
+−     use std::collections::VecDeque;
+− 
+−     let d = VecDeque::from(vec![1, 2, 3]);
+−     let result = d.iter().rev().cloned().collect::<Vec<_>>() == vec![3, 2, 1];
++ use std::collections::VecDeque;
+────────────────────────────────────────────────────────────

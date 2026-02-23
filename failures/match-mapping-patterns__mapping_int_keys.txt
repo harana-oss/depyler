@@ -1,0 +1,15 @@
+  match-mapping-patterns.toml :: mapping_int_keys
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::collections::HashMap;
+− 
+−     let mut data = HashMap::new();
+−     data.insert(0, "a");
+−     data.insert(1, "b");
+  
+−     let result = match (data.get(&0), data.get(&1)) {
+−         (Some(&first), Some(&second)) => format!("{}{}", first, second),
+−         _ => "".to_string(),
+−     };
+────────────────────────────────────────────────────────────

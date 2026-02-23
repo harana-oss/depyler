@@ -1,0 +1,10 @@
+  regressions.toml :: method_name_ref_keyword
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn test_ref<T>(obj: &T) {
++ use serde_json;
++ pub fn test_ref(obj: &serde_json::Value) {
+      return obj.r#ref();
+  }
+────────────────────────────────────────────────────────────

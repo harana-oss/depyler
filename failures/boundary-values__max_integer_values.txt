@@ -1,0 +1,18 @@
+  boundary-values.toml :: max_integer_values
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::collections::HashMap;
+− pub fn empty_collections() -> i32 {
+−     let empty_list = vec![];
+−     let empty_dict = {
+−         let map = HashMap::new();
+−         map
+−     };
+−     return empty_list.len() as i32 + empty_dict.len() as i32;
++ pub fn big_numbers() -> i32 {
++     let x = 9223372036854775807;
++     let y = 0;
++     return x + y;
+  }
+────────────────────────────────────────────────────────────

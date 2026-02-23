@@ -1,0 +1,25 @@
+  optional-types.toml :: none_placeholder_multiple_variables
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn test_func() -> (String, String) {
+      let condition = true;
+−     let mut x: Option<String> = None;
+−     let mut y: Option<String> = None;
++     let mut x = None;
++     let mut y = None;
+      if condition {
+−         x = Some("a".to_string());
+−         y = Some("b".to_string());
++         x = "a".to_string();
++         y = "b".to_string();
+      } else {
+−         x = Some("c".to_string());
+−         y = Some("d".to_string());
++         x = "c".to_string();
++         y = "d".to_string();
+      }
+−     (x.unwrap(), y.unwrap())
++     return (x, y);
+  }
+────────────────────────────────────────────────────────────

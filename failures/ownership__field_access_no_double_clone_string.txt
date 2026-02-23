@@ -1,0 +1,18 @@
+  ownership.toml :: field_access_no_double_clone_string
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  #[derive(Debug, Clone, PartialEq, Default)]
+  pub struct GameState {
+      pub team_in_possession: String,
+  }
+  impl GameState {
+      pub fn new(team_in_possession: String) -> Self {
+          Self { team_in_possession }
+      }
+  }
+  pub fn get_team(state: &GameState) -> String {
+−     return state.team_in_possession.clone();
++     return state.team_in_possession;
+  }
+────────────────────────────────────────────────────────────

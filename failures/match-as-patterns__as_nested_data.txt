@@ -1,0 +1,22 @@
+  match-as-patterns.toml :: as_nested_data
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Extract nested while keeping container
+−     use std::collections::HashMap;
+− 
+−     let mut user_data = HashMap::new();
+−     user_data.insert("name", "Alice");
+−     user_data.insert("age", "30");
+− 
+−     let mut value = HashMap::new();
+−     value.insert("user", user_data);
+  
+−     let result = if let Some(user) = value.get("user") {
+−         let name = user.get("name");
+−         let age = user.get("age");
+−         name == Some(&"Alice") && age == Some(&"30")
+−     } else {
+−         false
+−     };
+────────────────────────────────────────────────────────────

@@ -1,0 +1,17 @@
+  file.toml :: open_error_handling
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn safe_read(path: String) -> String {
+−     {
+−         let mut f = std::fs::File::open(path)?;
+−         return {
+−             let mut content = String::new();
+−             f.read_to_string(&mut content)?;
+−             content
+−         };
+−         return "".to_string();
+−     }
++     return std::fs::read_to_string(path).unwrap_or("");
+  }
+────────────────────────────────────────────────────────────

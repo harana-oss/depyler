@@ -1,0 +1,32 @@
+  enum-basic.toml :: enum_by_value
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust doesn't support value-to-enum conversion automatically
+−     // Use a helper function or match
+−     #[derive(Debug, PartialEq)]
+−     enum Color {
+−         RED = 1,
+−         GREEN = 2,
++ pub const result: serde_json::Value = Color::new(1) == Color::RED;
++ use serde_json;
++ #[derive(Debug, Copy, Clone)]
++ pub struct Color {}
++ impl Color {
++     pub const RED: i32 = 1;
++     pub const GREEN: i32 = 2;
++     pub fn new() -> Self {
++         Self {}
+      }
+− 
+−     fn from_value(value: i32) -> Option<Color> {
+−         match value {
+−             1 => Some(Color::RED),
+−             2 => Some(Color::GREEN),
+−             _ => None,
+−         }
+−     }
+− 
+−     let result = from_value(1) == Some(Color::RED);
++ }
+────────────────────────────────────────────────────────────

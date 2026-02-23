@@ -1,0 +1,17 @@
+  iterators.toml :: iterator_skip
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn after_n(items: &Vec<i32>, n: i32) -> Vec<i32> {
+      return {
+          let base = &items;
+          let start = (n).max(0) as usize;
+          if start < base.len() {
+              base[start..].to_vec()
+          } else {
+              Vec::new()
+          }
+−     }
++     };
++ }
+────────────────────────────────────────────────────────────

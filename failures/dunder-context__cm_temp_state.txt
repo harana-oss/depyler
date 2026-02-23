@@ -1,0 +1,67 @@
+  dunder-context.toml :: cm_temp_state
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct Config {
+−     value: i32,
+− }
+− 
+− struct TempValue<'a> {
+−     config: &'a mut Config,
+−     old_val: i32,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct TempValue {
++     pub obj: serde_json::Value,
++     pub attr: serde_json::Value,
++     pub new_val: serde_json::Value,
+  }
+− 
+− impl<'a> TempValue<'a> {
+−     fn new(config: &'a mut Config, new_val: i32) -> Self {
+−         let old_val = config.value;
+−         config.value = new_val;
+−         log::info!("Changed to {}", new_val);
+−         TempValue { config, old_val }
++ impl TempValue {
++     pub fn new(
++         obj: serde_json::Value,
++         attr: serde_json::Value,
++         new_val: serde_json::Value,
++     ) -> Self {
++         Self { obj, attr, new_val }
+      }
+− }
+− 
+− impl<'a> Drop for TempValue<'a> {
+−     fn drop(&mut self) {
+−         self.config.value = self.old_val;
+−         log::info!("Restored to {}", self.old_val);
++     pub fn __enter__(&mut self) -> &Self {
++         self.old_val = getattr(self.obj, self.attr);
++         setattr(self.obj, self.attr, self.new_val);
++         log::info!("{}", format!("Changed to {}", self.new_val));
++         return self;
++     }
++     pub fn __exit__(&self) -> bool {
++         setattr(self.obj, self.attr, self.old_val);
++         log::info!("{}", format!("Restored to {}", self.old_val));
++         return false;
+      }
+  }
+− 
+− let mut config = Config { value: 10 };
+− log::info!("Before: {}", config.value);
+− {
+−     let _temp = TempValue::new(&mut config, 20);
+−     log::info!("During: {}", config.value);
++ #[derive(Debug, Copy, Clone)]
++ pub struct Config {}
++ impl Config {
++     pub const value: i32 = 10;
++     pub fn new() -> Self {
++         Self {}
++     }
+  }
+− log::info!("After: {}", config.value);
+────────────────────────────────────────────────────────────

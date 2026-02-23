@@ -1,0 +1,10 @@
+  ellipsis.toml :: ellipsis_assignment
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Ellipsis as a value maps to unit type ()
+− let x = ();
+− log::info!("Ellipsis assigned: ()");
+− log::info!("Type: ()");
++ 
+────────────────────────────────────────────────────────────

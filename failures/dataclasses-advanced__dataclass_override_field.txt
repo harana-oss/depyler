@@ -1,0 +1,41 @@
+  dataclasses-advanced.toml :: dataclass_override_field
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug)]
+− struct Base {
+−     x: i32,
++ #[derive(Debug, Copy, Clone, PartialEq, Default)]
++ pub struct Base {
++     pub x: i32,
+  }
+− 
+− #[derive(Debug)]
+− struct Child {
+−     x: i32,
++ impl Base {
++     pub fn new() -> Self {
++         Self { x: 0 }
++     }
++ }
++ #[derive(Debug, Copy, Clone, PartialEq, Default)]
++ pub struct Child {
++     pub x: i32,
+  }
+− 
+− impl Default for Child {
+−     fn default() -> Self {
+−         Self { x: 10 }
++ impl Child {
++     pub fn new() -> Self {
++         Self { x: 0 }
+      }
+  }
+− 
+  pub fn test_dataclass_override_field() -> i32 {
+−     let c = Child::default();
+−     c.x
++     let c = Child::new();
++     return c.x;
+  }
+────────────────────────────────────────────────────────────

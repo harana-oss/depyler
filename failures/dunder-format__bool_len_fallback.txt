@@ -1,0 +1,33 @@
+  dunder-format.toml :: bool_len_fallback
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct Queue {
+−     items: Vec<i32>,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Queue {
++     pub items: serde_json::Value,
+  }
+− 
+  impl Queue {
+−     fn new(items: Vec<i32>) -> Self {
+−         Queue { items }
+−     }
+− 
+−     fn len(&self) -> usize {
+−         self.items.len()
+−     }
+− 
+−     fn to_bool(&self) -> bool {
+−         self.len() != 0
++     pub fn new(items: serde_json::Value) -> Self {
++         Self { items }
+      }
+  }
+− 
+− let q1 = Queue::new(vec![1, 2, 3]);
+− let q2 = Queue::new(vec![]);
+− log::info!("{}", q1.to_bool());
+− log::info!("{}", q2.to_bool());
+────────────────────────────────────────────────────────────

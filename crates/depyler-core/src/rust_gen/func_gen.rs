@@ -3,6 +3,7 @@
 //! This module handles converting HIR functions to Rust token streams.
 //! It includes all function conversion helpers and the HirFunction RustCodeGen trait implementation.
 
+use crate::borrowing_context::BorrowingStrategy;
 use crate::hir::*;
 use crate::lifetime_analysis::LifetimeInference;
 use crate::rust_gen::context::{CodeGenContext, RustCodeGen};
@@ -10,428 +11,13 @@ use crate::rust_gen::generator_gen::codegen_generator_function;
 use crate::rust_gen::type_gen::{rust_type_to_syn, update_import_needs};
 use anyhow::Result;
 use quote::quote;
-use std::collections::{HashMap, HashSet};
 use syn::{self, parse_quote};
 
 // Import analyze_mutable_vars from parent module
 use super::analyze_mutable_vars;
 
-// ============================================================================
-// Borrow Conflict Analysis
-// ============================================================================
-
-/// Analyze function body for borrow conflicts and populate vars_needing_clone_at_assign.
-///
-/// Detects the pattern:
-///   var1 = func1(&source)  # returns &T borrowing from source
-///   var2 = func2(&mut source)  # needs mutable borrow of source  
-///   use(var1)  # var1 still alive -> CONFLICT
-///
-/// For such vars, we need to clone at assignment to release the borrow early.
-pub(crate) fn analyze_borrow_conflicts(func: &HirFunction, ctx: &mut CodeGenContext) {
-    // Recursively analyze all statement blocks
-    analyze_borrow_conflicts_in_block(&func.body, func, ctx);
-}
-
-/// Analyze borrow conflicts in a statement block
-fn analyze_borrow_conflicts_in_block(
-    body: &[HirStmt],
-    func: &HirFunction,
-    ctx: &mut CodeGenContext,
-) {
-    // Track: var_name -> (source_param, statement_index)
-    // Variables that hold references borrowing from a parameter
-    let mut vars_borrowing_from: HashMap<String, (String, usize)> = HashMap::new();
-
-    // First pass: identify assignments that borrow from function parameters
-    for (idx, stmt) in body.iter().enumerate() {
-        // Recurse into nested blocks first
-        match stmt {
-            HirStmt::For { body: for_body, .. } => {
-                analyze_borrow_conflicts_in_block(for_body, func, ctx);
-            }
-            HirStmt::While {
-                body: while_body, ..
-            } => {
-                analyze_borrow_conflicts_in_block(while_body, func, ctx);
-            }
-            HirStmt::If {
-                then_body,
-                else_body,
-                ..
-            } => {
-                analyze_borrow_conflicts_in_block(then_body, func, ctx);
-                if let Some(else_b) = else_body {
-                    analyze_borrow_conflicts_in_block(else_b, func, ctx);
-                }
-            }
-            _ => {}
-        }
-
-        if let HirStmt::Assign {
-            target: AssignTarget::Symbol(var_name),
-            value,
-            ..
-        } = stmt
-        {
-            if let HirExpr::Call {
-                func: func_name,
-                args,
-                ..
-            } = value
-            {
-                // Check if this function returns a reference (check functions_returning_refs)
-                if ctx.functions_returning_refs.contains(func_name) {
-                    // Find which argument is the source of the borrow
-                    // Usually the first argument for getter-style functions
-                    if let Some(HirExpr::Var(source_param)) = args.first() {
-                        // Check if source_param is a function parameter
-                        if func.params.iter().any(|p| &p.name == source_param) {
-                            vars_borrowing_from
-                                .insert(var_name.clone(), (source_param.clone(), idx));
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    // Second pass: find mutable borrows and check for conflicts
-    for (idx, stmt) in body.iter().enumerate() {
-        // Check for calls that take &mut of a parameter
-        let mut_borrow_source = find_mut_borrow_source(stmt, func, ctx);
-
-        if let Some(source_param) = mut_borrow_source {
-            // Check if any variable borrowing from this source is used after this point
-            for (var_name, (borrow_source, assign_idx)) in &vars_borrowing_from {
-                if borrow_source == &source_param && *assign_idx < idx {
-                    // Check if var_name is used after this statement
-                    if is_var_used_after(body, idx, var_name) {
-                        ctx.vars_needing_clone_at_assign.insert(var_name.clone());
-                    }
-                }
-            }
-        }
-    }
-}
-
-/// Find if a statement causes a mutable borrow of a function parameter
-fn find_mut_borrow_source(
-    stmt: &HirStmt,
-    func: &HirFunction,
-    ctx: &CodeGenContext,
-) -> Option<String> {
-    match stmt {
-        HirStmt::Assign { value, .. } => find_mut_borrow_in_expr(value, func, ctx),
-        HirStmt::Expr(expr) => find_mut_borrow_in_expr(expr, func, ctx),
-        _ => None,
-    }
-}
-
-/// Find if an expression causes a mutable borrow of a function parameter
-fn find_mut_borrow_in_expr(
-    expr: &HirExpr,
-    func: &HirFunction,
-    ctx: &CodeGenContext,
-) -> Option<String> {
-    match expr {
-        HirExpr::Call {
-            func: func_name,
-            args,
-            ..
-        } => {
-            // Check if this function takes &mut for any parameter
-            if let Some(muts) = ctx.function_param_muts.get(func_name) {
-                for (i, needs_mut) in muts.iter().enumerate() {
-                    if *needs_mut {
-                        if let Some(HirExpr::Var(arg_name)) = args.get(i) {
-                            // Check if this is a function parameter
-                            if func.params.iter().any(|p| &p.name == arg_name) {
-                                return Some(arg_name.clone());
-                            }
-                        }
-                    }
-                }
-            }
-            // Also check if the function itself is known to need &mut return
-            // (which means its source param becomes &mut)
-            if ctx.functions_with_mutated_return.contains(func_name) {
-                if let Some(HirExpr::Var(arg_name)) = args.first() {
-                    if func.params.iter().any(|p| &p.name == arg_name) {
-                        return Some(arg_name.clone());
-                    }
-                }
-            }
-            None
-        }
-        HirExpr::MethodCall { object, args, .. } => {
-            // Check method call arguments
-            for arg in args {
-                if let Some(source) = find_mut_borrow_in_expr(arg, func, ctx) {
-                    return Some(source);
-                }
-            }
-            find_mut_borrow_in_expr(object, func, ctx)
-        }
-        _ => None,
-    }
-}
-
-/// Check if a variable is used after a given statement index
-fn is_var_used_after(body: &[HirStmt], after_idx: usize, var_name: &str) -> bool {
-    for stmt in body.iter().skip(after_idx + 1) {
-        if is_var_used_in_stmt(var_name, stmt) {
-            return true;
-        }
-    }
-    false
-}
-
-/// Check if a variable is used in a statement
-fn is_var_used_in_stmt(var_name: &str, stmt: &HirStmt) -> bool {
-    match stmt {
-        HirStmt::Assign { value, .. } => is_var_used_in_expr(var_name, value),
-        HirStmt::Return(Some(expr)) => is_var_used_in_expr(var_name, expr),
-        HirStmt::Return(None) => false,
-        HirStmt::If {
-            condition,
-            then_body,
-            else_body,
-        } => {
-            is_var_used_in_expr(var_name, condition)
-                || then_body.iter().any(|s| is_var_used_in_stmt(var_name, s))
-                || else_body
-                    .as_ref()
-                    .is_some_and(|body| body.iter().any(|s| is_var_used_in_stmt(var_name, s)))
-        }
-        HirStmt::While { condition, body } => {
-            is_var_used_in_expr(var_name, condition)
-                || body.iter().any(|s| is_var_used_in_stmt(var_name, s))
-        }
-        HirStmt::For { iter, body, .. } => {
-            is_var_used_in_expr(var_name, iter)
-                || body.iter().any(|s| is_var_used_in_stmt(var_name, s))
-        }
-        HirStmt::Expr(expr) => is_var_used_in_expr(var_name, expr),
-        HirStmt::With { context, body, .. } => {
-            is_var_used_in_expr(var_name, context)
-                || body.iter().any(|s| is_var_used_in_stmt(var_name, s))
-        }
-        HirStmt::Try {
-            body,
-            handlers,
-            finalbody,
-            ..
-        } => {
-            body.iter().any(|s| is_var_used_in_stmt(var_name, s))
-                || handlers
-                    .iter()
-                    .any(|h| h.body.iter().any(|s| is_var_used_in_stmt(var_name, s)))
-                || finalbody
-                    .as_ref()
-                    .is_some_and(|body| body.iter().any(|s| is_var_used_in_stmt(var_name, s)))
-        }
-        HirStmt::Raise { exception, cause } => {
-            exception
-                .as_ref()
-                .is_some_and(|e| is_var_used_in_expr(var_name, e))
-                || cause
-                    .as_ref()
-                    .is_some_and(|c| is_var_used_in_expr(var_name, c))
-        }
-        HirStmt::Assert { test, msg } => {
-            is_var_used_in_expr(var_name, test)
-                || msg
-                    .as_ref()
-                    .is_some_and(|m| is_var_used_in_expr(var_name, m))
-        }
-        HirStmt::Break { .. } | HirStmt::Continue { .. } | HirStmt::Pass => false,
-        HirStmt::FunctionDef { body, .. } => body.iter().any(|s| is_var_used_in_stmt(var_name, s)),
-        HirStmt::Global { names } | HirStmt::Nonlocal { names } => {
-            names.iter().any(|n| n == var_name)
-        }
-        HirStmt::Import { .. } | HirStmt::ImportFrom { .. } => false,
-        HirStmt::AsyncFor { iter, body, .. } => {
-            is_var_used_in_expr(var_name, iter)
-                || body.iter().any(|s| is_var_used_in_stmt(var_name, s))
-        }
-        HirStmt::AsyncWith { context, body, .. } => {
-            is_var_used_in_expr(var_name, context)
-                || body.iter().any(|s| is_var_used_in_stmt(var_name, s))
-        }
-        HirStmt::Delete { targets } => targets.iter().any(|t| match t {
-            AssignTarget::Symbol(name) => name == var_name,
-            _ => false,
-        }),
-        HirStmt::AsyncFunctionDef { body, .. } => {
-            body.iter().any(|s| is_var_used_in_stmt(var_name, s))
-        }
-        HirStmt::Match { subject, cases } => {
-            is_var_used_in_expr(var_name, subject)
-                || cases.iter().any(|case| {
-                    case.guard
-                        .as_ref()
-                        .is_some_and(|g| is_var_used_in_expr(var_name, g))
-                        || case.body.iter().any(|s| is_var_used_in_stmt(var_name, s))
-                })
-        }
-    }
-}
-
-/// Check if a variable is used in an expression
-fn is_var_used_in_expr(var_name: &str, expr: &HirExpr) -> bool {
-    match expr {
-        HirExpr::Var(name) => name == var_name,
-        HirExpr::Binary { left, right, .. } => {
-            is_var_used_in_expr(var_name, left) || is_var_used_in_expr(var_name, right)
-        }
-        HirExpr::Unary { operand, .. } => is_var_used_in_expr(var_name, operand),
-        HirExpr::Call { args, kwargs, .. } => {
-            args.iter().any(|a| is_var_used_in_expr(var_name, a))
-                || kwargs.iter().any(|(_, v)| is_var_used_in_expr(var_name, v))
-        }
-        HirExpr::MethodCall {
-            object,
-            args,
-            kwargs,
-            ..
-        } => {
-            is_var_used_in_expr(var_name, object)
-                || args.iter().any(|a| is_var_used_in_expr(var_name, a))
-                || kwargs.iter().any(|(_, v)| is_var_used_in_expr(var_name, v))
-        }
-        HirExpr::Attribute { value, .. } => is_var_used_in_expr(var_name, value),
-        HirExpr::Index { base, index } => {
-            is_var_used_in_expr(var_name, base) || is_var_used_in_expr(var_name, index)
-        }
-        HirExpr::Slice {
-            base,
-            start,
-            stop,
-            step,
-        } => {
-            is_var_used_in_expr(var_name, base)
-                || start
-                    .as_ref()
-                    .is_some_and(|e| is_var_used_in_expr(var_name, e))
-                || stop
-                    .as_ref()
-                    .is_some_and(|e| is_var_used_in_expr(var_name, e))
-                || step
-                    .as_ref()
-                    .is_some_and(|e| is_var_used_in_expr(var_name, e))
-        }
-        HirExpr::List(elts)
-        | HirExpr::Tuple(elts)
-        | HirExpr::Set(elts)
-        | HirExpr::FrozenSet(elts) => elts.iter().any(|e| is_var_used_in_expr(var_name, e)),
-        HirExpr::Dict(pairs) => pairs
-            .iter()
-            .any(|(k, v)| is_var_used_in_expr(var_name, k) || is_var_used_in_expr(var_name, v)),
-        HirExpr::IfExpr { test, body, orelse } => {
-            is_var_used_in_expr(var_name, test)
-                || is_var_used_in_expr(var_name, body)
-                || is_var_used_in_expr(var_name, orelse)
-        }
-        HirExpr::Lambda { body, .. } => is_var_used_in_expr(var_name, body),
-        HirExpr::ListComp {
-            element,
-            iter,
-            condition,
-            ..
-        }
-        | HirExpr::SetComp {
-            element,
-            iter,
-            condition,
-            ..
-        } => {
-            is_var_used_in_expr(var_name, element)
-                || is_var_used_in_expr(var_name, iter)
-                || condition
-                    .as_ref()
-                    .is_some_and(|c| is_var_used_in_expr(var_name, c))
-        }
-        HirExpr::FlattenedListComp {
-            element,
-            generators,
-        } => {
-            is_var_used_in_expr(var_name, element)
-                || generators.iter().any(|g| {
-                    is_var_used_in_expr(var_name, &g.iter)
-                        || g.conditions
-                            .iter()
-                            .any(|c| is_var_used_in_expr(var_name, c))
-                })
-        }
-        HirExpr::DictComp {
-            key,
-            value,
-            iter,
-            condition,
-            ..
-        } => {
-            is_var_used_in_expr(var_name, key)
-                || is_var_used_in_expr(var_name, value)
-                || is_var_used_in_expr(var_name, iter)
-                || condition
-                    .as_ref()
-                    .is_some_and(|c| is_var_used_in_expr(var_name, c))
-        }
-        HirExpr::GeneratorExp {
-            element,
-            generators,
-        } => {
-            is_var_used_in_expr(var_name, element)
-                || generators.iter().any(|g| {
-                    is_var_used_in_expr(var_name, &g.iter)
-                        || g.conditions
-                            .iter()
-                            .any(|c| is_var_used_in_expr(var_name, c))
-                })
-        }
-        HirExpr::Await { value } => is_var_used_in_expr(var_name, value),
-        HirExpr::Yield { value } => value
-            .as_ref()
-            .is_some_and(|e| is_var_used_in_expr(var_name, e)),
-        HirExpr::Borrow { expr, .. } => is_var_used_in_expr(var_name, expr),
-        HirExpr::SortByKey {
-            iterable, key_body, ..
-        } => is_var_used_in_expr(var_name, iterable) || is_var_used_in_expr(var_name, key_body),
-        HirExpr::NamedExpr { target, value } => {
-            target == var_name || is_var_used_in_expr(var_name, value)
-        }
-        HirExpr::Literal(_) | HirExpr::FString { .. } | HirExpr::Uninitialized => false,
-    }
-}
-
-// ============================================================================
-// End Borrow Conflict Analysis
-// ============================================================================
-
-/// Check if a HIR Type is a Copy type (primitives that can be used in array repeat syntax [x; n])
-fn is_copy_type(ty: &Type) -> bool {
-    match ty {
-        // Primitive types are Copy
-        Type::Int | Type::Float | Type::Bool | Type::None => true,
-        // Unknown might be primitive, be conservative and assume not Copy
-        Type::Unknown => false,
-        // Compound types are not Copy
-        Type::String | Type::List(_) | Type::Dict(_, _) | Type::Set(_) | Type::Custom(_) => false,
-        // Tuples are Copy only if all elements are Copy
-        Type::Tuple(types) => types.iter().all(is_copy_type),
-        // Arrays are Copy only if element is Copy
-        Type::Array { element_type, .. } => is_copy_type(element_type),
-        // Optional/Final are Copy only if inner is Copy
-        Type::Optional(inner) | Type::Final(inner) => is_copy_type(inner),
-        // Union types are not Copy in general
-        Type::Union(_) => false,
-        // Functions, type vars, generics are not Copy
-        Type::Function { .. } | Type::TypeVar(_) | Type::Generic { .. } => false,
-    }
-}
-
 /// Check if a name is a Rust keyword that requires raw identifier syntax
+/// DEPYLER-0306: Copied from expr_gen.rs to support method name keyword handling
 fn is_rust_keyword(name: &str) -> bool {
     matches!(
         name,
@@ -556,7 +142,7 @@ pub(crate) fn codegen_where_clause(
 #[inline]
 pub(crate) fn codegen_function_attrs(
     docstring: &Option<String>,
-    _properties: &crate::hir::FunctionProperties,
+    properties: &crate::hir::FunctionProperties,
     custom_attributes: &[String],
 ) -> Vec<proc_macro2::TokenStream> {
     let mut attrs = vec![];
@@ -583,6 +169,7 @@ pub(crate) fn codegen_function_attrs(
 }
 
 // ============================================================================
+// DEPYLER-0141 Phase 2: Medium Complexity Helpers
 // ============================================================================
 
 /// Process function body statements with proper scoping
@@ -597,13 +184,8 @@ pub(crate) fn codegen_function_body(
     ctx.enter_scope();
     ctx.current_function_can_fail = can_fail;
     ctx.current_return_type = Some(func.ret_type.clone());
+    // DEPYLER-0310: Set error type for raise statement wrapping
     ctx.current_error_type = error_type;
-
-    // Clear CSE temporary variable types from previous functions to avoid type conflicts
-    // (e.g., _cse_temp_0 might be Int in one function, Bool in another)
-    // Preserve module-level constant types and other non-temp variables
-    ctx.var_types
-        .retain(|name, _| !name.starts_with("_cse_temp"));
 
     for param in &func.params {
         ctx.declare_var(&param.name);
@@ -611,126 +193,10 @@ pub(crate) fn codegen_function_body(
         ctx.var_types.insert(param.name.clone(), param.ty.clone());
     }
 
+    // DEPYLER-0312 NOTE: analyze_mutable_vars is now called in impl RustCodeGen BEFORE
     // codegen_function_params, so ctx.mutable_vars is already populated here
 
-    // Analyze borrow conflicts before generating statements
-    // This detects pattern: var1 = f(&state), var2 = g(&mut state), use(var1)
-    // and marks var1 for cloning at assignment to avoid borrow conflict
-    analyze_borrow_conflicts(func, ctx);
-
-    // Pattern detection: count = 0; with open(path, 'r') as f: for _ in f: count += 1; return count
-    // Optimize to: match fs::read_to_string(path) { Ok(content) => content.lines().count() as i32, Err(_) => 0 }
-    if func.body.len() == 3 {
-        if let (
-            HirStmt::Assign {
-                target: init_target,
-                value: init_value,
-                ..
-            },
-            HirStmt::With {
-                context,
-                target,
-                body: with_body,
-            },
-            HirStmt::Return(Some(return_expr)),
-        ) = (&func.body[0], &func.body[1], &func.body[2])
-        {
-            // Check init: count = 0
-            if let AssignTarget::Symbol(count_var) = init_target {
-                if let HirExpr::Literal(Literal::Int(0)) = init_value {
-                    // Check with: open(path, 'r') as f
-                    if let HirExpr::Call {
-                        func: open_func,
-                        args: open_args,
-                        ..
-                    } = context
-                    {
-                        if open_func.as_str() == "open" && open_args.len() >= 1 {
-                            if let Some(file_var) = target {
-                                // Check with body: for _ in f: count += 1
-                                if with_body.len() == 1 {
-                                    if let HirStmt::For {
-                                        target: loop_target,
-                                        iter,
-                                        body: loop_body,
-                                        ..
-                                    } = &with_body[0]
-                                    {
-                                        if let HirExpr::Var(iter_var) = iter {
-                                            if iter_var == file_var && loop_body.len() == 1 {
-                                                // Check loop body: count += 1 (represented as count = count + 1)
-                                                if let HirStmt::Assign {
-                                                    target: aug_target,
-                                                    value: aug_value,
-                                                    ..
-                                                } = &loop_body[0]
-                                                {
-                                                    if let AssignTarget::Symbol(aug_var) =
-                                                        aug_target
-                                                    {
-                                                        if aug_var == count_var {
-                                                            // Check if value is count + 1
-                                                            if let HirExpr::Binary {
-                                                                op: BinOp::Add,
-                                                                left,
-                                                                right,
-                                                            } = aug_value
-                                                            {
-                                                                if let (
-                                                                    HirExpr::Var(left_var),
-                                                                    HirExpr::Literal(Literal::Int(
-                                                                        1,
-                                                                    )),
-                                                                ) =
-                                                                    (left.as_ref(), right.as_ref())
-                                                                {
-                                                                    if left_var == count_var {
-                                                                        // Check return: return count
-                                                                        if let HirExpr::Var(
-                                                                            return_var,
-                                                                        ) = return_expr
-                                                                        {
-                                                                            if return_var
-                                                                                == count_var
-                                                                            {
-                                                                                // Pattern matched! Generate optimized code
-                                                                                use crate::hir::{HirExpr, HirStmt, Literal, BinOp, AssignTarget};
-                                                                                use crate::rust_gen::context::ToRustExpr;
-
-                                                                                let path_expr = open_args[0].to_rust_expr(ctx)?;
-
-                                                                                ctx.exit_scope();
-                                                                                ctx.current_function_can_fail = false;
-                                                                                ctx.current_return_type = None;
-
-                                                                                return Ok(vec![
-                                                                                    quote! {
-                                                                                        match std::fs::read_to_string(#path_expr) {
-                                                                                            Ok(content) => return content.lines().count() as i32,
-                                                                                            Err(_) => return 0,
-                                                                                        }
-                                                                                    },
-                                                                                ]);
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
+    // DEPYLER-0271: Convert body, marking final statement for expression-based returns
     let body_len = func.body.len();
     let body_stmts: Vec<_> = func
         .body
@@ -751,6 +217,7 @@ pub(crate) fn codegen_function_body(
 }
 
 // ============================================================================
+// DEPYLER-0141 Phase 3: Complex Sections
 // ============================================================================
 
 // ========== Phase 3a: Parameter Conversion ==========
@@ -776,15 +243,12 @@ fn codegen_single_param(
     ctx: &mut CodeGenContext,
 ) -> Result<proc_macro2::TokenStream> {
     // Use parameter name directly to ensure signature matches body references
+    // DEPYLER-0357: Removed underscore prefixing logic that was causing compilation errors
     // Parameter names in signature must match exactly how they're referenced in function body
-    // Rename 'self' to 'self_param' since 'self' is a Rust keyword
-    let param_name = if param.name == "self" {
-        "self_param".to_string()
-    } else {
-        param.name.clone()
-    };
+    let param_name = param.name.clone();
     let param_ident = syn::Ident::new(&param_name, proc_macro2::Span::call_site());
 
+    // DEPYLER-0424: Check if this parameter is the argparse args variable
     // If so, type it as &Args instead of default type mapping
     let is_argparse_args = ctx.argparser_tracker.parsers.values().any(|parser_info| {
         parser_info
@@ -798,63 +262,36 @@ fn codegen_single_param(
         return Ok(quote! { #param_ident: &Args });
     }
 
-    // This handles cases where the param is passed down a call chain from a borrowing caller
-    let param_idx = func.params.iter().position(|p| p.name == param.name);
-    let interprocedural_needs_mut = param_idx
-        .and_then(|idx| {
-            ctx.function_param_muts
-                .get(&func.name)
-                .and_then(|muts| muts.get(idx))
-                .copied()
-        })
-        .unwrap_or(false);
-
+    // DEPYLER-0312: Use mutable_vars populated by analyze_mutable_vars
     // This handles ALL mutation patterns: direct assignment, method calls, and parameter reassignments
     // The analyze_mutable_vars function already checked all mutation patterns in codegen_function_body
     let is_mutated_in_body = ctx.mutable_vars.contains(&param.name);
 
-    // Copy types (int, float, bool) should never be borrowed - they're passed by value
-    let param_is_copy = is_copy_type(&param.ty);
-
-    // this means the param is passed from a caller that borrows - must also borrow
-    // But skip for Copy types which are always passed by value
-    let force_borrow_from_call_chain =
-        interprocedural_needs_mut && !is_mutated_in_body && !param_is_copy;
-
     // Only apply `mut` if ownership is taken (not borrowed)
     // Borrowed parameters (&T, &mut T) handle mutability in the type itself
-    let takes_ownership = !force_borrow_from_call_chain
-        && matches!(
-            lifetime_result.borrowing_strategies.get(&param.name),
-            Some(crate::borrowing_context::BorrowingStrategy::TakeOwnership) | None
-        );
+    let takes_ownership = matches!(
+        lifetime_result.borrowing_strategies.get(&param.name),
+        Some(crate::borrowing_context::BorrowingStrategy::TakeOwnership) | None
+    );
 
     let is_param_mutated = is_mutated_in_body && takes_ownership;
 
-    // Argparse validators receive String (clap will convert)
+    // DEPYLER-0447: Detect argparse validator functions (tracked at add_argument() call sites)
+    // These should ALWAYS have &str parameter type regardless of type inference
+    // Validators are detected when processing add_argument(type=validator_func)
     let is_argparse_validator = ctx.validator_functions.contains(&func.name);
 
     if is_argparse_validator {
-        // Argparse validators receive String arguments
+        // Argparse validators always receive string arguments from clap
         let ty = if is_param_mutated {
-            quote! { mut #param_ident: String }
+            quote! { mut #param_ident: &str }
         } else {
-            quote! { #param_ident: String }
+            quote! { #param_ident: &str }
         };
         return Ok(ty);
     }
 
     // Get the inferred parameter info
-    #[cfg(debug_assertions)]
-    log::debug!(
-        "codegen_single_param: func={}, param={}, interprocedural_needs_mut={}, is_mutated_in_body={}, force_borrow_from_call_chain={}",
-        func.name,
-        param.name,
-        interprocedural_needs_mut,
-        is_mutated_in_body,
-        force_borrow_from_call_chain
-    );
-
     if let Some(inferred) = lifetime_result.param_lifetimes.get(&param.name) {
         let rust_type = &inferred.rust_type;
 
@@ -877,35 +314,12 @@ fn codegen_single_param(
 
         update_import_needs(ctx, &actual_rust_type);
 
+        // DEPYLER-0330: Override needs_mut for borrowed parameters that are mutated
         // If analyze_mutable_vars detected mutation (via .remove(), .clear(), etc.)
         // and this parameter will be borrowed (&T), upgrade to &mut T
         let mut inferred_with_mut = inferred.clone();
-
-        // Check if this param's field is returned and the return value is mutated at call sites
-        let return_value_is_mutated = ctx.functions_with_mutated_return.contains(&func.name);
-        let param_field_escapes = lifetime_result
-            .params_with_field_return
-            .contains(&param.name);
-        let needs_mut_for_return = return_value_is_mutated && param_field_escapes;
-
-        if force_borrow_from_call_chain {
-            // Force borrowing with &mut for call chain requirements
-            inferred_with_mut.should_borrow = true;
+        if is_mutated_in_body && inferred.should_borrow {
             inferred_with_mut.needs_mut = true;
-            // Track this parameter as already being &mut so we don't add &mut again at call sites
-            ctx.current_func_mut_ref_params.insert(param.name.clone());
-        } else if needs_mut_for_return && inferred.should_borrow {
-            // Return value is mutated at call sites and this param's field escapes through return
-            // Must use &mut so the returned reference can be mutated
-            inferred_with_mut.needs_mut = true;
-            ctx.current_func_mut_ref_params.insert(param.name.clone());
-        } else if is_mutated_in_body && inferred.should_borrow {
-            inferred_with_mut.needs_mut = true;
-            // Track this parameter as already being &mut
-            ctx.current_func_mut_ref_params.insert(param.name.clone());
-        } else if inferred.should_borrow && !inferred.needs_mut {
-            // Track this parameter as an immutable reference
-            ctx.current_func_ref_params.insert(param.name.clone());
         }
 
         let ty = apply_param_borrowing_strategy(
@@ -928,16 +342,12 @@ fn codegen_single_param(
             .map_type_with_annotations(&param.ty, &func.annotations);
         update_import_needs(ctx, &rust_type);
         let ty = rust_type_to_syn(&rust_type)?;
-        // Always use String for string parameters (not &str) to match Python semantics
-        if force_borrow_from_call_chain {
-            // Track this parameter as already being &mut so we don't add &mut again at call sites
-            ctx.current_func_mut_ref_params.insert(param.name.clone());
-            Ok(quote! { #param_ident: &mut #ty })
-        } else if is_param_mutated {
-            Ok(quote! { mut #param_ident: #ty })
+
+        Ok(if is_param_mutated {
+            quote! { mut #param_ident: #ty }
         } else {
-            Ok(quote! { #param_ident: #ty })
-        }
+            quote! { #param_ident: #ty }
+        })
     }
 }
 
@@ -949,15 +359,9 @@ fn apply_param_borrowing_strategy(
     lifetime_result: &crate::lifetime_analysis::LifetimeResult,
     ctx: &mut CodeGenContext,
 ) -> Result<syn::Type> {
-    let ty = rust_type_to_syn(rust_type)?;
+    let mut ty = rust_type_to_syn(rust_type)?;
 
-    // String parameters should always be owned String, never borrowed
-    if matches!(rust_type, crate::type_mapper::RustType::String) {
-        return Ok(ty);
-    }
-
-    let mut ty = ty;
-
+    // DEPYLER-0275: Check if lifetimes should be elided
     // If lifetime_params is empty, Rust's elision rules apply - don't add explicit lifetimes
     let should_elide_lifetimes = lifetime_result.lifetime_params.is_empty();
 
@@ -967,6 +371,7 @@ fn apply_param_borrowing_strategy(
             crate::borrowing_context::BorrowingStrategy::UseCow { lifetime } => {
                 ctx.needs_cow = true;
 
+                // DEPYLER-0282 FIX: Parameters should NEVER use 'static lifetime
                 // For parameters, we need borrowed data that can be passed from local scope
                 // Use generic lifetime or elide it - never 'static for parameters
                 if should_elide_lifetimes {
@@ -992,14 +397,14 @@ fn apply_param_borrowing_strategy(
             _ => {
                 // Apply normal borrowing if needed
                 if inferred.should_borrow {
-                    ty = apply_borrowing_to_type(ty, inferred, should_elide_lifetimes)?;
+                    ty = apply_borrowing_to_type(ty, rust_type, inferred, should_elide_lifetimes)?;
                 }
             }
         }
     } else {
         // Fallback to normal borrowing
         if inferred.should_borrow {
-            ty = apply_borrowing_to_type(ty, inferred, should_elide_lifetimes)?;
+            ty = apply_borrowing_to_type(ty, rust_type, inferred, should_elide_lifetimes)?;
         }
     }
 
@@ -1007,32 +412,59 @@ fn apply_param_borrowing_strategy(
 }
 
 /// Apply borrowing (&, &mut, with lifetime) to a type
+/// DEPYLER-0275: Added should_elide_lifetimes parameter to respect Rust elision rules
 fn apply_borrowing_to_type(
     mut ty: syn::Type,
+    rust_type: &crate::type_mapper::RustType,
     inferred: &crate::lifetime_analysis::InferredParam,
     should_elide_lifetimes: bool,
 ) -> Result<syn::Type> {
-    // Use &String for borrowed strings (not &str) to match Python semantics
-    // Non-string types also get normal borrowing
-    if should_elide_lifetimes || inferred.lifetime.is_none() {
-        ty = if inferred.needs_mut {
-            parse_quote! { &mut #ty }
+    // Special case for strings: use &str instead of &String
+    if matches!(rust_type, crate::type_mapper::RustType::String) {
+        // DEPYLER-0275: Elide lifetime if elision rules apply
+        if should_elide_lifetimes || inferred.lifetime.is_none() {
+            ty = if inferred.needs_mut {
+                parse_quote! { &mut str }
+            } else {
+                parse_quote! { &str }
+            };
+        } else if let Some(ref lifetime) = inferred.lifetime {
+            let lt = syn::Lifetime::new(lifetime.as_str(), proc_macro2::Span::call_site());
+            ty = if inferred.needs_mut {
+                parse_quote! { &#lt mut str }
+            } else {
+                parse_quote! { &#lt str }
+            };
         } else {
-            parse_quote! { &#ty }
-        };
-    } else if let Some(ref lifetime) = inferred.lifetime {
-        let lt = syn::Lifetime::new(lifetime.as_str(), proc_macro2::Span::call_site());
-        ty = if inferred.needs_mut {
-            parse_quote! { &#lt mut #ty }
-        } else {
-            parse_quote! { &#lt #ty }
-        };
+            ty = if inferred.needs_mut {
+                parse_quote! { &mut str }
+            } else {
+                parse_quote! { &str }
+            };
+        }
     } else {
-        ty = if inferred.needs_mut {
-            parse_quote! { &mut #ty }
+        // Non-string types
+        // DEPYLER-0275: Elide lifetime if elision rules apply
+        if should_elide_lifetimes || inferred.lifetime.is_none() {
+            ty = if inferred.needs_mut {
+                parse_quote! { &mut #ty }
+            } else {
+                parse_quote! { &#ty }
+            };
+        } else if let Some(ref lifetime) = inferred.lifetime {
+            let lt = syn::Lifetime::new(lifetime.as_str(), proc_macro2::Span::call_site());
+            ty = if inferred.needs_mut {
+                parse_quote! { &#lt mut #ty }
+            } else {
+                parse_quote! { &#lt #ty }
+            };
         } else {
-            parse_quote! { &#ty }
-        };
+            ty = if inferred.needs_mut {
+                parse_quote! { &mut #ty }
+            } else {
+                parse_quote! { &#ty }
+            };
+        }
     }
 
     Ok(ty)
@@ -1097,7 +529,6 @@ fn contains_owned_string_method(expr: &HirExpr) -> bool {
         | HirExpr::Attribute { .. }
         | HirExpr::Borrow { .. }
         | HirExpr::ListComp { .. }
-        | HirExpr::FlattenedListComp { .. }
         | HirExpr::SetComp { .. }
         | HirExpr::DictComp { .. }
         | HirExpr::Lambda { .. }
@@ -1106,8 +537,9 @@ fn contains_owned_string_method(expr: &HirExpr) -> bool {
         | HirExpr::Yield { .. }
         | HirExpr::SortByKey { .. }
         | HirExpr::GeneratorExp { .. }
+        | HirExpr::FlattenedListComp { .. }
+        | HirExpr::Uninitialized
         | HirExpr::NamedExpr { .. } => false,
-        HirExpr::Uninitialized => false,
     }
 }
 
@@ -1123,6 +555,8 @@ fn function_returns_owned_string(func: &HirFunction) -> bool {
     }
     false
 }
+
+// DEPYLER-0270: String Concatenation Detection
 
 /// Check if an expression contains string concatenation (which returns owned String)
 fn contains_string_concatenation(expr: &HirExpr) -> bool {
@@ -1171,17 +605,19 @@ pub(crate) fn return_type_expects_float(ty: &Type) -> bool {
     }
 }
 
-// ========== Return Type Inference from Body ==========
+// ========== DEPYLER-0410: Return Type Inference from Body ==========
 
 /// Infer return type from function body when no annotation is provided
 /// Returns None if type cannot be inferred or there are no return statements
 fn infer_return_type_from_body(body: &[HirStmt]) -> Option<Type> {
+    // DEPYLER-0415: Build type environment from variable assignments
     let mut var_types: std::collections::HashMap<String, Type> = std::collections::HashMap::new();
     build_var_type_env(body, &mut var_types);
 
     let mut return_types = Vec::new();
     collect_return_types_with_env(body, &mut return_types, &var_types);
 
+    // DEPYLER-0412: Also check for trailing expression (implicit return)
     // If the last statement is an expression without return, it's an implicit return
     if let Some(HirStmt::Expr(expr)) = body.last() {
         let trailing_type = infer_expr_type_with_env(expr, &var_types);
@@ -1205,10 +641,11 @@ fn infer_return_type_from_body(body: &[HirStmt]) -> Option<Type> {
         }
     }
 
+    // DEPYLER-0448: Do NOT default Unknown to Int - this causes dict/list/Value returns
     // to be incorrectly typed as i32. Instead, return None and let the type mapper
     // handle the fallback (which will use serde_json::Value for complex types).
-
-    // Previous behavior : Defaulted Unknown → Int for lambda returns
+    //
+    // Previous behavior (DEPYLER-0422): Defaulted Unknown → Int for lambda returns
     // Problem: This also affected dict/list returns, causing E0308 errors
     // New behavior: Return None for Unknown types, allowing proper Value fallback
     if return_types.iter().all(|t| matches!(t, Type::Unknown)) {
@@ -1221,7 +658,7 @@ fn infer_return_type_from_body(body: &[HirStmt]) -> Option<Type> {
     first_known.cloned()
 }
 
-// ========== Variable Type Environment ==========
+// ========== DEPYLER-0415: Variable Type Environment ==========
 
 /// Build a type environment by collecting variable assignments
 fn build_var_type_env(stmts: &[HirStmt], var_types: &mut std::collections::HashMap<String, Type>) {
@@ -1232,6 +669,7 @@ fn build_var_type_env(stmts: &[HirStmt], var_types: &mut std::collections::HashM
                 value,
                 ..
             } => {
+                // DEPYLER-0415: Use the environment we're building for lookups
                 let value_type = infer_expr_type_with_env(value, var_types);
                 if !matches!(value_type, Type::Unknown) {
                     var_types.insert(name.clone(), value_type);
@@ -1333,6 +771,7 @@ pub(crate) fn infer_expr_type_with_env(
     var_types: &std::collections::HashMap<String, Type>,
 ) -> Type {
     match expr {
+        // DEPYLER-0415: Look up variable types in the environment
         HirExpr::Var(name) => var_types.get(name).cloned().unwrap_or(Type::Unknown),
         // For other expressions, delegate to the simple version
         // but recurse with environment for nested expressions
@@ -1347,12 +786,11 @@ pub(crate) fn infer_expr_type_with_env(
                     | BinOp::GtEq
                     | BinOp::In
                     | BinOp::NotIn
-                    | BinOp::Is
-                    | BinOp::IsNot
             ) {
                 return Type::Bool;
             }
 
+            // DEPYLER-0420: Detect array repeat patterns: [elem] * n or n * [elem]
             if matches!(op, BinOp::Mul) {
                 match (left.as_ref(), right.as_ref()) {
                     // Pattern: [elem] * n
@@ -1360,8 +798,7 @@ pub(crate) fn infer_expr_type_with_env(
                         if elems.len() == 1 && size > 0 =>
                     {
                         let elem_type = infer_expr_type_with_env(&elems[0], var_types);
-                        // Non-Copy types always produce Vec (can't use array repeat syntax)
-                        return if size <= 32 && is_copy_type(&elem_type) {
+                        return if size <= 32 {
                             Type::Array {
                                 element_type: Box::new(elem_type),
                                 size: ConstGeneric::Literal(size as usize),
@@ -1375,8 +812,7 @@ pub(crate) fn infer_expr_type_with_env(
                         if elems.len() == 1 && size > 0 =>
                     {
                         let elem_type = infer_expr_type_with_env(&elems[0], var_types);
-                        // Non-Copy types always produce Vec (can't use array repeat syntax)
-                        return if size <= 32 && is_copy_type(&elem_type) {
+                        return if size <= 32 {
                             Type::Array {
                                 element_type: Box::new(elem_type),
                                 size: ConstGeneric::Literal(size as usize),
@@ -1407,6 +843,7 @@ pub(crate) fn infer_expr_type_with_env(
                 infer_expr_type_with_env(orelse, var_types)
             }
         }
+        // DEPYLER-0420: Handle tuples with environment for variable lookups
         HirExpr::Tuple(elems) => {
             let elem_types: Vec<Type> = elems
                 .iter()
@@ -1414,72 +851,13 @@ pub(crate) fn infer_expr_type_with_env(
                 .collect();
             Type::Tuple(elem_types)
         }
-        HirExpr::List(elems) => {
-            if elems.is_empty() {
-                Type::List(Box::new(Type::Unknown))
-            } else {
-                // Try to find a non-Unknown element type by scanning all elements
-                let elem_type = elems
-                    .iter()
-                    .map(|e| infer_expr_type_with_env(e, var_types))
-                    .find(|t| {
-                        !matches!(t, Type::Unknown)
-                            && !matches!(t, Type::List(inner) if matches!(inner.as_ref(), Type::Unknown))
-                    })
-                    .unwrap_or_else(|| infer_expr_type_with_env(&elems[0], var_types));
-                Type::List(Box::new(elem_type))
-            }
-        }
-        HirExpr::Set(elems) => {
-            if elems.is_empty() {
-                Type::Set(Box::new(Type::Unknown))
-            } else {
-                // Try to find a non-Unknown element type
-                let elem_type = elems
-                    .iter()
-                    .map(|e| infer_expr_type_with_env(e, var_types))
-                    .find(|t| !matches!(t, Type::Unknown))
-                    .unwrap_or_else(|| infer_expr_type_with_env(&elems[0], var_types));
-                Type::Set(Box::new(elem_type))
-            }
-        }
-        HirExpr::Dict(pairs) => {
-            if pairs.is_empty() {
-                Type::Dict(Box::new(Type::Unknown), Box::new(Type::Unknown))
-            } else {
-                let key_type = infer_expr_type_with_env(&pairs[0].0, var_types);
-                let val_type = infer_expr_type_with_env(&pairs[0].1, var_types);
-                Type::Dict(Box::new(key_type), Box::new(val_type))
-            }
-        }
-        HirExpr::ListComp { element, .. } => {
-            Type::List(Box::new(infer_expr_type_with_env(element, var_types)))
-        }
-        HirExpr::SetComp { element, .. } => {
-            Type::Set(Box::new(infer_expr_type_with_env(element, var_types)))
-        }
-        HirExpr::DictComp { key, value, .. } => Type::Dict(
-            Box::new(infer_expr_type_with_env(key, var_types)),
-            Box::new(infer_expr_type_with_env(value, var_types)),
-        ),
-        // Index expression: arr[i] returns element type of container
-        HirExpr::Index { base, .. } => {
-            let base_type = infer_expr_type_with_env(base, var_types);
-            match base_type {
-                Type::List(elem) => *elem,
-                Type::Tuple(elems) => elems.first().cloned().unwrap_or(Type::Unknown),
-                Type::Dict(_, val) => *val,
-                Type::String => Type::String,
-                _ => Type::Unknown,
-            }
-        }
         // For other cases, use the simple version
         _ => infer_expr_type_simple(expr),
     }
 }
 
 // NOTE: collect_return_types() removed - replaced by collect_return_types_with_env()
-// which provides better type inference using variable type environment
+// which provides better type inference using variable type environment (DEPYLER-0415)
 
 /// Simple expression type inference without context
 /// Handles common cases like literals, comparisons, and arithmetic
@@ -1502,6 +880,7 @@ fn infer_expr_type_simple(expr: &HirExpr) -> Type {
                 return Type::Bool;
             }
 
+            // DEPYLER-0420: Detect array repeat patterns: [elem] * n or n * [elem]
             if matches!(op, BinOp::Mul) {
                 match (left.as_ref(), right.as_ref()) {
                     // Pattern: [elem] * n
@@ -1509,8 +888,7 @@ fn infer_expr_type_simple(expr: &HirExpr) -> Type {
                         if elems.len() == 1 && size > 0 =>
                     {
                         let elem_type = infer_expr_type_simple(&elems[0]);
-                        // Non-Copy types always produce Vec (can't use array repeat syntax)
-                        return if size <= 32 && is_copy_type(&elem_type) {
+                        return if size <= 32 {
                             Type::Array {
                                 element_type: Box::new(elem_type),
                                 size: ConstGeneric::Literal(size as usize),
@@ -1524,8 +902,7 @@ fn infer_expr_type_simple(expr: &HirExpr) -> Type {
                         if elems.len() == 1 && size > 0 =>
                     {
                         let elem_type = infer_expr_type_simple(&elems[0]);
-                        // Non-Copy types always produce Vec (can't use array repeat syntax)
-                        return if size <= 32 && is_copy_type(&elem_type) {
+                        return if size <= 32 {
                             Type::Array {
                                 element_type: Box::new(elem_type),
                                 size: ConstGeneric::Literal(size as usize),
@@ -1561,16 +938,7 @@ fn infer_expr_type_simple(expr: &HirExpr) -> Type {
             if elems.is_empty() {
                 Type::List(Box::new(Type::Unknown))
             } else {
-                // Try to find a non-Unknown element type by scanning all elements
-                let elem_type = elems
-                    .iter()
-                    .map(infer_expr_type_simple)
-                    .find(|t| {
-                        !matches!(t, Type::Unknown)
-                            && !matches!(t, Type::List(inner) if matches!(inner.as_ref(), Type::Unknown))
-                    })
-                    .unwrap_or_else(|| infer_expr_type_simple(&elems[0]));
-                Type::List(Box::new(elem_type))
+                Type::List(Box::new(infer_expr_type_simple(&elems[0])))
             }
         }
         HirExpr::Tuple(elems) => {
@@ -1581,13 +949,7 @@ fn infer_expr_type_simple(expr: &HirExpr) -> Type {
             if elems.is_empty() {
                 Type::Set(Box::new(Type::Unknown))
             } else {
-                // Try to find a non-Unknown element type
-                let elem_type = elems
-                    .iter()
-                    .map(infer_expr_type_simple)
-                    .find(|t| !matches!(t, Type::Unknown))
-                    .unwrap_or_else(|| infer_expr_type_simple(&elems[0]));
-                Type::Set(Box::new(elem_type))
+                Type::Set(Box::new(infer_expr_type_simple(&elems[0])))
             }
         }
         HirExpr::Dict(pairs) => {
@@ -1608,6 +970,7 @@ fn infer_expr_type_simple(expr: &HirExpr) -> Type {
                 infer_expr_type_simple(orelse)
             }
         }
+        // DEPYLER-0414: Add Index expression type inference
         HirExpr::Index { base, .. } => {
             // For arr[i], return element type of the container
             match infer_expr_type_simple(base) {
@@ -1618,11 +981,14 @@ fn infer_expr_type_simple(expr: &HirExpr) -> Type {
                 _ => Type::Int,               // Default to Int for array-like indexing
             }
         }
+        // DEPYLER-0414: Add Slice expression type inference
         HirExpr::Slice { base, .. } => {
             // Slicing returns same container type
             infer_expr_type_simple(base)
         }
+        // DEPYLER-0414: Add FString type inference (always String)
         HirExpr::FString { .. } => Type::String,
+        // DEPYLER-0414: Add Call expression type inference
         HirExpr::Call { func, .. } => {
             // Common builtin functions with known return types
             match func.as_str() {
@@ -1640,30 +1006,8 @@ fn infer_expr_type_simple(expr: &HirExpr) -> Type {
                 _ => Type::Unknown,
             }
         }
+        // DEPYLER-0414: Add MethodCall expression type inference
         HirExpr::MethodCall { object, method, .. } => {
-            // Check if this is a math module method call (math.exp, math.sin, etc.)
-            // These all return f64
-            if let HirExpr::Var(module_name) = object.as_ref() {
-                if module_name == "math" {
-                    match method.as_str() {
-                        // All math module functions return float
-                        "sin" | "cos" | "tan" | "asin" | "acos" | "atan" | "atan2" | "sinh"
-                        | "cosh" | "tanh" | "asinh" | "acosh" | "atanh" | "sqrt" | "exp"
-                        | "expm1" | "log" | "log2" | "log10" | "log1p" | "pow" | "hypot"
-                        | "fabs" | "floor" | "ceil" | "trunc" | "copysign" | "fmod" | "modf"
-                        | "frexp" | "ldexp" | "degrees" | "radians" | "erf" | "erfc" | "gamma"
-                        | "lgamma" => {
-                            return Type::Float;
-                        }
-                        // factorial returns int
-                        "factorial" | "gcd" | "lcm" | "comb" | "perm" => return Type::Int,
-                        // isnan, isinf, isfinite return bool
-                        "isnan" | "isinf" | "isfinite" | "isclose" => return Type::Bool,
-                        _ => {}
-                    }
-                }
-            }
-
             match method.as_str() {
                 // String methods that return String
                 "upper" | "lower" | "strip" | "lstrip" | "rstrip" | "replace" | "title"
@@ -1695,12 +1039,16 @@ fn infer_expr_type_simple(expr: &HirExpr) -> Type {
                 _ => Type::Unknown,
             }
         }
+        // DEPYLER-0414: Add ListComp type inference
         HirExpr::ListComp { element, .. } => Type::List(Box::new(infer_expr_type_simple(element))),
+        // DEPYLER-0414: Add SetComp type inference
         HirExpr::SetComp { element, .. } => Type::Set(Box::new(infer_expr_type_simple(element))),
+        // DEPYLER-0414: Add DictComp type inference
         HirExpr::DictComp { key, value, .. } => Type::Dict(
             Box::new(infer_expr_type_simple(key)),
             Box::new(infer_expr_type_simple(value)),
         ),
+        // DEPYLER-0414: Add Attribute type inference
         HirExpr::Attribute { attr, .. } => {
             // Common attributes with known types
             match attr.as_str() {
@@ -1720,24 +1068,9 @@ fn literal_to_type(lit: &Literal) -> Type {
         Literal::String(_) => Type::String,
         Literal::Bool(_) => Type::Bool,
         Literal::None => Type::None,
-        Literal::Bytes(_) => Type::Unknown,
-        Literal::Ellipsis => Type::None,
-        Literal::Complex(_, _) => Type::Custom("num::Complex<f64>".to_string()),
-    }
-}
-
-/// Recursively checks if a type contains Unknown anywhere in its structure
-fn type_contains_unknown(ty: &Type) -> bool {
-    match ty {
-        Type::Unknown => true,
-        Type::List(elem) => type_contains_unknown(elem),
-        Type::Set(elem) => type_contains_unknown(elem),
-        Type::Dict(k, v) => type_contains_unknown(k) || type_contains_unknown(v),
-        Type::Optional(inner) => type_contains_unknown(inner),
-        Type::Tuple(elems) => elems.iter().any(type_contains_unknown),
-        Type::Array { element_type, .. } => type_contains_unknown(element_type),
-        Type::Union(types) => types.iter().any(type_contains_unknown),
-        _ => false,
+        Literal::Bytes(_) => Type::Unknown, // No direct Bytes type in Type enum
+        Literal::Ellipsis => Type::Unknown,
+        Literal::Complex(_, _) => Type::Unknown, // Complex numbers not yet supported
     }
 }
 
@@ -1745,6 +1078,7 @@ fn type_contains_unknown(ty: &Type) -> bool {
 
 /// Generate return type with Result wrapper and lifetime handling
 ///
+/// DEPYLER-0310: Now returns ErrorType (4th tuple element) for raise statement wrapping
 #[inline]
 pub(crate) fn codegen_return_type(
     func: &HirFunction,
@@ -1756,12 +1090,11 @@ pub(crate) fn codegen_return_type(
     bool,
     Option<crate::rust_gen::context::ErrorType>,
 )> {
-    // Reset returns_reference flag - each function should start fresh
-    // This flag is set later if this specific function returns a reference
-    ctx.returns_reference = false;
-    ctx.returns_mutable_reference = false;
-
-    let should_infer = type_contains_unknown(&func.ret_type);
+    // DEPYLER-0410: Infer return type from body when annotation is Unknown
+    // DEPYLER-0420: Also infer when tuple/list contains Unknown elements
+    let should_infer = matches!(func.ret_type, Type::Unknown)
+        || matches!(&func.ret_type, Type::Tuple(elems) if elems.iter().any(|t| matches!(t, Type::Unknown)))
+        || matches!(&func.ret_type, Type::List(elem) if matches!(**elem, Type::Unknown));
 
     let effective_ret_type = if should_infer {
         // Try to infer from return statements in body
@@ -1810,12 +1143,7 @@ pub(crate) fn codegen_return_type(
     update_import_needs(ctx, &rust_ret_type);
 
     // Check if function can fail and needs Result wrapper
-    // When error_strategy is Panic, functions panic on error instead of returning Result
-    let can_fail = func.properties.can_fail
-        && !matches!(
-            func.annotations.error_strategy,
-            depyler_annotations::ErrorStrategy::Panic
-        );
+    let can_fail = func.properties.can_fail;
     let mut error_type_str = if can_fail && !func.properties.error_types.is_empty() {
         // Use first error type or generic for mixed types
         if func.properties.error_types.len() == 1 {
@@ -1827,10 +1155,12 @@ pub(crate) fn codegen_return_type(
         "Box<dyn std::error::Error>".to_string()
     };
 
+    // DEPYLER-0447: Validators always use Box<dyn Error> for compatibility with clap
     if ctx.validator_functions.contains(&func.name) {
         error_type_str = "Box<dyn std::error::Error>".to_string();
     }
 
+    // DEPYLER-0310: Determine ErrorType for raise statement wrapping
     // If Box<dyn Error>, we need to wrap exceptions with Box::new()
     // If concrete type, no wrapping needed
     let error_type = if can_fail {
@@ -1843,19 +1173,29 @@ pub(crate) fn codegen_return_type(
         None
     };
 
-    // Only generate error struct definitions when the function actually returns a Result
-    // with that error type. This avoids generating error structs for functions that
-    // merely contain operations that could fail (like indexing) but don't handle errors.
-    // Error structs for raise statements and try/except handlers are generated separately
-    // in stmt_gen.rs when those statements are encountered.
-    if can_fail {
-        if error_type_str.contains("ZeroDivisionError") {
+    // DEPYLER-0327 Fix #5: Mark error types as needed for type generation
+    // Check BOTH error_type_str (for functions that return Result) AND
+    // func.properties.error_types (for types used in try/except blocks)
+    if error_type_str.contains("ZeroDivisionError") {
+        ctx.needs_zerodivisionerror = true;
+    }
+    if error_type_str.contains("IndexError") {
+        ctx.needs_indexerror = true;
+    }
+    if error_type_str.contains("ValueError") {
+        ctx.needs_valueerror = true;
+    }
+
+    // Also check all error_types from properties (even if can_fail=false)
+    // This ensures types used in try/except blocks are generated
+    for err_type in &func.properties.error_types {
+        if err_type.contains("ZeroDivisionError") {
             ctx.needs_zerodivisionerror = true;
         }
-        if error_type_str.contains("IndexError") {
+        if err_type.contains("IndexError") {
             ctx.needs_indexerror = true;
         }
-        if error_type_str.contains("ValueError") {
+        if err_type.contains("ValueError") {
             ctx.needs_valueerror = true;
         }
     }
@@ -1871,89 +1211,7 @@ pub(crate) fn codegen_return_type(
     } else {
         let mut ty = rust_type_to_syn(&rust_ret_type)?;
 
-        // When a borrowed param's field escapes through return, return a reference instead of cloning
-        // e.g., `return state.home_players` where state: &State → return &Vec<Player> instead of Vec<Player>
-        // BUT: Never return references for Copy types (i32, f64, bool) - they should be returned by value
-        // ALSO: Never return references for String types - Python str always maps to owned String, not &String
-        let should_return_reference = !is_copy_type(&func.ret_type)
-            && !matches!(func.ret_type, Type::String)
-            && !lifetime_result.params_with_field_return.is_empty()
-            && lifetime_result
-                .params_with_field_return
-                .iter()
-                .any(|param_name| {
-                    // Check if this param is borrowed
-                    lifetime_result
-                        .param_lifetimes
-                        .get(param_name)
-                        .is_some_and(|inferred| inferred.should_borrow)
-                });
-
-        // Check if this function's return value is mutated at call sites
-        let return_value_is_mutated = ctx.functions_with_mutated_return.contains(&func.name);
-
-        if should_return_reference {
-            // Count how many parameters are borrowed references
-            let borrowed_param_count = lifetime_result
-                .param_lifetimes
-                .values()
-                .filter(|inf| inf.should_borrow)
-                .count();
-
-            // Make the return type a reference with appropriate lifetime
-            // When there are multiple borrowed params, we need explicit lifetime
-            // If return value is mutated at call sites, use &mut instead of &
-            if let Some(ref return_lt) = lifetime_result.return_lifetime {
-                let lt = syn::Lifetime::new(return_lt.as_str(), proc_macro2::Span::call_site());
-                if return_value_is_mutated {
-                    ty = parse_quote! { &#lt mut #ty };
-                } else {
-                    ty = parse_quote! { &#lt #ty };
-                }
-            } else if borrowed_param_count > 1 {
-                // Multiple borrowed params but elision was applied - we need explicit lifetime
-                // Find the lifetime of the param whose field escapes through return
-                let escaping_param_lt =
-                    lifetime_result
-                        .params_with_field_return
-                        .first()
-                        .and_then(|param_name| {
-                            lifetime_result
-                                .param_lifetimes
-                                .get(param_name)
-                                .and_then(|inf| inf.lifetime.clone())
-                        });
-                if let Some(lt_str) = escaping_param_lt {
-                    let lt = syn::Lifetime::new(&lt_str, proc_macro2::Span::call_site());
-                    if return_value_is_mutated {
-                        ty = parse_quote! { &#lt mut #ty };
-                    } else {
-                        ty = parse_quote! { &#lt #ty };
-                    }
-                } else {
-                    // No explicit lifetime assigned - need to generate one
-                    // Use 'a as the default lifetime for the escaping param
-                    if return_value_is_mutated {
-                        ty = parse_quote! { &'a mut #ty };
-                    } else {
-                        ty = parse_quote! { &'a #ty };
-                    }
-                }
-            } else {
-                // Single or no borrowed params - elision rules apply
-                if return_value_is_mutated {
-                    ty = parse_quote! { &mut #ty };
-                } else {
-                    ty = parse_quote! { &#ty };
-                }
-            }
-            // Signal to expression generator not to add .clone()
-            ctx.returns_reference = true;
-            if return_value_is_mutated {
-                ctx.returns_mutable_reference = true;
-            }
-        }
-
+        // DEPYLER-0270: Check if function returns string concatenation
         // String concatenation (format!(), a + b) always returns owned String
         // Never use Cow for concatenation results
         let returns_concatenation = matches!(func.ret_type, crate::hir::Type::String)
@@ -2043,12 +1301,17 @@ pub(crate) fn codegen_return_type(
 
 impl RustCodeGen for HirFunction {
     fn to_rust_tokens(&self, ctx: &mut CodeGenContext) -> Result<proc_macro2::TokenStream> {
+        // Set current function name for parameter ownership tracking
+        ctx.current_function_name = Some(self.name.clone());
+
+        // DEPYLER-0306 FIX: Use raw identifiers for function names that are Rust keywords
         let name = if is_rust_keyword(&self.name) {
             syn::Ident::new_raw(&self.name, proc_macro2::Span::call_site())
         } else {
             syn::Ident::new(&self.name, proc_macro2::Span::call_site())
         };
 
+        // DEPYLER-0269: Track function return type for Display trait selection
         // Store function return type in ctx for later lookup when processing assignments
         // This enables tracking `result = merge(&a, &b)` where merge returns list[int]
         ctx.function_return_types
@@ -2058,17 +1321,59 @@ impl RustCodeGen for HirFunction {
         let mut generic_registry = crate::generic_inference::TypeVarRegistry::new();
         let type_params = generic_registry.infer_function_generics(self)?;
 
-        // Perform lifetime analysis with automatic elision
+        // Perform lifetime analysis with automatic elision (DEPYLER-0275)
         let mut lifetime_inference = LifetimeInference::new();
-        let lifetime_result = lifetime_inference
-            .apply_elision_rules_with_interprocedural(self, ctx.type_mapper, None)
+        let mut lifetime_result = lifetime_inference
+            .apply_elision_rules_with_interprocedural(
+                self,
+                ctx.type_mapper,
+                ctx.interprocedural_analysis,
+            )
             .unwrap_or_else(|| {
                 lifetime_inference.analyze_function_with_interprocedural(
                     self,
                     ctx.type_mapper,
-                    None,
+                    ctx.interprocedural_analysis,
                 )
             });
+
+        // INTERPROCEDURAL FIX: Apply mutability requirements from populate_function_param_borrows
+        // The interprocedural analysis may have upgraded parameters to &mut based on callees
+        if let Some(param_borrows) = ctx.function_param_borrows.get(&self.name) {
+            for (param_idx, borrow_info) in param_borrows.iter().enumerate() {
+                if param_idx < self.params.len() {
+                    let param_name = &self.params[param_idx].name;
+                    if let Some(param_lifetime) =
+                        lifetime_result.param_lifetimes.get_mut(param_name)
+                    {
+                        // Upgrade to borrow if interprocedural analysis says so
+                        if borrow_info.should_borrow {
+                            param_lifetime.should_borrow = true;
+                        }
+                        // Upgrade to &mut if interprocedural analysis says so
+                        if borrow_info.needs_mut {
+                            param_lifetime.needs_mut = true;
+                        }
+                        // Override take_ownership if interprocedural analysis says to borrow
+                        if !borrow_info.takes_ownership && borrow_info.should_borrow {
+                            // Update borrowing strategy to match
+                            lifetime_result.borrowing_strategies.insert(
+                                param_name.clone(),
+                                if borrow_info.needs_mut {
+                                    BorrowingStrategy::BorrowMutable {
+                                        lifetime: param_lifetime.lifetime.clone(),
+                                    }
+                                } else {
+                                    BorrowingStrategy::BorrowImmutable {
+                                        lifetime: param_lifetime.lifetime.clone(),
+                                    }
+                                },
+                            );
+                        }
+                    }
+                }
+            }
+        }
 
         // Generate combined generic parameters (lifetimes + type params)
         let generic_params = codegen_generic_params(&type_params, &lifetime_result.lifetime_params);
@@ -2076,19 +1381,25 @@ impl RustCodeGen for HirFunction {
         // Generate lifetime bounds
         let where_clause = codegen_where_clause(&lifetime_result.lifetime_bounds);
 
+        // DEPYLER-0312: Analyze mutability BEFORE generating parameters
         // This populates ctx.mutable_vars which codegen_single_param uses to determine `mut` keyword
-        // IMPORTANT: Clear mutable_vars before analyzing - each function gets its own analysis
-        ctx.mutable_vars.clear();
-        // Clear mut ref params tracking - each function tracks its own &mut ref params
-        ctx.current_func_mut_ref_params.clear();
-        // Clear immutable ref params tracking - each function tracks its own & ref params
-        ctx.current_func_ref_params.clear();
         analyze_mutable_vars(&self.body, ctx, &self.params);
 
-        // NOTE: We intentionally do NOT add function_param_muts to mutable_vars here.
-        // Direct mutations are detected by analyze_mutable_vars.
-        // The function_param_muts is used in codegen_single_param to determine
-        // if we need &mut due to call chain propagation.
+        // Populate current function's parameter ownership map for zip/enumerate iterator decisions
+        // Maps parameter name -> whether it takes ownership (true) or borrows (false)
+        ctx.current_function_param_ownership.clear();
+        for param in &self.params {
+            let takes_ownership = lifetime_result
+                .borrowing_strategies
+                .get(&param.name)
+                .map(|strategy| matches!(strategy, BorrowingStrategy::TakeOwnership))
+                .unwrap_or(false);
+            ctx.current_function_param_ownership
+                .insert(param.name.clone(), takes_ownership);
+        }
+
+        // TODO: Store clone requirements for parameters so expression generation knows when to clone
+        // ctx.param_clone_requirements = lifetime_result.param_clone_requirements.clone();
 
         // Convert parameters using lifetime analysis results
         let params = codegen_function_params(self, &lifetime_result, ctx)?;
@@ -2110,14 +1421,11 @@ impl RustCodeGen for HirFunction {
         // ctx.function_param_borrows
         //     .insert(self.name.clone(), param_borrows);
 
-        // TODO: This feature is not yet fully implemented - the field was removed
-        // from CodeGenContext. Kwargs are currently appended as positional args.
-        // See expr_gen.rs line 1165 for current kwargs handling.
-
         // Generate return type with Result wrapper and lifetime handling
         let (return_type, rust_ret_type, can_fail, error_type) =
             codegen_return_type(self, &lifetime_result, ctx)?;
 
+        // DEPYLER-0425: Analyze subcommand field access BEFORE generating body
         // This sets ctx.current_subcommand_fields so expression generation can rewrite args.field → field
         let subcommand_info = if ctx.argparser_tracker.has_subcommands() {
             crate::rust_gen::argparse_transform::analyze_subcommand_field_access(
@@ -2133,20 +1441,21 @@ impl RustCodeGen for HirFunction {
             ctx.current_subcommand_fields = Some(fields.iter().cloned().collect());
         }
 
-        // Analyze variable usage for clone detection before generating code
-        ctx.analyze_var_usage(&self.body);
-
         // Process function body with proper scoping (expressions will now be rewritten if needed)
         let mut body_stmts = codegen_function_body(self, can_fail, error_type, ctx)?;
 
         // Clear the subcommand fields context after body generation
         ctx.current_subcommand_fields = None;
 
+        // DEPYLER-0363: Check if ArgumentParser was detected and generate Args struct
+        // DEPYLER-0424: Store Args struct and Commands enum in context for module-level emission
         // (hoisted outside function to make Args accessible to handler functions)
         if ctx.argparser_tracker.has_parsers() {
             if let Some(parser_info) = ctx.argparser_tracker.get_first_parser() {
+                // DEPYLER-0384: Set flag to include clap dependency in Cargo.toml
                 ctx.needs_clap = true;
 
+                // DEPYLER-0399: Generate Commands enum if subcommands exist
                 let commands_enum = crate::rust_gen::argparse_transform::generate_commands_enum(
                     &ctx.argparser_tracker,
                 );
@@ -2169,6 +1478,7 @@ impl RustCodeGen for HirFunction {
             // It will be cleared after all functions are generated
         }
 
+        // DEPYLER-0425: Wrap handler functions with subcommand pattern matching
         // If this function accesses subcommand-specific fields, wrap body in pattern matching
         if let Some((variant_name, fields)) = subcommand_info {
             // Get args parameter name (first parameter)
@@ -2184,10 +1494,12 @@ impl RustCodeGen for HirFunction {
             }
         }
 
+        // DEPYLER-0270: Add Ok(()) for functions with Result<(), E> return type
         // When Python function has `-> None` but uses fallible operations (e.g., indexing),
         // the Rust return type becomes `Result<(), IndexError>` and needs Ok(()) at the end
         // Only add Ok(()) if the function doesn't already end with a return statement
-
+        //
+        // DEPYLER-0450: Extended to handle all Result return types, not just Type::None
         // This fixes functions with side effects that use error handling (raise/try/except)
         // Also handles Type::Unknown (functions without type annotations that don't explicitly return)
         if can_fail {
@@ -2238,6 +1550,9 @@ impl RustCodeGen for HirFunction {
                 }
             }
         };
+
+        // Reset clone requirements to avoid leaking into next function
+        ctx.param_clone_requirements.clear();
 
         Ok(func_tokens)
     }

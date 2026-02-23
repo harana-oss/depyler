@@ -1,0 +1,16 @@
+  io-streams.toml :: argparse_string_param
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use clap::Parser;
+− pub fn process_file(filepath: String) -> String {
+−     let mut f = std::fs::File::open(filepath)?;
+−     return {
+−         let mut content = String::new();
+−         f.read_to_string(&mut content)?;
+−         content
+−     }
++ pub fn process_file(filepath: String) -> Result<String, std::io::Error> {
++     return std::fs::read_to_string(filepath).unwrap_or_default();
++ }
+────────────────────────────────────────────────────────────

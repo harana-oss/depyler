@@ -39,14 +39,11 @@ impl Point {
     }
 }
 
-fn main() {
-    let p1 = Point::new(1, 2);
-    let p2 = Point::new(1, 2);
-    let p3 = Point::new(2, 3);
-    log::info!("{}", p1 == p2);
-    log::info!("{}", p1 == p3);
-}
-"""
+let p1 = Point::new(1, 2);
+let p2 = Point::new(1, 2);
+let p3 = Point::new(2, 3);
+log::info!("{}", p1 == p2);
+log::info!("{}", p1 == p3);"""
 expected_output = """True
 False"""
 
@@ -82,14 +79,11 @@ impl Value {
     }
 }
 
-fn main() {
-    let v1 = Value::new(5);
-    let v2 = Value::new(5);
-    let v3 = Value::new(10);
-    log::info!("{}", v1 != v2);
-    log::info!("{}", v1 != v3);
-}
-"""
+let v1 = Value::new(5);
+let v2 = Value::new(5);
+let v3 = Value::new(10);
+log::info!("{}", v1 != v2);
+log::info!("{}", v1 != v3);"""
 expected_output = """False
 True"""
 
@@ -123,14 +117,11 @@ impl Simple {
     }
 }
 
-fn main() {
-    let s1 = Simple::new(5);
-    let s2 = Simple::new(5);
-    let s3 = Simple::new(10);
-    log::info!("{}", s1 == s2);
-    log::info!("{}", s1 != s3);
-}
-"""
+let s1 = Simple::new(5);
+let s2 = Simple::new(5);
+let s3 = Simple::new(10);
+log::info!("{}", s1 == s2);
+log::info!("{}", s1 != s3);"""
 expected_output = """True
 True"""
 
@@ -166,13 +157,10 @@ impl Number {
     }
 }
 
-fn main() {
-    let n1 = Number::new(5);
-    let n2 = Number::new(10);
-    log::info!("{}", n1 < n2);
-    log::info!("{}", n2 < n1);
-}
-"""
+let n1 = Number::new(5);
+let n2 = Number::new(10);
+log::info!("{}", n1 < n2);
+log::info!("{}", n2 < n1);"""
 expected_output = """True
 False"""
 
@@ -206,15 +194,12 @@ impl Number {
     }
 }
 
-fn main() {
-    let n1 = Number::new(5);
-    let n2 = Number::new(5);
-    let n3 = Number::new(10);
-    log::info!("{}", n1 <= n2);
-    log::info!("{}", n1 <= n3);
-    log::info!("{}", n3 <= n1);
-}
-"""
+let n1 = Number::new(5);
+let n2 = Number::new(5);
+let n3 = Number::new(10);
+log::info!("{}", n1 <= n2);
+log::info!("{}", n1 <= n3);
+log::info!("{}", n3 <= n1);"""
 expected_output = """True
 True
 False"""
@@ -247,13 +232,10 @@ impl Number {
     }
 }
 
-fn main() {
-    let n1 = Number::new(10);
-    let n2 = Number::new(5);
-    log::info!("{}", n1 > n2);
-    log::info!("{}", n2 > n1);
-}
-"""
+let n1 = Number::new(10);
+let n2 = Number::new(5);
+log::info!("{}", n1 > n2);
+log::info!("{}", n2 > n1);"""
 expected_output = """True
 False"""
 
@@ -287,15 +269,12 @@ impl Number {
     }
 }
 
-fn main() {
-    let n1 = Number::new(10);
-    let n2 = Number::new(10);
-    let n3 = Number::new(5);
-    log::info!("{}", n1 >= n2);
-    log::info!("{}", n1 >= n3);
-    log::info!("{}", n3 >= n1);
-}
-"""
+let n1 = Number::new(10);
+let n2 = Number::new(10);
+let n3 = Number::new(5);
+log::info!("{}", n1 >= n2);
+log::info!("{}", n1 >= n3);
+log::info!("{}", n3 >= n1);"""
 expected_output = """True
 True
 False"""
@@ -345,15 +324,12 @@ impl Student {
     }
 }
 
-fn main() {
-    let s1 = Student::new("Alice", 85);
-    let s2 = Student::new("Bob", 90);
-    log::info!("{}", s1 < s2);
-    log::info!("{}", s1 <= s2);
-    log::info!("{}", s1 > s2);
-    log::info!("{}", s1 >= s2);
-}
-"""
+let s1 = Student::new("Alice", 85);
+let s2 = Student::new("Bob", 90);
+log::info!("{}", s1 < s2);
+log::info!("{}", s1 <= s2);
+log::info!("{}", s1 > s2);
+log::info!("{}", s1 >= s2);"""
 expected_output = """True
 True
 False
@@ -404,12 +380,9 @@ fn calculate_hash<T: Hash>(t: &T) -> u64 {
     s.finish()
 }
 
-fn main() {
-    let p1 = Point::new(1, 2);
-    let p2 = Point::new(1, 2);
-    log::info!("{}", calculate_hash(&p1) == calculate_hash(&p2));
-}
-"""
+let p1 = Point::new(1, 2);
+let p2 = Point::new(1, 2);
+log::info!("{}", calculate_hash(&p1) == calculate_hash(&p2));"""
 expected_output = "True"
 
 [[test]]
@@ -452,13 +425,10 @@ fn calculate_hash<T: Hash>(t: &T) -> u64 {
     s.finish()
 }
 
-fn main() {
-    let v1 = HashableValue::new(42);
-    let v2 = HashableValue::new(42);
-    log::info!("{}", v1 == v2);
-    log::info!("{}", calculate_hash(&v1) == calculate_hash(&v2));
-}
-"""
+let v1 = HashableValue::new(42);
+let v2 = HashableValue::new(42);
+log::info!("{}", v1 == v2);
+log::info!("{}", calculate_hash(&v1) == calculate_hash(&v2));"""
 expected_output = """True
 True"""
 
@@ -492,12 +462,9 @@ impl Unhashable {
     }
 }
 
-fn main() {
-    let _obj = Unhashable::new(5);
-    // In Rust, trying to hash would be a compile-time error
-    log::info!("TypeError: unhashable type");
-}
-"""
+let _obj = Unhashable::new(5);
+// In Rust, trying to hash would be a compile-time error
+log::info!("TypeError: unhashable type");"""
 expected_output = "TypeError: unhashable type"
 
 [[test]]
@@ -534,16 +501,13 @@ impl Hashable {
     }
 }
 
-fn main() {
-    let obj1 = Hashable::new(1);
-    let obj2 = Hashable::new(2);
-    let mut d = HashMap::new();
-    d.insert(obj1, "first");
-    d.insert(obj2, "second");
-    let key = Hashable::new(1);
-    log::info!("{}", d.get(&key).unwrap());
-}
-"""
+let obj1 = Hashable::new(1);
+let obj2 = Hashable::new(2);
+let mut d = HashMap::new();
+d.insert(obj1, "first");
+d.insert(obj2, "second");
+let key = Hashable::new(1);
+log::info!("{}", d.get(&key).unwrap());"""
 expected_output = "first"
 
 [[test]]
@@ -580,17 +544,14 @@ impl Hashable {
     }
 }
 
-fn main() {
-    let obj1 = Hashable::new(1);
-    let obj2 = Hashable::new(1);
-    let obj3 = Hashable::new(2);
-    let mut s = HashSet::new();
-    s.insert(obj1);
-    s.insert(obj2);
-    s.insert(obj3);
-    log::info!("{}", s.len());
-}
-"""
+let obj1 = Hashable::new(1);
+let obj2 = Hashable::new(1);
+let obj3 = Hashable::new(2);
+let mut s = HashSet::new();
+s.insert(obj1);
+s.insert(obj2);
+s.insert(obj3);
+log::info!("{}", s.len());"""
 expected_output = "2"
 
 # =============================================================================
@@ -631,14 +592,11 @@ impl PartialEq for Value {
     }
 }
 
-fn main() {
-    let v = Value::new(5);
-    let v2 = Value::new(5);
-    log::info!("{}", v == v2);
-    // Rust is statically typed, can't compare Value with i32
-    log::info!("False");
-}
-"""
+let v = Value::new(5);
+let v2 = Value::new(5);
+log::info!("{}", v == v2);
+// Rust is statically typed, can't compare Value with i32
+log::info!("False");"""
 expected_output = """True
 False"""
 
@@ -674,12 +632,9 @@ impl Value {
     }
 }
 
-fn main() {
-    let _v = Value::new(5);
-    // v < "string" would not compile in Rust
-    log::info!("TypeError");
-}
-"""
+let _v = Value::new(5);
+// v < "string" would not compile in Rust
+log::info!("TypeError");"""
 expected_output = "TypeError"
 
 [[test]]
@@ -738,13 +693,10 @@ impl B {
     }
 }
 
-fn main() {
-    let a = A::new(5);
-    let b = B::new(5);
-    log::info!("{}", a.eq_b(&b));
-    log::info!("{}", b.eq_a(&a));
-}
-"""
+let a = A::new(5);
+let b = B::new(5);
+log::info!("{}", a.eq_b(&b));
+log::info!("{}", b.eq_a(&a));"""
 expected_output = """True
 True"""
 
@@ -781,14 +733,11 @@ impl Number {
     }
 }
 
-fn main() {
-    let a = Number::new(1);
-    let b = Number::new(2);
-    let c = Number::new(3);
-    log::info!("{}", a < b && b < c);
-    log::info!("{}", c < b && b < a);
-}
-"""
+let a = Number::new(1);
+let b = Number::new(2);
+let c = Number::new(3);
+log::info!("{}", a < b && b < c);
+log::info!("{}", c < b && b < a);"""
 expected_output = """True
 False"""
 
@@ -833,14 +782,11 @@ impl Special {
     }
 }
 
-fn main() {
-    let s1 = Special::new(5);
-    let s2 = Special::new(5);
-    let s3 = Special::new(10);
-    log::info!("{}", s1.eq_str(&s2));
-    log::info!("{}", s1.eq_str(&s3));
-}
-"""
+let s1 = Special::new(5);
+let s2 = Special::new(5);
+let s3 = Special::new(10);
+log::info!("{}", s1.eq_str(&s2));
+log::info!("{}", s1.eq_str(&s3));"""
 expected_output = """equal
 not equal"""
 
@@ -886,10 +832,7 @@ impl PartialEq for MutablePoint {
     }
 }
 
-fn main() {
-    let _p = MutablePoint::new(1, 2);
-    // Attempting to hash would fail at compile time without Hash trait
-    log::info!("TypeError: unhashable type");
-}
-"""
+let _p = MutablePoint::new(1, 2);
+// Attempting to hash would fail at compile time without Hash trait
+log::info!("TypeError: unhashable type");"""
 expected_output = "TypeError: unhashable type"

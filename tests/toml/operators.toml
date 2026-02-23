@@ -956,9 +956,8 @@ def test_union(a: set, b: set) -> set:
 '''
 
 rust = '''
-use serde_json;
 use std::collections::HashSet;
-pub fn test_union(a: &HashSet<serde_json::Value>, b: &HashSet<serde_json::Value>) -> HashSet<serde_json::Value> {
+pub fn test_union(a: &HashSet<Point>, b: &HashSet<Point>) -> HashSet<Point> {
     return a.union(&b).cloned().collect::<std::collections::HashSet<_>>();
 };
 '''
@@ -973,9 +972,8 @@ def test_intersection(a: set, b: set) -> set:
 '''
 
 rust = '''
-use serde_json;
 use std::collections::HashSet;
-pub fn test_intersection(a: &HashSet<serde_json::Value>, b: &HashSet<serde_json::Value>) -> HashSet<serde_json::Value> {
+pub fn test_intersection(a: &HashSet<Point>, b: &HashSet<Point>) -> HashSet<Point> {
     return a.intersection(&b).cloned().collect::<std::collections::HashSet<_>>();
 };
 '''
@@ -990,12 +988,11 @@ def test_difference(a: set, b: set) -> set:
 '''
 
 rust = '''
-use serde_json;
 use std::collections::HashSet;
 pub fn test_difference(
-    a: &HashSet<serde_json::Value>,
-    b: &HashSet<serde_json::Value>,
-) -> HashSet<serde_json::Value> {
+    a: &HashSet<Point>,
+    b: &HashSet<Point>,
+) -> HashSet<Point> {
     return a
         .difference(&b)
         .cloned()
@@ -1013,12 +1010,11 @@ def test_symmetric_diff(a: set, b: set) -> set:
 '''
 
 rust = '''
-use serde_json;
 use std::collections::HashSet;
 pub fn test_symmetric_diff(
-    a: &HashSet<serde_json::Value>,
-    b: &HashSet<serde_json::Value>,
-) -> HashSet<serde_json::Value> {
+    a: &HashSet<Point>,
+    b: &HashSet<Point>,
+) -> HashSet<Point> {
     return a
         .symmetric_difference(&b)
         .cloned()
@@ -1036,13 +1032,12 @@ def test_ops(a: set, b: set, c: set) -> set:
 '''
 
 rust = '''
-use serde_json;
 use std::collections::HashSet;
 pub fn test_ops(
-    a: &HashSet<serde_json::Value>,
-    b: &HashSet<serde_json::Value>,
-    c: &HashSet<serde_json::Value>,
-) -> HashSet<serde_json::Value> {
+    a: &HashSet<Point>,
+    b: &HashSet<Point>,
+    c: &HashSet<Point>,
+) -> HashSet<Point> {
     return a
         .union(&b)
         .cloned()

@@ -1,0 +1,32 @@
+  asyncio-tasks.toml :: gather_cancel
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use tokio::task;
+− use tokio::time::{Duration, sleep};
+− 
+− async fn long_coro() -> i32 {
+−     sleep(Duration::from_secs(10)).await;
+−     1
++ pub async fn long_coro() -> i32 {
++     asyncio.sleep(10).await;
++     return 1;
++    
+  }
+− 
+  pub async fn test_gather_cancel() -> bool {
+−     let task = task::spawn(async {
+−         tokio::join!(long_coro(), long_coro());
+−     });
+−     task.abort();
+−     task.await.is_err()
++     let task = asyncio.create_task(asyncio.gather(long_coro(), long_coro()));
++     task.cancel();
++     {
++     task.await;
++     return false;
++     return true;
++    
++ }
+  }
+────────────────────────────────────────────────────────────

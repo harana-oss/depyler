@@ -1,0 +1,7 @@
+  string-methods-all.toml :: str_endswith
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub const result: bool = "hello".ends_with("lo");
++ 
+────────────────────────────────────────────────────────────

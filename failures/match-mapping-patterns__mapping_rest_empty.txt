@@ -1,0 +1,14 @@
+  match-mapping-patterns.toml :: mapping_rest_empty
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::collections::HashMap;
+− 
+−     let mut data = HashMap::new();
+−     data.insert("key", 1);
+  
+−     let result = match data.get("key") {
+−         Some(&_v) => data.len() == 1,
+−         None => false,
+−     };
+────────────────────────────────────────────────────────────

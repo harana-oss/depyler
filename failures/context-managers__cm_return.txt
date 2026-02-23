@@ -1,0 +1,55 @@
+  context-managers.toml :: cm_return
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust: Drop still called on early return
+−     struct Tracker {
+−         exit_called: bool,
++ use serde_json;
++ #[derive(Debug, Copy, Clone)]
++ pub struct Tracker {
++     pub exit_called: bool,
++ }
++ impl Tracker {
++     pub fn new() -> Self {
++         Self { exit_called: false }
+      }
+− 
+−     impl Tracker {
+−         fn new() -> Self {
+−             Tracker { exit_called: false }
+−         }
+−     }
+− 
+−     impl Drop for Tracker {
+−         fn drop(&mut self) {
+−             // In real code, would use RefCell or similar to track
+−             // Conceptual example
+−         }
++     pub fn __enter__(&self) -> &Self {
++         return self;
+      }
+− 
+−     fn func() -> String {
+−         let _tracker = Tracker::new();
+−         return "early".to_string(); // Drop still called
+−         // "late".to_string()
++     pub fn __exit__(
++         &mut self,
++         exc_type: serde_json::Value,
++         exc_val: serde_json::Value,
++         exc_tb: serde_json::Value,
++     ) -> bool {
++         self.exit_called = true;
++         return false;
+      }
+− 
+−     let result = func();
+−     assert_eq!(result, "early");
++ }
++ pub fn func() -> String {
++     let _context = tracker;
++     return "early".to_string();
++     return "late".to_string();
++ }
+────────────────────────────────────────────────────────────

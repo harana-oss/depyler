@@ -1,0 +1,15 @@
+  collections.toml :: conditional_import_hashmap
+    Output mismatch
+
+────────────────────────────────────────────────────────────
++ use serde_json;
+  use std::collections::HashMap;
+− pub fn use_dict() -> HashMap<String, String> {
++ pub fn use_dict() -> HashMap<serde_json::Value, serde_json::Value> {
+      return {
+          let mut map = HashMap::new();
+          map.insert("key".to_string(), "value".to_string());
+          map
+      };
+  }
+────────────────────────────────────────────────────────────

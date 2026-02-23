@@ -1,0 +1,8 @@
+  match-guards.toml :: guard_in
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // case x if x in valid_values: ...
+−     let result = true; // Placeholder
++ pub const result: bool = true;
+────────────────────────────────────────────────────────────

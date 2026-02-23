@@ -1,0 +1,22 @@
+  ownership.toml :: clone_in_loop
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  #[derive(Debug, Clone, PartialEq, Default)]
+  pub struct State {
+      pub template: String,
+  }
+  impl State {
+      pub fn new(template: String) -> Self {
+          Self { template }
+      }
+  }
+  pub fn build_list(state: &State, n: i32) -> Vec<String> {
+      let mut result: Vec<String> = vec![];
+      for _i in 0..n {
+−         result.push(state.template.clone());
++         result.push(state.template);
+      }
+      return result;
+  }
+────────────────────────────────────────────────────────────

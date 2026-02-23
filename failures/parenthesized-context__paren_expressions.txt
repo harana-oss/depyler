@@ -1,0 +1,49 @@
+  parenthesized-context.toml :: paren_expressions
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust: expressions in bindings
+−     fn get_cm() -> i32 {
+−         42
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct CM {
++     pub value: serde_json::Value,
++ }
++ impl CM {
++     pub fn new(value: serde_json::Value) -> Self {
++         Self { value }
++     }
++     pub fn __enter__(&self) {
++         return self.value.clone();
++     }
++     pub fn __exit__(&self) {
++         {}
++     }
++ }
++ #[derive(Debug, Copy, Clone)]
++ pub struct Obj {}
++ impl Obj {
++     pub fn new() -> Self {
++         Self {}
+      }
+− 
+−     struct Obj;
+−     impl Obj {
+−         fn method(&self) -> i32 {
+−             100
+−         }
++     pub fn method(&self) {
++         return CM::new(100);
+      }
+− 
+−     let obj = Obj;
+−     let x = get_cm();
+−     let y = obj.method();
+−     let result = x + y;
+−     assert_eq!(result, 142);
++ }
++ pub fn get_cm() {
++     return CM::new(42);
++ }
+────────────────────────────────────────────────────────────

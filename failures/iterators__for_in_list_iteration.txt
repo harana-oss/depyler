@@ -1,0 +1,14 @@
+  iterators.toml :: for_in_list_iteration
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn process_items(items: Vec<i32>) -> i32 {
++ pub fn process_items(items: &Vec<i32>) -> i32 {
+      let mut total = 0;
+−     for x in items {
++     for x in items.iter().cloned() {
+          total += x;
+      }
+      return total;
+  }
+────────────────────────────────────────────────────────────

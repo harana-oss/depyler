@@ -1,0 +1,44 @@
+  dunder-iteration.toml :: stop_iteration
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct ThreeIterator {
+−     count: i32,
++ #[derive(Debug, Copy, Clone)]
++ pub struct ThreeIterator {
++     pub count: i32,
+  }
+− 
+  impl ThreeIterator {
+−     fn new() -> Self {
+−         ThreeIterator { count: 0 }
++     pub fn new() -> Self {
++         Self { count: 0 }
+      }
+− }
+− 
+− impl Iterator for ThreeIterator {
+−     type Item = i32;
+− 
+−     fn next(&mut self) -> Option<Self::Item> {
++     pub fn __iter__(&self) -> &Self {
++         return self;
++     }
++     pub fn __next__(&mut self) {
+          if self.count < 3 {
+              self.count += 1;
+−             Some(self.count)
+−         } else {
+−             None
++             return self.count;
+          }
++         panic!("Exception: {}", StopIteration);
+      }
+  }
+− 
+− let mut it = ThreeIterator::new();
+− while let Some(val) = it.next() {
+−     log::info!("{}", val);
+− }
+− log::info!("Done");
+────────────────────────────────────────────────────────────

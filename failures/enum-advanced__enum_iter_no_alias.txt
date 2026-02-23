@@ -1,0 +1,25 @@
+  enum-advanced.toml :: enum_iter_no_alias
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug)]
+− enum Color {
+−     Red = 1,
+−     Green = 2,
++ #[derive(Debug, Copy, Clone)]
++ pub struct Color {}
++ impl Color {
++     pub const RED: i32 = 1;
++     pub const GREEN: i32 = 2;
++     pub const CRIMSON: i32 = 1;
++     pub fn new() -> Self {
++         Self {}
++     }
+  }
+− 
+− pub fn test_enum_iter_no_alias() -> usize {
+−     2
++ pub fn test_enum_iter_no_alias() -> i32 {
++     return Color.into_iter().collect::<Vec<_>>().len() as i32 as i32;
+  }
+────────────────────────────────────────────────────────────

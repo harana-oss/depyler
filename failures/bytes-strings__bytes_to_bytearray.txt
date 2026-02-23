@@ -1,0 +1,10 @@
+  bytes-strings.toml :: bytes_to_bytearray
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn test_bytes_to_bytearray() -> Vec<u8> {
+−     return b"hello".to_vec();
++ pub fn test_bytes_to_bytearray() -> bytearray {
++     return bytearray(b"hello");
+  }
+────────────────────────────────────────────────────────────

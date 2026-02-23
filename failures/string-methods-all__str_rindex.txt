@@ -1,0 +1,10 @@
+  string-methods-all.toml :: str_rindex
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub const result: i32 = "hello"
+−     .rfind("l")
+−     .map(|i| i as i32)
+−     .expect("substring not found");
++ 
+────────────────────────────────────────────────────────────

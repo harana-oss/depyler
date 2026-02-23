@@ -20,10 +20,7 @@ fn greet(name: &str) -> String {
     format!("Hello, {}!", name)
 }
 
-fn main() {
-    log::info!("{}", greet("Alice"));
-}
-"""
+log::info!("{}", greet("Alice"));"""
 
 [[test]]
 name = "posonly_multiple"
@@ -39,10 +36,7 @@ fn add_three(a: i32, b: i32, c: i32) -> i32 {
     a + b + c
 }
 
-fn main() {
-    log::info!("{}", add_three(1, 2, 3));
-}
-"""
+log::info!("{}", add_three(1, 2, 3));"""
 
 [[test]]
 name = "posonly_mixed"
@@ -59,11 +53,8 @@ fn mixed(a: i32, b: i32) -> String {
     format!("a={}, b={}", a, b)
 }
 
-fn main() {
-    log::info!("{}", mixed(1, 2));
-    log::info!("{}", mixed(1, 2));
-}
-"""
+log::info!("{}", mixed(1, 2));
+log::info!("{}", mixed(1, 2));"""
 
 [[test]]
 name = "posonly_defaults"
@@ -80,11 +71,8 @@ fn with_default(a: i32, b: Option<i32>) -> i32 {
     a + b.unwrap_or(10)
 }
 
-fn main() {
-    log::info!("{}", with_default(5, None));
-    log::info!("{}", with_default(5, Some(3)));
-}
-"""
+log::info!("{}", with_default(5, None));
+log::info!("{}", with_default(5, Some(3)));"""
 
 # =============================================================================
 # Combined with Keyword-Only
@@ -104,10 +92,7 @@ fn combined(a: i32, b: i32, c: i32) -> String {
     format!("a={}, b={}, c={}", a, b, c)
 }
 
-fn main() {
-    log::info!("{}", combined(1, 2, 3));
-}
-"""
+log::info!("{}", combined(1, 2, 3));"""
 
 [[test]]
 name = "all_arg_kinds"
@@ -131,14 +116,11 @@ fn all_kinds(a: i32, b: i32, args: &[i32], c: i32, kwargs: &HashMap<&str, i32>) 
     log::info!("kwargs={:?}", kwargs);
 }
 
-fn main() {
-    let args = vec![3, 4];
-    let mut kwargs = HashMap::new();
-    kwargs.insert("x", 10);
-    kwargs.insert("y", 20);
-    all_kinds(1, 2, &args, 5, &kwargs);
-}
-"""
+let args = vec![3, 4];
+let mut kwargs = HashMap::new();
+kwargs.insert("x", 10);
+kwargs.insert("y", 20);
+all_kinds(1, 2, &args, 5, &kwargs);"""
 
 # =============================================================================
 # Use Cases
@@ -160,10 +142,7 @@ fn pos_only(x: i32) -> i32 {
     x * 2
 }
 
-fn main() {
-    log::info!("{}", pos_only(5));
-}
-"""
+log::info!("{}", pos_only(5));"""
 
 [[test]]
 name = "posonly_name_reuse"
@@ -171,21 +150,18 @@ description = "def f(x, /): x = 1 (no conflict)"
 python = """
 def reuse_name(x, /):
     # Can reuse parameter name in function body
-    x = x + 1
+    x += 1
     return x
 
 print(reuse_name(5))
 """
 rust = """
 fn reuse_name(mut x: i32) -> i32 {
-    x = x + 1;
+    x += 1;
     x
 }
 
-fn main() {
-    log::info!("{}", reuse_name(5));
-}
-"""
+log::info!("{}", reuse_name(5));"""
 
 [[test]]
 name = "posonly_api_flex"
@@ -211,11 +187,8 @@ fn calculate_v2(value: i32) -> i32 {
     value * 2
 }
 
-fn main() {
-    log::info!("{}", calculate(10));
-    log::info!("{}", calculate_v2(10));
-}
-"""
+log::info!("{}", calculate(10));
+log::info!("{}", calculate_v2(10));"""
 
 # =============================================================================
 # Built-in Examples
@@ -239,14 +212,11 @@ fn my_len<T>(obj: &[T]) -> usize {
     obj.len()
 }
 
-fn main() {
-    let list = vec![1, 2, 3];
-    log::info!("{}", my_len(&list));
+let list = vec![1, 2, 3];
+log::info!("{}", my_len(&list));
 
-    let s = "hello";
-    log::info!("{}", s.len());
-}
-"""
+let s = "hello";
+log::info!("{}", s.len());"""
 
 [[test]]
 name = "posonly_pow"
@@ -271,11 +241,8 @@ fn my_pow(base: i32, exp: u32, modulo: Option<i32>) -> i32 {
     }
 }
 
-fn main() {
-    log::info!("{}", my_pow(2, 3, None));
-    log::info!("{}", my_pow(2, 3, Some(5)));
-}
-"""
+log::info!("{}", my_pow(2, 3, None));
+log::info!("{}", my_pow(2, 3, Some(5)));"""
 
 # =============================================================================
 # Edge Cases
@@ -295,10 +262,7 @@ fn all_posonly(a: i32, b: i32, c: i32) -> i32 {
     a + b + c
 }
 
-fn main() {
-    log::info!("{}", all_posonly(1, 2, 3));
-}
-"""
+log::info!("{}", all_posonly(1, 2, 3));"""
 
 [[test]]
 name = "posonly_invalid"
@@ -327,8 +291,5 @@ fn with_varargs(a: i32, args: &[i32]) -> String {
     format!("a={}, args={:?}", a, args)
 }
 
-fn main() {
-    log::info!("{}", with_varargs(1, &[]));
-    log::info!("{}", with_varargs(1, &[2, 3, 4]));
-}
-"""
+log::info!("{}", with_varargs(1, &[]));
+log::info!("{}", with_varargs(1, &[2, 3, 4]));"""

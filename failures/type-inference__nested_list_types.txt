@@ -1,0 +1,9 @@
+  type-inference.toml :: nested_list_types
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn process_matrix(matrix: &Vec<Vec<i32>>) -> i32 {
+−     return matrix.len() as i32;
++     return matrix.len() as i32 as i32;
+  }
+────────────────────────────────────────────────────────────

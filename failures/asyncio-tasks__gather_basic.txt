@@ -1,0 +1,30 @@
+  asyncio-tasks.toml :: gather_basic
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use tokio::join;
+− 
+− async fn coro1() -> i32 {
+−     1
++ use serde_json;
++ pub async fn coro1() -> i32 {
++     return 1;
++    
+  }
+− 
+− async fn coro2() -> i32 {
+−     2
++ pub async fn coro2() -> i32 {
++     return 2;
++    
+  }
+− 
+− pub async fn test_gather_basic() -> Vec<i32> {
+−     let (r1, r2) = join!(coro1(), coro2());
+−     vec![r1, r2]
+− }
++ pub async fn test_gather_basic() -> Vec<serde_json::Value>{
++     let results = asyncio.gather(coro1(), coro2()).await;
++     return results.into_iter().collect::<Vec<_>>();
++     }
+────────────────────────────────────────────────────────────

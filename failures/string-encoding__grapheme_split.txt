@@ -1,0 +1,10 @@
+  string-encoding.toml :: grapheme_split
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn split_graphemes(s: &str) -> Vec<String> {
+−     return s.chars().map(|c| c.to_string()).collect();
++ pub fn split_graphemes(s: String) -> Vec<String> {
++     return s.into_iter().collect::<Vec<_>>();
+  }
+────────────────────────────────────────────────────────────

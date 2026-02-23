@@ -1,0 +1,19 @@
+  cli-integration.toml :: simple_cli
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use clap::Parser;
+  #[derive(Debug, clap::Parser)]
+  #[command(about = "A simple CLI tool example")]
+  struct Args {
+      #[doc = "Your name"]
+      name: String,
+  }
+  pub fn main() -> i32 {
+      let args = Args::parse();
+−     log::info!("{}", format!("Hello, {:?}!", args.name));
+−     0
++     log::info!("{}", format!("Hello, {}!", args.name));
++     return 0;
+  }
+────────────────────────────────────────────────────────────

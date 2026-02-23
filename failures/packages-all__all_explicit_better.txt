@@ -1,0 +1,12 @@
+  packages-all.toml :: all_explicit_better
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust doesn't have star imports by default
+−     // Must explicitly list what to import: use module::{Item1, Item2};
+−     // Or import entire module: use module;
+−     // This enforces clarity and prevents namespace pollution
+−     let result = true;
+−     log::info!("Rust enforces explicit imports");
++ 
+────────────────────────────────────────────────────────────

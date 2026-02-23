@@ -1,0 +1,11 @@
+  lists-arrays.toml :: nested_arrays_empty_subarrays
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn test_empty_nested() -> Vec<Vec<i32>> {
++ use serde_json;
++ pub fn test_empty_nested() -> Vec<Vec<serde_json::Value>> {
+      let data = vec![vec![], vec![1, 2], vec![], vec![3]];
+      return data;
+  }
+────────────────────────────────────────────────────────────

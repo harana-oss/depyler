@@ -1,0 +1,9 @@
+  control-flow.toml :: expr_usize_binary
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn total_size(a: &Vec<i32>, b: &Vec<i32>) -> i32 {
+−     return a.len() as i32 + b.len() as i32;
++     return a.len() as i32 + b.len() as i32 as i32;
+  }
+────────────────────────────────────────────────────────────

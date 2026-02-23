@@ -1,0 +1,34 @@
+  control-flow.toml :: while_with_break
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  #[derive(Debug, Clone)]
+  pub struct IndexError {
+      message: String,
+  }
+  impl std::fmt::Display for IndexError {
+      fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+          write!(f, "index out of range: {}", self.message)
+      }
+  }
+  impl std::error::Error for IndexError {}
+  impl IndexError {
+      pub fn new(message: impl Into<String>) -> Self {
+          Self {
+              message: message.into(),
+          }
+      }
+  }
+− pub fn find_first(items: &Vec<i32>, target: i32) -> i32 {
++ pub fn find_first(items: &Vec<i32>, target: i32) -> Result<i32, IndexError> {
+      let mut i = 0;
+      while i < items.len() as i32 {
+          if items.get(i as usize).cloned().unwrap() == target {
+              break;
+          }
+          i += 1;
+      }
+−     return i;
++     return Ok(i);
+  }
+────────────────────────────────────────────────────────────

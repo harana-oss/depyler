@@ -1,0 +1,19 @@
+  optional-types.toml :: unary_neg_optional_field
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug, Clone, PartialEq, Default)]
++ #[derive(Debug, Copy, Clone, PartialEq, Default)]
+  pub struct Numbers {
+      pub value: Option<i32>,
+  }
+  impl Numbers {
+      pub fn new(value: Option<i32>) -> Self {
+          Self { value }
+      }
+  }
+  pub fn negate(n: &Numbers) -> i32 {
+−     return (-n.value.unwrap());
++     return (-n.value);
+  }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,10 @@
+  regressions.toml :: plain_list_type_mapping
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn process_items(items: Vec<i32>) -> Vec<i32> {
++ use serde_json;
++ pub fn process_items(items: Vec<serde_json::Value>) -> Vec<serde_json::Value> {
+      return items;
+  }
+────────────────────────────────────────────────────────────

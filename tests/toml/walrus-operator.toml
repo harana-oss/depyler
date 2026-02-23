@@ -15,14 +15,11 @@ if (n := len(items)) > 3:
     print(f"List has {n} items, which is more than 3")
 """
 rust = """
-fn main() {
-    let items = vec![1, 2, 3, 4, 5];
-    let n = items.len() as i32;
-    if n > 3 {
-        log::info!("{}", format!("List has {} items, which is more than 3", n));
-    }
-}
-"""
+let items = vec![1, 2, 3, 4, 5];
+let n = items.len() as i32;
+if n > 3 {
+    log::info!("{}", format!("List has {} items, which is more than 3", n));
+}"""
 
 [[test]]
 name = "walrus_in_while_condition"
@@ -76,16 +73,13 @@ if (a := x * 2) > 5 and (b := y * 2) > 15:
     print(f"a={a}, b={b}")
 """
 rust = """
-fn main() {
-    let x = 5;
-    let y = 10;
-    let a = x * 2;
-    let b = y * 2;
-    if (a > 5) && (b > 15) {
-        log::info!("{}", format!("a={}, b={}", a, b));
-    }
-}
-"""
+let x = 5;
+let y = 10;
+let a = x * 2;
+let b = y * 2;
+if (a > 5) && (b > 15) {
+    log::info!("{}", format!("a={}, b={}", a, b));
+}"""
 
 [[test]]
 name = "walrus_in_generator"
@@ -110,12 +104,9 @@ if (result := 10 + 20) > 25:
 print(f"Result: {result}")
 """
 rust = """
-fn main() {
-    let result = 10 + 20;
-    if result > 25 {}
-    log::info!("{}", format!("Result: {}", result));
-}
-"""
+let result = 10 + 20;
+if result > 25 {}
+log::info!("{}", format!("Result: {}", result));"""
 
 [[test]]
 name = "walrus_while_simple"

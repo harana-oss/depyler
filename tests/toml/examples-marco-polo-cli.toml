@@ -521,9 +521,9 @@ def format_statistics(score: int, attempts: int, rounds: int) -> str:
     """Format game statistics as string."""
     avg = calculate_average(attempts, rounds)
     result = "Game Statistics:\n"
-    result = result + "Score: " + str(score) + "\n"
-    result = result + "Attempts: " + str(attempts) + "\n"
-    result = result + "Average: " + str(avg) + "\n"
+    result += "Score: " + str(score) + "\n"
+    result += "Attempts: " + str(attempts) + "\n"
+    result += "Average: " + str(avg) + "\n"
     return result
 
 
@@ -544,14 +544,14 @@ def play_simple_round(target: int, max_attempts: int) -> int:
     guess = 50  # Start with middle guess
     
     while attempts < max_attempts:
-        attempts = attempts + 1
+        attempts += 1
         
         if guess == target:
             return attempts
         elif guess < target:
-            guess = guess + 10
+            guess += 10
         else:
-            guess = guess - 5
+            guess -= 5
     
     return attempts
 '''
@@ -590,12 +590,10 @@ pub fn generate_number(min_val: i32, max_val: i32) -> i32 {
     }
 #[doc = "Provide a hint based on the guess."]
 pub fn get_hint(guess: i32, target: i32) -> String {
-    let _cse_temp_0 = guess < target;
-    if _cse_temp_0 {
+        if guess < target {
         return "Marco!(Too low)".to_string();
     } else {
-        let _cse_temp_1 = guess > target;
-        if _cse_temp_1 {
+                if guess > target {
             return "Marco!(Too high)".to_string();
         } else {
             return "Polo!".to_string();
@@ -604,8 +602,7 @@ pub fn get_hint(guess: i32, target: i32) -> String {
 }
 #[doc = "Calculate final score."]
 pub fn calculate_score(attempts: i32, rounds: i32) -> i32 {
-    let _cse_temp_0 = rounds == 0;
-    if _cse_temp_0 {
+        if rounds == 0 {
         return 0;
     }
     let _cse_temp_1 = 100 * rounds;
@@ -613,24 +610,20 @@ pub fn calculate_score(attempts: i32, rounds: i32) -> i32 {
     let _cse_temp_2 = attempts * 5;
     let penalty = _cse_temp_2;
     let score = base_score - penalty;
-    let _cse_temp_3 = score < 0;
-    if _cse_temp_3 {
+        if score < 0 {
         return 0;
     }
     return score;
 }
 #[doc = "Get difficulty name from level."]
 pub fn get_difficulty_name(level: i32) -> &'a str {
-    let _cse_temp_0 = level == 1;
-    if _cse_temp_0 {
+        if level == 1 {
         return "Easy".to_string();
     } else {
-        let _cse_temp_1 = level == 2;
-        if _cse_temp_1 {
+                if level == 2 {
             return "Medium".to_string();
         } else {
-            let _cse_temp_2 = level == 3;
-            if _cse_temp_2 {
+                        if level == 3 {
                 return "Hard".to_string();
             } else {
                 return "Unknown".to_string();
@@ -640,8 +633,7 @@ pub fn get_difficulty_name(level: i32) -> &'a str {
 }
 #[doc = "Calculate average with safety check."]
 pub fn calculate_average(total: i32, count: i32) -> f64 {
-    let _cse_temp_0 = count == 0;
-    if _cse_temp_0 {
+        if count == 0 {
         return 0.0;
     }
     return (total as f64) / (count as f64);
@@ -663,12 +655,10 @@ pub fn format_statistics(score: i32, attempts: i32, rounds: i32) -> String {
 }
 #[doc = "Check if guess is in valid range."]
 pub fn validate_guess(guess: i32, min_val: i32, max_val: i32) -> bool {
-    let _cse_temp_0 = guess < min_val;
-    if _cse_temp_0 {
+        if guess < min_val {
         return false;
     }
-    let _cse_temp_1 = guess > max_val;
-    if _cse_temp_1 {
+        if guess > max_val {
         return false;
     }
     return true;
@@ -678,14 +668,14 @@ pub fn play_simple_round(target: i32, max_attempts: i32) -> i32 {
     let mut attempts = 0;
     let mut guess = 50;
     while attempts < max_attempts {
-        attempts = attempts + 1;
+        attempts += 1;
         if guess == target {
             return attempts;
         } else {
             if guess < target {
-                guess = guess + 10;
+                guess += 10;
             } else {
-                guess = guess - 5;
+                guess -= 5;
             }
         }
     }

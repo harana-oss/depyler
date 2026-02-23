@@ -1,0 +1,26 @@
+  enum-basic.toml :: enum_iteration
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust enums can't be iterated automatically
+−     // Use a const array or macro for iteration
+−     #[derive(Debug, PartialEq, Clone, Copy)]
+−     enum Color {
+−         RED = 1,
+−         GREEN = 2,
+−         BLUE = 3,
++ #[derive(Debug, Copy, Clone)]
++ pub struct Color {}
++ impl Color {
++     pub const RED: i32 = 1;
++     pub const GREEN: i32 = 2;
++     pub const BLUE: i32 = 3;
++     pub fn new() -> Self {
++         Self {}
+      }
+− 
+−     const ALL_COLORS: [Color; 3] = [Color::RED, Color::GREEN, Color::BLUE];
+− 
+−     let result = ALL_COLORS.len() == 3 && ALL_COLORS.contains(&Color::RED);
++ }
+────────────────────────────────────────────────────────────

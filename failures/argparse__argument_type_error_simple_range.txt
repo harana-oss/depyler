@@ -1,0 +1,34 @@
+  argparse.toml :: argument_type_error_simple_range
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use clap::Parser;
+  #[derive(Debug, Clone)]
+  pub struct ArgumentTypeError {
+      message: String,
+  }
+  impl std::fmt::Display for ArgumentTypeError {
+      fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+          write!(f, "argument type error: {}", self.message)
+      }
+  }
+  impl std::error::Error for ArgumentTypeError {}
+  impl ArgumentTypeError {
+      pub fn new(message: impl Into<String>) -> Self {
+          Self {
+              message: message.into(),
+          }
+      }
+  }
+− pub fn validate_range(value: String) -> i32 {
++ pub fn validate_range(value: String) -> Result<i32, ArgumentTypeError> {
+      let num = value.parse::<i32>().unwrap();
+      let _cse_temp_0 = (num < 0) || (num > 100);
+      if _cse_temp_0 {
+−         panic!("{}", "Value must be 0-100");
++         return Err(ArgumentTypeError::new("Value must be 0-100"));
+      }
+−     return num;
++     return Ok(num);
+  }
+────────────────────────────────────────────────────────────

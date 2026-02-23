@@ -1,0 +1,28 @@
+  parser-pattern-matching.toml :: pattern_star
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− fn get_len_category(items: Vec<i64>) -> String {
+−     match items.as_slice() {
+−         [] => "empty".to_string(),
+−         [_] => "single".to_string(),
+−         _ => "multiple".to_string(),
++ use serde_json;
++ pub fn get_len_category(items: &Vec<serde_json::Value>) -> String {
++     let length = items.len() as i32;
++     if length == 0 {
++         return "empty".to_string();
++     } else {
++         if length == 1 {
++             return "single".to_string();
++         } else {
++             return "multiple".to_string();
++         }
+      }
+− }
+− 
+− fn main() {
+−     let result = get_len_category(vec![1, 2, 3]);
+−     println!("{}", result);
+  }
+────────────────────────────────────────────────────────────

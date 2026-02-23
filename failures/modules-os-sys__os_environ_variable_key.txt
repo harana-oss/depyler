@@ -1,0 +1,12 @@
+  modules-os-sys.toml :: os_environ_variable_key
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use std as os;
+  pub fn test(key: String) -> bool {
+−     let _cse_temp_0 = std::env::var(key).is_ok();
+−     let exists: bool = _cse_temp_0;
++     let exists: bool = std::env::var(key).is_ok();
+      return exists;
+  }
+────────────────────────────────────────────────────────────

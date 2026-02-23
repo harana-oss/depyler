@@ -1,0 +1,45 @@
+  async-comprehensions.toml :: async_gen_expr
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use futures::stream::{self, StreamExt};
+− 
+− #[tokio::main]
+− async let mut stream = stream::iter(0..5);
+− let mut result = Vec::new();
+− while let Some(x) = stream.next().await {
++ use serde_json;
++ #[doc = " Generator state struct"] #[derive(Debug)] struct AsyncRangeState {
++     state: usize, n: serde_json::Value
++ }
++ #[doc = " Generator function - returns Iterator"] pub fn async_range(n: & serde_json::Value) -> impl Iterator<Item = i32>{
++     AsyncRangeState {
++     state: 0, n: n
++ }
++ } impl Iterator for AsyncRangeState {
++     type Item = i32;
++     fn next(&mut self) -> Option<Self::Item>{
++     match self.state {
++     0 =>{
++     self.state = 1;
++     for _i in 0..self.n {
++     return Some(i);
++    
++ }
++ None
++ }
++ _ =>None
++ }
++ }
++ }
++ pub async fn test() -> Vec<serde_json::Value>{
++     let gen = async_range(5).iter().cloned();
++     let result = vec! [];
++     while let Some(x) = gen.next().await {
+      result.push(x);
++    
+  }
+− log::info!("{:?}", result);
++ return result;
++     }
+────────────────────────────────────────────────────────────

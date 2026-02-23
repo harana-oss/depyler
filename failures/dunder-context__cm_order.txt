@@ -1,0 +1,38 @@
+  dunder-context.toml :: cm_order
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct Numbered {
+−     n: i32,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Numbered {
++     pub n: serde_json::Value,
+  }
+− 
+  impl Numbered {
+−     fn new(n: i32) -> Self {
+−         log::info!("Enter {}", n);
+−         Numbered { n }
++     pub fn new(n: serde_json::Value) -> Self {
++         Self { n }
++     }
++     pub fn __enter__(&self) -> &Self {
++         log::info!("{}", format!("Enter {}", self.n));
++         return self;
+      }
+− }
+− 
+− impl Drop for Numbered {
+−     fn drop(&mut self) {
+−         log::info!("Exit {}", self.n);
++     pub fn __exit__(&self) -> bool {
++         log::info!("{}", format!("Exit {}", self.n));
++         return false;
+      }
+  }
+− 
+− let _n1 = Numbered::new(1);
+− let _n2 = Numbered::new(2);
+− let _n3 = Numbered::new(3);
+────────────────────────────────────────────────────────────

@@ -1,0 +1,18 @@
+  cli-integration.toml :: test_kwargs
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use clap::Parser;
+  #[derive(Debug, clap::Parser)]
+  #[command(about = "Test kwargs preservation")]
+  struct Args {
+      #[doc = "Files to process"]
+      files: Vec<String>,
+  }
+  pub fn main() -> i32 {
+      let args = Args::parse();
+      log::info!("{}", format!("Files: {:?}", args.files));
+−     0
++     return 0;
+  }
+────────────────────────────────────────────────────────────

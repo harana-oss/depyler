@@ -1,0 +1,15 @@
+  optional-types.toml :: optional_in_list
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn filter_none(items: &Vec<Option<i32>>) -> Vec<i32> {
+      return items
+−         .clone()
+−         .into_iter()
++         .iter()
++         .cloned()
+          .filter(|x| x.is_some())
+−         .map(|x| x)
+          .collect::<Vec<_>>();
+  }
+────────────────────────────────────────────────────────────

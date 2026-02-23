@@ -1,0 +1,9 @@
+  imports-from.toml :: from_import_not_found
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust: compile-time error for non-existent imports
+−     // use std::env::nonexistent; // Would not compile
+−     let result = true;
++ 
+────────────────────────────────────────────────────────────

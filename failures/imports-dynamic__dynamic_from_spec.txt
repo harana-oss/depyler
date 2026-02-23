@@ -1,0 +1,9 @@
+  imports-dynamic.toml :: dynamic_from_spec
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // module_from_spec and loader.exec_module
+−     // Dynamic module execution not supported
+−     let result = true;
++ pub const result: bool = true;
+────────────────────────────────────────────────────────────

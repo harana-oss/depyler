@@ -1,0 +1,11 @@
+  counter.toml :: counter_del
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use std::collections::HashMap;
+− let mut c: HashMap<char, i32> = [('a', 2), ('b', 1)].iter().cloned().collect();
+− c.remove(&'a');
+− let mut items: Vec<_> = c.iter().collect();
+− items.sort();
+− log::info!("{:?}", items);
+────────────────────────────────────────────────────────────

@@ -1,0 +1,20 @@
+  positional-only-args.toml :: posonly_len
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− fn my_len<T>(obj: &[T]) -> usize {
+−     obj.len()
++ #[doc = "Custom len implementation style"]
++ pub fn my_len() -> i32 {
++     if true {
++         return obj.len() as i32 as i32;
++     }
++     return 0;
+  }
+− 
+− let list = vec![1, 2, 3];
+− log::info!("{}", my_len(&list));
+− 
+− let s = "hello";
+− log::info!("{}", s.len());
+────────────────────────────────────────────────────────────

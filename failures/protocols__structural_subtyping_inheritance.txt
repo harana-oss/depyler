@@ -1,0 +1,37 @@
+  protocols.toml :: structural_subtyping_inheritance
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub trait Base {
+−     fn base_method(&self) -> i32;
+− }
+− 
+− pub trait Extended: Base {
+−     fn extended_method(&self) -> String;
+− }
+− 
+− pub struct Implementation;
+− 
++ #[derive(Debug, Copy, Clone)]
++ pub struct Implementation {}
+  impl Implementation {
+      pub fn new() -> Self {
+−         Self
++         Self {}
+      }
+− }
+− 
+− impl Base for Implementation {
+−     fn base_method(&self) -> i32 {
++     pub fn base_method(&self) -> i32 {
+          return 42;
+      }
+− }
+− 
+− impl Extended for Implementation {
+−     fn extended_method(&self) -> String {
++     pub fn extended_method(&self) -> String {
+          return "extended".to_string();
+      }
+  }
+────────────────────────────────────────────────────────────

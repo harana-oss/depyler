@@ -1,0 +1,24 @@
+  dataclasses-basic.toml :: dataclass_defaults
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub const p1: Point = Point::new();
+− pub const p2: Point = Point::new(5);
+− pub const p3: Point = Point::new(5, 10);
+− pub const result: (i32, i32, i32, i32, i32, i32) = (p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
+− #[derive(Debug, Clone, PartialEq, Default)]
+− pub struct Point {}
++ #[derive(Debug, Copy, Clone, PartialEq, Default)]
++ pub struct Point {
++     pub x: i32,
++     pub y: i32,
++ }
+  impl Point {
+−     pub const x: i32 = 0;
+−     pub const y: i32 = 0;
+      pub fn new() -> Self {
+−         Self {}
++         Self { x: 0, y: 0 }
+      }
+  }
+────────────────────────────────────────────────────────────

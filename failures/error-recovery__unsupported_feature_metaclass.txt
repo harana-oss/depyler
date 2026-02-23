@@ -1,0 +1,20 @@
+  error-recovery.toml :: unsupported_feature_metaclass
+    Output mismatch
+
+────────────────────────────────────────────────────────────
++ #[derive(Debug, Copy, Clone)]
+  pub struct SimpleClass {
+      pub value: i32,
+  }
+− 
+  impl SimpleClass {
+      pub fn new(value: i32) -> Self {
+          Self { value }
+      }
+− 
+      pub fn get_value(&self) -> i32 {
+−         return self.value;
++         return self.value.clone();
+      }
+  }
+────────────────────────────────────────────────────────────

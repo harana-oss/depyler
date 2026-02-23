@@ -1,0 +1,24 @@
+  enum-basic.toml :: enum_unique
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust enforces unique discriminants by default
+−     #[derive(Debug, PartialEq)]
+−     enum Status {
+−         OK = 1,
+−         SUCCESS = 2,
+−         // GOOD = 1,  // Compile error: discriminant value already used
++ pub const result: serde_json::Value = (Status.OK.value == 1) && (Status.SUCCESS.value == 2);
++ use serde_json;
++ #[derive(Debug, Copy, Clone)]
++ pub struct Status {}
++ impl Status {
++     pub const OK: i32 = 1;
++     pub const SUCCESS: i32 = 2;
++     pub fn new() -> Self {
++         Self {}
+      }
+− 
+−     let result = Status::OK as i32 == 1 && Status::SUCCESS as i32 == 2;
++ }
+────────────────────────────────────────────────────────────

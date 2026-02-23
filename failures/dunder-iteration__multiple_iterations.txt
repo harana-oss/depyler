@@ -1,0 +1,41 @@
+  dunder-iteration.toml :: multiple_iterations
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct ReusableIterable {
+−     items: Vec<i32>,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct ReusableIterable {
++     pub items: serde_json::Value,
+  }
+− 
+  impl ReusableIterable {
+−     fn new(items: Vec<i32>) -> Self {
+−         ReusableIterable { items }
++     pub fn new(items: serde_json::Value) -> Self {
++         Self { items }
+      }
+− }
+− 
+− impl<'a> IntoIterator for &'a ReusableIterable {
+−     type Item = &'a i32;
+−     type IntoIter = std::slice::Iter<'a, i32>;
+− 
+−     fn into_iter(self) -> Self::IntoIter {
+−         self.items.iter()
++     pub fn __iter__(&self) {
++         return iter(self.items);
+      }
+  }
+− 
+− let iterable = ReusableIterable::new(vec![1, 2, 3]);
+− log::info!("First iteration:");
+− for item in &iterable {
+−     log::info!("{}", item);
+− }
+− log::info!("Second iteration:");
+− for item in &iterable {
+−     log::info!("{}", item);
+− }
+────────────────────────────────────────────────────────────

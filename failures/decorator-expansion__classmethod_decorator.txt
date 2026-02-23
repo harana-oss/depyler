@@ -1,0 +1,25 @@
+  decorator-expansion.toml :: classmethod_decorator
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub struct Factory;
+− 
++ #[derive(Debug, Copy, Clone)]
++ pub struct Factory {}
+  impl Factory {
+−     pub const DEFAULT_VALUE: i32 = 0;
+− 
++     pub const default_value: i32 = 0;
++     pub fn new() -> Self {
++         Self {}
++     }
+      pub fn create_default() -> i32 {
+−         return Self::DEFAULT_VALUE;
++         return Self::default_value;
+      }
+− 
+      pub fn create_with_value(value: i32) -> i32 {
+          return value;
+      }
+  }
+────────────────────────────────────────────────────────────

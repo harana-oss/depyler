@@ -1,0 +1,46 @@
+  contextlib-decorator.toml :: contextmanager_exception
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::cell::RefCell;
+−     use std::rc::Rc;
+− 
+−     let log: Rc<RefCell<Vec<&str>>> = Rc::new(RefCell::new(Vec::new()));
+−     let log_clone = log.clone();
+− 
+−     fn track_exception<F, R>(log: Rc<RefCell<Vec<&'static str>>>, f: F) -> Result<R, String>
+−     where
+−         F: FnOnce() -> Result<R, String>,
+−     {
+−         let result = f();
+−         log.borrow_mut().push("cleanup");
+−         result
++ use serde_json;
++ #[doc = " Generator state struct"]
++ #[derive(Debug)]
++ struct TrackExceptionState {
++     state: usize,
++ }
++ #[doc = " Generator function - returns Iterator"]
++ pub fn track_exception() -> impl Iterator<Item = serde_json::Value> {
++     TrackExceptionState { state: 0 }
++ }
++ impl Iterator for TrackExceptionState {
++     type Item = serde_json::Value;
++     fn next(&mut self) -> Option<Self::Item> {
++         match self.state {
++             0 => {
++                 self.state = 1;
++                 return None;
++                 log.push("cleanup");
++                 None
++             }
++             _ => None,
++         }
+      }
+− 
+−     let _ = track_exception(log_clone, || Err::<(), String>("error".to_string()));
+− 
+−     let result = log.borrow().clone();
++ }
+────────────────────────────────────────────────────────────

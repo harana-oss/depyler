@@ -1,0 +1,27 @@
+  abc.toml :: abc_virtual_subclass
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− trait MyABC {}
+  #[derive(Debug, Copy, Clone)]
++ pub struct MyABC {}
++ impl MyABC {
++     pub fn new() -> Self {
++         Self {}
++     }
++ }
++ #[derive(Debug, Copy, Clone)]
+  pub struct SomeClass {}
+  impl SomeClass {
+      pub fn new() -> Self {
+          Self {}
+      }
+  }
+  pub fn test_abc_virtual_subclass() -> bool {
+      let obj = SomeClass::new();
+      return true;
+− }
+− fn main() {
+−     MyABC::register(SomeClass);
+  }
+────────────────────────────────────────────────────────────

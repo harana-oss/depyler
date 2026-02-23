@@ -1,0 +1,29 @@
+  dataclasses-advanced.toml :: dataclass_replace_multi
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug, Clone)]
+− struct Point {
+−     x: i32,
+−     y: i32,
++ #[derive(Debug, Copy, Clone, PartialEq, Default)]
++ pub struct Point {
++     pub x: i32,
++     pub y: i32,
++ }
++ impl Point {
++     pub fn new(x: i32, y: i32) -> Self {
++         Self { x, y }
++     }
+  }
+− 
+− pub fn test_dataclass_replace_multi() -> (i32, i32) {
+−     let p1 = Point { x: 0, y: 0 };
+−     let p2 = Point { x: 1, y: 2 };
+−     (p2.x, p2.y)
++ pub fn test_dataclass_replace_multi() -> () {
++     let p1 = Point::new(0, 0);
++     let p2 = replace(p1, 1, 2);
++     return (p2.x, p2.y);
+  }
+────────────────────────────────────────────────────────────

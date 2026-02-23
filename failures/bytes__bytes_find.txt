@@ -1,0 +1,13 @@
+  bytes.toml :: bytes_find
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− let haystack = b"hello";
+−     let needle = b"l";
+−     let result = haystack
+−         .windows(needle.len())
+−         .position(|window| window == needle)
+−         .map(|i| i as i32)
+−         .unwrap_or(-1);
++ 
+────────────────────────────────────────────────────────────

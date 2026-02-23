@@ -1,0 +1,18 @@
+  match-as-patterns.toml :: as_conditional
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // case x as whole if validate(whole): ...
+−     fn validate(x: i32) -> bool {
+−         x > 0
+−     }
+− 
+−     let value = 5;
+−     let result = match value {
+−         whole @ x if validate(whole) => whole == 5,
+−         _ => false,
+−     };
++ pub fn validate(x: i32) -> bool {
++     return x > 0;
++ }
+────────────────────────────────────────────────────────────

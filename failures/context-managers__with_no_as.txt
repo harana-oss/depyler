@@ -1,0 +1,55 @@
+  context-managers.toml :: with_no_as
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct Lock {
+−         locked: bool,
++ use serde_json;
++ #[derive(Debug, Copy, Clone)]
++ pub struct Lock {
++     pub locked: bool,
++ }
++ impl Lock {
++     pub fn new() -> Self {
++         Self { locked: false }
+      }
+− 
+−     impl Lock {
+−         fn new() -> Self {
+−             Lock { locked: false }
+−         }
+− 
+−         fn acquire(&mut self) {
+−             self.locked = true;
+−         }
+− 
+−         fn release(&mut self) {
+−             self.locked = false;
+−         }
++     pub fn __enter__(&mut self) {
++         self.locked = true;
++         return ();
+      }
+− 
+−     impl Drop for Lock {
+−         fn drop(&mut self) {
+−             self.release();
+−         }
++     pub fn __exit__(
++         &mut self,
++         exc_type: serde_json::Value,
++         exc_val: serde_json::Value,
++         exc_tb: serde_json::Value,
++     ) -> bool {
++         self.locked = false;
++         return false;
+      }
+− 
+−     let mut lock = Lock::new();
+−     {
+−         lock.acquire();
+−         assert!(lock.locked);
+−     } // Drop called, releases lock
+−     assert!(!lock.locked);
++ }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,22 @@
+  global-nonlocal.toml :: nonlocal_read
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− fn outer() {
++ pub fn outer() {
+      let x = 42;
+− 
+−     let inner = || {
+−         x // Captures x from enclosing scope
+−     };
+− 
++     fn inner() -> () {
++         return x;
++     }
+      let result = inner();
+−     log::info!("Value: {}", result);
++     log::info!("{}", format!("Value: {}", result));
+  }
+− 
+− outer();
+────────────────────────────────────────────────────────────

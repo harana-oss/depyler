@@ -1,0 +1,10 @@
+  assignment.toml :: slice_assign
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn replace_slice(mut items: Vec<i32>, start: i32, end: i32, values: &Vec<i32>) {
++ pub fn replace_slice(items: &mut Vec<i32>, start: i32, end: i32, values: &Vec<i32>) {
+      items.clear();
+      items.extend(values);
+  }
+────────────────────────────────────────────────────────────

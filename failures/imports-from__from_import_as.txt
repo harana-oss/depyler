@@ -1,0 +1,10 @@
+  imports-from.toml :: from_import_as
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust: import with alias
+−     use std::env::current_dir as cwd;
+−     let result = cwd().is_ok();
+−     assert!(result);
++ use std::env::current_dir as cwd;
+────────────────────────────────────────────────────────────

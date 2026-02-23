@@ -1,0 +1,67 @@
+  context-managers.toml :: cm_custom_class
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct Database {
+−         connected: bool,
++ use serde_json;
++ #[derive(Debug, Copy, Clone)]
++ pub struct Database {
++     pub connected: bool,
++ }
++ impl Database {
++     pub fn new() -> Self {
++         Self { connected: false }
+      }
+− 
+−     impl Database {
+−         fn new() -> Self {
+−             Database { connected: false }
+−         }
+− 
+−         fn connect(&mut self) {
+−             self.connected = true;
+−         }
+− 
+−         fn disconnect(&mut self) {
+−             self.connected = false;
+−         }
+− 
+−         fn query(&self) -> String {
+−             assert!(self.connected);
+−             "result".to_string()
+−         }
++     pub fn __enter__(&mut self) -> &Self {
++         self.connected = true;
++         return self;
+      }
+− 
+−     impl Drop for Database {
+−         fn drop(&mut self) {
+−             self.disconnect();
+−         }
++     pub fn __exit__(
++         &mut self,
++         exc_type: serde_json::Value,
++         exc_val: serde_json::Value,
++         exc_tb: serde_json::Value,
++     ) -> bool {
++         self.connected = false;
++         return false;
+      }
+− 
+−     let mut db = Database::new();
+−     assert!(!db.connected);
+−     {
+−         db.connect();
+−         assert!(db.connected);
+−         let result = db.query();
+−         assert_eq!(result, "result");
+−     } // Drop called
+−     assert!(!db.connected);
++     pub fn query(&self) -> String {
++         assert!(self.connected);
++         return "result".to_string();
++     }
++ }
+────────────────────────────────────────────────────────────

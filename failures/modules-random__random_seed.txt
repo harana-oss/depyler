@@ -1,0 +1,15 @@
+  modules-random.toml :: random_seed
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use rand as random;
+− use rand::Rng;
+− use rand::prelude::*;
+  pub fn set_seed(seed: i32) {
+−     {
+−         let _seed = seed;
+−         ()
+−     }
++     DEPYLER_RNG.with(|rng| *rng.borrow_mut() = SmallRng::seed_from_u64(seed as u64));
++ }
+────────────────────────────────────────────────────────────

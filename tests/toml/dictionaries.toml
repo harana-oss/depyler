@@ -19,7 +19,7 @@ def create_empty() -> dict:
 rust = '''
 use serde_json;
 use std::collections::HashMap;
-pub fn create_empty() -> HashMap<serde_json::Value, serde_json::Value> {
+pub fn create_empty() -> HashMap<String, i32> {
     let d = {
         let map = HashMap::new();
         map
@@ -65,7 +65,7 @@ def test_basic():
 rust = '''
 use serde_json;
 use std::collections::HashMap;
-pub fn test_basic() -> HashMap<serde_json::Value, serde_json::Value> {
+pub fn test_basic() -> HashMap<String, i32> {
     let mut d = {
         let map = HashMap::new();
         map
@@ -90,7 +90,7 @@ def test_nested():
 rust = '''
 use serde_json;
 use std::collections::HashMap;
-pub fn test_nested() -> HashMap<serde_json::Value, serde_json::Value> {
+pub fn test_nested() -> HashMap<String, i32> {
     let mut d = {
         let map = HashMap::new();
         map
@@ -118,7 +118,7 @@ def get_value(d: dict, key: str) -> int:
 rust = '''
 use serde_json;
 use std::collections::HashMap;
-pub fn get_value(d: &HashMap<serde_json::Value, serde_json::Value>, key: String) -> i32 {
+pub fn get_value(d: &HashMap<String, i32>, key: String) -> i32 {
     return d.get(&key).cloned().unwrap();
 }
 '''
@@ -135,7 +135,7 @@ def safe_get(d: dict, key: str) -> int:
 rust = '''
 use serde_json;
 use std::collections::HashMap;
-pub fn safe_get(d: &HashMap<serde_json::Value, serde_json::Value>, key: String) -> i32 {
+pub fn safe_get(d: &HashMap<String, i32>, key: String) -> i32 {
     return *d.get(&key).unwrap_or(&0);
 }
 '''
@@ -153,7 +153,7 @@ rust = '''
 use serde_json;
 use std::collections::HashMap;
 pub fn get_or_default(
-    d: &HashMap<serde_json::Value, serde_json::Value>,
+    d: &HashMap<String, i32>,
     key: String,
     default: String,
 ) -> String {
@@ -173,7 +173,7 @@ def get_keys(d: dict) -> list:
 rust = '''
 use serde_json;
 use std::collections::HashMap;
-pub fn get_keys(d: &HashMap<serde_json::Value, serde_json::Value>) -> Vec<serde_json::Value> {
+pub fn get_keys(d: &HashMap<String, i32>) -> Vec<i32> {
     return d.keys().cloned().collect::<Vec<_>>();
 }
 '''
@@ -190,7 +190,7 @@ def get_values(d: dict) -> list:
 rust = '''
 use serde_json;
 use std::collections::HashMap;
-pub fn get_values(d: &HashMap<serde_json::Value, serde_json::Value>) -> Vec<serde_json::Value> {
+pub fn get_values(d: &HashMap<String, i32>) -> Vec<i32> {
     return d.values().cloned().collect::<Vec<_>>();
 }
 '''
@@ -207,7 +207,7 @@ def get_items(d: dict) -> list:
 rust = '''
 use serde_json;
 use std::collections::HashMap;
-pub fn get_items(d: &HashMap<serde_json::Value, serde_json::Value>) -> Vec<serde_json::Value> {
+pub fn get_items(d: &HashMap<String, i32>) -> Vec<i32> {
     return d
         .iter()
         .map(|(k, v)| (k.clone(), v.clone()))
@@ -227,7 +227,7 @@ def pop_key(d: dict, key: str) -> int:
 rust = '''
 use serde_json;
 use std::collections::HashMap;
-pub fn pop_key(d: &mut HashMap<serde_json::Value, serde_json::Value>, key: String) -> i32 {
+pub fn pop_key(d: &mut HashMap<String, i32>, key: String) -> i32 {
     return d.remove(key).expect("KeyError: key not found");
 }
 '''
@@ -245,8 +245,8 @@ rust = '''
 use serde_json;
 use std::collections::HashMap;
 pub fn update_dict(
-    d: &mut HashMap<serde_json::Value, serde_json::Value>,
-    other: &HashMap<serde_json::Value, serde_json::Value>,
+    d: &mut HashMap<String, i32>,
+    other: &HashMap<String, i32>,
 ) {
     for (k, v) in other {
         d.insert(k, v);
@@ -266,7 +266,7 @@ def clear_dict(d: dict):
 rust = '''
 use serde_json;
 use std::collections::HashMap;
-pub fn clear_dict(d: &mut HashMap<serde_json::Value, serde_json::Value>) {
+pub fn clear_dict(d: &mut HashMap<String, i32>) {
     d.clear();
 }
 '''
@@ -283,7 +283,7 @@ def has_key(d: dict, key: str) -> bool:
 rust = '''
 use serde_json;
 use std::collections::HashMap;
-pub fn has_key(d: &HashMap<serde_json::Value, serde_json::Value>, key: String) -> bool {
+pub fn has_key(d: &HashMap<String, i32>, key: String) -> bool {
     return d.get(&key).is_some();
 }
 '''
@@ -300,7 +300,7 @@ def missing_key(d: dict, key: str) -> bool:
 rust = '''
 use serde_json;
 use std::collections::HashMap;
-pub fn missing_key(d: &HashMap<serde_json::Value, serde_json::Value>, key: String) -> bool {
+pub fn missing_key(d: &HashMap<String, i32>, key: String) -> bool {
     return !d.get(&key).is_some();
 }
 '''
@@ -318,7 +318,7 @@ def print_keys(d: dict):
 rust = '''
 use serde_json;
 use std::collections::HashMap;
-pub fn print_keys(d: &HashMap<serde_json::Value, serde_json::Value>) {
+pub fn print_keys(d: &HashMap<String, i32>) {
     for key in d.iter().cloned() {
         log::info!("{}", key);
     }
@@ -338,7 +338,7 @@ def print_items(d: dict):
 rust = '''
 use serde_json;
 use std::collections::HashMap;
-pub fn print_items(d: &HashMap<serde_json::Value, serde_json::Value>) {
+pub fn print_items(d: &HashMap<String, i32>) {
     for (key, value) in d
         .iter()
         .map(|(k, v)| (k.clone(), v.clone()))
@@ -361,8 +361,8 @@ def dict_size(d: dict) -> int:
 rust = '''
 use serde_json;
 use std::collections::HashMap;
-pub fn dict_size(d: &HashMap<serde_json::Value, serde_json::Value>) -> i32 {
-    return d.len() as i32 as i32;
+pub fn dict_size(d: &HashMap<String, i32>) -> i32 {
+    return d.len() as i32;
 }
 '''
 
@@ -378,7 +378,7 @@ def squares_dict(n: int) -> dict:
 rust = '''
 use serde_json;
 use std::collections::HashMap;
-pub fn squares_dict(n: i32) -> HashMap<serde_json::Value, serde_json::Value> {
+pub fn squares_dict(n: i32) -> HashMap<String, i32> {
     return (0..n).map(|i| (i, i * i)).collect::<HashMap<_, _>>();
 }
 '''
@@ -574,7 +574,7 @@ rust = '''
 use serde_json;
 use std::collections::HashMap;
 pub fn set_default_value(
-    d: &mut HashMap<serde_json::Value, serde_json::Value>,
+    d: &mut HashMap<String, i32>,
     key: String,
     default: String,
 ) -> String {
@@ -595,7 +595,7 @@ rust = '''
 use serde_json;
 use std::collections::HashMap;
 pub fn pop_value(
-    d: &mut HashMap<serde_json::Value, serde_json::Value>,
+    d: &mut HashMap<String, i32>,
     key: String,
     default: String,
 ) -> String {
@@ -615,7 +615,7 @@ def pop_item(d: dict) -> tuple:
 rust = '''
 use serde_json;
 use std::collections::HashMap;
-pub fn pop_item(d: &mut HashMap<serde_json::Value, serde_json::Value>) -> () {
+pub fn pop_item(d: &mut HashMap<String, i32>) -> () {
     return {
         let key = d
             .keys()
@@ -643,7 +643,7 @@ use std::collections::HashMap;
 pub fn dict_from_keys(
     keys: &Vec<serde_json::Value>,
     value: i32,
-) -> HashMap<serde_json::Value, serde_json::Value> {
+) -> HashMap<String, i32> {
     return dict.fromkeys(keys, value);
 }
 '''
@@ -661,8 +661,8 @@ rust = '''
 use serde_json;
 use std::collections::HashMap;
 pub fn copy_dict(
-    d: &HashMap<serde_json::Value, serde_json::Value>,
-) -> HashMap<serde_json::Value, serde_json::Value> {
+    d: &HashMap<String, i32>,
+) -> HashMap<String, i32> {
     return d.clone();
 }
 '''
@@ -1027,7 +1027,7 @@ use std::collections::HashMap;
 pub fn dict_ops(d: &mut HashMap<String, i32>) {
     d.clone().insert("new_key".to_string(), 42);
     d.remove("old_key").unwrap_or(None);
-    if d.get(&"check_key").is_some() {
+    if d.get("check_key").is_some() {
         log::info!("{}", d.get("check_key").cloned().unwrap());
     }
 }
@@ -1127,7 +1127,7 @@ rust = '''
 use serde_json;
 use std::collections::HashMap;
 #[doc = "Test dictionary subscript assignment"]
-pub fn test_dict_assignment() -> HashMap<serde_json::Value, serde_json::Value> {
+pub fn test_dict_assignment() -> HashMap<String, i32> {
     let mut d = {
         let map = HashMap::new();
         map
@@ -1402,23 +1402,20 @@ pub fn test_dict_get(d: &HashMap<String, i32>) -> i32 {
 pub fn test_dict_get_no_default(d: &HashMap<String, i32>) {
     return d.get("key").cloned().unwrap();
 }
-fn main() {
-    let d1 = {
-        let mut map = HashMap::new();
-        map.insert("key".to_string(), 42);
-        map
-    };
-    let d2 = {
-        let mut map = HashMap::new();
-        map.insert("other".to_string(), 100);
-        map
-    };
-    log::info!("{}", test_dict_get(&d1));
-    log::info!("{}", test_dict_get(&d2));
-    log::info!("{}", test_dict_get_no_default(&d1));
-    log::info!("{}", test_dict_get_no_default(&d2));
-}
-"""
+let d1 = {
+    let mut map = HashMap::new();
+    map.insert("key".to_string(), 42);
+    map
+};
+let d2 = {
+    let mut map = HashMap::new();
+    map.insert("other".to_string(), 100);
+    map
+};
+log::info!("{}", test_dict_get(&d1));
+log::info!("{}", test_dict_get(&d2));
+log::info!("{}", test_dict_get_no_default(&d1));
+log::info!("{}", test_dict_get_no_default(&d2));"""
 expected_output = """42
 0
 Some(42)
@@ -1458,43 +1455,21 @@ impl Data {
     pub fn from_dict(d: HashMap<String, i32>) -> Data {
         return Data::new(*d.get("value").unwrap_or(&0));
     }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "value" => Some(Box::new(self.value.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "value" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.value = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
-    }
 }
-fn main() {
-    let d1 = {
-        let mut map = HashMap::new();
-        map.insert("value".to_string(), 100);
-        map
-    };
-    let d2 = {
-        let mut map = HashMap::new();
-        map.insert("other".to_string(), 50);
-        map
-    };
-    let obj1 = Data::from_dict(d1);
-    let obj2 = Data::from_dict(d2);
-    log::info!("{}", obj1.value);
-    log::info!("{}", obj2.value);
-}
-"""
+let d1 = {
+    let mut map = HashMap::new();
+    map.insert("value".to_string(), 100);
+    map
+};
+let d2 = {
+    let mut map = HashMap::new();
+    map.insert("other".to_string(), 50);
+    map
+};
+let obj1 = Data::from_dict(d1);
+let obj2 = Data::from_dict(d2);
+log::info!("{}", obj1.value);
+log::info!("{}", obj2.value);"""
 expected_output = """100
 0"""
 

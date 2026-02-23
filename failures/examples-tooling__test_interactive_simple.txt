@@ -1,0 +1,24 @@
+  examples-tooling.toml :: test_interactive_simple
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  #[doc = "Add two numbers."]
+  pub fn add_numbers(a: i32, b: i32) -> i32 {
+−     a + b
++     return a + b;
+  }
+  #[doc = "Multiply two numbers."]
+  pub fn multiply(x: i32, y: i32) -> i32 {
+−     let _cse_temp_0 = x * y;
+−     let result = _cse_temp_0;
+−     result
+− };
+−             let result1 = add_numbers(a.clone(), b.clone());
+−             let result2 = add_numbers(b.clone(), a.clone());
+−             if result1 != result2 {
+−                 return TestResult::failed();
+−             }
++     let result = x * y;
++     return result;
++ }
+────────────────────────────────────────────────────────────

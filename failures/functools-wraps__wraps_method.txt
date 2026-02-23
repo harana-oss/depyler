@@ -1,0 +1,33 @@
+  functools-wraps.toml :: wraps_method
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // @wraps on decorated method
+−     struct MyClass;
+− 
+−     impl MyClass {
+−         fn method(&self) -> i32 {
+−             42
+−         }
++ use serde_json;
++ use std;
++ #[derive(Debug, Copy, Clone)]
++ pub struct MyClass {}
++ impl MyClass {
++     pub fn new() -> Self {
++         Self {}
+      }
+− 
+−     let obj = MyClass;
+−     let result = obj.method() == 42;
++     pub fn method(&self) -> i32 {
++         return 42;
++     }
++ }
++ pub fn my_decorator(f: &serde_json::Value) {
++     fn wrapper() -> () {
++         return f(args);
++     }
++     return wrapper;
++ }
+────────────────────────────────────────────────────────────

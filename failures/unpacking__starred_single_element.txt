@@ -1,0 +1,10 @@
+  unpacking.toml :: starred_single_element
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− let _data = vec![1];
+− let a = _data[0];
+− let rest: Vec<_> = _data[1usize..].to_vec();
+− log::info!("{}", format!("a={}, rest={}", a, rest));
++ 
+────────────────────────────────────────────────────────────

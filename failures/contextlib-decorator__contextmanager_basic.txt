@@ -1,0 +1,36 @@
+  contextlib-decorator.toml :: contextmanager_basic
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust uses closures for context management
+−     fn simple<F, R>(f: F) -> R
+−     where
+−         F: FnOnce() -> R,
+−     {
+−         f()
++ use serde_json;
++ #[doc = " Generator state struct"]
++ #[derive(Debug)]
++ struct SimpleState {
++     state: usize,
++ }
++ #[doc = " Generator function - returns Iterator"]
++ pub fn simple() -> impl Iterator<Item = serde_json::Value> {
++     SimpleState { state: 0 }
++ }
++ impl Iterator for SimpleState {
++     type Item = serde_json::Value;
++     fn next(&mut self) -> Option<Self::Item> {
++         match self.state {
++             0 => {
++                 self.state = 1;
++                 return None;
++                 None
++             }
++             _ => None,
++         }
+      }
+− 
+−     let result = simple(|| "success");
++ }
+────────────────────────────────────────────────────────────

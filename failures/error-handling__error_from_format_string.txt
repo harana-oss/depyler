@@ -1,0 +1,34 @@
+  error-handling.toml :: error_from_format_string
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  #[derive(Debug, Clone)]
+  pub struct ValueError {
+      message: String,
+  }
+  impl std::fmt::Display for ValueError {
+      fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+          write!(f, "value error: {}", self.message)
+      }
+  }
+  impl std::error::Error for ValueError {}
+  impl ValueError {
+      pub fn new(message: impl Into<String>) -> Self {
+          Self {
+              message: message.into(),
+          }
+      }
+  }
+− pub fn validate_range(x: i32, max_val: i32) -> i32 {
++ pub fn validate_range(x: i32, max_val: i32) -> Result<i32, ValueError> {
+      if x > max_val {
+−         panic!("{}", format!("value {} exceeds maximum {}", x, max_val));
++         return Err(ValueError::new(format!(
++             "value {} exceeds maximum {}",
++             x, max_val
++         )));
+      }
+−     return x;
++     return Ok(x);
+  }
+────────────────────────────────────────────────────────────

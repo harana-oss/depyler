@@ -1,0 +1,56 @@
+  enum-methods.toml :: enum_mixin
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // In Rust, we use traits instead of mixins
+− use std::collections::HashMap;
+− 
+− trait ToJson {
+−     fn to_json(&self) -> HashMap<String, String>;
++ #[derive(Debug, Copy, Clone)]
++ pub struct JsonMixin {}
++ impl JsonMixin {
++     pub fn new() -> Self {
++         Self {}
++     }
++     pub fn to_json(&self) {
++         return {
++             let mut map = HashMap::new();
++             map.insert("name".to_string(), self.name);
++             map.insert("value".to_string(), self.value);
++             map
++         };
++     }
+  }
+− 
+− #[derive(Debug, Clone, Copy)]
+− enum Status {
+−     Pending = 1,
+−     Active = 2,
+− }
+− 
+− impl ToJson for Status {
+−     fn to_json(&self) -> HashMap<String, String> {
+−         let mut map = HashMap::new();
+−         map.insert("name".to_string(), format!("{:?}", self));
+−         map.insert("value".to_string(), (*self as i32).to_string());
+−         map
++ #[derive(Debug, Copy, Clone)]
++ pub struct Status {}
++ impl Status {
++     pub const PENDING: i32 = 1;
++     pub const ACTIVE: i32 = 2;
++     pub fn new() -> Self {
++         Self {}
+      }
+  }
+− 
+− let json = Status::Pending.to_json();
+− log::info!(
+−     "{{{}: {}, {}: {}}}",
+−     "'name'",
+−     format!("'{}'", json.get("name").unwrap()),
+−     "'value'",
+−     json.get("value").unwrap()
+− );
+────────────────────────────────────────────────────────────

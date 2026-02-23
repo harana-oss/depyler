@@ -1,0 +1,11 @@
+  ownership.toml :: clone_string_used_twice
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn use_string_twice(s: String) -> String {
+−     let a = s.clone();
++     let a = s;
+      let b = s;
+      return format!("{}{}", a, b);
+  }
+────────────────────────────────────────────────────────────

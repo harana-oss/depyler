@@ -1,0 +1,7 @@
+  control-flow.toml :: nested_tuple_unpacking
+    Expected transpilation to fail, but it succeeded:
+    pub fn test() {
+        let nested = ((1, 2), (3, 4));
+        let (a, (b, c)) = nested;
+        return a + b + c;
+    }

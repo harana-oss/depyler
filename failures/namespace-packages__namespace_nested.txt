@@ -1,0 +1,8 @@
+  namespace-packages.toml :: namespace_nested
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Nested namespace packages
+−     let result = true; // Placeholder
++ pub const result: bool = true;
+────────────────────────────────────────────────────────────

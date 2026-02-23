@@ -1,0 +1,11 @@
+  assert-statement.toml :: assert_tuple_gotcha
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− fn main() {
+−     let value = 10;
+−     assert!(value > 0, "Value must be positive");
+−     let result = true;
+− }
++ 
+────────────────────────────────────────────────────────────

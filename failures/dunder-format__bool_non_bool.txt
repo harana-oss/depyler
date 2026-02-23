@@ -1,0 +1,15 @@
+  dunder-format.toml :: bool_non_bool
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // In Rust, a method returning bool cannot return anything else
+− // This would be caught at compile time
+− log::info!("TypeError: __bool__ should return bool, returned str");
++ #[derive(Debug, Copy, Clone)]
++ pub struct BadBool {}
++ impl BadBool {
++     pub fn new() -> Self {
++         Self {}
++     }
++ }
+────────────────────────────────────────────────────────────

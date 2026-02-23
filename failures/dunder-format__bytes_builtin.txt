@@ -1,0 +1,29 @@
+  dunder-format.toml :: bytes_builtin
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct Data {
+−     values: Vec<u8>,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Data {
++     pub values: serde_json::Value,
+  }
+− 
+  impl Data {
+−     fn new(values: Vec<u8>) -> Self {
+−         Data { values }
+−     }
+− 
+−     fn to_bytes(&self) -> Vec<u8> {
+−         self.values.clone()
++     pub fn new(values: serde_json::Value) -> Self {
++         Self { values }
+      }
+  }
+− 
+− let data = Data::new(vec![72, 101, 108, 108, 111]);
+− let b = data.to_bytes();
+− log::info!("{:?}", b);
+− log::info!("{}", String::from_utf8(b.clone()).unwrap());
+────────────────────────────────────────────────────────────

@@ -1,0 +1,25 @@
+  verification-contracts.toml :: panic_programmer_error
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn unreachable_branch(value: i32) -> String {
++ pub fn unreachable_branch(value: i32) -> Result<String, AssertionError> {
+      if value > 0 {
+−         return "positive".to_string();
++         return Ok("positive".to_string());
+      } else {
+          if value < 0 {
+−             return "negative".to_string();
++             return Ok("negative".to_string());
+          } else {
+              if value == 0 {
+−                 return "zero".to_string();
++                 return Ok("zero".to_string());
+              } else {
+−                 panic!("{}", AssertionError::new("unreachable"));
++                 return Err(AssertionError::new("unreachable"));
+              }
+          }
+      }
+  }
+────────────────────────────────────────────────────────────

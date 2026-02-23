@@ -1,0 +1,29 @@
+  dunder-inplace.toml :: dunder_ifloordiv
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust doesn't have a FloorDivAssign trait, use DivAssign with integer division
+− use std::ops::DivAssign;
+− 
+− #[derive(Debug)]
+− struct Counter {
+−     x: i32,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Counter {
++     pub x: serde_json::Value,
+  }
+− 
+− impl DivAssign for Counter {
+−     fn div_assign(&mut self, other: Counter) {
+−         self.x /= other.x; // Integer division floors automatically
++ impl Counter {
++     pub fn new(x: serde_json::Value) -> Self {
++         Self { x }
+      }
+  }
+− 
+− let mut a = Counter { x: 10 };
+− a /= Counter { x: 3 };
+− log::info!("Counter({})", a.x);
+────────────────────────────────────────────────────────────

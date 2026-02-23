@@ -151,7 +151,7 @@ impl IndexError {
 }
 pub fn safe_list_access(items: &Vec<i32>, index: i32) -> i32 {
     let _cse_temp_0 = 0 <= index;
-    let _cse_temp_1 = items.clone().len() as i32;
+    let _cse_temp_1 = items.len() as i32;
     let _cse_temp_2 = index < _cse_temp_1;
     let _cse_temp_3 = (_cse_temp_0) && (_cse_temp_2);
     if _cse_temp_3 {
@@ -188,7 +188,7 @@ class Point:
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone]
 pub struct Point {
     pub x: i32,
     pub y: i32,
@@ -196,34 +196,6 @@ pub struct Point {
 impl Point {
     pub fn new(x: i32, y: i32) -> Self {
         Self { x, y }
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
-            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "x" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.x = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "y" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.y = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 '''
@@ -243,7 +215,7 @@ class Calculator:
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone]
 pub struct Calculator {
     pub value: i32,
 }
@@ -254,25 +226,6 @@ impl Calculator {
     pub fn add(&mut self, n: i32) -> i32 {
         self.value = format!("{}{}", self.value, n);
         return self.value.clone();
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "value" => Some(Box::new(self.value.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "value" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.value = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 '''
@@ -288,7 +241,7 @@ def double_all(nums: list[int]) -> list[int]:
 
 rust = '''
 pub fn double_all(nums: &Vec<i32>) -> Vec<i32> {
-    return nums.clone().into_iter().map(|n| n * 2).collect::<Vec<_>>();
+    return nums.iter().cloned().map(|n| n * 2).collect::<Vec<_>>();
 }
 '''
 
@@ -363,8 +316,7 @@ impl ValueError {
     }
 }
 pub fn safe_divide(a: i32, b: i32) -> i32 {
-    let _cse_temp_0 = b == 0;
-    if _cse_temp_0 {
+        if b == 0 {
         panic!("{}", "Division by zero");
     }
     return {
@@ -525,36 +477,36 @@ pub fn format_stats(stats: Stats, show_filename: bool) -> String {
     }
     result
 }
+#[derive(Debug, clap::Parser)]
+#[command(about = "Count lines, words, and characters in files")]
+#[command(after_help = "Similar to wc(1) Unix command")]
+struct Args {
+    #[doc = "Files to process"]
+    files: Vec<PathBuf>,
+    #[arg(short = 'l', long)]
+    #[arg(action = clap::ArgAction::SetTrue)]
+    #[doc = "Show only line count"]
+    lines: bool,
+    #[arg(short = 'w', long)]
+    #[arg(action = clap::ArgAction::SetTrue)]
+    #[doc = "Show only word count"]
+    words: bool,
+    #[arg(short = 'c', long)]
+    #[arg(action = clap::ArgAction::SetTrue)]
+    #[doc = "Show only character count"]
+    chars: bool,
+}
 #[doc = "Main entry point"]
 pub fn main() -> i32 {
-    #[derive(clap::Parser)]
-    #[command(about = "Count lines, words, and characters in files")]
-    #[command(after_help = "Similar to wc(1) Unix command")]
-    struct Args {
-        #[doc = "Files to process"]
-        files: Vec<PathBuf>,
-        #[arg(short = 'l', long)]
-        #[arg(action = clap::ArgAction::SetTrue)]
-        #[doc = "Show only line count"]
-        lines: bool,
-        #[arg(short = 'w', long)]
-        #[arg(action = clap::ArgAction::SetTrue)]
-        #[doc = "Show only word count"]
-        words: bool,
-        #[arg(short = 'c', long)]
-        #[arg(action = clap::ArgAction::SetTrue)]
-        #[doc = "Show only character count"]
-        chars: bool,
-    }
     let args = Args::parse();
     let mut total_lines = 0;
     let mut total_words = 0;
     let mut total_chars = 0;
     for filepath in args.files {
         let stats = count_file(filepath);
-        total_lines = total_lines + stats.lines;
-        total_words = total_words + stats.words;
-        total_chars = total_chars + stats.chars;
+        total_lines += stats.lines;
+        total_words += stats.words;
+        total_chars += stats.chars;
         if args.lines {
             log::info!("{}", format!("{:?} {:?}", stats.lines, stats.filename));
         } else {
@@ -570,8 +522,7 @@ pub fn main() -> i32 {
         }
     }
     let _cse_temp_0 = args.files.len() as i32;
-    let _cse_temp_1 = _cse_temp_0 > 1;
-    if _cse_temp_1 {
+        if _cse_temp_0 > 1 {
         let total_stats = Stats::new(total_lines, total_words, total_chars, "total".to_string());
         log::info!("{}", format_stats(total_stats));
     }
@@ -614,13 +565,13 @@ if __name__ == "__main__":
 
 rust = '''
 use clap::Parser;
+#[derive(Debug, clap::Parser)]
+#[command(about = "A simple CLI tool example")]
+struct Args {
+    #[doc = "Your name"]
+    name: String,
+}
 pub fn main() -> i32 {
-    #[derive(clap::Parser)]
-    #[command(about = "A simple CLI tool example")]
-    struct Args {
-        #[doc = "Your name"]
-        name: String,
-    }
     let args = Args::parse();
     log::info!("{}", format!("Hello, {:?}!", args.name));
     0
@@ -650,13 +601,13 @@ if __name__ == "__main__":
 
 rust = '''
 use clap::Parser;
+#[derive(Debug, clap::Parser)]
+#[command(about = "Test kwargs preservation")]
+struct Args {
+    #[doc = "Files to process"]
+    files: Vec<String>,
+}
 pub fn main() -> i32 {
-    #[derive(clap::Parser)]
-    #[command(about = "Test kwargs preservation")]
-    struct Args {
-        #[doc = "Files to process"]
-        files: Vec<String>,
-    }
     let args = Args::parse();
     log::info!("{}", format!("Files: {:?}", args.files));
     0
@@ -1212,7 +1163,6 @@ if __name__ == "__main__":
 rust = '''
 use clap::Parser;
 use serde_json as json;
-use serde_json;
 use std::collections::HashMap;
 use std::path::PathBuf;
 pub fn main() {
@@ -1854,9 +1804,9 @@ def format_statistics(score: int, attempts: int, rounds: int) -> str:
     """Format game statistics as string."""
     avg = calculate_average(attempts, rounds)
     result = "Game Statistics:\n"
-    result = result + "Score: " + str(score) + "\n"
-    result = result + "Attempts: " + str(attempts) + "\n"
-    result = result + "Average: " + str(avg) + "\n"
+    result += "Score: " + str(score) + "\n"
+    result += "Attempts: " + str(attempts) + "\n"
+    result += "Average: " + str(avg) + "\n"
     return result
 
 
@@ -1877,14 +1827,14 @@ def play_simple_round(target: int, max_attempts: int) -> int:
     guess = 50  # Start with middle guess
     
     while attempts < max_attempts:
-        attempts = attempts + 1
+        attempts += 1
         
         if guess == target:
             return attempts
         elif guess < target:
-            guess = guess + 10
+            guess += 10
         else:
-            guess = guess - 5
+            guess -= 5
     
     return attempts
 '''
@@ -1924,12 +1874,10 @@ pub fn generate_number(min_val: i32, max_val: i32) -> Result<i32, ZeroDivisionEr
 }
 #[doc = "Provide a hint based on the guess."]
 pub fn get_hint(guess: i32, target: i32) -> String {
-    let _cse_temp_0 = guess < target;
-    if _cse_temp_0 {
+        if guess < target {
         "Marco!(Too low)".to_string()
     } else {
-        let _cse_temp_1 = guess > target;
-        if _cse_temp_1 {
+                if guess > target {
             "Marco!(Too high)".to_string()
         } else {
             "Polo!".to_string()
@@ -1938,8 +1886,7 @@ pub fn get_hint(guess: i32, target: i32) -> String {
 }
 #[doc = "Calculate final score."]
 pub fn calculate_score(attempts: i32, rounds: i32) -> i32 {
-    let _cse_temp_0 = rounds == 0;
-    if _cse_temp_0 {
+        if rounds == 0 {
         return 0;
     }
     let _cse_temp_1 = 100 * rounds;
@@ -1947,24 +1894,20 @@ pub fn calculate_score(attempts: i32, rounds: i32) -> i32 {
     let _cse_temp_2 = attempts * 5;
     let penalty = _cse_temp_2;
     let score = base_score - penalty;
-    let _cse_temp_3 = score < 0;
-    if _cse_temp_3 {
+        if score < 0 {
         return 0;
     }
     score
 }
 #[doc = "Get difficulty name from level."]
 pub fn get_difficulty_name(level: i32) -> &'a str {
-    let _cse_temp_0 = level == 1;
-    if _cse_temp_0 {
+        if level == 1 {
         "Easy".to_string()
     } else {
-        let _cse_temp_1 = level == 2;
-        if _cse_temp_1 {
+                if level == 2 {
             "Medium".to_string()
         } else {
-            let _cse_temp_2 = level == 3;
-            if _cse_temp_2 {
+                        if level == 3 {
                 "Hard".to_string()
             } else {
                 "Unknown".to_string()
@@ -1974,8 +1917,7 @@ pub fn get_difficulty_name(level: i32) -> &'a str {
 }
 #[doc = "Calculate average with safety check."]
 pub fn calculate_average(total: i32, count: i32) -> Result<f64, ZeroDivisionError> {
-    let _cse_temp_0 = count == 0;
-    if _cse_temp_0 {
+        if count == 0 {
         return Ok(0.0);
     }
     Ok((total as f64) / (count as f64))
@@ -2001,12 +1943,10 @@ pub fn format_statistics(
 }
 #[doc = "Check if guess is in valid range."]
 pub fn validate_guess(guess: i32, min_val: i32, max_val: i32) -> bool {
-    let _cse_temp_0 = guess < min_val;
-    if _cse_temp_0 {
+        if guess < min_val {
         return false;
     }
-    let _cse_temp_1 = guess > max_val;
-    if _cse_temp_1 {
+        if guess > max_val {
         return false;
     }
     true
@@ -2016,14 +1956,14 @@ pub fn play_simple_round(target: i32, max_attempts: i32) -> i32 {
     let mut attempts = 0;
     let mut guess = 50;
     while attempts < max_attempts {
-        attempts = attempts + 1;
+        attempts += 1;
         if guess == target {
             return attempts;
         } else {
             if guess < target {
-                guess = guess + 10;
+                guess += 10;
             } else {
-                guess = guess - 5;
+                guess -= 5;
             }
         }
     }

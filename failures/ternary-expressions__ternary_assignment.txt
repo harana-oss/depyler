@@ -1,0 +1,10 @@
+  ternary-expressions.toml :: ternary_assignment
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− let value = 42;
+− let valid = true;
+− let result = if valid { value } else { 0 };
+− log::info!("{}", result);
++ 
+────────────────────────────────────────────────────────────

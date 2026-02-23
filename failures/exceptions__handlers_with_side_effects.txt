@@ -1,0 +1,32 @@
+  exceptions.toml :: handlers_with_side_effects
+    Output mismatch
+
+────────────────────────────────────────────────────────────
++ #[derive(Debug, Clone)]
++ pub struct ValueError {
++     message: String,
++ }
++ impl std::fmt::Display for ValueError {
++     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
++         write!(f, "value error: {}", self.message)
++     }
++ }
++ impl std::error::Error for ValueError {}
++ impl ValueError {
++     pub fn new(message: impl Into<String>) -> Self {
++         Self {
++             message: message.into(),
++         }
++     }
++ }
+  pub fn log_errors(x: i32) -> i32 {
+      {
+          let result = x * 2;
+          return result;
+          log::info!("{}", "ValueError occurred");
+          return 0;
+          log::info!("{}", "TypeError occurred");
+          return -1;
+      }
+  }
+────────────────────────────────────────────────────────────

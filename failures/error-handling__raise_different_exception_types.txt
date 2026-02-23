@@ -1,0 +1,73 @@
+  error-handling.toml :: raise_different_exception_types
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  #[derive(Debug, Clone)]
+  pub struct ZeroDivisionError {
+      message: String,
+  }
+  impl std::fmt::Display for ZeroDivisionError {
+      fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+          write!(f, "division by zero: {}", self.message)
+      }
+  }
+  impl std::error::Error for ZeroDivisionError {}
+  impl ZeroDivisionError {
+      pub fn new(message: impl Into<String>) -> Self {
+          Self {
+              message: message.into(),
+          }
+      }
+  }
+  #[derive(Debug, Clone)]
+  pub struct IndexError {
+      message: String,
+  }
+  impl std::fmt::Display for IndexError {
+      fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+          write!(f, "index out of range: {}", self.message)
+      }
+  }
+  impl std::error::Error for IndexError {}
+  impl IndexError {
+      pub fn new(message: impl Into<String>) -> Self {
+          Self {
+              message: message.into(),
+          }
+      }
+  }
+  #[derive(Debug, Clone)]
+  pub struct ValueError {
+      message: String,
+  }
+  impl std::fmt::Display for ValueError {
+      fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+          write!(f, "value error: {}", self.message)
+      }
+  }
+  impl std::error::Error for ValueError {}
+  impl ValueError {
+      pub fn new(message: impl Into<String>) -> Self {
+          Self {
+              message: message.into(),
+          }
+      }
+  }
+− pub fn validate_input(x: i32) -> i32 {
++ pub fn validate_input(x: i32) -> Result<i32, Box<dyn std::error::Error>> {
+      if x < 0 {
+−         panic!("{}", "Negative");
++         return Err(Box::new(ValueError::new("Negative")));
+      }
+      if x == 0 {
+−         panic!("{}", "Zero");
++         return Err(Box::new(ZeroDivisionError::new("Zero")));
+      }
+      if x > 1000 {
+−         panic!("{}", "Too large");
++         return Err(Box::new(IndexError::new("Too large")));
+      }
+−     return x;
++     return Ok(x);
+  }
+────────────────────────────────────────────────────────────

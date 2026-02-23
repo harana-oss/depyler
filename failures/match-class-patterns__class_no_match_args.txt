@@ -1,0 +1,11 @@
+  match-class-patterns.toml :: class_no_match_args
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− let value = 1;
+−     let result = match value {
+−         1 => "one",
+−         _ => "other",
+−     };
++ 
+────────────────────────────────────────────────────────────

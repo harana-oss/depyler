@@ -1,0 +1,15 @@
+  modules-csv.toml :: csv_dictwriter_writerows_batch
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use csv;
+  use serde_json;
+− pub fn write_batch(filename: String, rows: &Vec<serde_json::Value>) {
++ pub fn write_batch(filename: String, rows: &Vec<serde_json::Value>) -> Result<(), std::io::Error> {
+      let mut f = std::fs::File::create(filename)?;
+      let writer = csv::Writer::from_writer(f);
+      writer.writeheader();
+      writer.writerows(rows);
++     Ok(())
+  }
+────────────────────────────────────────────────────────────

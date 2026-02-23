@@ -1,0 +1,12 @@
+  const-evaluation.toml :: const_arithmetic_complex
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub const A: i32 = 10;
+  pub const B: i32 = 20;
+− pub const C: i32 = A + B;
+− pub const D: i32 = C * 2;
++ pub const C: serde_json::Value = A + B;
++ pub const D: serde_json::Value = C * 2;
++ use serde_json;
+────────────────────────────────────────────────────────────

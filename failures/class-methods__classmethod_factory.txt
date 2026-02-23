@@ -1,0 +1,29 @@
+  class-methods.toml :: classmethod_factory
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use serde_json;
+  #[derive(Debug, Clone)]
+  pub struct Date {
+      pub year: serde_json::Value,
+      pub month: serde_json::Value,
+      pub day: serde_json::Value,
+  }
+  impl Date {
+      pub fn new(year: serde_json::Value, month: serde_json::Value, day: serde_json::Value) -> Self {
+          Self { year, month, day }
+      }
+      pub fn from_string(date_string: serde_json::Value) {
+          let (mut year, mut month, mut day) = map(
+              int,
+              date_string
+                  .split("-".to_string())
+                  .map(|s| s.to_string())
+                  .collect(),
+          );
+          return Self::new(year, month, day);
+      }
+  }
+− let d = Date::from_string("2023-12-25");
+− log::info!("{}", d);
+────────────────────────────────────────────────────────────

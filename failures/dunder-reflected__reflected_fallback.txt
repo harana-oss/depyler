@@ -1,0 +1,29 @@
+  dunder-reflected.toml :: reflected_fallback
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::ops::Add;
+− 
+− struct Custom {
+−     value: i32,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Custom {
++     pub value: serde_json::Value,
+  }
+− 
+− impl Add<Custom> for i32 {
+−     type Output = String;
+− 
+−     fn add(self, other: Custom) -> String {
+−         format!("Reflected: {} + {}", self, other.value)
++ impl Custom {
++     pub fn new(value: serde_json::Value) -> Self {
++         Self { value }
+      }
+  }
+− 
+− let obj = Custom { value: 5 };
+− let result = 1 + obj;
+− log::info!("{}", result);
+────────────────────────────────────────────────────────────

@@ -1,0 +1,13 @@
+  imports-from.toml :: from_import_class
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust: import type/struct
+−     use std::collections::BTreeMap;
+−     let mut map = BTreeMap::new();
+−     map.insert("a", 1);
+−     map.insert("b", 2);
+−     let result: Vec<_> = map.keys().collect();
+−     assert_eq!(result.len(), 2);
++ use std::collections::IndexMap;
+────────────────────────────────────────────────────────────

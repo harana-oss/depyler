@@ -1,0 +1,32 @@
+  dictionaries.toml :: dict_get_in_class
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::collections::HashMap;
+  #[derive(Debug, Copy, Clone)]
+  pub struct Data {
+      pub value: i32,
+  }
+  impl Data {
+      pub fn new(value: i32) -> Self {
+          Self { value }
+      }
+      pub fn from_dict(d: HashMap<String, i32>) -> Data {
+          return Data::new(*d.get("value").unwrap_or(&0));
+      }
+  }
+− let d1 = {
+−     let mut map = HashMap::new();
+−     map.insert("value".to_string(), 100);
+−     map
+− };
+− let d2 = {
+−     let mut map = HashMap::new();
+−     map.insert("other".to_string(), 50);
+−     map
+− };
+− let obj1 = Data::from_dict(d1);
+− let obj2 = Data::from_dict(d2);
+− log::info!("{}", obj1.value);
+− log::info!("{}", obj2.value);
+────────────────────────────────────────────────────────────

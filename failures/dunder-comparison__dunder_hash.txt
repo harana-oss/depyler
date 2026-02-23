@@ -1,0 +1,36 @@
+  dunder-comparison.toml :: dunder_hash
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::collections::hash_map::DefaultHasher;
+− use std::hash::{Hash, Hasher};
+− 
+− #[derive(PartialEq, Eq, Hash)]
+− struct Point {
+−     x: i32,
+−     y: i32,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Point {
++     pub x: serde_json::Value,
++     pub y: serde_json::Value,
+  }
+− 
+  impl Point {
+−     fn new(x: i32, y: i32) -> Self {
+−         Point { x, y }
++     pub fn new(x: serde_json::Value, y: serde_json::Value) -> Self {
++         Self { x, y }
+      }
+  }
+− 
+− fn calculate_hash<T: Hash>(t: &T) -> u64 {
+−     let mut s = DefaultHasher::new();
+−     t.hash(&mut s);
+−     s.finish()
+− }
+− 
+− let p1 = Point::new(1, 2);
+− let p2 = Point::new(1, 2);
+− log::info!("{}", calculate_hash(&p1) == calculate_hash(&p2));
+────────────────────────────────────────────────────────────

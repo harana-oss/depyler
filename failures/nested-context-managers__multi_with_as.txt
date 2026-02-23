@@ -1,0 +1,23 @@
+  nested-context-managers.toml :: multi_with_as
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn read_files() {
++ pub fn read_files() -> Result<(), std::io::Error> {
+      let mut f1 = std::fs::File::open("a.txt")?;
+      let mut f2 = std::fs::File::open("b.txt")?;
+      let content1 = {
+          let mut content = String::new();
+          f1.read_to_string(&mut content)?;
+          content
+      };
+      let content2 = {
+          let mut content = String::new();
+          f2.read_to_string(&mut content)?;
+          content
+      };
+−     return content1 + content2;
++     return Ok(content1 + content2);
++     Ok(())
+  }
+────────────────────────────────────────────────────────────

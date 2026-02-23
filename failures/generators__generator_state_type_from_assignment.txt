@@ -1,0 +1,32 @@
+  generators.toml :: generator_state_type_from_assignment
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  #[doc = " Generator state struct"]
+  #[derive(Debug)]
+  struct CounterState {
+      state: usize,
+      x: i32,
+  }
+  #[doc = " Generator function - returns Iterator"]
+  pub fn counter() -> impl Iterator<Item = i32> {
+      CounterState { state: 0, x: 0 }
+  }
+  impl Iterator for CounterState {
+      type Item = i32;
+      fn next(&mut self) -> Option<Self::Item> {
+          match self.state {
+              0 => {
+−                 self.x = 1;
+                  self.state = 1usize;
+                  return Some(self.x);
+              }
+              1usize => {
+                  self.state = 1usize + 1;
+                  None
+              }
+              _ => None,
+          }
+      }
+  }
+────────────────────────────────────────────────────────────

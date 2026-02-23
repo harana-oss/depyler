@@ -546,7 +546,7 @@ def count_items(items: list[int]) -> int:
 
 rust = '''
 pub fn count_items(items: &Vec<i32>) -> i32 {
-    return items.len() as i32 as i32;
+    return items.len() as i32;
 }
 '''
 

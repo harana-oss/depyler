@@ -1,0 +1,9 @@
+  dead-code-elimination.toml :: unused_assignment_eliminated
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn use_only_y(x: i32, y: i32) -> i32 {
++     let unused = x * 2;
+      return y;
+  }
+────────────────────────────────────────────────────────────

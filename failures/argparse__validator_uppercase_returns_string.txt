@@ -1,0 +1,17 @@
+  argparse.toml :: validator_uppercase_returns_string
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use clap::Parser;
+  #[derive(Debug, clap::Parser)]
+  struct Args {
+      #[arg(long)]
+      name: Option<String>,
+  }
+  #[doc = "Validator that transforms string using string method."]
+− pub fn uppercase_string(value: String) -> String {
++ pub fn uppercase_string(value: &str) -> String {
+      return value.to_uppercase();
+  }
+  pub fn main() {}
+────────────────────────────────────────────────────────────

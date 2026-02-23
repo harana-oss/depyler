@@ -1,0 +1,43 @@
+  optional-types.toml :: optional_list_indexing
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  #[derive(Debug, Clone)]
+  pub struct IndexError {
+      message: String,
+  }
+  impl std::fmt::Display for IndexError {
+      fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+          write!(f, "index out of range: {}", self.message)
+      }
+  }
+  impl std::error::Error for IndexError {}
+  impl IndexError {
+      pub fn new(message: impl Into<String>) -> Self {
+          Self {
+              message: message.into(),
+          }
+      }
+  }
+  #[derive(Debug, Clone, PartialEq, Default)]
+  pub struct Container {
+      pub items: Option<Vec<i32>>,
+  }
+  impl Container {
+      pub fn new(items: Option<Vec<i32>>) -> Self {
+          Self { items }
+      }
+  }
+− pub fn get_first(c: &Container) -> i32 {
+−     return c
+−         .items
+−         .clone()
+−         .as_ref()
+−         .unwrap()
+−         .get(0usize)
+−         .cloned()
+−         .unwrap();
++ pub fn get_first(c: &Container) -> Result<i32, IndexError> {
++     return Ok(c.items.get(0usize).cloned().unwrap());
+  }
+────────────────────────────────────────────────────────────

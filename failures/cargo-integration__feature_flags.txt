@@ -1,0 +1,18 @@
+  cargo-integration.toml :: feature_flags
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn is_feature_enabled(features: &[String], feature: &str) -> bool {
+−     return features.iter().any(|f| f == feature);
++ pub fn is_feature_enabled(features: &Vec<String>, feature: String) -> bool {
++     return features.contains(&feature);
+  }
+− 
+  pub fn default_features() -> Vec<String> {
+      return vec!["std".to_string()];
+  }
+− 
+  pub fn all_features() -> Vec<String> {
+      return vec!["std".to_string(), "serde".to_string(), "async".to_string()];
+  }
+────────────────────────────────────────────────────────────

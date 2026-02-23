@@ -1,0 +1,14 @@
+  error-handling.toml :: raise_typeerror
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn require_int(x: i32) -> i32 {
++ pub fn require_int(x: i32) -> Result<i32, TypeError> {
+      if x == 0 {
+−         panic!("{}", "cannot be zero");
++         return Err(TypeError::new("cannot be zero"));
+      }
+−     return x;
++     return Ok(x);
+  }
+────────────────────────────────────────────────────────────

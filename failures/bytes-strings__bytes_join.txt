@@ -1,0 +1,21 @@
+  bytes-strings.toml :: bytes_join
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn test_bytes_join() -> Vec<u8> {
+−     let parts: Vec<&[u8]> = vec![b"a", b"b"];
+−     let separator = b",";
+−     let mut result = Vec::new();
+− 
+−     for (i, part) in parts.iter().enumerate() {
+−         if i > 0 {
+−             result.extend_from_slice(separator);
+−         }
+−         result.extend_from_slice(part);
+−     }
+− 
+−     return result;
++ pub fn test_bytes_join() -> bytes {
++     return vec![b"a", b"b"].join(&b",");
+  }
+────────────────────────────────────────────────────────────

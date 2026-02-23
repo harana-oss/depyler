@@ -1,0 +1,30 @@
+  classes.toml :: property_with_conditional
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug, Copy, Clone]
++ #[derive(Debug, Copy, Clone)]
+  pub struct User {
+      pub age: i32,
+      pub premium: bool,
+  }
+  impl User {
+      pub fn new(age: i32, premium: bool) -> Self {
+          Self { age, premium }
+      }
+      pub fn access_level(&self) -> String {
+          if self.premium {
+              return "premium".to_string();
+          } else {
+              if self.age >= 18 {
+                  return "adult".to_string();
+              } else {
+                  return "basic".to_string();
+−             };
+−         };
++             }
++         }
+      }
+− }
++ }
+────────────────────────────────────────────────────────────

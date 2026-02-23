@@ -1,0 +1,8 @@
+  async-with.toml :: async_with_file
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // async with aiofiles.open() as f: ...
+−     let result = true; // Placeholder
++ pub const result: bool = true;
+────────────────────────────────────────────────────────────

@@ -1,0 +1,11 @@
+  basic-types.toml :: memory_safety_example
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use serde_json;
+− pub fn safe_access(items: &Vec<i32>) -> i32 {
+−     return items.len() as i32;
++ pub fn safe_access(items: &Vec<serde_json::Value>) -> i32 {
++     return items.len() as i32 as i32;
+  }
+────────────────────────────────────────────────────────────

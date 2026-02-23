@@ -1,0 +1,10 @@
+  collections.toml :: list_count
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use serde_json;
+  pub fn count_items(lst: &Vec<serde_json::Value>, item: i32) -> i32 {
+−     return lst.iter().filter(|x| **x == item).count() as i32;
++     return lst.iter().filter(|x| **x == item).count() as i32 as i32;
+  }
+────────────────────────────────────────────────────────────

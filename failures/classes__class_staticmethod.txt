@@ -1,0 +1,16 @@
+  classes.toml :: class_staticmethod
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug, Clone)]
++ #[derive(Debug, Copy, Clone)]
+  pub struct MathUtils {}
+  impl MathUtils {
+      pub fn new() -> Self {
+          Self {}
+      }
+      pub fn add(a: i32, b: i32) -> i32 {
+          return a + b;
+      }
+  }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,29 @@
+  slots.toml :: slots_defaults
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct NoDefaults {
+−     x: i32,
+−     y: i32,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct NoDefaults {
++     pub x: serde_json::Value,
++     pub y: serde_json::Value,
+  }
+− 
+  impl NoDefaults {
+−     fn new(x: Option<i32>, y: Option<i32>) -> Self {
+−         NoDefaults {
+−             x: x.unwrap_or(0),
+−             y: y.unwrap_or(0),
+−         }
++     pub const __slots__: Vec<String> = vec!["x".to_string(), "y".to_string()];
++     pub fn new(x: serde_json::Value, y: serde_json::Value) -> Self {
++         Self { x, y }
+      }
+  }
+− 
+− let n = NoDefaults::new(None, None);
+− log::info!("{} {}", n.x, n.y);
+────────────────────────────────────────────────────────────

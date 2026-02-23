@@ -12,7 +12,7 @@ def count_with_step(start: int, step: int):
     current = start
     while current < 10:
         yield current
-        current = current + step
+        current += step
 '''
 
 rust = '''
@@ -63,9 +63,9 @@ def accumulator(limit: int):
     total = 0
     i = 0
     while i < limit:
-        total = total + i
+        total += i
         yield total
-        i = i + 1
+        i += 1
 '''
 
 rust = '''
@@ -122,8 +122,8 @@ def matrix_elements(rows: int, cols: int):
         j = 0
         while j < cols:
             yield i * cols + j
-            j = j + 1
-        i = i + 1
+            j += 1
+        i += 1
 '''
 
 rust = '''
@@ -194,7 +194,7 @@ def alternating(n: int):
         else:
             val = -i
         yield val
-        i = i + 1
+        i += 1
 '''
 
 rust = '''
@@ -252,7 +252,7 @@ def repeat_value(value: int, times: int):
     count = 0
     while count < times:
         yield value
-        count = count + 1
+        count += 1
 '''
 
 rust = '''

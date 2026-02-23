@@ -1,0 +1,36 @@
+  error-handling.toml :: raise_custom_message
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  #[derive(Debug, Clone)]
+  pub struct ValueError {
+      message: String,
+  }
+  impl std::fmt::Display for ValueError {
+      fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+          write!(f, "value error: {}", self.message)
+      }
+  }
+  impl std::error::Error for ValueError {}
+  impl ValueError {
+      pub fn new(message: impl Into<String>) -> Self {
+          Self {
+              message: message.into(),
+          }
+      }
+  }
+− pub fn check_bounds(x: i32, low: i32, high: i32) -> i32 {
+−     let _cse_temp_0 = x < low;
+−     let _cse_temp_1 = x > high;
+−     let _cse_temp_2 = (_cse_temp_0) || (_cse_temp_1);
+−     if _cse_temp_2 {
+−         panic!("{}", format!("out of bounds: {}", x));
++ pub fn check_bounds(x: i32, low: i32, high: i32) -> Result<i32, ValueError> {
++     let _cse_temp_0 = (x < low) || (x > high);
++     if _cse_temp_0 {
++         return Err(ValueError::new(format!("out of bounds: {}", x)));
+      }
+−     return x;
++     return Ok(x);
+  }
+────────────────────────────────────────────────────────────

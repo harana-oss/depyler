@@ -1,0 +1,22 @@
+  boundary-values.toml :: range_boundaries
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn range_boundary_test() -> i32 {
+      let empty_range = (0..0).collect::<Vec<_>>();
+      let single_range = (0..1).collect::<Vec<_>>();
+      let reverse_range = {
+          let step = (-1 as i32).abs() as usize;
+          if step == 0 {
+              panic!("range() arg 3 must not be zero");
+          }
+          (0..5).rev().step_by(step.max(1))
+      }
+      .into_iter()
+      .collect::<Vec<_>>();
+−     return empty_range.len() as i32 + single_range.len() as i32 + reverse_range.len() as i32;
++     return empty_range.len() as i32
++         + single_range.len() as i32
++         + reverse_range.len() as i32 as i32;
+  }
+────────────────────────────────────────────────────────────

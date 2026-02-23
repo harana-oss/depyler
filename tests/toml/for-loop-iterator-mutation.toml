@@ -24,7 +24,6 @@ def update_scores(state: State) -> None:
 '''
 
 rust = '''
-use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Player {
     pub score: i32,
@@ -68,12 +67,11 @@ class State:
 def print_names(state: State) -> int:
     count = 0
     for player in state.players:
-        count = count + 1
+        count += 1
     return count
 '''
 
 rust = '''
-use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Player {
     pub name: String,
@@ -95,7 +93,7 @@ impl State {
 pub fn print_names(state: &State) -> i32 {
     let mut count = 0;
     for player in state.players.iter() {
-        count = count + 1;
+        count += 1;
     }
     return count;
 }
@@ -110,7 +108,7 @@ def sum_local() -> int:
     items = [1, 2, 3]
     total = 0
     for x in items:
-        total = total + x
+        total += x
     return total
 '''
 
@@ -119,7 +117,7 @@ pub fn sum_local() -> i32 {
     let items = vec![1, 2, 3];
     let mut total = 0;
     for x in items.iter().cloned() {
-        total = total + x;
+        total += x;
     }
     return total;
 }
@@ -164,7 +162,6 @@ def add_to_all(data: Data, value: int) -> None:
 '''
 
 rust = '''
-use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Container {
     pub items: Vec<i32>,
@@ -216,7 +213,6 @@ def increment_all(grid: Grid) -> None:
 '''
 
 rust = '''
-use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Cell {
     pub value: i32,

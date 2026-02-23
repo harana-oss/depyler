@@ -1,0 +1,17 @@
+  conditional-imports.toml :: hashmap_usage_generates_import
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use std::collections::HashMap;
+  pub fn create_map() -> HashMap<String, i32> {
+−     return [("a".to_string(), 1), ("b".to_string(), 2)]
+−         .into_iter()
+−         .collect();
++     return {
++         let mut map = HashMap::new();
++         map.insert("a".to_string(), 1);
++         map.insert("b".to_string(), 2);
++         map
++     };
+  }
+────────────────────────────────────────────────────────────

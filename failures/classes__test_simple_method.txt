@@ -1,0 +1,27 @@
+  classes.toml :: test_simple_method
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug, Copy, Clone]
++ #[derive(Debug, Copy, Clone)]
+  pub struct Counter {
+      pub count: i32,
+  }
+  impl Counter {
+      pub fn new(n: i32) -> Self {
+          Self { count: n }
+      }
+      pub fn increment(&mut self) {
+−         self.count = self.count + 1;
++         self.count += 1;
+      }
+  }
+− pub fn test_counter() -> i32 {
++ pub fn test_counter() {
+      let mut c = Counter::new(0);
+      c.increment();
+−     c.count
+− }
++     return c.count;
++ }
+────────────────────────────────────────────────────────────

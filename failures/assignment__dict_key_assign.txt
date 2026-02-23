@@ -1,0 +1,11 @@
+  assignment.toml :: dict_key_assign
+    Output mismatch
+
+────────────────────────────────────────────────────────────
++ use serde_json;
+  use std::collections::HashMap;
+− pub fn set_key(d: &mut HashMap<String, i32>, key: String, value: i32) {
++ pub fn set_key(d: &mut HashMap<serde_json::Value, serde_json::Value>, key: String, value: i32) {
+      d.insert(key, value);
+  }
+────────────────────────────────────────────────────────────

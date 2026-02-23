@@ -1,0 +1,29 @@
+  examples-tooling.toml :: test_augmented_assign
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug, Copy, Clone]
++ #[derive(Debug, Copy, Clone)]
+  pub struct Counter {
+      pub value: i32,
+  }
+  impl Counter {
+      pub fn new(initial: i32) -> Self {
+          Self { value: initial }
+      }
+      pub fn increment(&mut self, amount: i32) {
+−         self.value = self.value + amount;
+−         return self.value;
++         self.value += amount;
++         return self.value.clone();
+      }
+  }
+− pub fn test_counter() -> i32 {
++ pub fn test_counter() {
+      let mut c = Counter::new(10);
+      let result = c.increment(5);
+−     result
+− }
++     return result;
++ }
+────────────────────────────────────────────────────────────

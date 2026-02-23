@@ -1,0 +1,9 @@
+  resource-management.toml :: file_handle_cleanup
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn read_file_safe(path: String) -> String {
++ pub fn read_file_safe(path: String) -> Result<String, std::io::Error> {
+      return std::fs::read_to_string(path).unwrap_or_default();
+  }
+────────────────────────────────────────────────────────────

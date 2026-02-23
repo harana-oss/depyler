@@ -17,11 +17,8 @@ print(dict(c))
 rust = """
 use std::collections::HashMap;
 
-fn main() {
-    let c: HashMap<String, usize> = HashMap::new();
-    log::info!("{{}}");
-}
-"""
+let c: HashMap<String, usize> = HashMap::new();
+log::info!("{{}}");"""
 
 [[test]]
 name = "counter_iterable"
@@ -34,17 +31,14 @@ print(dict(sorted(c.items())))
 rust = """
 use std::collections::HashMap;
 
-fn main() {
-    let s = "abracadabra";
-    let mut c: HashMap<char, usize> = HashMap::new();
-    for ch in s.chars() {
-        *c.entry(ch).or_insert(0) += 1;
-    }
-    let mut items: Vec<_> = c.iter().collect();
-    items.sort_by_key(|&(k, _)| k);
-    log::info!("{:?}", items);
+let s = "abracadabra";
+let mut c: HashMap<char, usize> = HashMap::new();
+for ch in s.chars() {
+    *c.entry(ch).or_insert(0) += 1;
 }
-"""
+let mut items: Vec<_> = c.iter().collect();
+items.sort_by_key(|&(k, _)| k);
+log::info!("{:?}", items);"""
 
 [[test]]
 name = "counter_mapping"
@@ -57,15 +51,12 @@ print(dict(sorted(c.items())))
 rust = """
 use std::collections::HashMap;
 
-fn main() {
-    let mut c: HashMap<char, usize> = HashMap::new();
-    c.insert('a', 4);
-    c.insert('b', 2);
-    let mut items: Vec<_> = c.iter().collect();
-    items.sort_by_key(|&(k, _)| k);
-    log::info!("{:?}", items);
-}
-"""
+let mut c: HashMap<char, usize> = HashMap::new();
+c.insert('a', 4);
+c.insert('b', 2);
+let mut items: Vec<_> = c.iter().collect();
+items.sort_by_key(|&(k, _)| k);
+log::info!("{:?}", items);"""
 
 [[test]]
 name = "counter_kwargs"
@@ -78,15 +69,12 @@ print(dict(sorted(c.items())))
 rust = """
 use std::collections::HashMap;
 
-fn main() {
-    let mut c: HashMap<&str, usize> = HashMap::new();
-    c.insert("a", 4);
-    c.insert("b", 2);
-    let mut items: Vec<_> = c.iter().collect();
-    items.sort_by_key(|&(k, _)| k);
-    log::info!("{:?}", items);
-}
-"""
+let mut c: HashMap<&str, usize> = HashMap::new();
+c.insert("a", 4);
+c.insert("b", 2);
+let mut items: Vec<_> = c.iter().collect();
+items.sort_by_key(|&(k, _)| k);
+log::info!("{:?}", items);"""
 
 # =============================================================================
 # Counting
@@ -102,19 +90,16 @@ print(c['a'], c['b'])
 """
 rust = """
 use std::collections::HashMap;
-fn main() {
-    let s = "aab";
-    let mut c: HashMap<char, usize> = HashMap::new();
-    for ch in s.chars() {
-        *c.entry(ch).or_insert(0) += 1;
-    }
-    log::info!(
-        "{} {}",
-        c.get(&'a').unwrap_or(&0),
-        c.get(&'b').unwrap_or(&0)
-    );
+let s = "aab";
+let mut c: HashMap<char, usize> = HashMap::new();
+for ch in s.chars() {
+    *c.entry(ch).or_insert(0) += 1;
 }
-"""
+log::info!(
+    "{} {}",
+    c.get(&'a').unwrap_or(&0),
+    c.get(&'b').unwrap_or(&0)
+);"""
 
 [[test]]
 name = "counter_missing"
@@ -126,15 +111,12 @@ print(c['x'])
 """
 rust = """
 use std::collections::HashMap;
-fn main() {
-    let s = "abc";
-    let mut c: HashMap<char, usize> = HashMap::new();
-    for ch in s.chars() {
-        *c.entry(ch).or_insert(0) += 1;
-    }
-    log::info!("{}", c.get(&'x').unwrap_or(&0));
+let s = "abc";
+let mut c: HashMap<char, usize> = HashMap::new();
+for ch in s.chars() {
+    *c.entry(ch).or_insert(0) += 1;
 }
-"""
+log::info!("{}", c.get(&'x').unwrap_or(&0));"""
 
 [[test]]
 name = "counter_update"
@@ -147,17 +129,14 @@ print(c['a'])
 """
 rust = """
 use std::collections::HashMap;
-fn main() {
-    let mut c: HashMap<char, usize> = HashMap::new();
-    for ch in "abc".chars() {
-        *c.entry(ch).or_insert(0) += 1;
-    }
-    for ch in "aaa".chars() {
-        *c.entry(ch).or_insert(0) += 1;
-    }
-    log::info!("{}", c.get(&'a').unwrap_or(&0));
+let mut c: HashMap<char, usize> = HashMap::new();
+for ch in "abc".chars() {
+    *c.entry(ch).or_insert(0) += 1;
 }
-"""
+for ch in "aaa".chars() {
+    *c.entry(ch).or_insert(0) += 1;
+}
+log::info!("{}", c.get(&'a').unwrap_or(&0));"""
 
 [[test]]
 name = "counter_update_counter"
@@ -171,21 +150,18 @@ print(c1['a'])
 """
 rust = """
 use std::collections::HashMap;
-fn main() {
-    let mut c1: HashMap<char, usize> = HashMap::new();
-    for ch in "abc".chars() {
-        *c1.entry(ch).or_insert(0) += 1;
-    }
-    let mut c2: HashMap<char, usize> = HashMap::new();
-    for ch in "aaa".chars() {
-        *c2.entry(ch).or_insert(0) += 1;
-    }
-    for (k, v) in c2 {
-        *c1.entry(k).or_insert(0) += v;
-    }
-    log::info!("{}", c1.get(&'a').unwrap_or(&0));
+let mut c1: HashMap<char, usize> = HashMap::new();
+for ch in "abc".chars() {
+    *c1.entry(ch).or_insert(0) += 1;
 }
-"""
+let mut c2: HashMap<char, usize> = HashMap::new();
+for ch in "aaa".chars() {
+    *c2.entry(ch).or_insert(0) += 1;
+}
+for (k, v) in c2 {
+    *c1.entry(k).or_insert(0) += v;
+}
+log::info!("{}", c1.get(&'a').unwrap_or(&0));"""
 
 # =============================================================================
 # Most Common
@@ -201,16 +177,13 @@ print(c.most_common())
 """
 rust = """
 use std::collections::HashMap;
-fn main() {
-    let mut c: HashMap<char, usize> = HashMap::new();
-    for ch in "abracadabra".chars() {
-        *c.entry(ch).or_insert(0) += 1;
-    }
-    let mut items: Vec<_> = c.iter().collect();
-    items.sort_by(|a, b| b.1.cmp(a.1).then(a.0.cmp(b.0)));
-    log::info!("{:?}", items);
+let mut c: HashMap<char, usize> = HashMap::new();
+for ch in "abracadabra".chars() {
+    *c.entry(ch).or_insert(0) += 1;
 }
-"""
+let mut items: Vec<_> = c.iter().collect();
+items.sort_by(|a, b| b.1.cmp(a.1).then(a.0.cmp(b.0)));
+log::info!("{:?}", items);"""
 
 [[test]]
 name = "counter_most_common_n"
@@ -222,16 +195,13 @@ print(c.most_common(3))
 """
 rust = """
 use std::collections::HashMap;
-fn main() {
-    let mut c: HashMap<char, usize> = HashMap::new();
-    for ch in "abracadabra".chars() {
-        *c.entry(ch).or_insert(0) += 1;
-    }
-    let mut items: Vec<_> = c.iter().collect();
-    items.sort_by(|a, b| b.1.cmp(a.1));
-    log::info!("{:?}", &items[..3.min(items.len())]);
+let mut c: HashMap<char, usize> = HashMap::new();
+for ch in "abracadabra".chars() {
+    *c.entry(ch).or_insert(0) += 1;
 }
-"""
+let mut items: Vec<_> = c.iter().collect();
+items.sort_by(|a, b| b.1.cmp(a.1));
+log::info!("{:?}", &items[..3.min(items.len())]);"""
 
 [[test]]
 name = "counter_least_common"
@@ -243,16 +213,13 @@ print(c.most_common()[-2:])
 """
 rust = """
 use std::collections::HashMap;
-fn main() {
-    let mut c: HashMap<char, usize> = HashMap::new();
-    for ch in "abracadabra".chars() {
-        *c.entry(ch).or_insert(0) += 1;
-    }
-    let mut items: Vec<_> = c.iter().collect();
-    items.sort_by(|a, b| a.1.cmp(b.1));
-    log::info!("{:?}", &items[..2.min(items.len())]);
+let mut c: HashMap<char, usize> = HashMap::new();
+for ch in "abracadabra".chars() {
+    *c.entry(ch).or_insert(0) += 1;
 }
-"""
+let mut items: Vec<_> = c.iter().collect();
+items.sort_by(|a, b| a.1.cmp(b.1));
+log::info!("{:?}", &items[..2.min(items.len())]);"""
 
 # =============================================================================
 # Arithmetic Operations
@@ -269,17 +236,14 @@ print(dict(sorted((c1 + c2).items())))
 """
 rust = """
 use std::collections::HashMap;
-fn main() {
-    let mut c1: HashMap<char, i32> = [('a', 3), ('b', 1)].iter().cloned().collect();
-    let c2: HashMap<char, i32> = [('a', 1), ('b', 2)].iter().cloned().collect();
-    for (k, v) in c2 {
-        *c1.entry(k).or_insert(0) += v;
-    }
-    let mut items: Vec<_> = c1.iter().collect();
-    items.sort_by_key(|&(k, _)| k);
-    log::info!("{:?}", items);
+let mut c1: HashMap<char, i32> = [('a', 3), ('b', 1)].iter().cloned().collect();
+let c2: HashMap<char, i32> = [('a', 1), ('b', 2)].iter().cloned().collect();
+for (k, v) in c2 {
+    *c1.entry(k).or_insert(0) += v;
 }
-"""
+let mut items: Vec<_> = c1.iter().collect();
+items.sort_by_key(|&(k, _)| k);
+log::info!("{:?}", items);"""
 
 [[test]]
 name = "counter_sub"
@@ -292,22 +256,19 @@ print(dict(sorted((c1 - c2).items())))
 """
 rust = """
 use std::collections::HashMap;
-fn main() {
-    let mut c1: HashMap<char, i32> = [('a', 4), ('b', 2)].iter().cloned().collect();
-    let c2: HashMap<char, i32> = [('a', 1), ('b', 2)].iter().cloned().collect();
-    for (k, v) in c2 {
-        if let Some(count) = c1.get_mut(&k) {
-            *count = (*count - v).max(0);
-            if *count == 0 {
-                c1.remove(&k);
-            }
+let mut c1: HashMap<char, i32> = [('a', 4), ('b', 2)].iter().cloned().collect();
+let c2: HashMap<char, i32> = [('a', 1), ('b', 2)].iter().cloned().collect();
+for (k, v) in c2 {
+    if let Some(count) = c1.get_mut(&k) {
+        *count = (*count - v).max(0);
+        if *count == 0 {
+            c1.remove(&k);
         }
     }
-    let mut items: Vec<_> = c1.iter().collect();
-    items.sort_by_key(|&(k, _)| k);
-    log::info!("{:?}", items);
 }
-"""
+let mut items: Vec<_> = c1.iter().collect();
+items.sort_by_key(|&(k, _)| k);
+log::info!("{:?}", items);"""
 
 [[test]]
 name = "counter_and"
@@ -320,20 +281,17 @@ print(dict(sorted((c1 & c2).items())))
 """
 rust = """
 use std::collections::HashMap;
-fn main() {
-    let c1: HashMap<char, i32> = [('a', 3), ('b', 1)].iter().cloned().collect();
-    let c2: HashMap<char, i32> = [('a', 1), ('b', 2)].iter().cloned().collect();
-    let mut result: HashMap<char, i32> = HashMap::new();
-    for (k, v1) in &c1 {
-        if let Some(v2) = c2.get(k) {
-            result.insert(*k, *v1.min(v2));
-        }
+let c1: HashMap<char, i32> = [('a', 3), ('b', 1)].iter().cloned().collect();
+let c2: HashMap<char, i32> = [('a', 1), ('b', 2)].iter().cloned().collect();
+let mut result: HashMap<char, i32> = HashMap::new();
+for (k, v1) in &c1 {
+    if let Some(v2) = c2.get(k) {
+        result.insert(*k, *v1.min(v2));
     }
-    let mut items: Vec<_> = result.iter().collect();
-    items.sort_by_key(|&(k, _)| k);
-    log::info!("{:?}", items);
 }
-"""
+let mut items: Vec<_> = result.iter().collect();
+items.sort_by_key(|&(k, _)| k);
+log::info!("{:?}", items);"""
 
 [[test]]
 name = "counter_or"
@@ -346,21 +304,18 @@ print(dict(sorted((c1 | c2).items())))
 """
 rust = """
 use std::collections::HashMap;
-fn main() {
-    let c1: HashMap<char, i32> = [('a', 3), ('b', 1)].iter().cloned().collect();
-    let c2: HashMap<char, i32> = [('a', 1), ('b', 2)].iter().cloned().collect();
-    let mut result = c1.clone();
-    for (k, v2) in c2 {
-        result
-            .entry(k)
-            .and_modify(|v1| *v1 = (*v1).max(v2))
-            .or_insert(v2);
-    }
-    let mut items: Vec<_> = result.iter().collect();
-    items.sort_by_key(|&(k, _)| k);
-    log::info!("{:?}", items);
+let c1: HashMap<char, i32> = [('a', 3), ('b', 1)].iter().cloned().collect();
+let c2: HashMap<char, i32> = [('a', 1), ('b', 2)].iter().cloned().collect();
+let mut result = c1.clone();
+for (k, v2) in c2 {
+    result
+        .entry(k)
+        .and_modify(|v1| *v1 = (*v1).max(v2))
+        .or_insert(v2);
 }
-"""
+let mut items: Vec<_> = result.iter().collect();
+items.sort_by_key(|&(k, _)| k);
+log::info!("{:?}", items);"""
 
 # =============================================================================
 # Unary Operations
@@ -377,14 +332,11 @@ print(dict(sorted(result.items())))
 """
 rust = """
 use std::collections::HashMap;
-fn main() {
-    let c: HashMap<char, i32> = [('a', 2), ('b', 0), ('c', -1)].iter().cloned().collect();
-    let result: HashMap<char, i32> = c.into_iter().filter(|(_, v)| *v > 0).collect();
-    let mut items: Vec<_> = result.iter().collect();
-    items.sort_by_key(|&(k, _)| k);
-    log::info!("{:?}", items);
-}
-"""
+let c: HashMap<char, i32> = [('a', 2), ('b', 0), ('c', -1)].iter().cloned().collect();
+let result: HashMap<char, i32> = c.into_iter().filter(|(_, v)| *v > 0).collect();
+let mut items: Vec<_> = result.iter().collect();
+items.sort_by_key(|&(k, _)| k);
+log::info!("{:?}", items);"""
 
 [[test]]
 name = "counter_negative"
@@ -397,14 +349,11 @@ print(dict(sorted(result.items())))
 """
 rust = """
 use std::collections::HashMap;
-fn main() {
-    let c: HashMap<char, i32> = [('a', 2), ('b', 1)].iter().cloned().collect();
-    let result: HashMap<char, i32> = c.into_iter().map(|(k, v)| (k, -v)).collect();
-    let mut items: Vec<_> = result.iter().collect();
-    items.sort_by_key(|&(k, _)| k);
-    log::info!("{:?}", items);
-}
-"""
+let c: HashMap<char, i32> = [('a', 2), ('b', 1)].iter().cloned().collect();
+let result: HashMap<char, i32> = c.into_iter().map(|(k, v)| (k, -v)).collect();
+let mut items: Vec<_> = result.iter().collect();
+items.sort_by_key(|&(k, _)| k);
+log::info!("{:?}", items);"""
 
 # =============================================================================
 # Methods
@@ -420,13 +369,10 @@ print(sorted(c.elements()))
 """
 rust = """
 use std::collections::HashMap;
-fn main() {
-    let c: HashMap<char, usize> = [('a', 2), ('b', 1)].iter().cloned().collect();
-    let mut elements: Vec<char> = c.iter().flat_map(|(k, v)| vec![*k; *v]).collect();
-    elements.sort();
-    log::info!("{:?}", elements);
-}
-"""
+let c: HashMap<char, usize> = [('a', 2), ('b', 1)].iter().cloned().collect();
+let mut elements: Vec<char> = c.iter().flat_map(|(k, v)| vec![*k; *v]).collect();
+elements.sort();
+log::info!("{:?}", elements);"""
 
 [[test]]
 name = "counter_subtract"
@@ -439,17 +385,14 @@ print(dict(sorted(c.items())))
 """
 rust = """
 use std::collections::HashMap;
-fn main() {
-    let mut c: HashMap<char, i32> = [('a', 4), ('b', 2)].iter().cloned().collect();
-    let other: HashMap<char, i32> = [('a', 1), ('b', 2), ('c', 3)].iter().cloned().collect();
-    for (k, v) in other {
-        *c.entry(k).or_insert(0) -= v;
-    }
-    let mut items: Vec<_> = c.iter().collect();
-    items.sort_by_key(|&(k, _)| k);
-    log::info!("{:?}", items);
+let mut c: HashMap<char, i32> = [('a', 4), ('b', 2)].iter().cloned().collect();
+let other: HashMap<char, i32> = [('a', 1), ('b', 2), ('c', 3)].iter().cloned().collect();
+for (k, v) in other {
+    *c.entry(k).or_insert(0) -= v;
 }
-"""
+let mut items: Vec<_> = c.iter().collect();
+items.sort_by_key(|&(k, _)| k);
+log::info!("{:?}", items);"""
 
 [[test]]
 name = "counter_total"
@@ -461,12 +404,9 @@ print(sum(c.values()))
 """
 rust = """
 use std::collections::HashMap;
-fn main() {
-    let c: HashMap<char, i32> = [('a', 2), ('b', 3), ('c', 1)].iter().cloned().collect();
-    let total: i32 = c.values().sum();
-    log::info!("{}", total);
-}
-"""
+let c: HashMap<char, i32> = [('a', 2), ('b', 3), ('c', 1)].iter().cloned().collect();
+let total: i32 = c.values().sum();
+log::info!("{}", total);"""
 
 # =============================================================================
 # Dict Operations
@@ -482,17 +422,14 @@ print(sorted(c.keys()), sorted(c.values()), sorted(c.items()))
 """
 rust = """
 use std::collections::HashMap;
-fn main() {
-    let c: HashMap<char, i32> = [('a', 2), ('b', 1)].iter().cloned().collect();
-    let mut keys: Vec<_> = c.keys().collect();
-    keys.sort();
-    let mut values: Vec<_> = c.values().collect();
-    values.sort();
-    let mut items: Vec<_> = c.iter().collect();
-    items.sort();
-    log::info!("{:?} {:?} {:?}", keys, values, items);
-}
-"""
+let c: HashMap<char, i32> = [('a', 2), ('b', 1)].iter().cloned().collect();
+let mut keys: Vec<_> = c.keys().collect();
+keys.sort();
+let mut values: Vec<_> = c.values().collect();
+values.sort();
+let mut items: Vec<_> = c.iter().collect();
+items.sort();
+log::info!("{:?} {:?} {:?}", keys, values, items);"""
 
 [[test]]
 name = "counter_del"
@@ -505,14 +442,11 @@ print(dict(sorted(c.items())))
 """
 rust = """
 use std::collections::HashMap;
-fn main() {
-    let mut c: HashMap<char, i32> = [('a', 2), ('b', 1)].iter().cloned().collect();
-    c.remove(&'a');
-    let mut items: Vec<_> = c.iter().collect();
-    items.sort();
-    log::info!("{:?}", items);
-}
-"""
+let mut c: HashMap<char, i32> = [('a', 2), ('b', 1)].iter().cloned().collect();
+c.remove(&'a');
+let mut items: Vec<_> = c.iter().collect();
+items.sort();
+log::info!("{:?}", items);"""
 
 [[test]]
 name = "counter_clear"
@@ -525,12 +459,9 @@ print(len(c))
 """
 rust = """
 use std::collections::HashMap;
-fn main() {
-    let mut c: HashMap<char, i32> = [('a', 2), ('b', 1)].iter().cloned().collect();
-    c.clear();
-    log::info!("{}", c.len());
-}
-"""
+let mut c: HashMap<char, i32> = [('a', 2), ('b', 1)].iter().cloned().collect();
+c.clear();
+log::info!("{}", c.len());"""
 
 # =============================================================================
 # Use Cases
@@ -547,15 +478,12 @@ print(c['the'])
 """
 rust = """
 use std::collections::HashMap;
-fn main() {
-    let text = "the quick brown fox jumps over the lazy dog";
-    let mut c: HashMap<&str, usize> = HashMap::new();
-    for word in text.split_whitespace() {
-        *c.entry(word).or_insert(0) += 1;
-    }
-    log::info!("{}", c.get("the").unwrap_or(&0));
+let text = "the quick brown fox jumps over the lazy dog";
+let mut c: HashMap<&str, usize> = HashMap::new();
+for word in text.split_whitespace() {
+    *c.entry(word).or_insert(0) += 1;
 }
-"""
+log::info!("{}", c.get("the").unwrap_or(&0));"""
 
 [[test]]
 name = "counter_histogram"
@@ -568,15 +496,12 @@ print(c[3])
 """
 rust = """
 use std::collections::HashMap;
-fn main() {
-    let data = vec![1, 2, 2, 3, 3, 3];
-    let mut c: HashMap<i32, usize> = HashMap::new();
-    for x in data {
-        *c.entry(x).or_insert(0) += 1;
-    }
-    log::info!("{}", c.get(&3).unwrap_or(&0));
+let data = vec![1, 2, 2, 3, 3, 3];
+let mut c: HashMap<i32, usize> = HashMap::new();
+for x in data {
+    *c.entry(x).or_insert(0) += 1;
 }
-"""
+log::info!("{}", c.get(&3).unwrap_or(&0));"""
 
 # =============================================================================
 # Edge Cases
@@ -592,13 +517,10 @@ print(dict(sorted(c.items())))
 """
 rust = """
 use std::collections::HashMap;
-fn main() {
-    let c: HashMap<char, i32> = [('a', -1), ('b', 0), ('c', 1)].iter().cloned().collect();
-    let mut items: Vec<_> = c.iter().collect();
-    items.sort_by_key(|&(k, _)| k);
-    log::info!("{:?}", items);
-}
-"""
+let c: HashMap<char, i32> = [('a', -1), ('b', 0), ('c', 1)].iter().cloned().collect();
+let mut items: Vec<_> = c.iter().collect();
+items.sort_by_key(|&(k, _)| k);
+log::info!("{:?}", items);"""
 
 [[test]]
 name = "counter_zero"
@@ -611,12 +533,9 @@ print('a' in c, c['a'])
 """
 rust = """
 use std::collections::HashMap;
-fn main() {
-    let mut c: HashMap<char, i32> = [('a', 1)].iter().cloned().collect();
-    c.insert('a', 0);
-    log::info!("{} {}", c.contains_key(&'a'), c.get(&'a').unwrap_or(&0));
-}
-"""
+let mut c: HashMap<char, i32> = [('a', 1)].iter().cloned().collect();
+c.insert('a', 0);
+log::info!("{} {}", c.contains_key(&'a'), c.get(&'a').unwrap_or(&0));"""
 
 [[test]]
 name = "counter_equality"
@@ -629,9 +548,6 @@ print(c1 == c2)
 """
 rust = """
 use std::collections::HashMap;
-fn main() {
-    let c1: HashMap<char, i32> = [('a', 1), ('b', 2)].iter().cloned().collect();
-    let c2: HashMap<char, i32> = [('b', 2), ('a', 1)].iter().cloned().collect();
-    log::info!("{}", c1 == c2);
-}
-"""
+let c1: HashMap<char, i32> = [('a', 1), ('b', 2)].iter().cloned().collect();
+let c2: HashMap<char, i32> = [('b', 2), ('a', 1)].iter().cloned().collect();
+log::info!("{}", c1 == c2);"""

@@ -1,0 +1,11 @@
+  regressions.toml :: untyped_dict_parameter
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use serde_json;
+  use std::collections::HashMap;
+− pub fn get_value(data: &HashMap<String, i32>, key: String) -> i32 {
++ pub fn get_value(data: &HashMap<serde_json::Value, serde_json::Value>, key: String) -> i32 {
+      return *data.get(&key).unwrap_or(&0);
+  }
+────────────────────────────────────────────────────────────

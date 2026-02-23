@@ -1,0 +1,11 @@
+  imports-from.toml :: from_import_type_checking
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust: conditional compilation for types
+−     #[cfg(test)]
+−     use std::collections::HashMap;
+−     let result = true;
+−     assert!(result);
++ 
+────────────────────────────────────────────────────────────

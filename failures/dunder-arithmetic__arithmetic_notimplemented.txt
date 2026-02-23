@@ -1,0 +1,21 @@
+  dunder-arithmetic.toml :: arithmetic_notimplemented
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust: type system prevents unsupported operations at compile time
+−     struct Number {
+−         value: i32,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Number {
++     pub value: serde_json::Value,
++ }
++ impl Number {
++     pub fn new(value: serde_json::Value) -> Self {
++         Self { value }
+      }
+−     // Number + String would not compile
+−     let result = true;
+−     assert!(result);
++ }
+────────────────────────────────────────────────────────────

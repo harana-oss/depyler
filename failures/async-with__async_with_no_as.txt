@@ -1,0 +1,8 @@
+  async-with.toml :: async_with_no_as
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // async with manager: ...
+−     let result = true; // Placeholder
++ pub const result: bool = true;
+────────────────────────────────────────────────────────────

@@ -1,0 +1,13 @@
+  functools-partial.toml :: partial_args
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust closures capture by value/reference
+− // This is a Python-specific feature
+− let args = ("Hello",);
+− log::info!("('Hello',)");
++ use std;
++ pub fn greet(greeting: String, name: String) -> String {
++     return format!("{}, {}!", greeting, name);
++ }
+────────────────────────────────────────────────────────────

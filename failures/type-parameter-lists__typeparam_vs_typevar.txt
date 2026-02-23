@@ -1,0 +1,8 @@
+  type-parameter-lists.toml :: typeparam_vs_typevar
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // New syntax vs TypeVar('T')
+−     let result = true; // Placeholder
++ pub const result: bool = true;
+────────────────────────────────────────────────────────────

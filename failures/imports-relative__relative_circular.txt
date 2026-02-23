@@ -1,0 +1,9 @@
+  imports-relative.toml :: relative_circular
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Circular relative imports
+−     // In Rust: Circular dependencies cause compile errors
+−     let result = true;
++ pub const result: bool = true;
+────────────────────────────────────────────────────────────

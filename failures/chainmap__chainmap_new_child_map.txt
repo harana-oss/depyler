@@ -1,0 +1,52 @@
+  chainmap.toml :: chainmap_new_child_map
+    Output mismatch
+
+────────────────────────────────────────────────────────────
++ use std::collections::ChainMap;
+  use std::collections::HashMap;
+− 
+− pub fn test_chainmap_new_child_map() -> String {
+−     let mut dict1 = HashMap::new();
+−     dict1.insert("a".to_string(), "1".to_string());
+− 
+−     let mut maps = vec![dict1];
+−     let mut new_map = HashMap::new();
+−     new_map.insert("key".to_string(), "val".to_string());
+−     maps.insert(0, new_map);
+− 
+−     for map in &maps {
+−         if let Some(value) = map.get("key") {
+−             return value.clone();
++ #[derive(Debug, Clone)]
++ pub struct IndexError {
++     message: String,
++ }
++ impl std::fmt::Display for IndexError {
++     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
++         write!(f, "index out of range: {}", self.message)
++     }
++ }
++ impl std::error::Error for IndexError {}
++ impl IndexError {
++     pub fn new(message: impl Into<String>) -> Self {
++         Self {
++             message: message.into(),
+          }
+      }
+−     panic!("Key not found");
+  }
++ pub fn test_chainmap_new_child_map() -> Result<String, IndexError> {
++     let dict1 = {
++         let mut map = HashMap::new();
++         map.insert("a".to_string(), 1);
++         map
++     };
++     let c = ChainMap::new(dict1);
++     let c2 = c.new_child({
++         let mut map = HashMap::new();
++         map.insert("key".to_string(), "val".to_string());
++         map
++     });
++     return Ok(c2.get("key").cloned().unwrap());
++ }
+────────────────────────────────────────────────────────────

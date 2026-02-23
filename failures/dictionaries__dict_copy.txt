@@ -1,0 +1,13 @@
+  dictionaries.toml :: dict_copy
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use serde_json;
+  use std::collections::HashMap;
+− pub fn copy_dict(d: &HashMap<String, i32>) -> HashMap<String, i32> {
++ pub fn copy_dict(
++     d: &HashMap<serde_json::Value, serde_json::Value>,
++ ) -> HashMap<serde_json::Value, serde_json::Value> {
+      return d.clone();
+  }
+────────────────────────────────────────────────────────────

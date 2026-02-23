@@ -1,0 +1,32 @@
+  dunder-comparison.toml :: eq_different_type
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct Value {
+−     x: i32,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Value {
++     pub x: serde_json::Value,
+  }
+− 
+  impl Value {
+−     fn new(x: i32) -> Self {
+−         Value { x }
+−     }
+− }
+− 
+− impl PartialEq for Value {
+−     fn eq(&self, other: &Self) -> bool {
+−         self.x == other.x
++     pub fn new(x: serde_json::Value) -> Self {
++         Self { x }
+      }
+  }
+− 
+− let v = Value::new(5);
+− let v2 = Value::new(5);
+− log::info!("{}", v == v2);
+− // Rust is statically typed, can't compare Value with i32
+− log::info!("False");
+────────────────────────────────────────────────────────────

@@ -1,0 +1,14 @@
+  match-as-patterns.toml :: as_literal
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− let value = "hello";
+−     let result = match value {
+−         "hello" => {
+−             let greeting = value;
+−             greeting.to_uppercase()
+−         }
+−         _ => "".to_string(),
+−     };
++ 
+────────────────────────────────────────────────────────────

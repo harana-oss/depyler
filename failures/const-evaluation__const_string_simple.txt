@@ -1,0 +1,10 @@
+  const-evaluation.toml :: const_string_simple
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− lazy_static! {
+−     pub static ref MESSAGE: String = "Hello, World!";
+− }
+− use lazy_static::lazy_static;
++ pub const MESSAGE: &str = "Hello, World!";
+────────────────────────────────────────────────────────────

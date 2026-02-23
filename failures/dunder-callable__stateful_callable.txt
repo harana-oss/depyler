@@ -1,0 +1,29 @@
+  dunder-callable.toml :: stateful_callable
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct Counter {
+−     count: i32,
++ #[derive(Debug, Copy, Clone)]
++ pub struct Counter {
++     pub count: i32,
+  }
+− 
+  impl Counter {
+−     fn new() -> Self {
+−         Counter { count: 0 }
++     pub fn new() -> Self {
++         Self { count: 0 }
+      }
+− 
+−     fn call(&mut self) -> i32 {
+−         self.count += 1;
+−         self.count
+−     }
+  }
+− 
+− let mut counter = Counter::new();
+− log::info!("{}", counter.call());
+− log::info!("{}", counter.call());
+− log::info!("{}", counter.call());
+────────────────────────────────────────────────────────────

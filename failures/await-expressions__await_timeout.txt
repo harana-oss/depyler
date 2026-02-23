@@ -1,0 +1,27 @@
+  await-expressions.toml :: await_timeout
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use tokio::time::{Duration, sleep, timeout};
+− 
+− async fn slow_task() -> i32 {
+−     sleep(Duration::from_secs(10)).await;
+−     42
++ pub async fn slow_task() -> i32 {
++     asyncio.sleep(10).await;
++     return 42;
++    
++ }
++ pub async fn test_await_timeout() -> bool {
++     { asyncio.wait_for(slow_task()).await;
++     return false;
++     return true;
++    
+  }
+− 
+− async fn test_await_timeout() -> bool {
+−     timeout(Duration::from_millis(100), slow_task())
+−         .await
+−         .is_err()
+  }
+────────────────────────────────────────────────────────────

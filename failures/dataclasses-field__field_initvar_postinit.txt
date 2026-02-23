@@ -1,0 +1,16 @@
+  dataclasses-field.toml :: field_initvar_postinit
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust doesn't have unary + operator trait
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Number {
++     pub value: serde_json::Value,
++ }
++ impl Number {
++     pub fn new(value: serde_json::Value) -> Self {
++         Self { value }
++     }
++ }
+────────────────────────────────────────────────────────────

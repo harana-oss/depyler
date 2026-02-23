@@ -1,0 +1,90 @@
+  serialization.toml :: toml_support
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use std::collections::HashMap;
+− 
+− pub fn parse_toml_section(toml_str: &str, section: &str) -> HashMap<String, String> {
+−     let mut result = HashMap::new();
++ #[derive(Debug, Clone)]
++ pub struct IndexError {
++     message: String,
++ }
++ impl std::fmt::Display for IndexError {
++     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
++         write!(f, "index out of range: {}", self.message)
++     }
++ }
++ impl std::error::Error for IndexError {}
++ impl IndexError {
++     pub fn new(message: impl Into<String>) -> Self {
++         Self {
++             message: message.into(),
++         }
++     }
++ }
++ pub fn parse_toml_section(toml_str: String, section: String) -> HashMap<String, String> {
++     let mut result = {
++         let map = HashMap::new();
++         map
++     };
+      let mut in_section = false;
+−     for line in toml_str.lines() {
+−         let line = line.trim();
+−         if line.starts_with('[') && line.ends_with(']') {
+−             in_section = &line[1..line.len() - 1] == section;
+−         } else if in_section {
+−             if let Some(idx) = line.find('=') {
+−                 let key = line[..idx].trim().to_string();
+−                 let value = line[idx + 1..].trim().trim_matches('"').to_string();
++     for mut line in toml_str
++         .split("\n")
++         .map(|s| s.to_string())
++         .collect::<Vec<String>>()
++     {
++         line = line.trim();
++         if (line.starts_with("[")) && (line.ends_with("]")) {
++             in_section = {
++                 let base = &line;
++                 let start_idx: i32 = 1;
++                 let stop_idx: i32 = -1;
++                 let len = base.chars().count() as i32;
++                 let actual_start = if start_idx < 0 {
++                     (len + start_idx).max(0) as usize
++                 } else {
++                     start_idx.min(len) as usize
++                 };
++                 let actual_stop = if stop_idx < 0 {
++                     (len + stop_idx).max(0) as usize
++                 } else {
++                     stop_idx.min(len) as usize
++                 };
++                 if actual_start < actual_stop {
++                     base.chars()
++                         .skip(actual_start)
++                         .take(actual_stop - actual_start)
++                         .collect::<String>()
++                 } else {
++                     String::new()
++                 }
++             } == section;
++         } else {
++             if (in_section) && (line.contains(&"=")) {
++                 let parts = line
++                     .splitn((1 + 1) as usize, "=")
++                     .map(|s| s.to_string())
++                     .collect::<Vec<String>>();
++                 let key = parts.get(0usize).cloned().unwrap().trim();
++                 let value = parts
++                     .get(1usize)
++                     .cloned()
++                     .unwrap()
++                     .trim()
++                     .trim_matches(|c: char| "\"".contains(c));
+                  result.insert(key, value);
+              }
+          }
+      }
+      return result;
+  }
+────────────────────────────────────────────────────────────

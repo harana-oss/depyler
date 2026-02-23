@@ -1,0 +1,37 @@
+  async-comprehensions.toml :: async_comp_transform
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use futures::stream::{self, StreamExt};
+− 
+− #[tokio::main]
+− async let results: Vec<i32> = stream::iter(1..4).map(|x| x * x).collect().await;
+− log::info!("{:?}", results);
++ #[doc = " Generator state struct"] #[derive(Debug)] struct AsyncDataState {
++     state: usize ,
++ }
++ #[doc = " Generator function - returns Iterator"] pub fn async_data() -> impl Iterator<Item = i32>{
++     AsyncDataState {
++     state: 0 ,
++ }
++ } impl Iterator for AsyncDataState {
++     type Item = i32;
++     fn next(&mut self) -> Option<Self::Item>{
++     match self.state {
++     0 =>{
++     self.state = 1;
++     for _x in 1..4 {
++     return Some(x);
++    
++ }
++ None
++ }
++ _ =>None
++ }
++ }
++ }
++ pub async fn test() -> Vec<i32>{
++     let results = async_data().iter().cloned().map(| x | x.pow(2 as u32)).collect::<Vec<_>>();
++     return results;
++     }
+────────────────────────────────────────────────────────────

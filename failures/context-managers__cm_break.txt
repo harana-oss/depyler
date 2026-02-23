@@ -1,0 +1,70 @@
+  context-managers.toml :: cm_break
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust: Drop called even with break
+−     struct Counter {
+−         enter_count: i32,
+−         exit_count: i32,
+−     }
+− 
+−     impl Counter {
+−         fn new() -> Self {
+−             Counter {
+−                 enter_count: 0,
+−                 exit_count: 0,
+−             }
+−         }
+− 
+−         fn enter(&mut self) {
+−             self.enter_count += 1;
++ use serde_json;
++ #[derive(Debug, Copy, Clone)]
++ pub struct Counter {
++     pub enter_count: i32,
++     pub exit_count: i32,
++ }
++ impl Counter {
++     pub fn new() -> Self {
++         Self {
++             enter_count: 0,
++             exit_count: 0,
+          }
+−     }
+− 
+−     struct Guard<'a> {
+−         counter: &'a mut Counter,
+      }
+− 
+−     impl<'a> Drop for Guard<'a> {
+−         fn drop(&mut self) {
+−             self.counter.exit_count += 1;
+−         }
++     pub fn __enter__(&mut self) -> &Self {
++         self.enter_count += 1;
++         return self;
+      }
+− 
+−     let mut counter = Counter::new();
+−     for i in 0..5 {
+−         counter.enter();
+−         let _guard = Guard {
+−             counter: &mut counter,
+−         };
+−         if i == 2 {
+−             break;
+−         }
+−         // Guard dropped here in each iteration
++     pub fn __exit__(
++         &mut self,
++         exc_type: serde_json::Value,
++         exc_val: serde_json::Value,
++         exc_tb: serde_json::Value,
++     ) -> bool {
++         self.exit_count += 1;
++         return false;
+      }
+−     assert_eq!(counter.enter_count, 3);
+−     assert_eq!(counter.exit_count, 3);
++ }
+────────────────────────────────────────────────────────────

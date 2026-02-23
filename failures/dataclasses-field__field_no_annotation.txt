@@ -1,0 +1,23 @@
+  dataclasses-field.toml :: field_no_annotation
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust requires all struct fields to be typed
+−     #[derive(Debug)]
+−     struct C {
+−         x: i32,
++ use serde_json;
++ #[derive(Debug, Copy, Clone, PartialEq, Default)]
++ pub struct C {
++     pub x: i32,
++ }
++ impl C {
++     pub const y: serde_json::Value = field();
++     pub fn new() -> Self {
++         Self { x: 1 }
+      }
+− 
+−     let c = C { x: 1 };
+−     let result = true;
++ }
+────────────────────────────────────────────────────────────

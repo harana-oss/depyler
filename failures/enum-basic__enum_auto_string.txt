@@ -1,0 +1,40 @@
+  enum-basic.toml :: enum_auto_string
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust doesn't have auto(), define explicitly
+−     #[derive(Debug, PartialEq)]
+−     enum Color {
+−         RED,
+−         GREEN,
++ pub const result: serde_json::Value = Color.RED.value == "red";
++ use serde_json;
++ #[derive(Debug, Copy, Clone)]
++ pub struct Color {}
++ impl Color {
++     pub const RED: i32 = auto();
++     pub const GREEN: i32 = auto();
++     pub fn new() -> Self {
++         Self {}
+      }
+− 
+−     impl Color {
+−         fn value(&self) -> &str {
+−             match self {
+−                 Color::RED => "red",
+−                 Color::GREEN => "green",
+−             }
+−         }
++     pub fn _generate_next_value_(
++         &self,
++         name: String,
++         start: serde_json::Value,
++         count: serde_json::Value,
++         last_values: serde_json::Value,
++     ) {
++         return name.to_lowercase();
+      }
+− 
+−     let result = Color::RED.value() == "red";
++ }
+────────────────────────────────────────────────────────────

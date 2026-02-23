@@ -1,0 +1,13 @@
+  control-flow.toml :: function_return_type_tracking
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn merge(a: &Vec<i32>, b: &Vec<i32>) -> Vec<i32> {
+      return a.iter().chain(b.iter()).cloned().collect::<Vec<_>>();
+  }
+  pub fn test() -> i32 {
+      let result = merge(vec![1], vec![2]);
+      return result.len() as i32;
+− };
++ }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,10 @@
+  template-strings.toml :: template_user_safe
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust: safe user template
+−     let greeting = "Hello";
+−     let result = format!("{} $name!", greeting);
+−     assert_eq!(result, "Hello $name!");
++ 
+────────────────────────────────────────────────────────────

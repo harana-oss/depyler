@@ -1,0 +1,29 @@
+  exceptions.toml :: different_exception_variables
+    Output mismatch
+
+────────────────────────────────────────────────────────────
++ #[derive(Debug, Clone)]
++ pub struct ValueError {
++     message: String,
++ }
++ impl std::fmt::Display for ValueError {
++     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
++         write!(f, "value error: {}", self.message)
++     }
++ }
++ impl std::error::Error for ValueError {}
++ impl ValueError {
++     pub fn new(message: impl Into<String>) -> Self {
++         Self {
++             message: message.into(),
++         }
++     }
++ }
+  pub fn handle_with_vars(data: String) -> String {
+      {
+          return data.to_uppercase();
+          return (ve).to_string();
+          return (te).to_string();
+      }
+  }
+────────────────────────────────────────────────────────────

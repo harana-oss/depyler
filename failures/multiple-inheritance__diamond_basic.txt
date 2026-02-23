@@ -1,0 +1,56 @@
+  multiple-inheritance.toml :: diamond_basic
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // D inherits from B, C which both inherit from A
+−     trait A {
+−         fn method(&self) -> &str {
+−             "A"
+−         }
++ #[derive(Debug, Copy, Clone)]
++ pub struct A {}
++ impl A {
++     pub fn new() -> Self {
++         Self {}
+      }
+− 
+−     struct B;
+−     impl A for B {}
+− 
+−     struct C;
+−     impl A for C {}
+− 
+−     struct D;
+−     impl A for D {}
+− 
+−     pub fn test_diamond_basic() -> bool {
+−         let d = D;
+−         d.method() == "A"
++     pub fn method(&self) -> String {
++         return "A".to_string();
+      }
+− 
+−     let result = test_diamond_basic();
++ }
++ #[derive(Debug, Copy, Clone)]
++ pub struct B {}
++ impl B {
++     pub fn new() -> Self {
++         Self {}
++     }
++ }
++ #[derive(Debug, Copy, Clone)]
++ pub struct C {}
++ impl C {
++     pub fn new() -> Self {
++         Self {}
++     }
++ }
++ #[derive(Debug, Copy, Clone)]
++ pub struct D {}
++ impl D {
++     pub fn new() -> Self {
++         Self {}
++     }
++ }
+────────────────────────────────────────────────────────────

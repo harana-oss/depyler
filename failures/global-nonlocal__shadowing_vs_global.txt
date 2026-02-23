@@ -1,0 +1,17 @@
+  global-nonlocal.toml :: shadowing_vs_global
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− const GLOBAL_X: i32 = 100;
+− 
+− fn shadow() {
+−     let x = 50; // Local variable
+−     log::info!("Local x: {}", x);
++ pub fn shadow() {
++     let x = 50;
++     log::info!("{}", format!("Local x: {}", x));
+  }
+− 
+− shadow();
+− log::info!("Global x: {}", GLOBAL_X);
+────────────────────────────────────────────────────────────

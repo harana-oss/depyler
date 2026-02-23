@@ -1,0 +1,11 @@
+  basic-types.toml :: nested_integer_list_constant
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− lazy_static! {
+−     pub static ref X_VALUES: Vec<Vec<i32>> = vec![vec![0, 100], vec![100, 200]];
+− }
+− use lazy_static::lazy_static;
++ pub const X_VALUES: serde_json::Value = vec![vec![0, 100], vec![100, 200]];
++ use serde_json;
+────────────────────────────────────────────────────────────

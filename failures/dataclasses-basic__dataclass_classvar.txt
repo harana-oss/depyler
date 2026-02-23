@@ -1,0 +1,24 @@
+  dataclasses-basic.toml :: dataclass_classvar
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub const c1: Counter = Counter::new(5);
+− pub const c2: Counter = Counter::new(10);
+− pub const result: i32 = Counter.total;
+− use serde_json;
+  #[derive(Debug, Clone, PartialEq, Default)]
+  pub struct Counter {
+      pub value: i32,
++     pub total: ClassVar<i32>,
+  }
+  impl Counter {
+−     pub const total: ClassVar<i32> = 0;
+      pub fn new(value: i32) -> Self {
+−         Self { value }
++         Self {
++             value,
++             total: Default::default(),
++         }
+      }
+  }
+────────────────────────────────────────────────────────────

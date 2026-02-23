@@ -1,0 +1,9 @@
+  imports-dynamic.toml :: dynamic_import_module
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // importlib.import_module('os')
+−     // Dynamic loading not directly supported in Rust
+−     let result = true;
++ 
+────────────────────────────────────────────────────────────

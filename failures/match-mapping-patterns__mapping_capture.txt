@@ -1,0 +1,15 @@
+  match-mapping-patterns.toml :: mapping_capture
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::collections::HashMap;
+− 
+−     let mut data = HashMap::new();
+−     data.insert("name", "Alice");
+−     data.insert("age", "30");
+  
+−     let result = match data.get("name") {
+−         Some(&name) => format!("Hello, {}", name),
+−         None => "Unknown".to_string(),
+−     };
+────────────────────────────────────────────────────────────

@@ -1,0 +1,16 @@
+  modules-collections.toml :: heapq_nsmallest
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use serde_json;
+− pub fn get_smallest(n: i32, items: &Vec<serde_json::Value>) -> Vec<i32> {
++ pub fn get_smallest(n: i32, items: &Vec<serde_json::Value>) -> Vec<serde_json::Value> {
+      return {
+          let n = n as usize;
+          let mut items = items;
+          items.sort();
+          items.into_iter().take(n).collect::<Vec<_>>()
+−     }
++     };
++ }
+────────────────────────────────────────────────────────────

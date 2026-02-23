@@ -1,0 +1,38 @@
+  modules-collections.toml :: heapq_heappop
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use serde_json;
+− pub fn pop_min(heap: &Vec<i32>) -> i32 {
++ pub fn pop_min(heap: &Vec<serde_json::Value>) -> i32 {
+      return {
+          let heap = &mut (heap);
+          if heap.is_empty() {
+              panic!("heappop from empty heap");
+          }
+          let result = heap[0].clone();
+          let last = heap.pop().unwrap();
+          if !heap.is_empty() {
+              heap[0] = last;
+              let mut pos = 0;
+              loop {
+                  let left = 2 * pos + 1;
+                  let right = 2 * pos + 2;
+                  let mut smallest = pos;
+                  if left < heap.len() && heap[left] < heap[smallest] {
+                      smallest = left;
+                  }
+                  if right < heap.len() && heap[right] < heap[smallest] {
+                      smallest = right;
+                  }
+                  if smallest == pos {
+                      break;
+                  }
+                  heap.swap(pos, smallest);
+                  pos = smallest;
+              }
+          }
+          result
+      };
+  }
+────────────────────────────────────────────────────────────

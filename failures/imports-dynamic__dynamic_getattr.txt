@@ -1,0 +1,10 @@
+  imports-dynamic.toml :: dynamic_getattr
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // getattr(mod, 'func')
+−     // Dynamic attribute access not supported in Rust
+−     let result = true;
++ use std as sys;
++ pub const result: bool = true;
+────────────────────────────────────────────────────────────

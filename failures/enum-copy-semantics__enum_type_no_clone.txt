@@ -1,0 +1,27 @@
+  enum-copy-semantics.toml :: enum_type_no_clone
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug, Clone, Copy, PartialEq)]
+− pub enum Color {
+−     RED = 1,
+−     GREEN = 2,
+−     BLUE = 3,
++ #[derive(Debug, Copy, Clone)]
++ pub struct Color {}
++ impl Color {
++     pub const RED: i32 = 1;
++     pub const GREEN: i32 = 2;
++     pub const BLUE: i32 = 3;
++     pub fn new() -> Self {
++         Self {}
++     }
+  }
+− pub fn process_color(c: Color) -> i32 {
++ pub fn process_color(c: &Color) -> i32 {
+      if c == Color::RED {
+          return 1;
+      }
+      return 0;
+  }
+────────────────────────────────────────────────────────────

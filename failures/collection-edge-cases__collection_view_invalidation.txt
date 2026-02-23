@@ -1,0 +1,14 @@
+  collection-edge-cases.toml :: collection_view_invalidation
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn safe_iter(items: Vec<i32>) -> Vec<i32> {
++ pub fn safe_iter(items: &Vec<i32>) -> Vec<i32> {
+      let mut result = vec![];
+−     for item in items {
++     for item in items.iter().cloned() {
+          result.push(item);
+      }
+      return result;
+  }
+────────────────────────────────────────────────────────────

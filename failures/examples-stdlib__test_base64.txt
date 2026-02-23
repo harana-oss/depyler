@@ -1,0 +1,33 @@
+  examples-stdlib.toml :: test_base64
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use base64;
+  #[doc = "Encode string to base64"]
+− pub fn encode_data(data: &str) -> String {
+−     let encoded_bytes =
+−         base64::engine::general_purpose::STANDARD.encode(data.encode("utf-8".to_string()));
+−     encoded_bytes.decode("utf-8".to_string())
++ pub fn encode_data(data: String) -> String {
++     let encoded_bytes = base64::engine::general_purpose::STANDARD.encode(data.encode("utf-8"));
++     return encoded_bytes.decode("utf-8");
+  }
+  #[doc = "Decode base64 string"]
+− pub fn decode_data(encoded: &str) -> String {
++ pub fn decode_data(encoded: String) -> String {
+      let decoded_bytes = base64::engine::general_purpose::STANDARD
+          .decode(encoded)
+          .unwrap();
+−     decoded_bytes.decode("utf-8".to_string())
++     return decoded_bytes.decode("utf-8");
+  }
+  #[doc = "Encode string to URL-safe base64"]
+− pub fn encode_url_safe(data: &str) -> String {
+−     let encoded_bytes =
+−         base64::engine::general_purpose::URL_SAFE.encode(data.encode("utf-8".to_string()));
+−     encoded_bytes.decode("utf-8".to_string())
++ pub fn encode_url_safe(data: String) -> String {
++     let encoded_bytes = base64::engine::general_purpose::URL_SAFE.encode(data.encode("utf-8"));
++     return encoded_bytes.decode("utf-8");
+  }
+────────────────────────────────────────────────────────────

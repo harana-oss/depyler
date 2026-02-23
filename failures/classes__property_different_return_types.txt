@@ -1,0 +1,25 @@
+  classes.toml :: property_different_return_types
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug, Copy, Clone]
++ #[derive(Debug, Copy, Clone)]
+  pub struct DataHolder {
+      pub value: i32,
+  }
+  impl DataHolder {
+      pub fn new(value: i32) -> Self {
+          Self { value }
+      }
+      pub fn as_int(&self) -> i32 {
+          return self.value.clone();
+      }
+      pub fn as_str(&self) -> String {
+          return str(self.value);
+      }
+      pub fn as_float(&self) -> f64 {
+          return float(self.value);
+      }
+− }
++ }
+────────────────────────────────────────────────────────────

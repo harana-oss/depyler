@@ -1,0 +1,34 @@
+  dunder-reflected.toml :: dunder_rpow
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::fmt;
+− 
+− #[derive(Debug)]
+− struct Number {
+−     value: i32,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Number {
++     pub value: serde_json::Value,
+  }
+− 
+− fn pow(base: i32, exp: Number) -> Number {
+−     Number {
+−         value: base.pow(exp.value as u32),
++ impl Number {
++     pub fn new(value: serde_json::Value) -> Self {
++         Self { value }
+      }
+  }
+− 
+− impl fmt::Display for Number {
+−     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+−         write!(f, "Number({})", self.value)
+−     }
+− }
+− 
+− let n = Number { value: 3 };
+− let result = pow(2, n);
+− log::info!("{}", result);
+────────────────────────────────────────────────────────────

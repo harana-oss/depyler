@@ -22,7 +22,7 @@ def read_csv(filepath: str) -> list:
 rust = '''
 use csv;
 use serde_json;
-pub fn read_csv(filepath: String) -> Vec<serde_json::Value> {
+pub fn read_csv(filepath: String) -> Vec<i32> {
     let mut f = std::fs::File::open(filepath)?;
     let reader = csv::ReaderBuilder::new().has_headers(true).from_reader(f);
     return reader
@@ -159,7 +159,7 @@ impl IndexError {
         }
     }
 }
-pub fn filter_csv(filepath: String, column: String, value: String) -> Vec<serde_json::Value> {
+pub fn filter_csv(filepath: String, column: String, value: String) -> Vec<i32> {
     let mut f = std::fs::File::open(filepath)?;
     let reader = csv::ReaderBuilder::new().has_headers(true).from_reader(f);
     let results = vec![];
@@ -194,7 +194,7 @@ pub fn filter_csv_generator(
     filepath: String,
     column: String,
     value: String,
-) -> Vec<serde_json::Value> {
+) -> Vec<i32> {
     let mut f = std::fs::File::open(filepath)?;
     let reader = csv::ReaderBuilder::new().has_headers(true).from_reader(f);
     let filtered = reader

@@ -1,0 +1,8 @@
+  memoryview.toml :: memoryview_network
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− let data = b"hello";
+−     let slice = &data[1..3];
++ 
+────────────────────────────────────────────────────────────

@@ -1,0 +1,9 @@
+  dunder-bitwise.toml :: negative_shift
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // In Rust, negative shifts panic in debug mode
+− // This would panic, so we simulate the error
+− log::info!("ValueError: negative shift count");
++ 
+────────────────────────────────────────────────────────────

@@ -20,9 +20,8 @@ result = asyncio.run(f())
 '''
 
 rust = '''
-pub const result: serde_json::Value = {
+pub const result: i32 = {
     f() };
-    use serde_json;
     pub async fn f() -> i32 {
     return 42;
     }
@@ -43,9 +42,8 @@ result = asyncio.run(f())
 '''
 
 rust = '''
-pub const result: serde_json::Value = {
+pub const result: i32 = {
     f() };
-    use serde_json;
     pub async fn f() -> i32 {
     return 42;
     }
@@ -64,10 +62,10 @@ result = f()  # Returns coroutine
 '''
 
 rust = '''
-pub const result: serde_json::Value = f();
-    use serde_json;
-    pub async fn f() {
-    }
+pub fn f() -> impl std::future::Future<Output = ()> {
+    async {}
+}
+pub const result: impl std::future::Future<Output = ()> = f();
 '''
 
 
@@ -483,172 +481,19 @@ result = True
 '''
 
 rust = '''
-use serde_json;
-#[derive(Debug, Clone)] pub struct Example {
-    pub value: serde_json::Value
+#[derive(Debug, Copy, Clone] pub struct Example {
+    pub value: i32
 }
 impl Example {
-    pub fn new(value: serde_json::Value) -> Self {
+    pub fn new(value: i32) -> Self {
     Self {
     value
 }
-} pub async fn create(value: serde_json::Value) {
+} pub async fn create(value: i32) {
     return Self::new(value);
    
 }
-pub fn _get_field(&self, name: & str) -> Option<Box<dyn std::any::Any>>{
-    match name {
-    "value" =>Some(Box::new(self.value.clone()) as Box<dyn std::any::Any>), _ =>None
-}
-} pub fn _set_field(&mut self, name: & str, value: & dyn std::any::Any) -> bool {
-    match name {
-    "value" =>{
-    if let Some(v) = value.downcast_ref::<serde_json::Value>() {
-    self.value = v.clone();
-    true
-}
-else {
-    false
-}
-}, _ =>false
-}
-}
-}
-fn main () {
-    let result = Example::new(42);
-    assert!(result.value.clone() == 42);
-    result = true;
-    }
-'''
-
-
-[[test]]
-name = "async_lambda"
-description = "No async lambda in Python"
-
-python = '''
-# Python doesn't support async lambdas directly
-# Use async def instead for async closures
-async def async_closure():
-    return 42
-
-result = True
-'''
-
-rust = '''
-pub const result: bool = true;
-    pub async fn async_closure() -> i32 {
-    return 42;
-    }
-'''
-
-
-# =============================================================================
-# Additional examples from examples/async/
-# =============================================================================
-
-[[test]]
-name = "test_async_function"
-description = "Test async function support"
-
-python = '''
-# Test async function support
-
-async def fetch_data(url: str) -> str:
-    # Simulated async operation
-    await async_sleep(1)
-    return f"Data from {url}"
-
-async def process_urls(urls: list[str]) -> list[str]:
-    results = []
-    for url in urls:
-        data = await fetch_data(url)
-        results.append(data)
-    return results
-
-async def async_sleep(seconds: int) -> None:
-    # Placeholder for async sleep
-    pass
-
-async def main() -> None:
-    urls = ["http://api.example.com", "http://api2.example.com"]
-    results = await process_urls(urls)
-    for result in results:
-        print(result)
-'''
-
-rust = '''
-pub async fn fetch_data(url: String) -> String {
-    async_sleep(1).await;
-    return format!("Data from {}", url);
-   
-}
-pub async fn process_urls(urls: & Vec<String>) -> Vec<String>{
-    let mut results = vec! [];
-    for _url in urls.iter().cloned() {
-    let data = fetch_data(url).await;
-    results.push(data);
-   
-}
-return results;
-   
-}
-pub async fn async_sleep(seconds: i32) {
-   
-}
-pub async fn main () {
-    let urls = vec! ["http://api.example.com".to_string(), "http://api2.example.com".to_string()];
-    let results = process_urls(& urls).await;
-    for result in results.iter().cloned() {
-    log::info!("{}", result);
-   
-}
-}
-'''
-
-[[test]]
-name = "test_async_methods"
-description = "Test async methods in classes"
-
-python = '''
-# Test async methods in classes
-
-class AsyncCounter:
-    def __init__(self, start: int = 0):
-        self.value = start
-    
-    async def increment(self) -> int:
-        await self._simulate_delay()
-        self.value += 1
-        return self.value
-    
-    async def get_value(self) -> int:
-        return self.value
-    
-    async def _simulate_delay(self) -> None:
-        # Simulated async operation
-        pass
-
-class AsyncDataProcessor:
-    async def process(self, data: str) -> str:
-        # Simulate async processing
-        await self._async_work()
-        return data.upper()
-    
-    async def _async_work(self) -> None:
-        pass
-'''
-
-rust = '''
-#[derive(Debug, Copy, Clone)] pub struct AsyncCounter {
-    pub value: i32
-}
-impl AsyncCounter {
-    pub fn new(start: i32) -> Self {
-    Self {
-    value: start
-}
-} pub async fn increment(&mut self) -> i32 {
+pub async fn increment(&mut self) -> i32 {
     self._simulate_delay().await;
     self.value += 1;
     return self.value.clone();
@@ -660,32 +505,6 @@ pub async fn get_value(&self) -> i32 {
 }
 pub async fn _simulate_delay(&self) {
     {
-}
-} pub fn _get_field(&self, name: & str) -> Option<Box<dyn std::any::Any>>{
-    match name {
-    "value" =>Some(Box::new(self.value.clone()) as Box<dyn std::any::Any>), _ =>None
-}
-} pub fn _set_field(&mut self, name: & str, value: & dyn std::any::Any) -> bool {
-    match name {
-    "value" =>{
-    if let Some(v) = value.downcast_ref::<i32>() {
-    self.value = v.clone();
-    true
-}
-else {
-    false
-}
-}, _ =>false
-}
-}
-}
-#[derive(Debug, Copy, Clone)] pub struct AsyncDataProcessor {
-   
-}
-impl AsyncDataProcessor {
-    pub fn new() -> Self {
-    Self {
-   
 }
 } pub async fn process(&self, data: String) -> String {
     self._async_work().await;

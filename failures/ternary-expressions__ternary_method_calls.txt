@@ -1,0 +1,26 @@
+  ternary-expressions.toml :: ternary_method_calls
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct Obj;
++ #[derive(Debug, Copy, Clone)]
++ pub struct Obj {}
+  impl Obj {
+−     fn method1(&self) -> &str {
+−         "m1"
++     pub fn new() -> Self {
++         Self {}
+      }
+−     fn method2(&self) -> &str {
+−         "m2"
++     pub fn method1(&self) -> String {
++         return "m1".to_string();
++     }
++     pub fn method2(&self) -> String {
++         return "m2".to_string();
+      }
+  }
+− let obj = Obj;
+− let result = if false { obj.method1() } else { obj.method2() };
+− log::info!("{}", result);
+────────────────────────────────────────────────────────────

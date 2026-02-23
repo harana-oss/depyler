@@ -1,0 +1,19 @@
+  reference-return-types.toml :: factory_method_returns_owned_value
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug, Clone, PartialEq, Default)]
++ #[derive(Debug, Copy, Clone, PartialEq, Default)]
+  pub struct Rectangle {
+      pub width: i32,
+      pub height: i32,
+  }
+  impl Rectangle {
+      pub fn new(width: i32, height: i32) -> Self {
+          Self { width, height }
+      }
+  }
+  pub fn make_square(size: i32) -> Rectangle {
+      return Rectangle::new(size, size);
+  }
+────────────────────────────────────────────────────────────

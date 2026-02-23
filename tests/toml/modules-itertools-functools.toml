@@ -299,8 +299,7 @@ def fib(n: int) -> int:
 rust = '''
 use std;
 pub fn fib(n: i32) -> i32 {
-    let _cse_temp_0 = n < 2;
-    if _cse_temp_0 {
+        if n < 2 {
         return n;
     }
     return fib(n - 1) + fib(n - 2);

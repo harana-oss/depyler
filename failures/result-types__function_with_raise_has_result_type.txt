@@ -1,0 +1,19 @@
+  result-types.toml :: function_with_raise_has_result_type
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use std::collections::HashMap;
+− pub fn update_config(config: &mut HashMap<String, i32>, key: String, value: i32) {
++ pub fn update_config(
++     config: &mut HashMap<String, i32>,
++     key: String,
++     value: i32,
++ ) -> Result<(), KeyError> {
+      if !config.get(&key).is_some() {
+−         panic!("{}", "Key not found");
++         return Err(KeyError::new("Key not found"));
+      }
+      config.insert(key, value);
++     Ok(())
+  }
+────────────────────────────────────────────────────────────

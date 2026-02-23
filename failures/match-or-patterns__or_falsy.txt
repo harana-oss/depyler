@@ -1,0 +1,12 @@
+  match-or-patterns.toml :: or_falsy
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Different types can't be matched together in Rust
+−     let x = 0;
+−     let result = match x {
+−         0 => true,
+−         _ => false,
+−     };
++ 
+────────────────────────────────────────────────────────────

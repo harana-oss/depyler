@@ -1,0 +1,12 @@
+  functools-partial.toml :: partial_keywords
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust doesn't have keyword arguments like Python
+− // This demonstrates the concept with a comment
+− log::info!("{{'greeting': 'Good evening'}}");
++ use std;
++ pub fn greet(name: String, greeting: String) -> String {
++     return format!("{}, {}!", greeting, name);
++ }
+────────────────────────────────────────────────────────────

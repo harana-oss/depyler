@@ -1,0 +1,59 @@
+  interprocedural-mutation.toml :: for_loop_iter_attribute_on_mutating_call
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug, Clone, PartialEq, Default)]
++ #[derive(Debug, Copy, Clone, PartialEq, Default)]
+  pub struct PlayerStats {
+      pub time_on_field: f64,
+  }
+  impl PlayerStats {
+      pub fn new(time_on_field: f64) -> Self {
+          Self { time_on_field }
+      }
+  }
+  #[derive(Debug, Clone, PartialEq, Default)]
+  pub struct TeamStats {
+      pub player_statistics: Vec<PlayerStats>,
+  }
+  impl TeamStats {
+      pub fn new(player_statistics: Vec<PlayerStats>) -> Self {
+          Self { player_statistics }
+      }
+  }
+  #[derive(Debug, Clone, PartialEq, Default)]
+  pub struct State {
+      pub home_stats: TeamStats,
+      pub away_stats: TeamStats,
+  }
+  impl State {
+      pub fn new(home_stats: TeamStats, away_stats: TeamStats) -> Self {
+          Self {
+              home_stats,
+              away_stats,
+          }
+      }
+  }
+− pub fn get_team_stats<'a>(state: &'a mut State, is_home: bool) -> &'a mut TeamStats {
++ pub fn get_team_stats(state: &State, is_home: bool) -> TeamStats {
+      if is_home {
+−         return &mut state.home_stats;
++         return state.home_stats;
+      } else {
+−         return &mut state.away_stats;
++         return state.away_stats;
+      }
+  }
+− pub fn apply_time(state: &mut State, is_home: bool, seconds: f64) {
++ pub fn apply_time(state: &State, is_home: bool, seconds: f64) {
+      for mut s in {
+−         let base = &get_team_stats(state, is_home).player_statistics;
++         let base = &get_team_stats(&state, is_home).player_statistics;
+          let stop = (13).max(0) as usize;
+          base[..stop.min(base.len())].to_vec()
+      } {
+−         s.time_on_field = s.time_on_field + seconds;
++         s.time_on_field += seconds;
+      }
+  }
+────────────────────────────────────────────────────────────

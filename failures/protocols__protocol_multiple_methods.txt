@@ -1,0 +1,32 @@
+  protocols.toml :: protocol_multiple_methods
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub trait Comparable {
+−     fn less_than(&self, other: i32) -> bool;
+−     fn equal_to(&self, other: i32) -> bool;
+− }
+− 
++ #[derive(Debug, Copy, Clone)]
+  pub struct Number {
+      pub value: i32,
+  }
+− 
+  impl Number {
+      pub fn new(value: i32) -> Self {
+          Self { value }
+      }
+− }
+− 
+− impl Comparable for Number {
+−     fn less_than(&self, other: i32) -> bool {
++     pub fn less_than(&self, other: i32) -> bool {
+          return self.value < other;
+      }
+− 
+−     fn equal_to(&self, other: i32) -> bool {
++     pub fn equal_to(&self, other: i32) -> bool {
+          return self.value == other;
+      }
+  }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,11 @@
+  imports-from.toml :: from_import_parens
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust: use with braces for multiple items
+−     use std::env::{current_dir, var};
+−     let result = current_dir().is_ok();
+−     assert!(result);
++ use std::env::current_dir;
++ use std::listdir;
+────────────────────────────────────────────────────────────

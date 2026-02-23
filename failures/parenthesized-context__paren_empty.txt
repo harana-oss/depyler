@@ -1,0 +1,23 @@
+  parenthesized-context.toml :: paren_empty
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust: valid block with resource
+−     {
+−         let x = 42;
+−         let result = x == 42;
+−     }
++ #[derive(Debug, Copy, Clone)]
++ pub struct CM {}
++ impl CM {
++     pub fn new() -> Self {
++         Self {}
++     }
++     pub fn __enter__(&self) -> i32 {
++         return 42;
++     }
++     pub fn __exit__(&self) {
++         {}
++     }
++ }
+────────────────────────────────────────────────────────────

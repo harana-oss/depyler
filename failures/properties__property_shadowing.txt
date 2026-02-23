@@ -1,0 +1,35 @@
+  properties.toml :: property_shadowing
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct MyClass {
+−     _value: i32,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct MyClass {
++     pub _value: serde_json::Value,
+  }
+− 
+  impl MyClass {
+−     fn new(value: i32) -> Self {
+−         MyClass { _value: value }
++     pub fn new(value: serde_json::Value) -> Self {
++         Self { _value: value }
+      }
+− 
+−     fn value(&self) -> i32 {
+−         self._value
++     pub fn value(&self) {
++         return self._value.clone();
+      }
+− 
+−     fn set_value(&mut self, v: i32) {
++     pub fn value(&mut self, v: serde_json::Value) {
+          self._value = v;
+      }
+  }
+− 
+− let obj = MyClass::new(42);
+− log::info!("Value: {}", obj.value());
+− log::info!("Backing: {}", obj._value);
+────────────────────────────────────────────────────────────

@@ -1,0 +1,11 @@
+  bytes-strings.toml :: bytes_repeat
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn test_bytes_repeat() -> Vec<u8> {
+−     let pattern = b"ab";
+−     return pattern.repeat(3);
++ pub fn test_bytes_repeat() -> bytes {
++     return b"ab" * 3;
+  }
+────────────────────────────────────────────────────────────

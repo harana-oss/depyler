@@ -149,6 +149,7 @@ pub type SpannedExpr = Spanned<HirExpr>;
 ///     protocols: vec![],
 ///     classes: vec![],
 ///     constants: vec![],
+///     statements: vec![],
 /// };
 ///
 /// assert_eq!(module.functions.len(), 1);

@@ -1,0 +1,37 @@
+  ownership.toml :: borrow_conflict_mut_state_and_field_read
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  #[derive(Debug, Clone, PartialEq, Default)]
+  pub struct Team {
+      pub name: String,
+  }
+  impl Team {
+      pub fn new(name: String) -> Self {
+          Self { name }
+      }
+  }
+  #[derive(Debug, Clone, PartialEq, Default)]
+  pub struct State {
+      pub score: i32,
+      pub team_in_possession: Team,
+  }
+  impl State {
+      pub fn new(score: i32, team_in_possession: Team) -> Self {
+          Self {
+              score,
+              team_in_possession,
+          }
+      }
+  }
+  pub fn assign_try(state: &mut State, player_index: i32, team: &Team) {
+−     state.score = state.score + 5;
++     state.score += 5;
+  }
+− pub fn process_play(state: &mut State, player_index: i32) {
+−     let team = state.team_in_possession.clone();
+−     assign_try(state, player_index, &team);
++ pub fn process_play(state: &mut State, player_index: &i32) {
++     assign_try(&state, player_index, &state.team_in_possession);
+  }
+────────────────────────────────────────────────────────────

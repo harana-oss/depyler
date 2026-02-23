@@ -1,0 +1,7 @@
+  string-methods-all.toml :: str_replace
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub const result: String = "hello".replace("l", "L");
++ 
+────────────────────────────────────────────────────────────

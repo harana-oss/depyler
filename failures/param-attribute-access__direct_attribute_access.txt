@@ -1,0 +1,18 @@
+  param-attribute-access.toml :: direct_attribute_access
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug, Clone, PartialEq, Default)]
++ #[derive(Debug, Copy, Clone, PartialEq, Default)]
+  pub struct State {
+      pub data: i32,
+  }
+  impl State {
+      pub fn new(data: i32) -> Self {
+          Self { data }
+      }
+  }
+  pub fn get_data(state: &State) -> i32 {
+      return state.data;
+  }
+────────────────────────────────────────────────────────────

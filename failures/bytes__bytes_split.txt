@@ -1,0 +1,7 @@
+  bytes.toml :: bytes_split
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− let result: Vec<Vec<u8>> = b"a,b,c".split(|&b| b == b',').map(|s| s.to_vec()).collect();
++ 
+────────────────────────────────────────────────────────────

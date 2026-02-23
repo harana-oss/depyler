@@ -1,0 +1,21 @@
+  datetime-edge-cases.toml :: timestamp_comparison
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn compare_timestamps(a_sec: i64, a_nano: i64, b_sec: i64, b_nano: i64) -> i32 {
++ pub fn compare_timestamps(a_sec: i32, a_nano: i32, b_sec: i32, b_nano: i32) -> i32 {
+      if a_sec < b_sec {
+          return -1;
+      }
+      if a_sec > b_sec {
+          return 1;
+      }
+      if a_nano < b_nano {
+          return -1;
+      }
+      if a_nano > b_nano {
+          return 1;
+      }
+      return 0;
+  }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,24 @@
+  asyncio-tasks.toml :: wait_timeout
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use tokio::time::{Duration, sleep, timeout};
+− 
+− async fn long_coro() -> i32 {
+−     sleep(Duration::from_secs(10)).await;
+−     1
++ pub async fn long_coro() -> i32 {
++     asyncio.sleep(10).await;
++     return 1;
++    
+  }
+− 
+  pub async fn test_wait_timeout() -> bool {
+−     let result = timeout(Duration::from_millis(100), long_coro()).await;
+−     result.is_err()
+− }
++     let task = asyncio.create_task(long_coro());
++     let(done, pending) = asyncio.wait(vec! [task]).await;
++     return pending.len() as i32>0;
++     }
+────────────────────────────────────────────────────────────

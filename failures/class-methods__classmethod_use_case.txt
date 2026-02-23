@@ -1,0 +1,25 @@
+  class-methods.toml :: classmethod_use_case
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use serde_json;
+  #[derive(Debug, Clone)]
+  pub struct Person {
+      pub name: serde_json::Value,
+  }
+  impl Person {
+      pub const species: String = "Homo sapiens".to_string();
+      pub fn new(name: serde_json::Value) -> Self {
+          Self { name }
+      }
+      pub fn get_species() {
+          return Self::species;
+      }
+      pub fn from_birth_year(name: serde_json::Value, year: i32) {
+          let mut age = 2023 - year;
+          return Self::new(name);
+      }
+  }
+− let p = Person::from_birth_year("Alice", 1990);
+− log::info!("{}", Person::get_species());
+────────────────────────────────────────────────────────────

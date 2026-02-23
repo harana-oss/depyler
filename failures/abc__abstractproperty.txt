@@ -1,0 +1,34 @@
+  abc.toml :: abstractproperty
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− trait Base {
+−     fn value(&self) -> i32;
++ #[derive(Debug, Copy, Clone)]
++ pub struct Base {}
++ impl Base {
++     pub fn new() -> Self {
++         Self {}
++     }
++     pub fn value(&self) -> i32 {
++         {}
++     }
+  }
+  #[derive(Debug, Copy, Clone)]
+  pub struct Concrete {}
+  impl Concrete {
+      pub fn new() -> Self {
+          Self {}
+      }
+−     pub fn value(&self) -> i32 {
++ }
++ impl Base for Concrete {
++     fn value(&self) -> i32 {
+          return 77;
+      }
+  }
+  pub fn test_abstractproperty() -> i32 {
+      let obj = Concrete::new();
+      return obj.value;
+  }
+────────────────────────────────────────────────────────────

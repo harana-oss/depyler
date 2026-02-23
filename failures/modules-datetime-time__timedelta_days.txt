@@ -1,0 +1,11 @@
+  modules-datetime-time.toml :: timedelta_days
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use chrono::Duration;
+− pub fn one_day() -> chrono::Duration {
+−     return chrono::Duration::days(1);
++ pub fn one_day() -> timedelta {
++     return chrono::Duration::zero();
+  }
+────────────────────────────────────────────────────────────

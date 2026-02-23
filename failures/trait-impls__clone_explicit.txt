@@ -1,0 +1,21 @@
+  trait-impls.toml :: clone_explicit
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use serde_json;
+  #[derive(Debug, Clone)]
+  pub struct Buffer {
+      pub data: Vec<serde_json::Value>,
+  }
+  impl Buffer {
+      pub fn new() -> Self {
+−         Self { data: Vec::new() }
++         Self { data: vec![] }
+      }
+      pub fn clone(&self) -> Buffer {
+          let mut new = Buffer::new();
+          new.data = list(self.data);
+          return new;
+      }
+  }
+────────────────────────────────────────────────────────────

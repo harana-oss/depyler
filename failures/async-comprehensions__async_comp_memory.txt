@@ -1,0 +1,46 @@
+  async-comprehensions.toml :: async_comp_memory
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use futures::stream::{self, StreamExt};
+− 
+− #[tokio::main]
+− async // Eager collection
+− let list_comp: Vec<i32> = stream::iter(0..5).collect().await;
+− 
+− // Lazy stream
+− let gen_expr = stream::iter(0..5);
+− let gen_result: Vec<i32> = gen_expr.collect().await;
+− 
+− log::info!("{:?} {:?}", list_comp, gen_result);
++ use serde_json;
++ #[doc = " Generator state struct"] #[derive(Debug)] struct AsyncRangeState {
++     state: usize, n: serde_json::Value
++ }
++ #[doc = " Generator function - returns Iterator"] pub fn async_range(n: & serde_json::Value) -> impl Iterator<Item = i32>{
++     AsyncRangeState {
++     state: 0, n: n
++ }
++ } impl Iterator for AsyncRangeState {
++     type Item = i32;
++     fn next(&mut self) -> Option<Self::Item>{
++     match self.state {
++     0 =>{
++     self.state = 1;
++     for _i in 0..self.n {
++     return Some(i);
++    
++ }
++ None
++ }
++ _ =>None
++ }
++ }
++ }
++ pub async fn test() -> (Vec<serde_json::Value>, Vec<serde_json::Value>) {
++     let list_comp = async_range(5).iter().cloned().collect::<Vec<_>>();
++     let gen_expr = async_range(5).iter().cloned();
++     let gen_result = gen_expr.iter().cloned().collect::<Vec<_>>();
++     return(list_comp, gen_result);
++     }
+────────────────────────────────────────────────────────────

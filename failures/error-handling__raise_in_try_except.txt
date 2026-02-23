@@ -1,0 +1,34 @@
+  error-handling.toml :: raise_in_try_except
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  #[derive(Debug, Clone)]
+  pub struct ValueError {
+      message: String,
+  }
+  impl std::fmt::Display for ValueError {
+      fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+          write!(f, "value error: {}", self.message)
+      }
+  }
+  impl std::error::Error for ValueError {}
+  impl ValueError {
+      pub fn new(message: impl Into<String>) -> Self {
+          Self {
+              message: message.into(),
+          }
+      }
+  }
+− pub fn nested_validation(x: i32) -> i32 {
++ pub fn nested_validation(x: i32) -> Result<i32, Box<dyn std::error::Error>> {
+      {
+          if x < 0 {
+              panic!("{}", "negative");
+          }
+−         return x;
+−         panic!("{}", RuntimeError::new("validation failed"));
++         return Ok(x);
++         return Err(Box::new(RuntimeError::new("validation failed")));
+      }
+  }
+────────────────────────────────────────────────────────────

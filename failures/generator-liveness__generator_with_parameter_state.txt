@@ -1,0 +1,60 @@
+  generator-liveness.toml :: generator_with_parameter_state
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  #[doc = " Generator state struct"]
+  #[derive(Debug)]
+  struct RepeatValueState {
++     state: usize,
+      count: i32,
+      value: i32,
+      times: i32,
+−     state: usize,
+  }
+  #[doc = " Generator function - returns Iterator"]
+  pub fn repeat_value(value: i32, times: i32) -> impl Iterator<Item = i32> {
+−     let count = 0;
+      RepeatValueState {
+−         count,
+−         value,
+−         times,
+          state: 0,
++         count: 0,
++         value: value,
++         times: times,
+      }
+  }
+  impl Iterator for RepeatValueState {
+      type Item = i32;
+      fn next(&mut self) -> Option<Self::Item> {
+          match self.state {
+              0 => {
+−                 self.state = 1usize;
++                 self.count = 0;
++                 self.state = 1;
++                 self.next()
+              }
+−             _ => {}
+−         }
+−         loop {
+−             if self.count < self.times {
+−                 let result = self.value;
+−                 self.count = self.count + 1;
+−                 return Some(result);
+−             } else {
+−                 return None;
++             1 => {
++                 if self.count < self.times {
++                     let result = self.value;
++                     self.count = self.count + 1;
++                     return Some(result);
++                 } else {
++                     self.state = 2;
++                     None
++                 }
+              }
++             _ => None,
+          }
+      }
+  }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,16 @@
+  modules-os-sys.toml :: os_path_basename
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use std::path;
+  pub fn get_filename(path: String) -> String {
+−     return std::path::Path::new(&path)
++     return std::path::Path::new(path)
+          .file_name()
+−         .map(|s| s.to_string_lossy().to_string())
+−         .unwrap_or_default();
++         .and_then(|n| n.to_str())
++         .unwrap_or("")
++         .to_string();
+  }
+────────────────────────────────────────────────────────────

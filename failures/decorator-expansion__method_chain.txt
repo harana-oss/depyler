@@ -1,0 +1,28 @@
+  decorator-expansion.toml :: method_chain
+    Output mismatch
+
+────────────────────────────────────────────────────────────
++ use serde_json;
++ #[derive(Debug, Clone)]
+  pub struct Builder {
+−     pub parts: Vec<String>,
++     pub parts: Vec<serde_json::Value>,
+  }
+− 
+  impl Builder {
+      pub fn new() -> Self {
+          Self { parts: vec![] }
+      }
+− 
+−     pub fn add_part(&mut self, part: String) -> &mut Self {
++     pub fn add_part(&mut self, part: String) -> &Self {
+          self.parts.push(part);
+          return self;
+      }
+− 
+      pub fn build(&self) -> String {
+−         return self.parts.join(", ");
++         return self.parts.join(&", ".to_string());
+      }
+  }
+────────────────────────────────────────────────────────────

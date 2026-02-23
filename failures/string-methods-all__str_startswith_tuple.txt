@@ -1,0 +1,9 @@
+  string-methods-all.toml :: str_startswith_tuple
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub const result: bool = ["he", "hi"]
+−     .iter()
+−     .any(|prefix| "hello".starts_with(prefix));
++ 
+────────────────────────────────────────────────────────────

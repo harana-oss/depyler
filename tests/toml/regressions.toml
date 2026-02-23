@@ -33,7 +33,7 @@ python = '''
 def factorial(n: int) -> int:
     result = 1
     for i in range(1, n + 1):
-        result = result * i
+        result *= i
     return result
 '''
 
@@ -85,7 +85,7 @@ impl IndexError {
         }
     }
 }
-pub fn binary_search(arr: &Vec<serde_json::Value>, target: i32) -> i32 {
+pub fn binary_search(arr: &Vec<i32>, target: i32) -> i32 {
     let mut left = 0;
     let _cse_temp_0 = (arr.len() as i32).saturating_sub(1);
     let mut right = _cse_temp_0;
@@ -231,7 +231,7 @@ def process_data(data: list) -> list:
 
 rust = '''
 use serde_json;
-pub fn process_data(data: &Vec<serde_json::Value>) -> Vec<serde_json::Value> {
+pub fn process_data(data: &Vec<i32>) -> Vec<i32> {
     let mut result = vec![];
     for item in data.iter().cloned() {
         result.push(item * 2);
@@ -250,8 +250,7 @@ def process_items(items: list) -> list:
 '''
 
 rust = '''
-use serde_json;
-pub fn process_items(items: Vec<serde_json::Value>) -> Vec<serde_json::Value> {
+pub fn process_items(items: Vec<i32>) -> Vec<i32> {
     return items;
 }
 '''
@@ -339,7 +338,7 @@ impl IndexError {
         }
     }
 }
-pub fn get_item(arr: &Vec<serde_json::Value>, index: i32) -> i32 {
+pub fn get_item(arr: &Vec<i32>, index: i32) -> i32 {
     return arr.get(index as usize).cloned().unwrap();
 }
 '''
@@ -372,7 +371,7 @@ impl IndexError {
         }
     }
 }
-pub fn get_item(arr: &Vec<serde_json::Value>, i: i32) -> i32 {
+pub fn get_item(arr: &Vec<i32>, i: i32) -> i32 {
     return arr.get(i as usize).cloned().unwrap();
 }
 '''
@@ -388,8 +387,8 @@ def get_length(arr: list) -> int:
 
 rust = '''
 use serde_json;
-pub fn get_length(arr: &Vec<serde_json::Value>) -> i32 {
-    return arr.len() as i32 as i32;
+pub fn get_length(arr: &Vec<i32>) -> i32 {
+    return arr.len() as i32;
 }
 '''
 
@@ -412,7 +411,7 @@ pub fn test_shallow_copy() -> i32 {
     let original = vec![1, 2, 3];
     let mut copied = (original.clone()).clone();
     copied.push(4);
-    return original.len() as i32 as i32;
+    return original.len() as i32;
 }
 '''
 
@@ -441,7 +440,7 @@ pub fn test_dict_copy() -> i32 {
     };
     let mut copied = (original.clone()).clone();
     copied.insert("c".to_string(), 3);
-    return original.len() as i32 as i32;
+    return original.len() as i32;
 }
 '''
 
@@ -481,7 +480,7 @@ pub fn test_deep_copy() -> i32 {
     let original = vec![vec![1, 2], vec![3, 4]];
     let mut copied = (original.clone()).clone();
     copied.get(0usize).cloned().unwrap().push(5);
-    return original.get(0usize).cloned().unwrap().len() as i32 as i32;
+    return original.get(0usize).cloned().unwrap().len() as i32;
 }
 '''
 
@@ -493,13 +492,13 @@ python = '''
 def sum_list(numbers: list) -> int:
     total = 0
     for num in numbers:
-        total = total + num
+        total += num
     return total
 '''
 
 rust = '''
 use serde_json;
-pub fn sum_list(numbers: &Vec<serde_json::Value>) -> i32 {
+pub fn sum_list(numbers: &Vec<i32>) -> i32 {
     let mut total = 0;
     for num in numbers.iter().cloned() {
         total += num;
@@ -520,7 +519,7 @@ def get_value(data: dict, key: str) -> int:
 rust = '''
 use serde_json;
 use std::collections::HashMap;
-pub fn get_value(data: &HashMap<serde_json::Value, serde_json::Value>, key: String) -> i32 {
+pub fn get_value(data: &HashMap<String, i32>, key: String) -> i32 {
     return *data.get(&key).unwrap_or(&0);
 }
 '''
@@ -563,7 +562,7 @@ def create_list() -> list:
 
 rust = '''
 use serde_json;
-pub fn create_list() -> Vec<serde_json::Value> {
+pub fn create_list() -> Vec<i32> {
     let items = vec![];
     return items;
 }
@@ -579,8 +578,7 @@ def test_type(obj):
 '''
 
 rust = '''
-use serde_json;
-pub fn test_type(obj: &serde_json::Value) {
+pub fn test_type<T>(obj: &T) {
     return obj.r#type();
 }
 '''
@@ -595,8 +593,7 @@ def test_mut(obj):
 '''
 
 rust = '''
-use serde_json;
-pub fn test_mut(obj: &serde_json::Value) {
+pub fn test_mut<T>(obj: &T) {
     return obj.r#mut();
 }
 '''
@@ -611,8 +608,7 @@ def test_ref(obj):
 '''
 
 rust = '''
-use serde_json;
-pub fn test_ref(obj: &serde_json::Value) {
+pub fn test_ref<T>(obj: &T) {
     return obj.r#ref();
 }
 '''
@@ -627,8 +623,7 @@ def test_match_method(obj):
 '''
 
 rust = '''
-use serde_json;
-pub fn test_match_method(obj: &serde_json::Value) {
+pub fn test_match_method<T>(obj: &T) {
     return obj.match_pattern();
 }
 '''
@@ -643,8 +638,7 @@ def test_loop(obj):
 '''
 
 rust = '''
-use serde_json;
-pub fn test_loop(obj: &serde_json::Value) {
+pub fn test_loop<T>(obj: &T) {
     return obj.r#loop();
 }
 '''
@@ -659,8 +653,7 @@ def test_impl(obj):
 '''
 
 rust = '''
-use serde_json;
-pub fn test_impl(obj: &serde_json::Value) {
+pub fn test_impl<T>(obj: &T) {
     return obj.r#impl();
 }
 '''
@@ -874,61 +867,6 @@ impl Scores {
             tries,
         }
     }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "conversions" => Some(Box::new(self.conversions.clone()) as Box<dyn std::any::Any>),
-            "field_goals" => Some(Box::new(self.field_goals.clone()) as Box<dyn std::any::Any>),
-            "penalties" => Some(Box::new(self.penalties.clone()) as Box<dyn std::any::Any>),
-            "total" => Some(Box::new(self.total.clone()) as Box<dyn std::any::Any>),
-            "tries" => Some(Box::new(self.tries.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "conversions" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.conversions = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "field_goals" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.field_goals = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "penalties" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.penalties = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "total" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.total = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "tries" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.tries = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
-    }
 }
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Period {
@@ -938,34 +876,6 @@ pub struct Period {
 impl Period {
     pub fn new(number: i32, name: String) -> Self {
         Self { number, name }
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "number" => Some(Box::new(self.number.clone()) as Box<dyn std::any::Any>),
-            "name" => Some(Box::new(self.name.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "number" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.number = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "name" => {
-                if let Some(v) = value.downcast_ref::<String>() {
-                    self.name = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 #[derive(Debug, Clone, PartialEq, Default)]
@@ -995,74 +905,6 @@ impl PeriodStatistic {
             turnovers,
         }
     }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "conversions_missed" => {
-                Some(Box::new(self.conversions_missed.clone()) as Box<dyn std::any::Any>)
-            }
-            "penalties_awarded" => {
-                Some(Box::new(self.penalties_awarded.clone()) as Box<dyn std::any::Any>)
-            }
-            "period" => Some(Box::new(self.period.clone()) as Box<dyn std::any::Any>),
-            "scores" => Some(Box::new(self.scores.clone()) as Box<dyn std::any::Any>),
-            "tackles" => Some(Box::new(self.tackles.clone()) as Box<dyn std::any::Any>),
-            "turnovers" => Some(Box::new(self.turnovers.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "conversions_missed" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.conversions_missed = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "penalties_awarded" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.penalties_awarded = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "period" => {
-                if let Some(v) = value.downcast_ref::<Period>() {
-                    self.period = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "scores" => {
-                if let Some(v) = value.downcast_ref::<Scores>() {
-                    self.scores = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "tackles" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.tackles = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "turnovers" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.turnovers = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
-    }
 }
 #[derive(Debug, Copy, Clone, PartialEq, Default)]
 pub struct FieldPosition {
@@ -1073,34 +915,6 @@ impl FieldPosition {
     pub fn new(x: i32, y: i32) -> Self {
         Self { x, y }
     }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
-            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "x" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.x = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "y" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.y = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
-    }
 }
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct PlayerPosition {
@@ -1109,25 +923,6 @@ pub struct PlayerPosition {
 impl PlayerPosition {
     pub fn new(position_type: String) -> Self {
         Self { position_type }
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "position_type" => Some(Box::new(self.position_type.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "position_type" => {
-                if let Some(v) = value.downcast_ref::<String>() {
-                    self.position_type = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 #[derive(Debug, Clone, PartialEq, Default)]
@@ -1142,43 +937,6 @@ impl PlayerPeriodStatistics {
             metres_gained,
             scores,
             tackles,
-        }
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "metres_gained" => Some(Box::new(self.metres_gained.clone()) as Box<dyn std::any::Any>),
-            "scores" => Some(Box::new(self.scores.clone()) as Box<dyn std::any::Any>),
-            "tackles" => Some(Box::new(self.tackles.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "metres_gained" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.metres_gained = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "scores" => {
-                if let Some(v) = value.downcast_ref::<Scores>() {
-                    self.scores = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "tackles" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.tackles = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
         }
     }
 }
@@ -1207,72 +965,6 @@ impl PlayerStatistics {
             metres_gained,
             scores,
             time_on_field_in_seconds,
-        }
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "jersey_number" => Some(Box::new(self.jersey_number.clone()) as Box<dyn std::any::Any>),
-            "player_index" => Some(Box::new(self.player_index.clone()) as Box<dyn std::any::Any>),
-            "tackles" => Some(Box::new(self.tackles.clone()) as Box<dyn std::any::Any>),
-            "metres_gained" => Some(Box::new(self.metres_gained.clone()) as Box<dyn std::any::Any>),
-            "scores" => Some(Box::new(self.scores.clone()) as Box<dyn std::any::Any>),
-            "time_on_field_in_seconds" => {
-                Some(Box::new(self.time_on_field_in_seconds.clone()) as Box<dyn std::any::Any>)
-            }
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "jersey_number" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.jersey_number = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "player_index" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.player_index = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "tackles" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.tackles = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "metres_gained" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.metres_gained = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "scores" => {
-                if let Some(v) = value.downcast_ref::<Scores>() {
-                    self.scores = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "time_on_field_in_seconds" => {
-                if let Some(v) = value.downcast_ref::<f64>() {
-                    self.time_on_field_in_seconds = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
         }
     }
 }
@@ -1309,88 +1001,6 @@ impl Player {
             tries,
         }
     }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "is_home_team" => Some(Box::new(self.is_home_team.clone()) as Box<dyn std::any::Any>),
-            "is_injured" => Some(Box::new(self.is_injured.clone()) as Box<dyn std::any::Any>),
-            "is_voided" => Some(Box::new(self.is_voided.clone()) as Box<dyn std::any::Any>),
-            "jersey_number" => Some(Box::new(self.jersey_number.clone()) as Box<dyn std::any::Any>),
-            "on_field" => Some(Box::new(self.on_field.clone()) as Box<dyn std::any::Any>),
-            "player_index" => Some(Box::new(self.player_index.clone()) as Box<dyn std::any::Any>),
-            "position" => Some(Box::new(self.position.clone()) as Box<dyn std::any::Any>),
-            "tries" => Some(Box::new(self.tries.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "is_home_team" => {
-                if let Some(v) = value.downcast_ref::<bool>() {
-                    self.is_home_team = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "is_injured" => {
-                if let Some(v) = value.downcast_ref::<bool>() {
-                    self.is_injured = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "is_voided" => {
-                if let Some(v) = value.downcast_ref::<bool>() {
-                    self.is_voided = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "jersey_number" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.jersey_number = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "on_field" => {
-                if let Some(v) = value.downcast_ref::<bool>() {
-                    self.on_field = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "player_index" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.player_index = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "position" => {
-                if let Some(v) = value.downcast_ref::<PlayerPosition>() {
-                    self.position = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "tries" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.tries = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
-    }
 }
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct TeamStatistic {
@@ -1416,67 +1026,6 @@ impl TeamStatistic {
             sin_bin_players,
         }
     }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "match_scores" => Some(Box::new(self.match_scores.clone()) as Box<dyn std::any::Any>),
-            "match_tackles" => Some(Box::new(self.match_tackles.clone()) as Box<dyn std::any::Any>),
-            "match_turnovers" => {
-                Some(Box::new(self.match_turnovers.clone()) as Box<dyn std::any::Any>)
-            }
-            "period_statistics" => {
-                Some(Box::new(self.period_statistics.clone()) as Box<dyn std::any::Any>)
-            }
-            "sin_bin_players" => {
-                Some(Box::new(self.sin_bin_players.clone()) as Box<dyn std::any::Any>)
-            }
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "match_scores" => {
-                if let Some(v) = value.downcast_ref::<Scores>() {
-                    self.match_scores = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "match_tackles" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.match_tackles = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "match_turnovers" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.match_turnovers = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "period_statistics" => {
-                if let Some(v) = value.downcast_ref::<Vec<PeriodStatistic>>() {
-                    self.period_statistics = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "sin_bin_players" => {
-                if let Some(v) = value.downcast_ref::<Vec<Player>>() {
-                    self.sin_bin_players = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
-    }
 }
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct TryScorers {
@@ -1485,27 +1034,6 @@ pub struct TryScorers {
 impl TryScorers {
     pub fn new(player_indices: Vec<i32>) -> Self {
         Self { player_indices }
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "player_indices" => {
-                Some(Box::new(self.player_indices.clone()) as Box<dyn std::any::Any>)
-            }
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "player_indices" => {
-                if let Some(v) = value.downcast_ref::<Vec<i32>>() {
-                    self.player_indices = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 #[derive(Debug, Copy, Clone, PartialEq, Default)]
@@ -1520,43 +1048,6 @@ impl SimulationInvariants {
             away_handicap,
             home_handicap,
             total_points,
-        }
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "away_handicap" => Some(Box::new(self.away_handicap.clone()) as Box<dyn std::any::Any>),
-            "home_handicap" => Some(Box::new(self.home_handicap.clone()) as Box<dyn std::any::Any>),
-            "total_points" => Some(Box::new(self.total_points.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "away_handicap" => {
-                if let Some(v) = value.downcast_ref::<f64>() {
-                    self.away_handicap = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "home_handicap" => {
-                if let Some(v) = value.downcast_ref::<f64>() {
-                    self.home_handicap = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "total_points" => {
-                if let Some(v) = value.downcast_ref::<f64>() {
-                    self.total_points = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
         }
     }
 }
@@ -1612,167 +1103,6 @@ impl State {
             simulation_invariants,
             tackles,
             team_in_possession,
-        }
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "away_match_score" => {
-                Some(Box::new(self.away_match_score.clone()) as Box<dyn std::any::Any>)
-            }
-            "away_players" => Some(Box::new(self.away_players.clone()) as Box<dyn std::any::Any>),
-            "away_statistics" => {
-                Some(Box::new(self.away_statistics.clone()) as Box<dyn std::any::Any>)
-            }
-            "ball_location" => Some(Box::new(self.ball_location.clone()) as Box<dyn std::any::Any>),
-            "current_play_type" => {
-                Some(Box::new(self.current_play_type.clone()) as Box<dyn std::any::Any>)
-            }
-            "home_match_score" => {
-                Some(Box::new(self.home_match_score.clone()) as Box<dyn std::any::Any>)
-            }
-            "home_players" => Some(Box::new(self.home_players.clone()) as Box<dyn std::any::Any>),
-            "home_statistics" => {
-                Some(Box::new(self.home_statistics.clone()) as Box<dyn std::any::Any>)
-            }
-            "is_over" => Some(Box::new(self.is_over.clone()) as Box<dyn std::any::Any>),
-            "period" => Some(Box::new(self.period.clone()) as Box<dyn std::any::Any>),
-            "seconds_elapsed" => {
-                Some(Box::new(self.seconds_elapsed.clone()) as Box<dyn std::any::Any>)
-            }
-            "set" => Some(Box::new(self.set.clone()) as Box<dyn std::any::Any>),
-            "simulation_invariants" => {
-                Some(Box::new(self.simulation_invariants.clone()) as Box<dyn std::any::Any>)
-            }
-            "tackles" => Some(Box::new(self.tackles.clone()) as Box<dyn std::any::Any>),
-            "team_in_possession" => {
-                Some(Box::new(self.team_in_possession.clone()) as Box<dyn std::any::Any>)
-            }
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "away_match_score" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.away_match_score = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "away_players" => {
-                if let Some(v) = value.downcast_ref::<Vec<Player>>() {
-                    self.away_players = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "away_statistics" => {
-                if let Some(v) = value.downcast_ref::<TeamStatistic>() {
-                    self.away_statistics = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "ball_location" => {
-                if let Some(v) = value.downcast_ref::<FieldPosition>() {
-                    self.ball_location = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "current_play_type" => {
-                if let Some(v) = value.downcast_ref::<String>() {
-                    self.current_play_type = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "home_match_score" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.home_match_score = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "home_players" => {
-                if let Some(v) = value.downcast_ref::<Vec<Player>>() {
-                    self.home_players = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "home_statistics" => {
-                if let Some(v) = value.downcast_ref::<TeamStatistic>() {
-                    self.home_statistics = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "is_over" => {
-                if let Some(v) = value.downcast_ref::<bool>() {
-                    self.is_over = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "period" => {
-                if let Some(v) = value.downcast_ref::<Period>() {
-                    self.period = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "seconds_elapsed" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.seconds_elapsed = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "set" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.set = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "simulation_invariants" => {
-                if let Some(v) = value.downcast_ref::<SimulationInvariants>() {
-                    self.simulation_invariants = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "tackles" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.tackles = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "team_in_possession" => {
-                if let Some(v) = value.downcast_ref::<String>() {
-                    self.team_in_possession = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
         }
     }
 }
@@ -1834,7 +1164,7 @@ def swap_possession(team_in_possession: str) -> str:
     return "Away" if team_in_possession == "Home" else "Home"
 
 def process_tackle(tackles: int, team_in_possession: str) -> tuple[int, str]:
-    tackles = tackles + 1
+    tackles += 1
     if tackles > TACKLES_PER_SET:
         team_in_possession = swap_possession(team_in_possession)
         tackles = STARTING_TACKLE
@@ -1960,34 +1290,6 @@ impl Scores {
     pub fn new(total: i32, tries: i32) -> Self {
         Self { total, tries }
     }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "total" => Some(Box::new(self.total.clone()) as Box<dyn std::any::Any>),
-            "tries" => Some(Box::new(self.tries.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "total" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.total = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "tries" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.tries = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
-    }
 }
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct PeriodStatistic {
@@ -1996,25 +1298,6 @@ pub struct PeriodStatistic {
 impl PeriodStatistic {
     pub fn new(scores: Scores) -> Self {
         Self { scores }
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "scores" => Some(Box::new(self.scores.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "scores" => {
-                if let Some(v) = value.downcast_ref::<Scores>() {
-                    self.scores = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 #[derive(Debug, Clone, PartialEq, Default)]
@@ -2027,36 +1310,6 @@ impl TeamStatistics {
         Self {
             period_statistics,
             match_scores,
-        }
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "period_statistics" => {
-                Some(Box::new(self.period_statistics.clone()) as Box<dyn std::any::Any>)
-            }
-            "match_scores" => Some(Box::new(self.match_scores.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "period_statistics" => {
-                if let Some(v) = value.downcast_ref::<Vec<PeriodStatistic>>() {
-                    self.period_statistics = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "match_scores" => {
-                if let Some(v) = value.downcast_ref::<Scores>() {
-                    self.match_scores = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
         }
     }
 }
@@ -2085,78 +1338,6 @@ impl State {
             away_statistics,
             home_match_score,
             away_match_score,
-        }
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "game_status" => Some(Box::new(self.game_status.clone()) as Box<dyn std::any::Any>),
-            "is_over" => Some(Box::new(self.is_over.clone()) as Box<dyn std::any::Any>),
-            "home_statistics" => {
-                Some(Box::new(self.home_statistics.clone()) as Box<dyn std::any::Any>)
-            }
-            "away_statistics" => {
-                Some(Box::new(self.away_statistics.clone()) as Box<dyn std::any::Any>)
-            }
-            "home_match_score" => {
-                Some(Box::new(self.home_match_score.clone()) as Box<dyn std::any::Any>)
-            }
-            "away_match_score" => {
-                Some(Box::new(self.away_match_score.clone()) as Box<dyn std::any::Any>)
-            }
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "game_status" => {
-                if let Some(v) = value.downcast_ref::<String>() {
-                    self.game_status = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "is_over" => {
-                if let Some(v) = value.downcast_ref::<bool>() {
-                    self.is_over = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "home_statistics" => {
-                if let Some(v) = value.downcast_ref::<TeamStatistics>() {
-                    self.home_statistics = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "away_statistics" => {
-                if let Some(v) = value.downcast_ref::<TeamStatistics>() {
-                    self.away_statistics = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "home_match_score" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.home_match_score = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "away_match_score" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.away_match_score = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
         }
     }
 }

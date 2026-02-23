@@ -1,0 +1,43 @@
+  match-class-patterns.toml :: class_pattern_subclass
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− enum Shape {
+−         Circle { radius: i32 },
+−         Rectangle { width: i32, height: i32 },
+−         Other,
++ use serde_json;
++ #[derive(Debug, Copy, Clone)]
++ pub struct Shape {}
++ impl Shape {
++     pub fn new() -> Self {
++         Self {}
+      }
+− 
+−     let value = Shape::Circle { radius: 5 };
+−     let result = match value {
+−         Shape::Circle { .. } => "circle",
+−         Shape::Rectangle { .. } => "rectangle",
+−         Shape::Other => "shape",
+−     };
++ }
++ #[derive(Debug, Clone)]
++ pub struct Circle {
++     pub radius: serde_json::Value,
++ }
++ impl Circle {
++     pub fn new(radius: serde_json::Value) -> Self {
++         Self { radius }
++     }
++ }
++ #[derive(Debug, Clone)]
++ pub struct Rectangle {
++     pub width: serde_json::Value,
++     pub height: serde_json::Value,
++ }
++ impl Rectangle {
++     pub fn new(width: serde_json::Value, height: serde_json::Value) -> Self {
++         Self { width, height }
++     }
++ }
+────────────────────────────────────────────────────────────

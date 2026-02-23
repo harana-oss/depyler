@@ -10,6 +10,23 @@ use crate::string_optimization::StringOptimizer;
 use anyhow::Result;
 use std::collections::{HashMap, HashSet};
 
+/// Parameter borrow information for interprocedural analysis
+///
+/// Contains information about how a parameter should be borrowed
+/// based on interprocedural analysis results.
+///
+/// # Complexity
+/// N/A (data structure)
+#[derive(Debug, Copy, Clone)]
+pub struct ParamBorrowInfo {
+    /// Whether the parameter should be borrowed instead of owned
+    pub should_borrow: bool,
+    /// Whether the parameter needs a mutable borrow (&mut T)
+    pub needs_mut: bool,
+    /// Whether the parameter takes ownership (no borrowing)
+    pub takes_ownership: bool,
+}
+
 /// Error type classification for Result<T, E> return types
 ///
 /// or a concrete error type (single type). This determines if raise statements
@@ -77,6 +94,7 @@ pub struct CodeGenContext<'a> {
     pub needs_complex: bool,
     pub declared_vars: Vec<HashSet<String>>,
     pub current_function_can_fail: bool,
+    pub current_function_name: Option<String>,
     pub current_return_type: Option<Type>,
     pub module_mapper: crate::module_mapper::ModuleMapper,
     pub imported_modules: std::collections::HashMap<String, crate::module_mapper::ModuleMapping>,
@@ -96,7 +114,14 @@ pub struct CodeGenContext<'a> {
     pub class_field_types: HashMap<String, HashMap<String, Type>>,
     pub mutating_methods: HashMap<String, HashSet<String>>,
     pub function_return_types: HashMap<String, Type>,
-    pub function_param_borrows: HashMap<String, Vec<bool>>,
+    /// Track parameter borrow information for interprocedural analysis
+    pub function_param_borrows: HashMap<String, Vec<ParamBorrowInfo>>,
+    /// Track parameter borrow information for interprocedural analysis
+    pub function_param_strategies: HashMap<String, Vec<crate::borrowing_context::BorrowingStrategy>>,
+    /// Track current function parameter ownership
+    pub current_function_param_ownership: HashMap<String, bool>,
+    /// Track parameters that require cloning
+    pub param_clone_requirements: HashSet<String>,
     /// Track function parameters that need mutable borrows (&mut T)
     pub function_param_muts: HashMap<String, Vec<bool>>,
     /// Track functions whose return values are mutated at call sites (need &mut return type)
@@ -118,6 +143,9 @@ pub struct CodeGenContext<'a> {
     pub validator_functions: std::collections::HashSet<String>,
 
     pub stdlib_mappings: crate::stdlib_mappings::StdlibMappings,
+
+    /// Interprocedural analysis results for cross-function mutation tracking
+    pub interprocedural_analysis: Option<&'a crate::interprocedural::InterproceduralAnalysis<'a>>,
 
     /// Track classes that need _get_field/_set_field methods for dynamic attribute access
     pub classes_needing_dynamic_access: HashSet<String>,

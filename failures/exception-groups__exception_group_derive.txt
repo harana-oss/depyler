@@ -1,0 +1,38 @@
+  exception-groups.toml :: exception_group_derive
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug, Clone)]
+− enum Error {
+−     ValueError(String),
+−     TypeError(String),
+− }
+− 
+− #[derive(Clone)]
+− struct ErrorGroup {
+−     message: String,
+−     errors: Vec<Error>,
+− }
+− 
+− impl ErrorGroup {
+−     fn derive(&self, new_errors: Vec<Error>) -> ErrorGroup {
+−         ErrorGroup {
+−             message: self.message.clone(),
+−             errors: new_errors,
+−         }
+−     }
+− }
+− 
+− let original = ErrorGroup {
+−     message: "errors".to_string(),
+−     errors: vec![
+−         Error::ValueError("v1".to_string()),
+−         Error::TypeError("t1".to_string()),
+−     ],
+− };
+  
+− let derived = original.derive(vec![Error::ValueError("v2".to_string())]);
+− log::info!("Original message: {}", original.message);
+− log::info!("Derived message: {}", derived.message);
+− log::info!("Derived count: {}", derived.errors.len());
+────────────────────────────────────────────────────────────

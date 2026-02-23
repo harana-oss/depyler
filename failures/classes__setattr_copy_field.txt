@@ -1,0 +1,23 @@
+  classes.toml :: setattr_copy_field
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug, Copy, Clone]
++ #[derive(Debug, Copy, Clone)]
+  pub struct State {
+      pub temp: i32,
+      pub result: i32,
+  }
+  impl State {
+      pub fn new(temp: i32, result: i32) -> Self {
+          Self { temp, result }
+      }
+  }
+− pub fn update_state(s: &mut State) {
++ pub fn update_state(s: &State) {
+      {
+          s.temp = s.result;
+−     }
++     };
++ }
+────────────────────────────────────────────────────────────

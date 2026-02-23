@@ -1,0 +1,14 @@
+  concurrency.toml :: threading_spawn
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn compute(n: i32) -> i32 {
+      return n * 2;
+  }
+− 
+− pub fn parallel_compute(value: i32) -> i32 {
++ pub fn parallel_compute(value: &i32) -> i32 {
+      let result = compute(value);
+      return result;
+  }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,31 @@
+  global-nonlocal.toml :: nonlocal_write
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::cell::Cell;
+− 
+− fn counter() {
+−     let count = Cell::new(0);
+− 
+−     let increment = || {
+−         let new_count = count.get() + 1;
+−         count.set(new_count);
+−         new_count
+−     };
+− 
+−     log::info!("Count 1: {}", increment());
+−     log::info!("Count 2: {}", increment());
+−     log::info!("Count 3: {}", increment());
++ pub fn counter() {
++     let count = 0;
++     fn increment() -> () {
++         count += 1;
++         return count;
++     }
++     log::info!("{}", format!("Count 1: {}", increment()));
++     log::info!("{}", format!("Count 2: {}", increment()));
++     log::info!("{}", format!("Count 3: {}", increment()));
+  }
+− 
+− counter();
+────────────────────────────────────────────────────────────

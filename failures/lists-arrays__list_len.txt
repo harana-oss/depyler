@@ -1,0 +1,9 @@
+  lists-arrays.toml :: list_len
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn list_size(items: &Vec<i32>) -> i32 {
+−     return items.len() as i32;
++     return items.len() as i32 as i32;
+  }
+────────────────────────────────────────────────────────────

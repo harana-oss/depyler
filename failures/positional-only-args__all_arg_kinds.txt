@@ -1,0 +1,24 @@
+  positional-only-args.toml :: all_arg_kinds
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::collections::HashMap;
+− 
+− fn all_kinds(a: i32, b: i32, args: &[i32], c: i32, kwargs: &HashMap<&str, i32>) {
+−     log::info!("a={}, b={}", a, b);
+−     log::info!("args={:?}", args);
+−     log::info!("c={}", c);
+−     log::info!("kwargs={:?}", kwargs);
++ pub fn all_kinds(b: String) {
++     log::info!("{}", format!("a={}, b={}", a, b));
++     log::info!("{}", format!("args={}", args));
++     log::info!("{}", format!("c={}", c));
++     log::info!("{}", format!("kwargs={}", kwargs));
+  }
+− 
+− let args = vec![3, 4];
+− let mut kwargs = HashMap::new();
+− kwargs.insert("x", 10);
+− kwargs.insert("y", 20);
+− all_kinds(1, 2, &args, 5, &kwargs);
+────────────────────────────────────────────────────────────

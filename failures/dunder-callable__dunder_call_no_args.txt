@@ -1,0 +1,27 @@
+  dunder-callable.toml :: dunder_call_no_args
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct Callable {
+−     value: i32,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Callable {
++     pub value: serde_json::Value,
+  }
+− 
+  impl Callable {
+−     fn new(value: i32) -> Self {
+−         Callable { value }
++     pub fn new(value: serde_json::Value) -> Self {
++         Self { value }
+      }
+− 
+−     fn call(&self) -> i32 {
+−         self.value
+−     }
+  }
+− 
+− let obj = Callable::new(42);
+− log::info!("{}", obj.call());
+────────────────────────────────────────────────────────────

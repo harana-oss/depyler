@@ -1,0 +1,49 @@
+  dunder-iteration.toml :: dunder_iter_self
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct Counter {
+−     max_val: i32,
+−     current: i32,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Counter {
++     pub max_val: serde_json::Value,
++     pub current: i32,
+  }
+− 
+  impl Counter {
+−     fn new(max_val: i32) -> Self {
+−         Counter {
++     pub fn new(max_val: serde_json::Value) -> Self {
++         Self {
+              max_val,
+              current: 0,
+          }
+      }
+− }
+− 
+− impl Iterator for Counter {
+−     type Item = i32;
+− 
+−     fn next(&mut self) -> Option<Self::Item> {
++     pub fn __iter__(&self) -> &Self {
++         return self;
++     }
++     pub fn __next__(&mut self) {
+          if self.current < self.max_val {
+              self.current += 1;
+−             Some(self.current)
+−         } else {
+−             None
++             return self.current;
+          }
++         panic!("Exception: {}", StopIteration);
+      }
+  }
+− 
+− let counter = Counter::new(3);
+− for i in counter {
+−     log::info!("{}", i);
+− }
+────────────────────────────────────────────────────────────

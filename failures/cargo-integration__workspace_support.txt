@@ -1,0 +1,26 @@
+  cargo-integration.toml :: workspace_support
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn workspace_members() -> Vec<String> {
+      return vec![
+          "crate-a".to_string(),
+          "crate-b".to_string(),
+          "crate-c".to_string(),
+      ];
+  }
+− 
+− pub fn is_member(workspace: &[String], name: &str) -> bool {
+−     return workspace.iter().any(|m| m == name);
++ pub fn is_member(workspace: &Vec<String>, name: String) -> bool {
++     return workspace.contains(&name);
+  }
+− 
+  pub fn add_member(mut workspace: Vec<String>, name: String) -> Vec<String> {
+−     if !workspace.iter().any(|m| m == &name) {
++     if !workspace.contains(&name) {
+          workspace.push(name);
+      }
+      return workspace;
+  }
+────────────────────────────────────────────────────────────

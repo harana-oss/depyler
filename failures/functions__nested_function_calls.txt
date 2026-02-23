@@ -1,0 +1,19 @@
+  functions.toml :: nested_function_calls
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn inner(x: i32, y: i32) -> i32 {
+      return x + y;
+  }
+  pub fn outer(inner_result: i32, scale: f64, offset: i32) -> i32 {
+      return inner_result * (scale) as i32 + offset;
+  }
+  pub fn test() -> i32 {
+      return outer(inner(10, 20), 2.0, inner(5, 5));
+  }
+−             let result1 = inner(x.clone(), y.clone());
+−             let result2 = inner(y.clone(), x.clone());
+−             if result1 != result2 {
+−                 return TestResult::failed();
+−             }
+────────────────────────────────────────────────────────────

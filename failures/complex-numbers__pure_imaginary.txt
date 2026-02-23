@@ -1,0 +1,10 @@
+  complex-numbers.toml :: pure_imaginary
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use num::Complex;
+  
+− let x = Complex::new(0.0, 1.0);
+− log::info!("{}", x.re);
+− log::info!("{}", x.im);
+────────────────────────────────────────────────────────────

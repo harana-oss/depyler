@@ -1,0 +1,14 @@
+  concurrency.toml :: threading_basic
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn worker(name: &str) -> String {
++ pub fn worker(name: String) -> String {
+      return format!("Hello from {}", name);
+  }
+− 
+  pub fn run_thread() -> String {
+−     return worker("main");
++     return worker("main".to_string());
+  }
+────────────────────────────────────────────────────────────

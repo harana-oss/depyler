@@ -1,0 +1,25 @@
+  const-evaluation.toml :: const_arithmetic_division
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub const TOTAL: i32 = 100;
+  pub const PARTS: i32 = 4;
+− pub const EACH: i32 = TOTAL / PARTS;
++ pub const EACH: serde_json::Value = {
++     let a = TOTAL;
++     let b = PARTS;
++     let q = a / b;
++     let r = a % b;
++     let r_negative = r < 0;
++     let b_negative = b < 0;
++     let r_nonzero = r != 0;
++     let signs_differ = r_negative != b_negative;
++     let needs_adjustment = r_nonzero && signs_differ;
++     if needs_adjustment {
++         q - 1
++     } else {
++         q
++     }
++ };
++ use serde_json;
+────────────────────────────────────────────────────────────

@@ -1,0 +1,17 @@
+  match-as-patterns.toml :: as_nested
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::collections::HashMap;
+− 
+−     let mut value = HashMap::new();
+−     value.insert("data", vec![3, 4]);
+  
+−     let result = match value.get("data") {
+−         Some(data) if data.len() == 2 => {
+−             let coords = data.clone();
+−             (data[0], data[1], coords)
+−         }
+−         _ => (0, 0, vec![]),
+−     };
+────────────────────────────────────────────────────────────

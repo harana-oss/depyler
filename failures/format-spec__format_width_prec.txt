@@ -1,0 +1,9 @@
+  format-spec.toml :: format_width_prec
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn format_width_precision() -> String {
+−     return format!("{:10.2}", 3.14159);
++     return format!("{:10.2f}", 3.14159);
+  }
+────────────────────────────────────────────────────────────

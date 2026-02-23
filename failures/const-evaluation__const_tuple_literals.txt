@@ -1,0 +1,8 @@
+  const-evaluation.toml :: const_tuple_literals
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub const POINT: (i32, i32) = (10, 20);
++ pub const POINT: serde_json::Value = (10, 20);
++ use serde_json;
+────────────────────────────────────────────────────────────

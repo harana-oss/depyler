@@ -1,0 +1,41 @@
+  enum-int.toml :: intflag_in
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::ops::{BitAnd, BitOr};
+− 
+−     #[repr(i32)]
+−     #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+−     struct Perm(i32);
+− 
+−     impl Perm {
+−         const R: Perm = Perm(4);
+−         const W: Perm = Perm(2);
+−         const X: Perm = Perm(1);
+− 
+−         fn contains(self, flag: Perm) -> bool {
+−             (self.0 & flag.0) == flag.0
+−         }
+−     }
+− 
+−     impl BitOr for Perm {
+−         type Output = Perm;
+−         fn bitor(self, rhs: Self) -> Self::Output {
+−             Perm(self.0 | rhs.0)
+−         }
++ #[derive(Debug, Copy, Clone)]
++ pub struct Perm {}
++ impl Perm {
++     pub const R: i32 = 4;
++     pub const W: i32 = 2;
++     pub const X: i32 = 1;
++     pub fn new() -> Self {
++         Self {}
+      }
+− 
+−     let rw = Perm::R | Perm::W;
+−     assert!(rw.contains(Perm::R));
+−     assert!(rw.contains(Perm::W));
+−     assert!(!rw.contains(Perm::X));
++ }
+────────────────────────────────────────────────────────────

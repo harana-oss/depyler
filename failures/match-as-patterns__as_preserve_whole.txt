@@ -1,0 +1,12 @@
+  match-as-patterns.toml :: as_preserve_whole
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Access both parts and whole
+−     let value = (10, 20);
+−     let result = match value {
+−         whole @ (x, y) => x == 10 && y == 20 && whole == (10, 20),
+−         _ => false,
+−     };
++ 
+────────────────────────────────────────────────────────────

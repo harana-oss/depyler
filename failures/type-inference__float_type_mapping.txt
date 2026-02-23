@@ -1,0 +1,14 @@
+  type-inference.toml :: float_type_mapping
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn calculate(x: f64, y: f64) -> f64 {
+      return x * y;
+− };
+−             let result1 = calculate(x.clone(), y.clone());
+−             let result2 = calculate(y.clone(), x.clone());
+−             if result1 != result2 {
+−                 return TestResult::failed();
+−             }
++ }
+────────────────────────────────────────────────────────────

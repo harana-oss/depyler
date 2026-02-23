@@ -1,0 +1,9 @@
+  lifetime-parameters.toml :: function_parameters_no_static_lifetime
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn concat_strings(a: String, b: String) -> String {
+−     return a + &b;
++     return format!("{}{}", a, b);
+  }
+────────────────────────────────────────────────────────────

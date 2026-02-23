@@ -1,0 +1,8 @@
+  async-with.toml :: async_with_context
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // async with outside async is error
+−     let result = true; // Placeholder
++ pub const result: bool = true;
+────────────────────────────────────────────────────────────

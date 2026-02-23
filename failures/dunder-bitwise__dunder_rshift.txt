@@ -1,0 +1,30 @@
+  dunder-bitwise.toml :: dunder_rshift
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::ops::Shr;
+− 
+− #[derive(Debug)]
+− struct MyClass {
+−     x: i32,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct MyClass {
++     pub x: serde_json::Value,
+  }
+− 
+− impl Shr<i32> for MyClass {
+−     type Output = MyClass;
+− 
+−     fn shr(self, other: i32) -> MyClass {
+−         MyClass { x: self.x >> other }
++ impl MyClass {
++     pub fn new(x: serde_json::Value) -> Self {
++         Self { x }
+      }
+  }
+− 
+− let a = MyClass { x: 20 };
+− let result = a >> 2;
+− log::info!("MyClass({})", result.x);
+────────────────────────────────────────────────────────────

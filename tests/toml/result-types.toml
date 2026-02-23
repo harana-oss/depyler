@@ -394,7 +394,7 @@ impl ValueError {
 }
 pub fn get_count(items: &Vec<i32>) -> i32 {
     {
-        return items.len() as i32 as i32;
+        return items.len() as i32;
         panic!("{}", "Invalid items");
     }
 }
@@ -488,7 +488,7 @@ def calculate_stats(numbers: list[int]) -> dict[str, int]:
 rust = '''
 use std::collections::HashMap;
 pub fn calculate_stats(numbers: &Vec<i32>) -> HashMap<String, i32> {
-    if numbers.clone().is_empty() {
+    if numbers.is_empty() {
         return {
             let mut map = HashMap::new();
             map.insert("count".to_string(), 0);

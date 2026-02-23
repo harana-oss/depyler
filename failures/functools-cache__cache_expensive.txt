@@ -1,0 +1,28 @@
+  functools-cache.toml :: cache_expensive
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Cache expensive API calls
+−     use std::collections::HashMap;
+−     use std::sync::Mutex;
+− 
+−     lazy_static::lazy_static! {
+−         static ref CACHE: Mutex<HashMap<String, String>> = Mutex::new(HashMap::new());
+−     }
+− 
+−     fn fetch_data(api_key: &str) -> String {
+−         let mut cache = CACHE.lock().unwrap();
+−         cache
+−             .entry(api_key.to_string())
+−             .or_insert_with(|| format!("data_for_{}", api_key))
+−             .clone()
+−     }
+− 
+−     let result = fetch_data("key123") == "data_for_key123";
++ use std;
++ pub const result: serde_json::Value = fetch_data("key123".to_string()) == "data_for_key123";
++ use serde_json;
++ pub fn fetch_data(api_key: String) -> String {
++     return format!("data_for_{}", api_key);
++ }
+────────────────────────────────────────────────────────────

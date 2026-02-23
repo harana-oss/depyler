@@ -1,0 +1,12 @@
+  positional-only-args.toml :: posonly_empty_after
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− fn all_posonly(a: i32, b: i32, c: i32) -> i32 {
+−     a + b + c
++ pub fn all_posonly() {
++     return a + b + c;
+  }
+− 
+− log::info!("{}", all_posonly(1, 2, 3));
+────────────────────────────────────────────────────────────

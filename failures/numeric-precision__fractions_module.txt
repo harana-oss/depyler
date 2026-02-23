@@ -1,0 +1,12 @@
+  numeric-precision.toml :: fractions_module
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn fraction_add(num1: i32, den1: i32, num2: i32, den2: i32) -> (i32, i32) {
+−     let num = num1 * den2 + num2 * den1;
++     let _cse_temp_0 = num1 * den2 + num2 * den1;
++     let num = _cse_temp_0;
+      let den = den1 * den2;
+      return (num, den);
+  }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,36 @@
+  ffi-ctypes.toml :: ctypes_struct_nested
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[repr(C)]
++ use serde_json;
++ #[derive(Debug, Copy, Clone)]
+  pub struct Inner {
+      pub value: i32,
+  }
+− 
+  impl Inner {
+      pub fn new(value: i32) -> Self {
+          Self { value }
+      }
+  }
+− 
+− #[repr(C)]
++ #[derive(Debug, Clone)]
+  pub struct Outer {
+−     pub inner: Inner,
++     pub inner: serde_json::Value,
+  }
+− 
+  impl Outer {
+      pub fn new(inner_value: i32) -> Self {
+          Self {
+              inner: Inner::new(inner_value),
+          }
+      }
+  }
+− 
+  pub fn get_inner_value(outer: &Outer) -> i32 {
+      return outer.inner.value;
+  }
+────────────────────────────────────────────────────────────

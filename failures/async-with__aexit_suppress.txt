@@ -1,0 +1,8 @@
+  async-with.toml :: aexit_suppress
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Return True to suppress exception
+−     let result = true; // Placeholder
++ pub const result: bool = true;
+────────────────────────────────────────────────────────────

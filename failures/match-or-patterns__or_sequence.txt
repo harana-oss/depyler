@@ -1,0 +1,11 @@
+  match-or-patterns.toml :: or_sequence
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− let lst = vec![1];
+−     let result = match lst.len() {
+−         0 | 1 => true,
+−         _ => false,
+−     };
++ 
+────────────────────────────────────────────────────────────

@@ -1,0 +1,22 @@
+  ellipsis.toml :: ellipsis_slice
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Ellipsis in slicing is typically handled by array libraries
+− // In Rust, this would be part of ndarray or similar
+− struct Array;
+− 
++ #[derive(Debug, Copy, Clone)]
++ pub struct Array {}
+  impl Array {
+−     fn get(&self, _key: &str) -> &str {
+−         "Ellipsis slice accessed"
++     pub fn new() -> Self {
++         Self {}
+      }
+  }
+− 
+− let arr = Array;
+− let result = arr.get("..., 0");
+− log::info!("{}", result);
+────────────────────────────────────────────────────────────

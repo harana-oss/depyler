@@ -1,0 +1,10 @@
+  binary-literals.toml :: hex_underscore
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− let x = 0xFF_FF;
+−     let result = x == 65535;
++ pub const x: i32 = 65535;
++ pub const result: serde_json::Value = x == 65535;
++ use serde_json;
+────────────────────────────────────────────────────────────

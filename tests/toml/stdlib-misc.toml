@@ -390,7 +390,7 @@ pub fn test_shallow_copy() -> i32 {
     let original = vec![1, 2, 3];
     let mut copied = (original.clone()).clone();
     copied.push(4);
-    return original.len() as i32 as i32;
+    return original.len() as i32;
 }
 '''
 
@@ -419,7 +419,7 @@ pub fn test_dict_copy() -> i32 {
     };
     let mut copied = (original.clone()).clone();
     copied.insert("c".to_string(), 3);
-    return original.len() as i32 as i32;
+    return original.len() as i32;
 }
 '''
 
@@ -459,6 +459,6 @@ pub fn test_deep_copy() -> i32 {
     let original = vec![vec![1, 2], vec![3, 4]];
     let mut copied = (original.clone()).clone();
     copied.get(0usize).cloned().unwrap().push(5);
-    return original.get(0usize).cloned().unwrap().len() as i32 as i32;
+    return original.get(0usize).cloned().unwrap().len() as i32;
 }
 '''

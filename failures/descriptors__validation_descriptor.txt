@@ -1,0 +1,65 @@
+  descriptors.toml :: validation_descriptor
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct ValidatedDescriptor {
+−     min_value: i32,
+−     max_value: i32,
+−     value: Option<i32>,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct ValidatedDescriptor {
++     pub min_value: serde_json::Value,
++     pub max_value: serde_json::Value,
++     pub value: (),
+  }
+− 
+  impl ValidatedDescriptor {
+−     fn new(min_value: i32, max_value: i32) -> Self {
+−         ValidatedDescriptor {
++     pub fn new(min_value: serde_json::Value, max_value: serde_json::Value) -> Self {
++         Self {
+              min_value,
+              max_value,
+−             value: None,
++             value: (),
+          }
+      }
+− 
+−     fn get(&self) -> Option<i32> {
+−         self.value
++ }
++ #[derive(Debug, Copy, Clone)]
++ pub struct MyClass {}
++ impl MyClass {
++     pub const score: serde_json::Value = ValidatedDescriptor::new(0, 100);
++     pub fn new() -> Self {
++         Self {}
+      }
+− 
+−     fn set(&mut self, val: i32) -> Result<(), String> {
+−         if val < self.min_value {
+−             return Err(format!("score must be >= {}", self.min_value));
+−         }
+−         if val > self.max_value {
+−             return Err(format!("score must be <= {}", self.max_value));
+−         }
+−         self.value = Some(val);
+−         Ok(())
+−     }
+− }
+− 
+− struct MyClass {
+−     score: ValidatedDescriptor,
+  }
+− 
+− let mut instance = MyClass {
+−     score: ValidatedDescriptor::new(0, 100),
+− };
+− instance.score.set(75).unwrap();
+− log::info!("{}", instance.score.get().unwrap());
+− match instance.score.set(150) {
+−     Err(e) => log::info!("Error: {}", e),
+−     Ok(_) => {}
+− }
+────────────────────────────────────────────────────────────

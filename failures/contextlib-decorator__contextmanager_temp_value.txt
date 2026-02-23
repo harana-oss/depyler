@@ -1,0 +1,57 @@
+  contextlib-decorator.toml :: contextmanager_temp_value
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::cell::RefCell;
+−     use std::rc::Rc;
+− 
+−     let value: Rc<RefCell<i32>> = Rc::new(RefCell::new(10));
+−     let value_clone = value.clone();
+− 
+−     fn temp_change<F, R>(value: Rc<RefCell<i32>>, new_val: i32, f: F) -> R
+−     where
+−         F: FnOnce() -> R,
+−     {
+−         let old_val = *value.borrow();
+−         *value.borrow_mut() = new_val;
+−         let result = f();
+−         *value.borrow_mut() = old_val;
+−         result
++ use serde_json;
++ #[doc = " Generator state struct"]
++ #[derive(Debug)]
++ struct TempChangeState {
++     state: usize,
++     old_val: serde_json::Value,
++     value: serde_json::Value,
++     new_val: serde_json::Value,
++ }
++ #[doc = " Generator function - returns Iterator"]
++ pub fn temp_change(new_val: &serde_json::Value) -> impl Iterator<Item = serde_json::Value> {
++     TempChangeState {
++         state: 0,
++         old_val: Default::default(),
++         value: Default::default(),
++         new_val: new_val,
+      }
+− 
+−     let in_context = temp_change(value_clone.clone(), 20, || *value.borrow());
+−     let result = (in_context, *value.borrow());
++ }
++ impl Iterator for TempChangeState {
++     type Item = serde_json::Value;
++     fn next(&mut self) -> Option<Self::Item> {
++         match self.state {
++             0 => {
++                 self.state = 1;
++                 self.old_val = self.value;
++                 self.value = self.new_val;
++                 return None;
++                 self.value = self.old_val;
++                 None
++             }
++             _ => None,
++         }
++     }
++ }
+────────────────────────────────────────────────────────────

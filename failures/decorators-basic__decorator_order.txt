@@ -1,0 +1,39 @@
+  decorators-basic.toml :: decorator_order
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− fn add_1<F>(f: F) -> impl Fn() -> String
+−     where
+−         F: Fn() -> String,
+−     {
+−         move || format!("{} first", f())
++ use serde_json;
++ pub fn add_1(f: &serde_json::Value) {
++     fn wrapper() -> () {
++         return format!("{}{}", f(), " first");
+      }
+− 
+−     fn add_2<F>(f: F) -> impl Fn() -> String
+−     where
+−         F: Fn() -> String,
+−     {
+−         move || format!("{} second", f())
++     return wrapper;
++ }
++ pub fn add_2(f: &serde_json::Value) {
++     fn wrapper() -> () {
++         return format!("{}{}", f(), " second");
+      }
+− 
+−     fn message_impl() -> String {
+−         "hello".to_string()
+−     }
+− 
+−     let message = add_2(add_1(message_impl));
+−     let result = message();
++     return wrapper;
++ }
++ pub fn message() -> String {
++     return "hello".to_string();
++ }
+────────────────────────────────────────────────────────────

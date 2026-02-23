@@ -1,0 +1,41 @@
+  dunder-context.toml :: exit_with_exception
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust doesn't have context managers that catch exceptions
+− // Use Result types and ? operator instead
+− struct ErrorHandler;
+− 
++ use serde_json;
++ #[derive(Debug, Copy, Clone)]
++ pub struct ErrorHandler {}
+  impl ErrorHandler {
+−     fn new() -> Self {
+−         ErrorHandler
++     pub fn new() -> Self {
++         Self {}
++     }
++     pub fn __enter__(&self) -> &Self {
++         return self;
+      }
+− }
+− 
+− impl Drop for ErrorHandler {
+−     fn drop(&mut self) {
+−         log::info!("Caught: ValueError");
++     pub fn __exit__(
++         &self,
++         exc_type: serde_json::Value,
++         exc_val: serde_json::Value,
++         exc_tb: serde_json::Value,
++     ) -> bool {
++         if exc_type.is_some() {
++             log::info!("{}", format!("Caught: {}", exc_type.__name__));
++         }
++         return false;
+      }
+  }
+− 
+− let _handler = ErrorHandler::new();
+− log::info!("Propagated");
+────────────────────────────────────────────────────────────

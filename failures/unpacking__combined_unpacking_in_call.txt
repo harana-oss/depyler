@@ -1,0 +1,17 @@
+  unpacking.toml :: combined_unpacking_in_call
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn combined_func() {
+      log::info!("{}", format!("args: {}", args));
+      log::info!("{}", format!("kwargs: {}", kwargs));
+  }
+− let args = vec![1, 2];
+− let kwargs = {
+−     let mut map = HashMap::new();
+−     map.insert("x".to_string(), 10);
+−     map.insert("y".to_string(), 20);
+−     map
+− };
+− combined_func(&args);
+────────────────────────────────────────────────────────────

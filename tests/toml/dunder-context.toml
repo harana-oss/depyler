@@ -38,13 +38,10 @@ impl Drop for MyContext {
     }
 }
 
-fn main() {
-    let ctx = MyContext;
-    ctx.enter();
-    log::info!("Inside");
-    // Drop called automatically
-}
-"""
+let ctx = MyContext;
+ctx.enter();
+log::info!("Inside");
+// Drop called automatically"""
 
 [[test]]
 name = "dunder_exit"
@@ -76,11 +73,8 @@ impl Drop for Tracker {
     }
 }
 
-fn main() {
-    let _tracker = Tracker::new();
-    log::info!("Working");
-}
-"""
+let _tracker = Tracker::new();
+log::info!("Working");"""
 
 [[test]]
 name = "with_statement"
@@ -118,11 +112,8 @@ impl Drop for Resource {
     }
 }
 
-fn main() {
-    let res = Resource::new();
-    log::info!("Using: {}", res.value);
-}
-"""
+let res = Resource::new();
+log::info!("Using: {}", res.value);"""
 
 # =============================================================================
 # __enter__ Return Value
@@ -158,11 +149,8 @@ impl Manager {
     }
 }
 
-fn main() {
-    let mgr = Manager::new("test");
-    log::info!("{}", mgr.name);
-}
-"""
+let mgr = Manager::new("test");
+log::info!("{}", mgr.name);"""
 
 [[test]]
 name = "enter_returns_other"
@@ -201,12 +189,9 @@ impl Drop for FileManager {
     }
 }
 
-fn main() {
-    let (mgr, f) = FileManager::new();
-    log::info!("Using: {}", f);
-    drop(mgr);
-}
-"""
+let (mgr, f) = FileManager::new();
+log::info!("Using: {}", f);
+drop(mgr);"""
 
 [[test]]
 name = "enter_returns_none"
@@ -240,11 +225,8 @@ impl Drop for Action {
     }
 }
 
-fn main() {
-    let _action = Action::new();
-    log::info!("Action");
-}
-"""
+let _action = Action::new();
+log::info!("Action");"""
 
 # =============================================================================
 # __exit__ Parameters
@@ -280,11 +262,8 @@ impl Drop for Checker {
     }
 }
 
-fn main() {
-    let _checker = Checker::new();
-    log::info!("Success");
-}
-"""
+let _checker = Checker::new();
+log::info!("Success");"""
 
 [[test]]
 name = "exit_with_exception"
@@ -322,11 +301,8 @@ impl Drop for ErrorHandler {
     }
 }
 
-fn main() {
-    let _handler = ErrorHandler::new();
-    log::info!("Propagated");
-}
-"""
+let _handler = ErrorHandler::new();
+log::info!("Propagated");"""
 
 [[test]]
 name = "exit_exception_info"
@@ -362,10 +338,7 @@ impl Drop for Logger {
     }
 }
 
-fn main() {
-    let _logger = Logger::new();
-}
-"""
+let _logger = Logger::new();"""
 
 # =============================================================================
 # Exception Handling
@@ -400,11 +373,8 @@ impl Drop for Suppressor {
     }
 }
 
-fn main() {
-    let _sup = Suppressor;
-    log::info!("Continued");
-}
-"""
+let _sup = Suppressor;
+log::info!("Continued");"""
 
 [[test]]
 name = "exit_propagate"
@@ -433,11 +403,8 @@ impl Drop for Propagator {
     }
 }
 
-fn main() {
-    let _prop = Propagator;
-    log::info!("Caught: This will propagate");
-}
-"""
+let _prop = Propagator;
+log::info!("Caught: This will propagate");"""
 
 [[test]]
 name = "exit_reraise"
@@ -469,11 +436,8 @@ impl Drop for Reraiser {
     }
 }
 
-fn main() {
-    let _reraiser = Reraiser;
-    log::info!("Got: Wrapped error");
-}
-"""
+let _reraiser = Reraiser;
+log::info!("Got: Wrapped error");"""
 
 # =============================================================================
 # Use Cases
@@ -518,11 +482,8 @@ impl Drop for File {
     }
 }
 
-fn main() {
-    let f = File::new("data.txt");
-    log::info!("Working with {}", f.name);
-}
-"""
+let f = File::new("data.txt");
+log::info!("Working with {}", f.name);"""
 
 [[test]]
 name = "cm_lock"
@@ -557,11 +518,8 @@ impl Drop for Lock {
     }
 }
 
-fn main() {
-    let _lock = Lock::new();
-    log::info!("Critical section");
-}
-"""
+let _lock = Lock::new();
+log::info!("Critical section");"""
 
 [[test]]
 name = "cm_transaction"
@@ -604,11 +562,8 @@ impl Drop for Transaction {
     }
 }
 
-fn main() {
-    let _tx = Transaction::new();
-    log::info!("INSERT data");
-}
-"""
+let _tx = Transaction::new();
+log::info!("INSERT data");"""
 
 [[test]]
 name = "cm_timing"
@@ -652,12 +607,9 @@ impl Drop for Timer {
     }
 }
 
-fn main() {
-    let _timer = Timer::new();
-    std::thread::sleep(std::time::Duration::from_millis(10));
-    log::info!("Working");
-}
-"""
+let _timer = Timer::new();
+std::thread::sleep(std::time::Duration::from_millis(10));
+log::info!("Working");"""
 
 [[test]]
 name = "cm_temp_state"
@@ -715,16 +667,13 @@ impl<'a> Drop for TempValue<'a> {
     }
 }
 
-fn main() {
-    let mut config = Config { value: 10 };
-    log::info!("Before: {}", config.value);
-    {
-        let _temp = TempValue::new(&mut config, 20);
-        log::info!("During: {}", config.value);
-    }
-    log::info!("After: {}", config.value);
+let mut config = Config { value: 10 };
+log::info!("Before: {}", config.value);
+{
+    let _temp = TempValue::new(&mut config, 20);
+    log::info!("During: {}", config.value);
 }
-"""
+log::info!("After: {}", config.value);"""
 
 # =============================================================================
 # Nested Context Managers
@@ -770,14 +719,11 @@ impl Drop for CM {
     }
 }
 
-fn main() {
-    let _a = CM::new("A");
-    {
-        let _b = CM::new("B");
-        log::info!("Inside both");
-    }
-}
-"""
+let _a = CM::new("A");
+{
+    let _b = CM::new("B");
+    log::info!("Inside both");
+}"""
 
 [[test]]
 name = "multiple_cm"
@@ -818,13 +764,10 @@ impl Drop for CM {
     }
 }
 
-fn main() {
-    let _a = CM::new("A");
-    let _b = CM::new("B");
-    let _c = CM::new("C");
-    log::info!("Inside all");
-}
-"""
+let _a = CM::new("A");
+let _b = CM::new("B");
+let _c = CM::new("C");
+log::info!("Inside all");"""
 
 [[test]]
 name = "cm_order"
@@ -863,12 +806,9 @@ impl Drop for Numbered {
     }
 }
 
-fn main() {
-    let _n1 = Numbered::new(1);
-    let _n2 = Numbered::new(2);
-    let _n3 = Numbered::new(3);
-}
-"""
+let _n1 = Numbered::new(1);
+let _n2 = Numbered::new(2);
+let _n3 = Numbered::new(3);"""
 
 # =============================================================================
 # Edge Cases
@@ -909,13 +849,10 @@ impl Drop for FailEnter {
     }
 }
 
-fn main() {
-    match FailEnter::new() {
-        Err(e) => log::info!("Caught: {}", e),
-        Ok(_) => log::info!("Never reached"),
-    }
-}
-"""
+match FailEnter::new() {
+    Err(e) => log::info!("Caught: {}", e),
+    Ok(_) => log::info!("Never reached"),
+}"""
 
 [[test]]
 name = "exit_exception"
@@ -951,12 +888,9 @@ impl Drop for FailExit {
     }
 }
 
-fn main() {
-    let _fail = FailExit::new();
-    log::info!("Inside");
-    log::info!("Caught: Exit failed");
-}
-"""
+let _fail = FailExit::new();
+log::info!("Inside");
+log::info!("Caught: Exit failed");"""
 
 [[test]]
 name = "cm_reusable"
@@ -1002,17 +936,14 @@ impl Drop for Reusable {
     }
 }
 
-fn main() {
-    {
-        let _cm = Reusable::new("test");
-        log::info!("First use");
-    }
-    {
-        let _cm = Reusable::new("test");
-        log::info!("Second use");
-    }
+{
+    let _cm = Reusable::new("test");
+    log::info!("First use");
 }
-"""
+{
+    let _cm = Reusable::new("test");
+    log::info!("Second use");
+}"""
 
 [[test]]
 name = "cm_reentrant"
@@ -1058,12 +989,9 @@ impl Counter {
     }
 }
 
-fn main() {
-    let mut cm = Counter::new();
-    cm.enter();
-    cm.enter();
-    log::info!("Nested");
-    cm.exit();
-    cm.exit();
-}
-"""
+let mut cm = Counter::new();
+cm.enter();
+cm.enter();
+log::info!("Nested");
+cm.exit();
+cm.exit();"""

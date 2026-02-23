@@ -1,0 +1,41 @@
+  argparse.toml :: validator_float_returns_f64
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use clap::Parser;
+  #[derive(Debug, Clone)]
+  pub struct ArgumentTypeError {
+      message: String,
+  }
+  impl std::fmt::Display for ArgumentTypeError {
+      fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+          write!(f, "argument type error: {}", self.message)
+      }
+  }
+  impl std::error::Error for ArgumentTypeError {}
+  impl ArgumentTypeError {
+      pub fn new(message: impl Into<String>) -> Self {
+          Self {
+              message: message.into(),
+          }
+      }
+  }
+  #[derive(Debug, clap::Parser)]
+  struct Args {
+      #[arg(long)]
+      percent: Option<String>,
+  }
+  #[doc = "Validator that converts to float and validates range."]
+− pub fn percentage_validator(value: String) -> f64 {
++ pub fn percentage_validator(value: &str) -> Result<f64, Box<dyn std::error::Error>> {
+      let pct = (value) as f64;
+      let _cse_temp_0 = (pct < 0.0) || (pct > 100.0);
+      if _cse_temp_0 {
+−         panic!("{}", "Percentage must be 0-100");
++         return Err(Box::new(ArgumentTypeError::new("Percentage must be 0-100")));
+      }
+−     return pct;
++     return Ok(pct);
+  }
+  pub fn main() {}
+────────────────────────────────────────────────────────────

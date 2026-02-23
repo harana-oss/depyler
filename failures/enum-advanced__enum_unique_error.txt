@@ -1,0 +1,23 @@
+  enum-advanced.toml :: enum_unique_error
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug, PartialEq)]
+− enum Color {
+−     Red = 1,
+−     Green = 2,
++ #[derive(Debug, Copy, Clone)]
++ pub struct Color {}
++ impl Color {
++     pub const RED: i32 = 1;
++     pub const GREEN: i32 = 2;
++     pub fn new() -> Self {
++         Self {}
++     }
+  }
+− 
+  pub fn test_enum_unique_error() -> bool {
+−     Color::Red as i32 != Color::Green as i32
++     return Color.RED.value != Color.GREEN.value;
+  }
+────────────────────────────────────────────────────────────

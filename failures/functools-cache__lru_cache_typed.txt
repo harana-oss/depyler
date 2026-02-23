@@ -1,0 +1,25 @@
+  functools-cache.toml :: lru_cache_typed
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // @lru_cache(typed=True) distinguishes int/float
+−     use std::collections::HashMap;
+−     use std::sync::Mutex;
+− 
+−     #[derive(Hash, Eq, PartialEq)]
+−     enum TypedKey {
+−         Int(i32),
+−         Float(u64), // Using bits representation
+−     }
+− 
+−     lazy_static::lazy_static! {
+−         static ref CACHE: Mutex<HashMap<TypedKey, f64>> = Mutex::new(HashMap::new());
+−     }
+− 
+−     let result = true;
++ use std;
++ pub fn func(x: i32) -> i32 {
++     call_count += 1;
++     return x * 2;
++ }
+────────────────────────────────────────────────────────────

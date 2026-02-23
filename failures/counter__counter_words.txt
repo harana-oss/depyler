@@ -1,0 +1,12 @@
+  counter.toml :: counter_words
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use std::collections::HashMap;
+− let text = "the quick brown fox jumps over the lazy dog";
+− let mut c: HashMap<&str, usize> = HashMap::new();
+− for word in text.split_whitespace() {
+−     *c.entry(word).or_insert(0) += 1;
+− }
+− log::info!("{}", c.get("the").unwrap_or(&0));
+────────────────────────────────────────────────────────────

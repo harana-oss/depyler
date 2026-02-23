@@ -1,0 +1,10 @@
+  binary-literals.toml :: hex_literal_upper
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− let x = 0xFF;
+−     let result = x == 255;
++ pub const x: i32 = 255;
++ pub const result: serde_json::Value = x == 255;
++ use serde_json;
+────────────────────────────────────────────────────────────

@@ -1,0 +1,12 @@
+  boundary-values.toml :: unicode_strings
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn big_numbers() -> i32 {
+−     let x = 9223372036854775807;
+−     let y = 0;
+−     return x + y;
++ pub fn greet() -> String {
++     return "Hello, 世界! 🌍".to_string();
+  }
+────────────────────────────────────────────────────────────

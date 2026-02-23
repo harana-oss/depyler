@@ -1,0 +1,29 @@
+  dataclasses-field.toml :: field_default_factory
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug)]
+−     struct Collection {
+−         items: Vec<i32>,
+−     }
+− 
+−     impl Default for Collection {
+−         fn default() -> Self {
+−             Collection { items: Vec::new() }
+−         }
++ use serde_json;
++ #[derive(Debug, Clone, PartialEq, Default)]
++ pub struct Collection {
++     pub items: Vec<serde_json::Value>,
++ }
++ impl Collection {
++     pub fn new() -> Self {
++         Self { items: Vec::new() }
+      }
+− 
+−     let mut c1 = Collection::default();
+−     let c2 = Collection::default();
+−     c1.items.push(1);
+−     let result = c1.items.len() == 1 && c2.items.len() == 0;
++ }
+────────────────────────────────────────────────────────────

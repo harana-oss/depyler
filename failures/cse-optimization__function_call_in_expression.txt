@@ -1,0 +1,15 @@
+  cse-optimization.toml :: function_call_in_expression
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn use_abs_twice(x: i64) -> i64 {
+−     let _cse_temp_0 = x.abs();
+−     if _cse_temp_0 > 10 {
+−         return _cse_temp_0;
++ pub fn use_abs_twice(x: i32) -> i32 {
++     if x.abs() > 10 {
++         return x.abs();
+      }
+      return 0;
+  }
+────────────────────────────────────────────────────────────

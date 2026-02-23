@@ -40,7 +40,7 @@ def get_length(value: object) -> int:
 rust = '''
 pub fn get_length(value: &object) -> i32 {
     if true {
-        return value.len() as i32 as i32;
+        return value.len() as i32;
     }
     return 0;
 }
@@ -89,25 +89,6 @@ pub struct Box {
 impl Box {
     pub fn new(value: i32) -> Self {
         Self { value }
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "value" => Some(Box::new(self.value.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "value" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.value = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 pub fn unbox(obj: &object) -> i32 {
@@ -159,11 +140,10 @@ def process_ints(items: list) -> int:
 '''
 
 rust = '''
-use serde_json;
-pub fn is_int_list(value: &Vec<serde_json::Value>) -> bool {
+pub fn is_int_list(value: &Vec<i32>) -> bool {
     return value.iter().cloned().map(|x| true).all(|x| x);
 }
-pub fn process_ints(items: &Vec<serde_json::Value>) -> i32 {
+pub fn process_ints(items: &Vec<i32>) -> i32 {
     if is_int_list(items) {
         return items.iter().sum::<i32>();
     }
@@ -199,25 +179,6 @@ pub struct ValidData {
 impl ValidData {
     pub fn new(value: i32) -> Self {
         Self { value }
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "value" => Some(Box::new(self.value.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "value" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.value = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 pub fn is_valid(data: &object) -> bool {
@@ -467,7 +428,7 @@ pub fn handle(result: &IntOrStringUnion) -> i32 {
     if true {
         return result.clone();
     }
-    return result.len() as i32 as i32;
+    return result.len() as i32;
 }
 '''
 
@@ -545,25 +506,6 @@ impl Container {
     pub fn new(value: Option<i32>) -> Self {
         Self { value }
     }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "value" => Some(Box::new(self.value.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "value" => {
-                if let Some(v) = value.downcast_ref::<Option<i32>>() {
-                    self.value = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
-    }
 }
 pub fn get_value(c: &Option<Container>) -> i32 {
     if (c.is_some()) && (c.as_ref().unwrap().value.is_some()) {
@@ -589,7 +531,7 @@ def safe_len(s: Optional[str]) -> int:
 rust = '''
 pub fn safe_len(s: &Option<String>) -> i32 {
     if s.is_some() {
-        return s.as_ref().unwrap().len() as i32 as i32;
+        return s.as_ref().unwrap().len() as i32;
     }
     return 0;
 }

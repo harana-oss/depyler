@@ -1,0 +1,28 @@
+  type-inference.toml :: generic_dict
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use std::collections::HashMap;
+  #[derive(Debug, Clone)]
+  pub struct IndexError {
+      message: String,
+  }
+  impl std::fmt::Display for IndexError {
+      fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+          write!(f, "index out of range: {}", self.message)
+      }
+  }
+  impl std::error::Error for IndexError {}
+  impl IndexError {
+      pub fn new(message: impl Into<String>) -> Self {
+          Self {
+              message: message.into(),
+          }
+      }
+  }
+− pub fn get_value<V: Clone, K: Clone>(mapping: &HashMap<K, V>, key: &K) -> V {
+−     return mapping.get(&key).cloned().unwrap();
++ pub fn get_value<K: Clone, V: Clone>(mapping: &HashMap<K, V>, key: &K) -> Result<V, IndexError> {
++     return Ok(mapping.get(&key).cloned().unwrap());
+  }
+────────────────────────────────────────────────────────────

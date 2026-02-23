@@ -1,0 +1,30 @@
+  dunder-attribute.toml :: getattribute_always
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct AllAccess {
+−     existing: &'static str,
+− }
+− 
++ #[derive(Debug, Copy, Clone)]
++ pub struct AllAccess {}
+  impl AllAccess {
+−     fn new() -> Self {
+−         AllAccess { existing: "exists" }
++     pub const existing: String = "exists".to_string();
++     pub fn new() -> Self {
++         Self {}
+      }
+− 
+−     fn get_attribute(&self, name: &str) -> Option<&str> {
+−         log::info!("Access: {}", name);
+−         match name {
+−             "existing" => Some(self.existing),
+−             _ => None,
+−         }
+−     }
+  }
+− 
+− let obj = AllAccess::new();
+− let _ = obj.get_attribute("existing");
+────────────────────────────────────────────────────────────

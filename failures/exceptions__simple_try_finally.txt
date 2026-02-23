@@ -1,0 +1,15 @@
+  exceptions.toml :: simple_try_finally
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn cleanup_operation(x: i32) -> i32 {
+−     {
+−         let result = x * 2;
+−         return result;
+−         log::info!("{}", "cleanup");
+−     }
++     let result = x * 2;
++     return result;
++     log::info!("{}", "cleanup");
+  }
+────────────────────────────────────────────────────────────

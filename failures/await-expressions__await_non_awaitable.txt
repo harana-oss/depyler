@@ -1,0 +1,14 @@
+  await-expressions.toml :: await_non_awaitable
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust prevents awaiting non-futures at compile time
+− async fn test_await_non_awaitable() -> bool {
+−     true
++ pub async fn test_await_non_awaitable() -> bool {
++     { return true;
++     return true;
++    
++ }
+  }
+────────────────────────────────────────────────────────────

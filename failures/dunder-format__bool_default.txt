@@ -1,0 +1,28 @@
+  dunder-format.toml :: bool_default
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct Thing {
+−     value: i32,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Thing {
++     pub value: serde_json::Value,
+  }
+− 
+  impl Thing {
+−     fn new(value: i32) -> Self {
+−         Thing { value }
++     pub fn new(value: serde_json::Value) -> Self {
++         Self { value }
+      }
+  }
+− 
+− let thing = Thing::new(42);
+− // In Rust, we need to explicitly define what "truthy" means
+− // Python objects without __bool__ or __len__ are always True
+− log::info!("True");
+− 
+− let thing2 = Thing::new(0);
+− log::info!("True");
+────────────────────────────────────────────────────────────

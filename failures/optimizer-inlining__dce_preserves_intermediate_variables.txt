@@ -1,0 +1,11 @@
+  optimizer-inlining.toml :: dce_preserves_intermediate_variables
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn process(n: i32) -> i32 {
+      let temp = n * 2;
++     let unused = 100;
+      let result = temp + 5;
+      return result;
+  }
+────────────────────────────────────────────────────────────

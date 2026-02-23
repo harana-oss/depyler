@@ -1,0 +1,18 @@
+  parenthesized-context.toml :: paren_two
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust: RAII file handles
+−     use std::io::Cursor;
+−     use std::io::Read;
+  
+−     let mut file1 = Cursor::new(b"content1");
+−     let mut file2 = Cursor::new(b"content2");
+−     let mut buf1 = String::new();
+−     let mut buf2 = String::new();
+−     file1.read_to_string(&mut buf1).unwrap();
+−     file2.read_to_string(&mut buf2).unwrap();
+−     let result = (buf1, buf2);
+−     assert_eq!(result.0, "content1");
+−     assert_eq!(result.1, "content2");
+────────────────────────────────────────────────────────────

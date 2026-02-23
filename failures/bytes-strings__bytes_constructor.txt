@@ -1,0 +1,10 @@
+  bytes-strings.toml :: bytes_constructor
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn test_bytes_constructor() -> Vec<u8> {
+−     return "hello".as_bytes().to_vec();
++ pub fn test_bytes_constructor() -> bytes {
++     return bytes("hello".to_string(), "utf-8".to_string());
+  }
+────────────────────────────────────────────────────────────

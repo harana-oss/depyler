@@ -1,0 +1,29 @@
+  enum-basic.toml :: enum_conditional_assignment
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+−     enum Team {
+−         Home = 1,
+−         Away = 2,
+−     }
+− 
+−     fn get_team(is_home: bool) -> Team {
+−         if is_home { Team::Home } else { Team::Away }
++ pub const result: serde_json::Value = get_team(true) == Team::HOME;
++ use serde_json;
++ #[derive(Debug, Copy, Clone)]
++ pub struct Team {}
++ impl Team {
++     pub const HOME: i32 = 1;
++     pub const AWAY: i32 = 2;
++     pub fn new() -> Self {
++         Self {}
+      }
+− 
+−     let result = get_team(true) == Team::Home;
++ }
++ pub fn get_team(is_home: bool) -> Team {
++     return if is_home { Team::HOME } else { Team::AWAY };
++ }
+────────────────────────────────────────────────────────────

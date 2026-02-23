@@ -1,0 +1,9 @@
+  constant-type-inference.toml :: float_builtin_call_type
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn cast_to_float(x: i32) -> f64 {
+−     return x as f64;
++     return (x) as f64;
+  }
+────────────────────────────────────────────────────────────

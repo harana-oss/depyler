@@ -1,0 +1,67 @@
+  async-generators.toml :: async_gen_athrow
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust doesn't have direct equivalent of athrow
+− // This is a conceptual approximation
+− async fn test_async_gen_athrow() -> i32 {
+−     999
+− }
++ #[derive(Debug, Clone)] pub struct ValueError {
++     message: String ,
++ }
++ impl std::fmt::Display for ValueError {
++     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
++     write!(f, "value error: {}", self.message)
++ }
++ } impl std::error::Error for ValueError {
++    
++ }
++ impl ValueError {
++     pub fn new(message: impl Into<String>) -> Self {
++     Self {
++     message: message.into()
++ }
++ }
++ }
++ #[doc = " Generator state struct"] #[derive(Debug)] struct GenState {
++     state: usize ,
++ }
++ #[doc = " Generator function - returns Iterator"] pub fn gen() -> impl Iterator<Item = i32>{
++     GenState {
++     state: 0 ,
++ }
++ } impl Iterator for GenState {
++     type Item = i32;
++     fn next(&mut self) -> Option<Self::Item>{
++     match self.state {
++     0 =>{
++     self.state = 1usize;
++     return Some(1);
++    
++ }
++ 1usize =>{
++     self.state = 2usize;
++     return Some(2);
++    
++ }
++ 2usize =>{
++     self.state = 3usize;
++     return Some(999);
++    
++ }
++ 3usize =>{
++     self.state = 3usize + 1;
++     None
++ }
++ _ =>None
++ }
++ }
++ }
++ pub async fn test_async_gen_athrow() -> i32 {
++     let g = gen();
++     g.asend(None).await;
++     let result = g.athrow(ValueError::new("error")).await;
++     return result;
++     }
+────────────────────────────────────────────────────────────

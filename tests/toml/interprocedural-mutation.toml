@@ -31,7 +31,6 @@ def update_via_loop(container: Container) -> None:
 '''
 
 rust = '''
-use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Stats {
     pub value: i32,
@@ -84,7 +83,6 @@ def process_first_three(data: Data) -> None:
 '''
 
 rust = '''
-use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Item {
     pub score: f64,
@@ -149,7 +147,6 @@ def apply_time(state: State, is_home: bool, seconds: float) -> None:
 '''
 
 rust = '''
-use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct PlayerStats {
     pub time_on_field: f64,
@@ -227,7 +224,6 @@ def modify_inner(outer: Outer) -> None:
 '''
 
 rust = '''
-use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Inner {
     pub value: i32,
@@ -286,7 +282,6 @@ def deep_update(l1: Level1) -> None:
 '''
 
 rust = '''
-use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Level3 {
     pub value: i32,
@@ -341,7 +336,6 @@ def update_first(record: Record) -> None:
 '''
 
 rust = '''
-use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Record {
     pub values: Vec<i32>,
@@ -387,7 +381,6 @@ def increment_until_max(counter: Counter) -> None:
 '''
 
 rust = '''
-use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Counter {
     pub count: i32,
@@ -439,7 +432,6 @@ def conditional_update(state: State) -> None:
 '''
 
 rust = '''
-use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct State {
     pub active: bool,
@@ -498,7 +490,6 @@ def mute(settings: Settings) -> None:
 '''
 
 rust = '''
-use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Settings {
     pub volume: i32,
@@ -555,7 +546,6 @@ def get_larger(pair: Pair) -> int:
 '''
 
 rust = '''
-use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Pair {
     pub left: i32,

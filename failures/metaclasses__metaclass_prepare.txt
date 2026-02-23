@@ -1,0 +1,32 @@
+  metaclasses.toml :: metaclass_prepare
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // In Rust, field order is guaranteed in structs
+− struct MyClass;
+− 
++ use std::collections::IndexMap;
++ #[derive(Debug, Copy, Clone)]
++ pub struct OrderedMeta {}
++ impl OrderedMeta {
++     pub fn new() -> Self {
++         Self {}
++     }
++ }
++ #[derive(Debug, Copy, Clone)]
++ pub struct MyClass {}
+  impl MyClass {
+−     const ORDERED_KEYS: [&'static str; 3] = ["a", "b", "c"];
+−     const A: i32 = 1;
+−     const B: i32 = 2;
+−     const C: i32 = 3;
++     pub const a: i32 = 1;
++     pub const b: i32 = 2;
++     pub const c: i32 = 3;
++     pub fn new() -> Self {
++         Self {}
++     }
+  }
+− 
+− log::info!("{:?}", MyClass::ORDERED_KEYS.to_vec());
+────────────────────────────────────────────────────────────

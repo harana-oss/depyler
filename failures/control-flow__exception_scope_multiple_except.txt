@@ -1,0 +1,52 @@
+  control-flow.toml :: exception_scope_multiple_except
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  #[derive(Debug, Clone)]
+  pub struct ZeroDivisionError {
+      message: String,
+  }
+  impl std::fmt::Display for ZeroDivisionError {
+      fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+          write!(f, "division by zero: {}", self.message)
+      }
+  }
+  impl std::error::Error for ZeroDivisionError {}
+  impl ZeroDivisionError {
+      pub fn new(message: impl Into<String>) -> Self {
+          Self {
+              message: message.into(),
+          }
+      }
+  }
+  #[derive(Debug, Clone)]
+  pub struct ValueError {
+      message: String,
+  }
+  impl std::fmt::Display for ValueError {
+      fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+          write!(f, "value error: {}", self.message)
+      }
+  }
+  impl std::error::Error for ValueError {}
+  impl ValueError {
+      pub fn new(message: impl Into<String>) -> Self {
+          Self {
+              message: message.into(),
+          }
+      }
+  }
+  pub fn multiple_except() -> i32 {
+      {
+−         let mut x = 1 / 0;
+−         let mut x = 1;
+−         let mut x = 2;
+−         let mut x = 3;
++         let x = (1 as f64) / (0 as f64);
++         let x = 1;
++         let x = 2;
++         let x = 3;
+      }
+      return x;
+  }
+────────────────────────────────────────────────────────────

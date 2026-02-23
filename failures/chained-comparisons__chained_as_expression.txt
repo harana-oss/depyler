@@ -1,0 +1,11 @@
+  chained-comparisons.toml :: chained_as_expression
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // result = 0 < x < 10
+−     let x = 5;
+−     let result = 0 < x && x < 10;
++ pub const x: i32 = 5;
++ pub const result: serde_json::Value = (0 < x) && (x < 10);
++ use serde_json;
+────────────────────────────────────────────────────────────

@@ -1,0 +1,13 @@
+  stdlib-misc.toml :: uuid_uuid5
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use uuid;
+  pub fn generate_uuid5(namespace: &uuid::Uuid, name: String) -> String {
+      return ({
+          use uuid::Uuid;
+          Uuid::new_v5(&namespace, name.as_bytes()).to_string()
+      })
+      .to_string();
+  }
+────────────────────────────────────────────────────────────

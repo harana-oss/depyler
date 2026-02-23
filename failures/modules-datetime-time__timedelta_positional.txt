@@ -1,0 +1,11 @@
+  modules-datetime-time.toml :: timedelta_positional
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use chrono::Duration;
+− pub fn complex_delta() -> chrono::Duration {
+−     return chrono::Duration::days(1) + chrono::Duration::seconds(3600);
++ pub fn complex_delta() -> timedelta {
++     return chrono::Duration(1, 3600, 0);
+  }
+────────────────────────────────────────────────────────────

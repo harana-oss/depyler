@@ -1,0 +1,25 @@
+  return-value-mutation.toml :: return_value_method_mutation
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  #[derive(Debug, Clone, PartialEq, Default)]
+  pub struct Container {
+      pub items: Vec<i32>,
+  }
+  impl Container {
+      pub fn new(items: Vec<i32>) -> Self {
+          Self { items }
+      }
+  }
+− pub fn get_items<'a>(c: &'a mut Container) -> &'a mut Vec<i32> {
+−     return &mut c.items;
++ pub fn get_items(c: &Container) -> Vec<i32> {
++     return c.items;
+  }
+− pub fn add_item(c: &mut Container, value: i32) {
+−     let mut items = get_items(c).clone();
++ pub fn add_item(c: &Container, value: i32) {
++     let mut items = get_items(&c);
+      items.push(value);
+  }
+────────────────────────────────────────────────────────────

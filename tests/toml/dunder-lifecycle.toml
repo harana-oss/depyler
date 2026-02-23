@@ -42,13 +42,10 @@ impl Counter {
     }
 }
 
-fn main() {
-    let c1 = Counter::new();
-    let c2 = Counter::new();
-    log::info!("{}", c1.id);
-    log::info!("{}", c2.id);
-}
-"""
+let c1 = Counter::new();
+let c2 = Counter::new();
+log::info!("{}", c1.id);
+log::info!("{}", c2.id);"""
 expected_output = """1
 2"""
 
@@ -84,11 +81,8 @@ impl Validated {
     }
 }
 
-fn main() {
-    let v = Validated::new(10).unwrap();
-    log::info!("{}", v.value);
-}
-"""
+let v = Validated::new(10).unwrap();
+log::info!("{}", v.value);"""
 expected_output = "10"
 
 # =============================================================================
@@ -120,12 +114,9 @@ impl Point {
     }
 }
 
-fn main() {
-    let p = Point::new();
-    log::info!("{}", p.x);
-    log::info!("{}", p.y);
-}
-"""
+let p = Point::new();
+log::info!("{}", p.x);
+log::info!("{}", p.y);"""
 expected_output = """0
 0"""
 
@@ -162,13 +153,10 @@ impl Rectangle {
     }
 }
 
-fn main() {
-    let r = Rectangle::new(5, 3);
-    log::info!("{}", r.width);
-    log::info!("{}", r.height);
-    log::info!("{}", r.area());
-}
-"""
+let r = Rectangle::new(5, 3);
+log::info!("{}", r.width);
+log::info!("{}", r.height);
+log::info!("{}", r.area());"""
 expected_output = """5
 3
 15"""
@@ -216,16 +204,13 @@ impl Config {
     }
 }
 
-fn main() {
-    let c1 = Config::new();
-    let c2 = Config::with_timeout(60);
-    let c3 = Config::with_both(45, 5);
+let c1 = Config::new();
+let c2 = Config::with_timeout(60);
+let c3 = Config::with_both(45, 5);
 
-    log::info!("{}, {}", c1.timeout, c1.retries);
-    log::info!("{}, {}", c2.timeout, c2.retries);
-    log::info!("{}, {}", c3.timeout, c3.retries);
-}
-"""
+log::info!("{}, {}", c1.timeout, c1.retries);
+log::info!("{}, {}", c2.timeout, c2.retries);
+log::info!("{}, {}", c3.timeout, c3.retries);"""
 expected_output = """30, 3
 60, 3
 45, 5"""
@@ -271,13 +256,10 @@ impl Drop for Resource {
     }
 }
 
-fn main() {
-    let r = Resource::new("file.txt");
-    log::info!("Using resource");
-    drop(r);
-    log::info!("Done");
-}
-"""
+let r = Resource::new("file.txt");
+log::info!("Using resource");
+drop(r);
+log::info!("Done");"""
 expected_output = """Acquired file.txt
 Using resource
 Released file.txt
@@ -325,11 +307,8 @@ fn create_temp() {
     // t goes out of scope here
 }
 
-fn main() {
-    create_temp();
-    log::info!("After function");
-}
-"""
+create_temp();
+log::info!("After function");"""
 expected_output = """Inside function
 Deleting Temp 1
 After function"""
@@ -379,25 +358,22 @@ impl Drop for Node {
     }
 }
 
-fn main() {
-    {
-        let n1 = Rc::new(RefCell::new(Node {
-            value: 1,
-            next: None,
-        }));
-        let n2 = Rc::new(RefCell::new(Node {
-            value: 2,
-            next: None,
-        }));
+{
+    let n1 = Rc::new(RefCell::new(Node {
+        value: 1,
+        next: None,
+    }));
+    let n2 = Rc::new(RefCell::new(Node {
+        value: 2,
+        next: None,
+    }));
 
-        // Use Weak to avoid circular reference
-        n1.borrow_mut().next = Some(Rc::downgrade(&n2));
-        n2.borrow_mut().next = Some(Rc::downgrade(&n1));
-    }
-    // Nodes are dropped when they go out of scope
-    log::info!("After scope ends");
+    // Use Weak to avoid circular reference
+    n1.borrow_mut().next = Some(Rc::downgrade(&n2));
+    n2.borrow_mut().next = Some(Rc::downgrade(&n1));
 }
-"""
+// Nodes are dropped when they go out of scope
+log::info!("After scope ends");"""
 expected_output = """Deleting Node 2
 Deleting Node 1
 After scope ends"""
@@ -443,12 +419,9 @@ impl fmt::Display for Point {
     }
 }
 
-fn main() {
-    let p = Point::new(3, 4);
-    log::info!("{}", p);
-    log::info!("{}", p);
-}
-"""
+let p = Point::new(3, 4);
+log::info!("{}", p);
+log::info!("{}", p);"""
 expected_output = """Point(3, 4)
 Point(3, 4)"""
 
@@ -487,15 +460,12 @@ impl std::fmt::Display for Circle {
     }
 }
 
-fn main() {
-    let c1 = Circle::new(5);
-    log::info!("{}", c1);
+let c1 = Circle::new(5);
+log::info!("{}", c1);
 
-    // Rust doesn't have eval, but the concept is that repr should be clear
-    let c2 = Circle::new(5); // Simulating recreation
-    log::info!("{}", c2.radius);
-}
-"""
+// Rust doesn't have eval, but the concept is that repr should be clear
+let c2 = Circle::new(5); // Simulating recreation
+log::info!("{}", c2.radius);"""
 expected_output = """Circle(5)
 5"""
 
@@ -535,11 +505,8 @@ impl std::fmt::Display for Book {
     }
 }
 
-fn main() {
-    let b = Book::new("1984", "Orwell");
-    log::info!("{}", b);
-}
-"""
+let b = Book::new("1984", "Orwell");
+log::info!("{}", b);"""
 expected_output = "Book(title='1984', author='Orwell')"
 
 # =============================================================================
@@ -594,12 +561,9 @@ impl fmt::Debug for Person {
     }
 }
 
-fn main() {
-    let p = Person::new("Alice", 30);
-    log::info!("{}", p);
-    log::info!("{:?}", p);
-}
-"""
+let p = Person::new("Alice", 30);
+log::info!("{}", p);
+log::info!("{:?}", p);"""
 expected_output = """Alice, 30 years old
 Person('Alice', 30)"""
 
@@ -644,12 +608,9 @@ impl fmt::Debug for Widget {
     }
 }
 
-fn main() {
-    let w = Widget::new(42);
-    log::info!("{}", w);
-    log::info!("{:?}", w);
-}
-"""
+let w = Widget::new(42);
+log::info!("{}", w);
+log::info!("{:?}", w);"""
 expected_output = """Widget(42)
 Widget(42)"""
 
@@ -691,11 +652,8 @@ impl fmt::Display for Status {
     }
 }
 
-fn main() {
-    let s = Status::new(200, "OK");
-    log::info!("{}", s);
-}
-"""
+let s = Status::new(200, "OK");
+log::info!("{}", s);"""
 expected_output = "[200] OK"
 
 [[test]]
@@ -736,11 +694,8 @@ impl fmt::Display for Message {
     }
 }
 
-fn main() {
-    let m = Message::new("Hello");
-    log::info!("{}", m);
-}
-"""
+let m = Message::new("Hello");
+log::info!("{}", m);"""
 expected_output = "Message: Hello"
 
 # =============================================================================
@@ -788,13 +743,10 @@ impl Drop for Tracked {
     }
 }
 
-fn main() {
-    let t = Tracked::new(42);
-    log::info!("Value: {}", t.value);
-    drop(t);
-    log::info!("End");
-}
-"""
+let t = Tracked::new(42);
+log::info!("Value: {}", t.value);
+drop(t);
+log::info!("End");"""
 expected_output = """__new__ called
 __init__ called
 Value: 42
@@ -849,12 +801,9 @@ impl fmt::Debug for Product {
     }
 }
 
-fn main() {
-    let p = Product::new("Laptop", 999.99);
-    log::info!("For users: {}", p);
-    log::info!("For developers: {:?}", p);
-}
-"""
+let p = Product::new("Laptop", 999.99);
+log::info!("For users: {}", p);
+log::info!("For developers: {:?}", p);"""
 expected_output = """For users: Laptop - $999.99
 For developers: Product(name='Laptop', price=999.99)"""
 
@@ -890,13 +839,10 @@ impl Drop for Broken {
     }
 }
 
-fn main() {
-    {
-        let _b = Broken;
-    }
-    log::info!("Deleted");
+{
+    let _b = Broken;
 }
-"""
+log::info!("Deleted");"""
 expected_output = "Deleted"
 
 [[test]]
@@ -915,10 +861,7 @@ except TypeError as e:
 rust = """
 // In Rust, fmt::Debug trait's fmt method must return fmt::Result
 // Returning wrong type is a compile-time error
-fn main() {
-    log::info!("TypeError: __repr__ returned non-string (type int)");
-}
-"""
+log::info!("TypeError: __repr__ returned non-string (type int)");"""
 expected_output = "TypeError: __repr__ returned non-string (type int)"
 
 [[test]]
@@ -965,10 +908,7 @@ impl fmt::Debug for Node {
     }
 }
 
-fn main() {
-    let n = Node::new(1);
-    n.borrow_mut().children.push(Rc::clone(&n));
-    log::info!("{:?}", n.borrow());
-}
-"""
+let n = Node::new(1);
+n.borrow_mut().children.push(Rc::clone(&n));
+log::info!("{:?}", n.borrow());"""
 expected_output = "Node(1, [...])"

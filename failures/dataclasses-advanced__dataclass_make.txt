@@ -1,0 +1,18 @@
+  dataclasses-advanced.toml :: dataclass_make
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug)]
+− struct Point {
+−     x: i32,
+−     y: i32,
+− }
+− 
+  pub fn test_dataclass_make() -> i32 {
+−     let p = Point { x: 1, y: 2 };
+−     p.x
++     let Point = make_dataclass("Point".to_string(), vec!["x".to_string(), "y".to_string()]);
++     let p = Point::new(1, 2);
++     return p.x;
+  }
+────────────────────────────────────────────────────────────

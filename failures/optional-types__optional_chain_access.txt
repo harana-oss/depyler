@@ -1,0 +1,24 @@
+  optional-types.toml :: optional_chain_access
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug, Copy, Clone]
++ #[derive(Debug, Copy, Clone)]
+  pub struct Inner {
+      pub value: i32,
+  }
++ impl Inner {
++     pub fn new(value: i32) -> Self {
++         Self { value }
++     }
++ }
+  #[derive(Debug, Clone)]
+  pub struct Outer {
+      pub inner: Option<Inner>,
+  }
+  pub fn get_value(obj: &Outer) -> i32 {
+−     return obj.inner.as_ref().unwrap().value;
+− }
++     return obj.inner.value;
++ }
+────────────────────────────────────────────────────────────

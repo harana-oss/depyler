@@ -1,0 +1,27 @@
+  enum-copy-semantics.toml :: enum_multiple_uses_no_clone
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug, Clone, Copy, PartialEq)]
+− pub enum Status {
+−     ACTIVE = 1,
+−     INACTIVE = 0,
++ #[derive(Debug, Copy, Clone)]
++ pub struct Status {}
++ impl Status {
++     pub const ACTIVE: i32 = 1;
++     pub const INACTIVE: i32 = 0;
++     pub fn new() -> Self {
++         Self {}
++     }
+  }
+− pub fn check_status(s: Status) -> bool {
++ pub fn check_status(s: &Status) -> bool {
+      let is_active = s == Status::ACTIVE;
+−     let is_valid = s == Status::ACTIVE || s == Status::INACTIVE;
+−     return is_active && is_valid;
++     let _cse_temp_0 = (s == Status::ACTIVE) || (s == Status::INACTIVE);
++     let is_valid = _cse_temp_0;
++     return (is_active) && (is_valid);
+  }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,15 @@
+  bytes-strings.toml :: bytes_non_ascii
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn test_bytes_non_ascii() -> bool {
+−     // Non-ASCII requires explicit encoding
+−     let result = "é".as_bytes();
+−     return result.len() > 0;
++     {
++         let result = "é".encode("utf-8");
++         return true;
++         return false;
++     }
+  }
+────────────────────────────────────────────────────────────

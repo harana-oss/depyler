@@ -1,0 +1,21 @@
+  cli-integration.toml :: compile_methods
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug, Copy, Clone]
++ #[derive(Debug, Copy, Clone)]
+  pub struct Calculator {
+      pub value: i32,
+  }
+  impl Calculator {
+      pub fn new() -> Self {
+          Self { value: 0 }
+      }
+      pub fn add(&mut self, n: i32) -> i32 {
+−         self.value = format!("{}{}", self.value, n);
++         self.value += n;
+          return self.value.clone();
+      }
+− }
++ }
+────────────────────────────────────────────────────────────

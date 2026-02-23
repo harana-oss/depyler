@@ -1,0 +1,16 @@
+  collection-edge-cases.toml :: collection_modification_during_iteration
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn safe_filter(items: Vec<i32>) -> Vec<i32> {
++ pub fn safe_filter(items: &Vec<i32>) -> Vec<i32> {
+      let mut result = vec![];
+−     for item in items {
++     for item in items.iter().cloned() {
+          if item > 0 {
+              result.push(item);
+          }
+      }
+      return result;
+  }
+────────────────────────────────────────────────────────────

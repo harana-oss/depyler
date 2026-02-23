@@ -1,0 +1,12 @@
+  modules-collections.toml :: namedtuple_access
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use std::collections::namedtuple;
+− pub const Point: serde_json::Value =
+−     namedtuple("Point".to_string(), vec!["x".to_string(), "y".to_string()]);
+− use serde_json;
+  pub fn get_x(p: &Point) -> i32 {
+      return p.x;
+  }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,20 @@
+  bytes-strings.toml :: bytes_slice
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn test_bytes_slice() -> Vec<u8> {
+−     let bytes = b"hello";
+−     return bytes[1..4].to_vec();
++ pub fn test_bytes_slice() -> bytes {
++     return {
++         let base = &b"hello";
++         let start = (1).max(0) as usize;
++         let stop = (4).max(0) as usize;
++         if start < base.len() {
++             base[start..stop.min(base.len())].to_vec()
++         } else {
++             Vec::new()
++         }
++     };
+  }
+────────────────────────────────────────────────────────────

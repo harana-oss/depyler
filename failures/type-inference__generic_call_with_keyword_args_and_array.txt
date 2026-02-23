@@ -1,0 +1,18 @@
+  type-inference.toml :: generic_call_with_keyword_args_and_array
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use rand::prelude::*;
+− use rand::Rng;
+  pub fn test_func() {
+      let result = call::<Type>(
+          "name".to_string(),
+−         vec![rand::random::<f64>(), ((2400 - 1200) as i32) as f64],
++         vec![
++             DEPYLER_RNG.with(|rng| rng.borrow_mut().gen::<f64>()),
++             ((2400 - 1200) as i32) as f64,
++         ],
+      );
+      return result;
+  }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,16 @@
+  packages-init.toml :: init_lazy
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust modules must be explicitly declared with mod keyword
+−     // File structure:
+−     //   src/
+−     //     lib.rs
+−     //     submodule.rs
+−     //
+−     // In lib.rs: mod submodule;  // Explicitly declares module
+−     // Submodules are not automatically included
+−     let result = true;
+−     log::info!("Rust modules must be explicitly declared");
++ 
+────────────────────────────────────────────────────────────

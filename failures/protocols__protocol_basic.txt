@@ -1,0 +1,31 @@
+  protocols.toml :: protocol_basic
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub trait Drawable {
+−     fn draw(&self) -> String;
+− }
+− 
++ #[derive(Debug, Copy, Clone)]
+  pub struct Circle {
+      pub radius: i32,
+  }
+− 
+  impl Circle {
+      pub fn new(radius: i32) -> Self {
+          Self { radius }
+      }
+− }
+− 
+− impl Drawable for Circle {
+−     fn draw(&self) -> String {
++     pub fn draw(&self) -> String {
+          return format!("Circle with radius {}", self.radius);
+      }
+  }
+− 
+− pub fn render(shape: &impl Drawable) -> String {
++ pub fn render(shape: &Drawable) -> String {
+      return shape.draw();
+  }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,30 @@
+  dunder-attribute.toml :: dunder_getattribute
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust doesn't have __getattribute__ - all access is explicit
+− struct TrackedAttrs {
+−     value: i32,
+− }
+− 
++ #[derive(Debug, Copy, Clone)]
++ pub struct TrackedAttrs {}
+  impl TrackedAttrs {
+−     fn new() -> Self {
+−         TrackedAttrs { value: 42 }
++     pub fn new() -> Self {
++         Self {}
+      }
+− 
+−     fn get_attribute(&self, name: &str) -> Option<i32> {
+−         log::info!("Getting: {}", name);
+−         match name {
+−             "value" => Some(self.value),
+−             _ => None,
+−         }
+−     }
+  }
+− 
+− let obj = TrackedAttrs::new();
+− log::info!("{}", obj.get_attribute("value").unwrap());
+────────────────────────────────────────────────────────────

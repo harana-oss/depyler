@@ -1,0 +1,38 @@
+  metaclasses.toml :: metaclass_inheritance
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // In Rust, we use traits which are inherited through trait bounds
+− trait FromMeta {
+−     const FROM_META: bool = true;
++ #[derive(Debug, Copy, Clone)]
++ pub struct Meta {}
++ impl Meta {
++     pub fn new() -> Self {
++         Self {}
++     }
++ }
++ #[derive(Debug, Copy, Clone)]
++ pub struct Base {}
++ impl Base {
++     pub fn new() -> Self {
++         Self {}
++     }
++ }
++ #[derive(Debug, Copy, Clone)]
++ pub struct Derived {}
++ impl Derived {
++     pub fn new() -> Self {
++         Self {}
++     }
+  }
+− 
+− struct Base;
+− impl FromMeta for Base {}
+− 
+− struct Derived;
+− impl FromMeta for Derived {}
+− 
+− log::info!("{}", true); // hasattr equivalent
+− log::info!("{}", Derived::FROM_META);
+────────────────────────────────────────────────────────────

@@ -1,0 +1,260 @@
+  examples-mathematical.toml :: power_and_floor_division
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  #[derive(Debug, Clone)]
+  pub struct ZeroDivisionError {
+      message: String,
+  }
+  impl std::fmt::Display for ZeroDivisionError {
+      fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+          write!(f, "division by zero: {}", self.message)
+      }
+  }
+  impl std::error::Error for ZeroDivisionError {}
+  impl ZeroDivisionError {
+      pub fn new(message: impl Into<String>) -> Self {
+          Self {
+              message: message.into(),
+          }
+      }
+  }
+  #[doc = "Demonstrate power operator with different cases"]
+  pub fn power_examples(base: i32, exponent: i32) -> i32 {
+−     let _cse_temp_0 = (2 as i32)
+−         .checked_pow(3 as u32)
++     let result1 = 2_i32.pow(3 as u32);
++     let result2 = base
++         .checked_pow(exponent as u32)
+          .expect("Power operation overflowed");
+−     let result1 = _cse_temp_0;
+−     let _cse_temp_1 = {
+−         if exponent >= 0 && (exponent as i64) <= (u32::MAX as i64) {
+−             (base as i32)
+−                 .checked_pow(exponent as u32)
+−                 .expect("Power operation overflowed")
+−         } else {
+−             (base as f64).powf(exponent as f64) as i32
+−         }
+−     };
+−     let result2 = _cse_temp_1;
+−     let _cse_temp_2 = {
+−         if 0 >= 0 && (0 as i64) <= (u32::MAX as i64) {
+−             (base as i32)
+−                 .checked_pow(0 as u32)
+−                 .expect("Power operation overflowed")
+−         } else {
+−             (base as f64).powf(0 as f64) as i32
+−         }
+−     };
+−     let result3 = _cse_temp_2;
+−     result1 + result2 + result3
++     let result3 = base.pow(0 as u32);
++     return result1 + result2 + result3;
+  }
+  #[doc = "Demonstrate floor division with Python semantics"]
+  pub fn floor_division_examples(dividend: i32, divisor: i32) -> Result<i32, ZeroDivisionError> {
+−     let _cse_temp_0 = {
++     let result1 = {
+          let a = 17;
+          let b = 5;
+          let q = a / b;
+          let r = a % b;
+          let r_negative = r < 0;
+          let b_negative = b < 0;
+          let r_nonzero = r != 0;
+          let signs_differ = r_negative != b_negative;
+          let needs_adjustment = r_nonzero && signs_differ;
+          if needs_adjustment {
+              q - 1
+          } else {
+              q
+          }
+      };
+−     let result1 = _cse_temp_0;
+−     let _cse_temp_1 = {
++     let result2 = {
+          let a = -17;
+          let b = 5;
+          let q = a / b;
+          let r = a % b;
+          let r_negative = r < 0;
+          let b_negative = b < 0;
+          let r_nonzero = r != 0;
+          let signs_differ = r_negative != b_negative;
+          let needs_adjustment = r_nonzero && signs_differ;
+          if needs_adjustment {
+              q - 1
+          } else {
+              q
+          }
+      };
+−     let result2 = _cse_temp_1;
+−     let _cse_temp_2 = {
++     let result3 = {
+          let a = 17;
+          let b = -5;
+          let q = a / b;
+          let r = a % b;
+          let r_negative = r < 0;
+          let b_negative = b < 0;
+          let r_nonzero = r != 0;
+          let signs_differ = r_negative != b_negative;
+          let needs_adjustment = r_nonzero && signs_differ;
+          if needs_adjustment {
+              q - 1
+          } else {
+              q
+          }
+      };
+−     let result3 = _cse_temp_2;
+−     let _cse_temp_3 = {
++     let result4 = {
+          let a = -17;
+          let b = -5;
+          let q = a / b;
+          let r = a % b;
+          let r_negative = r < 0;
+          let b_negative = b < 0;
+          let r_nonzero = r != 0;
+          let signs_differ = r_negative != b_negative;
+          let needs_adjustment = r_nonzero && signs_differ;
+          if needs_adjustment {
+              q - 1
+          } else {
+              q
+          }
+      };
+−     let result4 = _cse_temp_3;
+−     let _cse_temp_4 = {
++     let result5 = {
+          let a = dividend;
+          let b = divisor;
+          let q = a / b;
+          let r = a % b;
+          let r_negative = r < 0;
+          let b_negative = b < 0;
+          let r_nonzero = r != 0;
+          let signs_differ = r_negative != b_negative;
+          let needs_adjustment = r_nonzero && signs_differ;
+          if needs_adjustment {
+              q - 1
+          } else {
+              q
+          }
+      };
+−     let result5 = _cse_temp_4;
+−     Ok(result1 + result2 + result3 + result4 + result5)
++     return Ok(result1 + result2 + result3 + ((result4) as f64) + ((result5) as f64));
+  }
+  #[doc = "Combine power and floor division"]
+  pub fn combined_operations(a: i32, b: i32) -> Result<i32, ZeroDivisionError> {
+−     let _cse_temp_0 = {
+−         if 2 >= 0 && (2 as i64) <= (u32::MAX as i64) {
+−             (a as i32)
+−                 .checked_pow(2 as u32)
+−                 .expect("Power operation overflowed")
+−         } else {
+−             (a as f64).powf(2 as f64) as i32
+−         }
+−     };
+−     let step1 = _cse_temp_0;
+−     let _cse_temp_1 = {
++     let step1 = a.pow(2 as u32);
++     let result1 = {
+          let a = step1;
+−         let b = b;
++         let b = b as f64;
+          let q = a / b;
+          let r = a % b;
+−         let r_negative = r < 0;
+−         let b_negative = b < 0;
+−         let r_nonzero = r != 0;
++         let r_negative = r < 0.0;
++         let b_negative = b < 0.0;
++         let r_nonzero = r != 0.0;
+          let signs_differ = r_negative != b_negative;
+          let needs_adjustment = r_nonzero && signs_differ;
+          if needs_adjustment {
+−             q - 1
++             q - 1.0
+          } else {
+              q
+          }
+      };
+−     let result1 = _cse_temp_1;
+−     let _cse_temp_2 = {
++     let step2 = {
+          let a = a;
+          let b = b;
+          let q = a / b;
+          let r = a % b;
+          let r_negative = r < 0;
+          let b_negative = b < 0;
+          let r_nonzero = r != 0;
+          let signs_differ = r_negative != b_negative;
+          let needs_adjustment = r_nonzero && signs_differ;
+          if needs_adjustment {
+              q - 1
+          } else {
+              q
+          }
+      };
+−     let step2 = _cse_temp_2;
+−     let _cse_temp_3 = {
+−         if 2 >= 0 && (2 as i64) <= (u32::MAX as i64) {
+−             (step2 as i32)
+−                 .checked_pow(2 as u32)
+−                 .expect("Power operation overflowed")
+−         } else {
+−             (step2 as f64).powf(2 as f64) as i32
+−         }
+−     };
+−     let result2 = _cse_temp_3;
+−     Ok(result1 + result2)
++     let result2 = step2.pow(2 as u32);
++     return Ok(result1 + result2);
+  }
+  #[doc = "Calculate sum of squares using both operators"]
+  pub fn mathematical_sequence(n: i32) -> Result<i32, ZeroDivisionError> {
+      let mut total = 0;
+      let mut i = 1;
+      while i <= n {
+−         let square = {
+−             if 2 >= 0 && (2 as i64) <= (u32::MAX as i64) {
+−                 (i as i32)
+−                     .checked_pow(2 as u32)
+−                     .expect("Power operation overflowed")
+−             } else {
+−                 (i as f64).powf(2 as f64) as i32
+−             }
+−         };
++         let square = i.pow(2 as u32);
+          let contribution = {
+              let a = square;
+−             let b = 1;
++             let b = 1 as f64;
+              let q = a / b;
+              let r = a % b;
+−             let r_negative = r < 0;
+−             let b_negative = b < 0;
+−             let r_nonzero = r != 0;
++             let r_negative = r < 0.0;
++             let b_negative = b < 0.0;
++             let r_nonzero = r != 0.0;
+              let signs_differ = r_negative != b_negative;
+              let needs_adjustment = r_nonzero && signs_differ;
+              if needs_adjustment {
+−                 q - 1
++                 q - 1.0
+              } else {
+                  q
+              }
+          };
+          total += contribution;
+          i += 1;
+      }
+−     Ok(total)
++     return Ok(total);
+  }
+────────────────────────────────────────────────────────────

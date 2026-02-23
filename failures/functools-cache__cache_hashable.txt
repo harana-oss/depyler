@@ -1,0 +1,26 @@
+  functools-cache.toml :: cache_hashable
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Args must be hashable for cache
+−     use std::collections::HashMap;
+−     use std::hash::Hash;
+− 
+−     fn cached_func<T: Hash + Eq + Clone>(
+−         cache: &mut HashMap<T, T>,
+−         x: T,
+−         op: impl Fn(&T) -> T,
+−     ) -> T {
+−         cache.entry(x.clone()).or_insert_with(|| op(&x)).clone()
+−     }
+− 
+−     let mut cache = HashMap::new();
+−     let result = true;
++ use std;
++ pub const result: serde_json::Value =
++     (func(5) == 10) && (func("hello".to_string()) == "hellohello");
++ use serde_json;
++ pub fn func(x: i32) -> i32 {
++     return x * 2;
++ }
+────────────────────────────────────────────────────────────

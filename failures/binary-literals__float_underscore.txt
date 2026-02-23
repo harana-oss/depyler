@@ -1,0 +1,10 @@
+  binary-literals.toml :: float_underscore
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− let x = 1_000.000_001;
+−     let result = (x - 1000.000001).abs() < 0.000001;
++ pub const x: f64 = 1000.000001;
++ pub const result: serde_json::Value = (x - 1000.000001).abs() < 0.000001;
++ use serde_json;
+────────────────────────────────────────────────────────────

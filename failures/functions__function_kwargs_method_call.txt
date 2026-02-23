@@ -1,0 +1,11 @@
+  functions.toml :: function_kwargs_method_call
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn format_string() -> String {
+−     let template = "{name} is {age}";
+−     return template.replace("{name}", "Alice").replace("{age}", "30");
++     let template = "{name} is {age}".to_string();
++     return format!("{}", template);
+  }
+────────────────────────────────────────────────────────────

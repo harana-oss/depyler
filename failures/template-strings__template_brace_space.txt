@@ -1,0 +1,12 @@
+  template-strings.toml :: template_brace_space
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust format! uses {} without spaces
+−     // Invalid patterns are preserved as literals
+−     let template = "${ name }";
+−     let result = template.contains("${ name }");
+−     assert!(result);
+−     let result = true;
++ 
+────────────────────────────────────────────────────────────

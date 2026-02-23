@@ -1,0 +1,30 @@
+  init-subclass.toml :: init_subclass_error
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust: compile-time checks with static_assertions or macros
+− trait Base {
+−     fn name() -> &'static str;
++ #[derive(Debug, Copy, Clone)]
++ pub struct Base {}
++ impl Base {
++     pub fn new() -> Self {
++         Self {}
++     }
+  }
+− 
+− struct AllowedName;
+− impl Base for AllowedName {
+−     fn name() -> &'static str {
+−         "AllowedName"
++ #[derive(Debug, Copy, Clone)]
++ pub struct AllowedName {}
++ impl AllowedName {
++     pub fn new() -> Self {
++         Self {}
+      }
+  }
+− 
+− // Compile-time assertion could prevent forbidden names
+− assert_eq!(AllowedName::name(), "AllowedName");
+────────────────────────────────────────────────────────────

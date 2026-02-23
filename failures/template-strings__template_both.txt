@@ -1,0 +1,11 @@
+  template-strings.toml :: template_both
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust: multiple sources combined
+−     let a = 1;
+−     let b = 2;
+−     let result = format!("{} and {}", a, b);
+−     assert_eq!(result, "1 and 2");
++ 
+────────────────────────────────────────────────────────────

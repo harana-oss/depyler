@@ -1,0 +1,38 @@
+  abc.toml :: abc_mixin
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− trait Mixin {
+−     fn get_value(&self) -> i32;
+−     fn double_value(&self) -> i32 {
++ #[derive(Debug, Copy, Clone)]
++ pub struct Mixin {}
++ impl Mixin {
++     pub fn new() -> Self {
++         Self {}
++     }
++     pub fn get_value(&self) -> i32 {
++         {}
++     }
++     pub fn double_value(&self) -> i32 {
+          return self.get_value() * 2;
+      }
+  }
+  #[derive(Debug, Copy, Clone)]
+  pub struct Concrete {}
+  impl Concrete {
+      pub fn new() -> Self {
+          Self {}
+      }
+−     pub fn get_value(&self) -> i32 {
++ }
++ impl Mixin for Concrete {
++     fn get_value(&self) -> i32 {
+          return 15;
+      }
+  }
+  pub fn test_abc_mixin() -> i32 {
+      let obj = Concrete::new();
+      return obj.double_value();
+  }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,9 @@
+  counter.toml :: counter_empty
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use std::collections::HashMap;
+− 
+− let c: HashMap<String, usize> = HashMap::new();
+− log::info!("{{}}");
+────────────────────────────────────────────────────────────

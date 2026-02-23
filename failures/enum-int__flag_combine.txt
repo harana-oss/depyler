@@ -1,0 +1,36 @@
+  enum-int.toml :: flag_combine
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::ops::BitOr;
+− 
+−     #[repr(i32)]
+−     #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+−     struct Color(i32);
+− 
+−     impl Color {
+−         const RED: Color = Color(1);
+−         const GREEN: Color = Color(2);
+−         const BLUE: Color = Color(4);
++ use serde_json;
++ #[derive(Debug, Copy, Clone)]
++ pub struct Color {}
++ impl Color {
++     pub const RED: serde_json::Value = auto();
++     pub const GREEN: serde_json::Value = auto();
++     pub const BLUE: serde_json::Value = auto();
++     pub fn new() -> Self {
++         Self {}
+      }
+− 
+−     impl BitOr for Color {
+−         type Output = Color;
+−         fn bitor(self, rhs: Self) -> Self::Output {
+−             Color(self.0 | rhs.0)
+−         }
+−     }
+− 
+−     let purple = Color::RED | Color::BLUE;
+−     assert_eq!(purple.0, 5);
++ }
+────────────────────────────────────────────────────────────

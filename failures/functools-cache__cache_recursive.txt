@@ -1,0 +1,30 @@
+  functools-cache.toml :: cache_recursive
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Memoized Fibonacci
+−     use std::collections::HashMap;
+− 
+−     fn fib(n: i32, cache: &mut HashMap<i32, i32>) -> i32 {
+−         if n < 2 {
+−             return n;
+−         }
+−         if let Some(&val) = cache.get(&n) {
+−             return val;
+−         }
+−         let val = fib(n - 1, cache) + fib(n - 2, cache);
+−         cache.insert(n, val);
+−         val
++ use std;
++ pub const result: serde_json::Value = fib(10) == 55;
++ use serde_json;
++ pub fn fib(n: i32) -> i32 {
++     if n < 2 {
++         return n;
+      }
+− 
+−     let mut cache = HashMap::new();
+−     let result = fib(10, &mut cache) == 55;
++     return fib(n - 1) + fib(n - 2);
++ }
+────────────────────────────────────────────────────────────

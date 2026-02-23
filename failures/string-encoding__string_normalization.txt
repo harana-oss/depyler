@@ -1,0 +1,10 @@
+  string-encoding.toml :: string_normalization
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn normalize_string(s: &str) -> String {
+−     return s.to_string();
++ pub fn normalize_string(s: String) -> String {
++     return (s).nfc().collect::<String>();
+  }
+────────────────────────────────────────────────────────────

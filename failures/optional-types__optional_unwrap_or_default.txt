@@ -1,0 +1,13 @@
+  optional-types.toml :: optional_unwrap_or_default
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn safe_string(value: &Option<String>) -> String {
+      return if value.is_some() {
+−         value
++         value.unwrap()
+      } else {
+          "".to_string()
+      };
+  }
+────────────────────────────────────────────────────────────

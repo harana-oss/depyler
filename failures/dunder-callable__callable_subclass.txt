@@ -1,0 +1,36 @@
+  dunder-callable.toml :: callable_subclass
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− trait Callable {
+−     fn call(&self, x: i32) -> i32;
+− }
+− 
+− struct Base;
+− struct Derived;
+− 
+− impl Callable for Base {
+−     fn call(&self, x: i32) -> i32 {
+−         x
++ #[derive(Debug, Copy, Clone)]
++ pub struct Base {}
++ impl Base {
++     pub fn new() -> Self {
++         Self {}
+      }
+  }
+− 
+− impl Callable for Derived {
+−     fn call(&self, x: i32) -> i32 {
+−         Base.call(x) * 2
++ #[derive(Debug, Copy, Clone)]
++ pub struct Derived {}
++ impl Derived {
++     pub fn new() -> Self {
++         Self {}
+      }
+  }
+− 
+− let obj = Derived;
+− log::info!("{}", obj.call(5));
+────────────────────────────────────────────────────────────

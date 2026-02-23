@@ -1,0 +1,11 @@
+  deque.toml :: deque_empty
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // deque()
+−     use std::collections::VecDeque;
+− 
+−     let d: VecDeque<i32> = VecDeque::new();
+−     let result = d.len() == 0;
++ use std::collections::VecDeque;
+────────────────────────────────────────────────────────────

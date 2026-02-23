@@ -1,0 +1,12 @@
+  match-or-patterns.toml :: or_with_guard
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− let x = 2;
+−     let condition = true;
+−     let result = match x {
+−         1 | 2 | 3 if condition => true,
+−         _ => false,
+−     };
++ 
+────────────────────────────────────────────────────────────

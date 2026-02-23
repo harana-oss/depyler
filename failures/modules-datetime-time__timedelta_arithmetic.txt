@@ -1,0 +1,11 @@
+  modules-datetime-time.toml :: timedelta_arithmetic
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use chrono::Duration;
+− pub fn add_deltas(a: &chrono::Duration, b: &chrono::Duration) -> chrono::Duration {
+−     return *a + *b;
++ pub fn add_deltas(a: &timedelta, b: &timedelta) -> timedelta {
++     return a + b;
+  }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,7 @@
+  string-methods-all.toml :: str_upper
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub const result: String = "hello".to_uppercase();
++ 
+────────────────────────────────────────────────────────────

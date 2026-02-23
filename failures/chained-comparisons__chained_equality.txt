@@ -1,0 +1,15 @@
+  chained-comparisons.toml :: chained_equality
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // a == b == c
+−     let a = 5;
+−     let b = 5;
+−     let c = 5;
+−     let result = a == b && b == c;
++ pub const a: i32 = 5;
++ pub const b: i32 = 5;
++ pub const c: i32 = 5;
++ pub const result: serde_json::Value = (a == b) && (b == c);
++ use serde_json;
+────────────────────────────────────────────────────────────

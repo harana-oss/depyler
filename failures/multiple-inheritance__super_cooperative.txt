@@ -1,0 +1,63 @@
+  multiple-inheritance.toml :: super_cooperative
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // All classes in hierarchy use super()
+−     struct D {
+−         a: String,
+−         b: String,
+−         c: String,
+−         d: String,
++ #[derive(Debug, Clone)]
++ pub struct A {
++     pub a: String,
++ }
++ impl A {
++     pub fn new() -> Self {
++         Self { a: "A".to_string() }
+      }
+− 
+−     impl D {
+−         fn new() -> Self {
+−             D {
+−                 a: "A".to_string(),
+−                 b: "B".to_string(),
+−                 c: "C".to_string(),
+−                 d: "D".to_string(),
+−             }
+−         }
++ }
++ #[derive(Debug, Clone)]
++ pub struct B {
++     pub b: String,
++ }
++ impl B {
++     pub fn new() -> Self {
++         Self { b: "B".to_string() }
+      }
+− 
+−     pub fn test_super_cooperative() -> bool {
+−         let d = D::new();
+−         !d.a.is_empty() && !d.b.is_empty() && !d.c.is_empty() && !d.d.is_empty()
++ }
++ #[derive(Debug, Clone)]
++ pub struct C {
++     pub c: String,
++ }
++ impl C {
++     pub fn new() -> Self {
++         Self { c: "C".to_string() }
+      }
+− 
+−     let result = test_super_cooperative();
++ }
++ #[derive(Debug, Clone)]
++ pub struct D {
++     pub d: String,
++ }
++ impl D {
++     pub fn new() -> Self {
++         Self { d: "D".to_string() }
++     }
++ }
+────────────────────────────────────────────────────────────

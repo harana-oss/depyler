@@ -1,0 +1,56 @@
+  context-managers.toml :: cm_temp_state
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct StateManager {
+−         value: i32,
++ use serde_json;
++ #[derive(Debug, Copy, Clone)]
++ pub struct StateManager {
++     pub value: i32,
++     pub saved: (),
++ }
++ impl StateManager {
++     pub fn new() -> Self {
++         Self {
++             value: 10,
++             saved: (),
++         }
+      }
+− 
+−     impl StateManager {
+−         fn new() -> Self {
+−             StateManager { value: 10 }
+−         }
+− 
+−         fn save(&self) -> i32 {
+−             self.value
+−         }
+− 
+−         fn restore(&mut self, saved: i32) {
+−             self.value = saved;
+−         }
++     pub fn __enter__(&mut self) -> &Self {
++         self.saved = self.value;
++         return self;
+      }
+− 
+−     let mut manager = StateManager::new();
+−     assert_eq!(manager.value, 10);
+−     {
+−         let saved = manager.save();
+−         manager.value = 20;
+−         assert_eq!(manager.value, 20);
+−         manager.restore(saved);
++     pub fn __exit__(
++         &mut self,
++         exc_type: serde_json::Value,
++         exc_val: serde_json::Value,
++         exc_tb: serde_json::Value,
++     ) -> bool {
++         self.value = self.saved;
++         return false;
+      }
+−     assert_eq!(manager.value, 10);
++ }
+────────────────────────────────────────────────────────────

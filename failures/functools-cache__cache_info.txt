@@ -1,0 +1,24 @@
+  functools-cache.toml :: cache_info
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // f.cache_info() returns CacheInfo
+−     struct CacheInfo {
+−         hits: usize,
+−         misses: usize,
+−         maxsize: Option<usize>,
+−         currsize: usize,
+−     }
+− 
+−     let info = CacheInfo {
+−         hits: 0,
+−         misses: 1,
+−         maxsize: Some(128),
+−         currsize: 1,
+−     };
+−     let result = info.hits == 0 && info.misses == 1;
++ use std;
++ pub fn func(x: i32) {
++     return x * x;
++ }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,45 @@
+  slots.toml :: slots_property
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct Validated {
+−     x: i32,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Validated {
++     pub _x: serde_json::Value,
+  }
+− 
+  impl Validated {
+−     fn new(x: i32) -> Self {
+−         Validated { x }
++     pub const __slots__: Vec<String> = vec!["_x".to_string()];
++     pub fn new(x: serde_json::Value) -> Self {
++         Self { _x: x }
+      }
+− 
+−     fn get_x(&self) -> i32 {
+−         self.x
++     pub fn x(&self) {
++         return self._x;
+      }
+− 
+−     fn set_x(&mut self, value: i32) -> Result<(), &str> {
++     pub fn x(&mut self, value: i32) {
+          if value < 0 {
+−             Err("Must be positive")
+−         } else {
+−             self.x = value;
+−             Ok(())
++             panic!(
++                 "Exception: {}",
++                 ValueError::new("Must be positive".to_string())
++             );
+          }
++         self._x = value;
+      }
+  }
+− 
+− let v = Validated::new(10);
+− log::info!("{}", v.get_x());
+────────────────────────────────────────────────────────────

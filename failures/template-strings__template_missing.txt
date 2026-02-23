@@ -1,0 +1,12 @@
+  template-strings.toml :: template_missing
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust format! is compile-time checked
+−     // Use safe_substitute equivalent pattern
+−     let name = "John";
+−     let result = format!("{} and $other", name);
+−     assert!(result.contains("John"));
+−     let result = true;
++ 
+────────────────────────────────────────────────────────────

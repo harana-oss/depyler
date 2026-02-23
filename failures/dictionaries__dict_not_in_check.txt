@@ -1,0 +1,11 @@
+  dictionaries.toml :: dict_not_in_check
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use serde_json;
+  use std::collections::HashMap;
+− pub fn missing_key(d: &HashMap<String, i32>, key: String) -> bool {
++ pub fn missing_key(d: &HashMap<serde_json::Value, serde_json::Value>, key: String) -> bool {
+      return !d.get(&key).is_some();
+  }
+────────────────────────────────────────────────────────────

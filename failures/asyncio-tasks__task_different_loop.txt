@@ -1,0 +1,14 @@
+  asyncio-tasks.toml :: task_different_loop
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[tokio::main]
+− async fn main() {
+−     // Tokio runtimes are isolated
+−     let result = 42;
+−     log::info!("{}", result);
+− }
++ pub async fn my_coro() -> i32 {
++     return 42;
++     }
+────────────────────────────────────────────────────────────

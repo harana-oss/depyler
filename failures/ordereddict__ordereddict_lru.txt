@@ -1,0 +1,8 @@
+  ordereddict.toml :: ordereddict_lru
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust doesn't have built-in OrderedDict
+− // Would use indexmap crate
++ use std::collections::IndexMap;
+────────────────────────────────────────────────────────────

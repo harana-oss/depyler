@@ -1,0 +1,12 @@
+  modules-os-sys.toml :: os_environ_membership_check
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use std as os;
+  pub fn test() -> bool {
+−     let _cse_temp_0 = std::env::var("PATH").is_ok();
+−     let exists: bool = _cse_temp_0;
++     let exists: bool = std::env::var("PATH").is_ok();
+      return exists;
+  }
+────────────────────────────────────────────────────────────

@@ -18,7 +18,7 @@ def divide(a: int, b: int) -> int:
 
 rust = '''
 pub fn divide(a: i32, b: i32) -> i32 {
-    assert!(b != 0, "{}", "divisor cannot be zero");
+    assert!(b != 0, "divisor cannot be zero");
     return {
         let a = a;
         let b = b;
@@ -71,7 +71,7 @@ def process_positive(n: int) -> int:
 
 rust = '''
 pub fn process_positive(n: i32) -> i32 {
-    assert!(n > 0, "{}", "n must be positive");
+    assert!(n > 0, "n must be positive");
     return n * 2;
 }
 '''
@@ -90,9 +90,9 @@ def bounded_add(a: int, b: int) -> int:
 
 rust = '''
 pub fn bounded_add(a: i32, b: i32) -> i32 {
-    assert!(a >= 0, "{}", "a must be non-negative");
-    assert!(b >= 0, "{}", "b must be non-negative");
-    assert!(a + b < 1000, "{}", "sum must be less than 1000");
+    assert!(a >= 0, "a must be non-negative");
+    assert!(b >= 0, "b must be non-negative");
+    assert!(a + b < 1000, "sum must be less than 1000");
     return a + b;
 }
 '''
@@ -123,7 +123,7 @@ pub fn absolute(n: i32) -> i32 {
     } else {
         result = n;
     }
-    assert!(result >= 0, "{}", "result must be non-negative");
+    assert!(result >= 0, "result must be non-negative");
     return result;
 }
 '''
@@ -213,7 +213,7 @@ pub fn sum_positive(items: &Vec<i32>) -> i32 {
         if item > 0 {
             total += item;
         }
-        assert!(total >= 0, "{}", "running total must be non-negative");
+        assert!(total >= 0, "running total must be non-negative");
     }
     return total;
 }
@@ -256,25 +256,6 @@ impl NonNegativeCounter {
             self.count -= 1;
         }
         assert!(self.count >= 0);
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "count" => Some(Box::new(self.count.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "count" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.count = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 '''
@@ -562,7 +543,7 @@ def debug_checked_add(a: int, b: int) -> int:
 rust = '''
 pub fn debug_checked_add(a: i32, b: i32) -> i32 {
     let result = a + b;
-    assert!((result >= a) || (result >= b), "{}", "overflow check");
+    assert!((result >= a) || (result >= b), "overflow check");
     return result;
 }
 '''

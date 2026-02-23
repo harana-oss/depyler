@@ -1,0 +1,18 @@
+  optional-types.toml :: is_not_none_dataclass_field
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug, Clone, PartialEq, Default)]
++ #[derive(Debug, Copy, Clone, PartialEq, Default)]
+  pub struct Person {
+      pub age: Option<i32>,
+  }
+  impl Person {
+      pub fn new(age: Option<i32>) -> Self {
+          Self { age }
+      }
+  }
+  pub fn has_age(p: &Person) -> bool {
+      return p.age.is_some();
+  }
+────────────────────────────────────────────────────────────

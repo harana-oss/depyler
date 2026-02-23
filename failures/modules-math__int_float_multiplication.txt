@@ -1,0 +1,9 @@
+  modules-math.toml :: int_float_multiplication
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn multiply(n: i32) -> f64 {
+−     return 6.0 * (n as f64);
++     return 6.0 * ((n) as f64);
+  }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,38 @@
+  dunder-context.toml :: exit_suppress
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust doesn't suppress exceptions in Drop
+− // Use Result and error handling instead
+− struct Suppressor;
+− 
+− impl Drop for Suppressor {
+−     fn drop(&mut self) {
+−         log::info!("Suppressing ValueError");
++ use serde_json;
++ #[derive(Debug, Copy, Clone)]
++ pub struct Suppressor {}
++ impl Suppressor {
++     pub fn new() -> Self {
++         Self {}
++     }
++     pub fn __enter__(&self) -> &Self {
++         return self;
+      }
++     pub fn __exit__(
++         &self,
++         exc_type: serde_json::Value,
++         exc_val: serde_json::Value,
++         exc_tb: serde_json::Value,
++     ) -> bool {
++         if exc_type == ValueError {
++             log::info!("{}", "Suppressing ValueError".to_string());
++             return true;
++         }
++         return false;
++     }
+  }
+− 
+− let _sup = Suppressor;
+− log::info!("Continued");
+────────────────────────────────────────────────────────────

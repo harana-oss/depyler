@@ -1,0 +1,8 @@
+  type-parameter-lists.toml :: typeparam_inherit
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // class Child[T](Parent[T]): ...
+−     let result = true; // Placeholder
++ pub const result: bool = true;
+────────────────────────────────────────────────────────────

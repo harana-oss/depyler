@@ -1,0 +1,15 @@
+  string-operations.toml :: hashmap_string_value
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use std::collections::HashMap;
+  pub fn create_map() -> HashMap<i32, String> {
+      return {
+          let mut map = HashMap::new();
+          map.insert(1, "one".to_string());
+          map.insert(2, "two".to_string());
+          map
+−     }
++     };
++ }
+────────────────────────────────────────────────────────────

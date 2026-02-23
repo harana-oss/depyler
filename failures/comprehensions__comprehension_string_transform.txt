@@ -1,0 +1,14 @@
+  comprehensions.toml :: comprehension_string_transform
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn uppercase_words(words: &Vec<String>) -> Vec<String> {
+      return words
+−         .clone()
+−         .into_iter()
++         .iter()
++         .cloned()
+          .map(|word| word.to_uppercase())
+          .collect::<Vec<_>>();
+  }
+────────────────────────────────────────────────────────────

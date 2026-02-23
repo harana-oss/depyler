@@ -1,0 +1,47 @@
+  async-for.toml :: async_for_streaming
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use futures::stream::{self, StreamExt};
+− 
+− #[tokio::main]
+− async let chunks = vec!["chunk1", "chunk2", "chunk3"];
+− let result: Vec<String> = stream::iter(chunks)
+−     .map(|chunk| chunk.to_uppercase())
+−     .collect()
+−     .await;
+− log::info!("{:?}", result);
++ use serde_json;
++ #[doc = " Generator state struct"] #[derive(Debug)] struct DataStreamState {
++     state: usize, chunks: Vec<String>
++ }
++ #[doc = " Generator function - returns Iterator"] pub fn data_stream() -> impl Iterator<Item = i32>{
++     DataStreamState {
++     state: 0, chunks: Default::default()
++ }
++ } impl Iterator for DataStreamState {
++     type Item = i32;
++     fn next(&mut self) -> Option<Self::Item>{
++     match self.state {
++     0 =>{
++     self.state = 1;
++     self.chunks = vec! ["chunk1".to_string(), "chunk2".to_string(), "chunk3".to_string()];
++     for _chunk in self.chunks.iter().cloned() {
++     return Some(chunk);
++    
++ }
++ None
++ }
++ _ =>None
++ }
++ }
++ }
++ pub async fn test() -> Vec<serde_json::Value>{
++     let result = vec! [];
++     while let Some(chunk) = data_stream().next().await {
++     result.push(chunk.to_uppercase());
++    
++ }
++ return result;
++     }
+────────────────────────────────────────────────────────────

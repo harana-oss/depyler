@@ -1,0 +1,16 @@
+  control-flow.toml :: with_statement
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn use_context() {
++ pub fn use_context() -> Result<(), std::io::Error> {
+      let mut f = std::fs::File::open("file.txt")?;
+      let data = {
+          let mut content = String::new();
+          f.read_to_string(&mut content)?;
+          content
+      };
+−     return data;
++     return Ok(data);
+  }
+────────────────────────────────────────────────────────────

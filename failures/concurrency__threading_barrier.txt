@@ -1,0 +1,21 @@
+  concurrency.toml :: threading_barrier
+    Output mismatch
+
+────────────────────────────────────────────────────────────
++ #[derive(Debug, Copy, Clone)]
+  pub struct Barrier {
+      pub count: i32,
+      pub waiting: i32,
+  }
+− 
+  impl Barrier {
+      pub fn new(count: i32) -> Self {
+          Self { count, waiting: 0 }
+      }
+− 
+      pub fn wait(&mut self) -> bool {
+          self.waiting += 1;
+          return self.waiting >= self.count;
+      }
+  }
+────────────────────────────────────────────────────────────

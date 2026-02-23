@@ -1,0 +1,8 @@
+  binary-literals.toml :: int_with_base
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− let result = i32::from_str_radix("ff", 16).unwrap() == 255;
++ pub const result: serde_json::Value = "ff".parse::<i32>().unwrap() == 255;
++ use serde_json;
+────────────────────────────────────────────────────────────

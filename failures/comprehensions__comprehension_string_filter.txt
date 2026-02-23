@@ -1,0 +1,15 @@
+  comprehensions.toml :: comprehension_string_filter
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn long_words(words: &Vec<String>) -> Vec<String> {
+      return words
+−         .clone()
+−         .into_iter()
++         .iter()
++         .cloned()
+          .filter(|word| word.len() as i32 > 4)
+−         .map(|word| word)
+          .collect::<Vec<_>>();
+  }
+────────────────────────────────────────────────────────────

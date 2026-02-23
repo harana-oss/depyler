@@ -1,0 +1,14 @@
+  modules-csv.toml :: csv_fieldnames_access
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use csv;
+− pub fn get_headers(filepath: String) {
++ pub fn get_headers(filepath: String) -> Result<(), std::io::Error> {
+      let mut f = std::fs::File::open(filepath)?;
+      let reader = csv::ReaderBuilder::new().has_headers(true).from_reader(f);
+−     return reader.headers()?;
++     return Ok(reader.headers()?);
++     Ok(())
+  }
+────────────────────────────────────────────────────────────

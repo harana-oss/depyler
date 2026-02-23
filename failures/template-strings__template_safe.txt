@@ -1,0 +1,10 @@
+  template-strings.toml :: template_safe
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust: custom template with default handling
+−     let name = "John";
+−     let result = format!("{} and $missing", name);
+−     assert_eq!(result, "John and $missing");
++ 
+────────────────────────────────────────────────────────────

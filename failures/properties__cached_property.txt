@@ -1,0 +1,56 @@
+  properties.toml :: cached_property
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::cell::Cell;
+− 
+− struct ExpensiveCalculation {
+−     call_count: Cell<i32>,
+−     cached_value: Cell<Option<i32>>,
++ use std::cached_property;
++ #[derive(Debug, Copy, Clone)]
++ pub struct ExpensiveCalculation {
++     pub call_count: i32,
+  }
+− 
+  impl ExpensiveCalculation {
+−     fn new() -> Self {
+−         ExpensiveCalculation {
+−             call_count: Cell::new(0),
+−             cached_value: Cell::new(None),
+−         }
++     pub fn new() -> Self {
++         Self { call_count: 0 }
+      }
+− 
+−     fn expensive(&self) -> i32 {
+−         if let Some(value) = self.cached_value.get() {
+−             return value;
+−         }
+− 
+−         self.call_count.set(self.call_count.get() + 1);
+−         let value = 42;
+−         self.cached_value.set(Some(value));
+−         value
+−     }
+− 
+−     fn call_count(&self) -> i32 {
+−         self.call_count.get()
++     pub fn expensive(&mut self) -> i32 {
++         self.call_count += 1;
++         return 42;
+      }
+  }
+− 
+− let obj = ExpensiveCalculation::new();
+− log::info!(
+−     "First call: {}, call_count: {}",
+−     obj.expensive(),
+−     obj.call_count()
+− );
+− log::info!(
+−     "Second call: {}, call_count: {}",
+−     obj.expensive(),
+−     obj.call_count()
+− );
+────────────────────────────────────────────────────────────

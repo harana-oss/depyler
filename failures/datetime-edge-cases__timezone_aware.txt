@@ -1,0 +1,33 @@
+  datetime-edge-cases.toml :: timezone_aware
+    Output mismatch
+
+────────────────────────────────────────────────────────────
++ #[derive(Debug, Copy, Clone)]
+  pub struct DateTime {
+      pub year: i32,
+      pub month: i32,
+      pub day: i32,
+      pub hour: i32,
+      pub minute: i32,
+  }
+− 
+  impl DateTime {
+      pub fn new(year: i32, month: i32, day: i32, hour: i32, minute: i32) -> Self {
+          Self {
+              year,
+              month,
+              day,
+              hour,
+              minute,
+          }
+      }
+− 
+      pub fn to_string(&self) -> String {
+          return format!(
+−             "{}-{:02}-{:02} {:02}:{:02}",
++             "{}-{}-{} {}:{}",
+              self.year, self.month, self.day, self.hour, self.minute
+          );
+      }
+  }
+────────────────────────────────────────────────────────────

@@ -71,7 +71,7 @@ def filter_files(names: list, pattern: str) -> list:
 
 rust = '''
 use serde_json;
-pub fn filter_files(names: &Vec<serde_json::Value>, pattern: String) -> Vec<serde_json::Value> {
+pub fn filter_files(names: &Vec<serde_json::Value>, pattern: String) -> Vec<i32> {
     return {
         let pattern_str = pattern;
         let regex_pattern = pattern_str

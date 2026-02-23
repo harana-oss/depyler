@@ -1,0 +1,46 @@
+  asyncio-tasks.toml :: gather_exceptions
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use tokio::join;
+− 
+− async fn success_coro() -> Result<i32, String> {
+−     Ok(1)
++ #[derive(Debug, Clone)] pub struct ValueError {
++     message: String ,
++ }
++ impl std::fmt::Display for ValueError {
++     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
++     write!(f, "value error: {}", self.message)
+  }
+− 
+− async fn failing_coro() -> Result<i32, String> {
+−     Err("Failed".to_string())
++ } impl std::error::Error for ValueError {
++    
+  }
+− 
+− pub async fn test_gather_exceptions() -> usize {
+−     let (r1, r2) = join!(success_coro(), failing_coro());
+−     vec![r1, r2].len()
+− }
++ impl ValueError {
++     pub fn new(message: impl Into<String>) -> Self {
++     Self {
++     message: message.into()
++ }
++ }
++ }
++ pub async fn success_coro() -> i32 {
++     return 1;
++    
++ }
++ pub async fn failing_coro() -> Result<i32, ValueError>{
++     return Err(ValueError::new("Failed"));
++    
++ }
++ pub async fn test_gather_exceptions() -> i32 {
++     let results = asyncio.gather(success_coro(), failing_coro()).await;
++     return results.len() as i32 as i32;
++     }
+────────────────────────────────────────────────────────────

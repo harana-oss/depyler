@@ -1,0 +1,35 @@
+  enum-advanced.toml :: enum_hash
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use std::collections::HashSet;
+− 
+− #[derive(Debug, Hash, Eq, PartialEq)]
+− enum Color {
+−     Red = 1,
+−     Green = 2,
++ #[derive(Debug, Copy, Clone)]
++ pub struct Color {}
++ impl Color {
++     pub const RED: i32 = 1;
++     pub const GREEN: i32 = 2;
++     pub fn new() -> Self {
++         Self {}
++     }
+  }
+− 
+− pub fn test_enum_hash() -> usize {
+−     let mut s = HashSet::new();
+−     s.insert(Color::Red);
+−     s.insert(Color::Green);
+−     s.len()
++ pub fn test_enum_hash() -> i32 {
++     let s = {
++         let mut set = HashSet::new();
++         set.insert(Color::RED);
++         set.insert(Color::GREEN);
++         set
++     };
++     return s.len() as i32 as i32;
+  }
+────────────────────────────────────────────────────────────

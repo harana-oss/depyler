@@ -1,0 +1,57 @@
+  dunder-iteration.toml :: length_hint
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct HintedIterator {
+−     items: Vec<i32>,
+−     index: usize,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct HintedIterator {
++     pub items: serde_json::Value,
++     pub index: i32,
+  }
+− 
+  impl HintedIterator {
+−     fn new(items: Vec<i32>) -> Self {
+−         HintedIterator { items, index: 0 }
++     pub fn new(items: serde_json::Value) -> Self {
++         Self { items, index: 0 }
+      }
+− 
+−     fn length_hint(&self) -> usize {
+−         self.items.len() - self.index
++     pub fn __iter__(&self) -> &Self {
++         return self;
+      }
+− }
+− 
+− impl Iterator for HintedIterator {
+−     type Item = i32;
+− 
+−     fn next(&mut self) -> Option<Self::Item> {
++     pub fn __next__(&mut self) {
+          if self.index < self.items.len() {
+−             let result = self.items[self.index];
++             let mut result = self.items[self.index as usize];
+              self.index += 1;
+−             Some(result)
+−         } else {
+−             None
++             return result;
+          }
+−     }
+− 
+−     fn size_hint(&self) -> (usize, Option<usize>) {
+−         let remaining = self.items.len() - self.index;
+−         (remaining, Some(remaining))
++         panic!("Exception: {}", StopIteration);
+      }
+  }
+− 
+− let mut it = HintedIterator::new(vec![1, 2, 3, 4, 5]);
+− log::info!("Length hint: {}", it.length_hint());
+− log::info!("{}", it.next().unwrap());
+− log::info!("{}", it.next().unwrap());
+− log::info!("Length hint: {}", it.length_hint());
+────────────────────────────────────────────────────────────

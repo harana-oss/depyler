@@ -1,0 +1,13 @@
+  modules-random.toml :: random_shuffle
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use rand as random;
+− use rand::prelude::*;
+− use rand::seq::SliceRandom;
+− use rand::Rng;
+  pub fn mix_up(items: &Vec<i32>) {
+−     items.shuffle(&mut rand::thread_rng());
++     DEPYLER_RNG.with(|rng| items.shuffle(&mut *rng.borrow_mut()));
+  }
+────────────────────────────────────────────────────────────

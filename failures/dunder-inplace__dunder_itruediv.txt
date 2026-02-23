@@ -1,0 +1,28 @@
+  dunder-inplace.toml :: dunder_itruediv
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::ops::DivAssign;
+− 
+− #[derive(Debug)]
+− struct Counter {
+−     x: f64,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Counter {
++     pub x: serde_json::Value,
+  }
+− 
+− impl DivAssign for Counter {
+−     fn div_assign(&mut self, other: Counter) {
+−         self.x /= other.x;
++ impl Counter {
++     pub fn new(x: serde_json::Value) -> Self {
++         Self { x }
+      }
+  }
+− 
+− let mut a = Counter { x: 10.0 };
+− a /= Counter { x: 2.0 };
+− log::info!("Counter({})", a.x);
+────────────────────────────────────────────────────────────

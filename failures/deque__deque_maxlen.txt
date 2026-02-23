@@ -1,0 +1,19 @@
+  deque.toml :: deque_maxlen
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // deque(maxlen=3)
+−     use std::collections::VecDeque;
+− 
+−     struct BoundedDeque<T> {
+−         deque: VecDeque<T>,
+−         maxlen: usize,
+−     }
+− 
+−     let d = BoundedDeque {
+−         deque: VecDeque::new(),
+−         maxlen: 3,
+−     };
+−     let result = d.maxlen == 3;
++ use std::collections::VecDeque;
+────────────────────────────────────────────────────────────

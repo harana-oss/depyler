@@ -1,0 +1,34 @@
+  dunder-attribute.toml :: dunder_setattr
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust doesn't have dynamic setattr - use builder pattern or methods
+− struct TrackedSets {
+−     x: Option<i32>,
+−     y: Option<i32>,
+− }
+− 
++ #[derive(Debug, Copy, Clone)]
++ pub struct TrackedSets {}
+  impl TrackedSets {
+−     fn new() -> Self {
+−         TrackedSets { x: None, y: None }
+−     }
+− 
+−     fn set_attribute(&mut self, name: &str, value: i32) {
+−         log::info!("Setting {} = {}", name, value);
+−         match name {
+−             "x" => self.x = Some(value),
+−             "y" => self.y = Some(value),
+−             _ => {}
+−         }
++     pub fn new() -> Self {
++         Self {}
+      }
+  }
+− 
+− let mut obj = TrackedSets::new();
+− obj.set_attribute("x", 10);
+− obj.set_attribute("y", 20);
+− log::info!("{} {}", obj.x.unwrap(), obj.y.unwrap());
+────────────────────────────────────────────────────────────

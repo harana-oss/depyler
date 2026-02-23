@@ -1,0 +1,23 @@
+  concurrency.toml :: atomic_compare_exchange
+    Output mismatch
+
+────────────────────────────────────────────────────────────
++ #[derive(Debug, Copy, Clone)]
+  pub struct AtomicValue {
+      pub value: i32,
+  }
+− 
+  impl AtomicValue {
+      pub fn new(initial: i32) -> Self {
+          Self { value: initial }
+      }
+− 
+      pub fn compare_exchange(&mut self, expected: i32, new: i32) -> bool {
+          if self.value == expected {
+              self.value = new;
+              return true;
+          }
+          return false;
+      }
+  }
+────────────────────────────────────────────────────────────

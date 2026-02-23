@@ -1,0 +1,31 @@
+  contextlib-decorator.toml :: contextmanager_multi_yield
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust type system prevents this pattern
+−     let result = "error caught";
++ use serde_json;
++ #[doc = " Generator state struct"]
++ #[derive(Debug)]
++ struct MultiYieldState {
++     state: usize,
++ }
++ #[doc = " Generator function - returns Iterator"]
++ pub fn multi_yield() -> impl Iterator<Item = serde_json::Value> {
++     MultiYieldState { state: 0 }
++ }
++ impl Iterator for MultiYieldState {
++     type Item = serde_json::Value;
++     fn next(&mut self) -> Option<Self::Item> {
++         match self.state {
++             0 => {
++                 self.state = 1;
++                 return None;
++                 return None;
++                 None
++             }
++             _ => None,
++         }
++     }
++ }
+────────────────────────────────────────────────────────────

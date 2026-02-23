@@ -1,0 +1,254 @@
+  examples-web-scraping.toml :: url_parser
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− Error: Statement type not yet supported
++ #[derive(Debug, Clone)]
++ pub struct URL {
++     pub original: String,
++     pub scheme: String,
++     pub host: String,
++     pub path: String,
++     pub fragment: String,
++ }
++ impl URL {
++     pub fn new(url: String) -> Self {
++         Self {
++             original: url,
++             scheme: "".to_string(),
++             host: "".to_string(),
++             path: "".to_string(),
++             fragment: "".to_string(),
++         }
++     }
++     pub fn _parse(&mut self, url: String) {
++         let mut remaining = url;
++         if remaining.contains_key(&"://".to_string()) {
++             let mut scheme_end = remaining
++                 .find("://".to_string())
++                 .map(|i| i as i64)
++                 .unwrap_or(-1);
++             self.scheme = {
++                 let base = &remaining;
++                 let stop = (scheme_end).max(0) as usize;
++                 base[..stop.min(base.len())].to_vec()
++             };
++             let mut remaining = {
++                 let base = &remaining;
++                 let start = (scheme_end + 3).max(0) as usize;
++                 if start < base.len() {
++                     base[start..].to_vec()
++                 } else {
++                     Vec::new()
++                 }
++             };
++         }
++         if remaining.contains_key(&"#".to_string()) {
++             let mut fragment_start = remaining
++                 .find("#".to_string())
++                 .map(|i| i as i64)
++                 .unwrap_or(-1);
++             self.fragment = {
++                 let base = &remaining;
++                 let start = (fragment_start + 1).max(0) as usize;
++                 if start < base.len() {
++                     base[start..].to_vec()
++                 } else {
++                     Vec::new()
++                 }
++             };
++             let mut remaining = {
++                 let base = &remaining;
++                 let stop = (fragment_start).max(0) as usize;
++                 base[..stop.min(base.len())].to_vec()
++             };
++         }
++         if remaining.contains_key(&"?".to_string()) {
++             let mut query_start = remaining
++                 .find("?".to_string())
++                 .map(|i| i as i64)
++                 .unwrap_or(-1);
++             let mut query_string = {
++                 let base = &remaining;
++                 let start = (query_start + 1).max(0) as usize;
++                 if start < base.len() {
++                     base[start..].to_vec()
++                 } else {
++                     Vec::new()
++                 }
++             };
++             let mut remaining = {
++                 let base = &remaining;
++                 let stop = (query_start).max(0) as usize;
++                 base[..stop.min(base.len())].to_vec()
++             };
++             self._parse_query(query_string);
++         }
++         if remaining.contains_key(&"/".to_string()) {
++             let mut path_start = remaining
++                 .find("/".to_string())
++                 .map(|i| i as i64)
++                 .unwrap_or(-1);
++             self.path = {
++                 let base = &remaining;
++                 let start = (path_start).max(0) as usize;
++                 if start < base.len() {
++                     base[start..].to_vec()
++                 } else {
++                     Vec::new()
++                 }
++             };
++             let mut remaining = {
++                 let base = &remaining;
++                 let stop = (path_start).max(0) as usize;
++                 base[..stop.min(base.len())].to_vec()
++             };
++         } else {
++             self.path = "/".to_string();
++         }
++         if remaining.contains_key(&":".to_string()) {
++             let mut colon_pos = remaining
++                 .find(":".to_string())
++                 .map(|i| i as i64)
++                 .unwrap_or(-1);
++             self.host = {
++                 let base = &remaining;
++                 let stop = (colon_pos).max(0) as usize;
++                 base[..stop.min(base.len())].to_vec()
++             };
++             let mut port_str = {
++                 let base = &remaining;
++                 let start = (colon_pos + 1).max(0) as usize;
++                 if start < base.len() {
++                     base[start..].to_vec()
++                 } else {
++                     Vec::new()
++                 }
++             };
++             {
++                 let _result = (|| -> Result<(), Box<dyn std::error::Error>> {
++                     {
++                         self.port = int(port_str);
++                     }
++                     Ok(())
++                 })();
++                 if let Err(_e) = _result {
++                     {
++                         self.port = ();
++                     }
++                 }
++             }
++         } else {
++             self.host = remaining;
++         }
++     }
++     pub fn _parse_query(&self, query_string: String) {
++         if !query_string {
++             return ();
++         }
++         let mut pairs = query_string
++             .split("&".to_string())
++             .map(|s| s.to_string())
++             .collect();
++         for pair in pairs {
++             if pair.contains_key(&"=".to_string()) {
++                 let mut eq_pos = pair.find("=".to_string()).map(|i| i as i64).unwrap_or(-1);
++                 let mut key = {
++                     let base = &pair;
++                     let stop = (eq_pos).max(0) as usize;
++                     base[..stop.min(base.len())].to_vec()
++                 };
++                 let mut value = {
++                     let base = &pair;
++                     let start = (eq_pos + 1).max(0) as usize;
++                     if start < base.len() {
++                         base[start..].to_vec()
++                     } else {
++                         Vec::new()
++                     }
++                 };
++                 self.query_params[key as usize] = value;
++             } else {
++                 self.query_params[pair as usize] = "".to_string();
++             }
++         }
++     }
++     pub fn get_query_param(&self, key: String) -> Option<String> {
++         if self.query_params.contains_key(&key) {
++             return self.query_params[key as usize];
++         }
++         return ();
++     }
++     pub fn is_secure(&self) -> bool {
++         return self.scheme.to_lowercase() == "https".to_string();
++     }
++     pub fn get_base_url(&self) -> String {
++         let mut result = "".to_string();
++         if self.scheme {
++             result += format!("{}{}", self.scheme, "://".to_string());
++         }
++         result += self.host;
++         if self.port.is_some() {
++             result += format!("{}{}", ":".to_string(), str(self.port));
++         }
++         return result;
++     }
++ }
++ #[doc = "Extract domain from URL string"]
++ pub fn extract_domain(url: String) -> String {
++     let parsed = URL::new(url);
++     return parsed.host;
++ }
++ #[doc = "Basic email validation"]
++ pub fn is_valid_email(email: String) -> bool {
++     let _cse_temp_0 =
++         (!email.contains(&"@")) || (email.iter().filter(|x| **x == "@").count() as i32 != 1);
++     if _cse_temp_0 {
++         return false;
++     }
++     let at_pos = email.find("@").map(|i| i as i32).unwrap_or(-1);
++     let local_part = {
++         let base = &email;
++         let stop = (at_pos).max(0) as usize;
++         base[..stop.min(base.len())].to_vec()
++     };
++     let domain_part = {
++         let base = &email;
++         let start = (at_pos.unwrap() + 1).max(0) as usize;
++         if start < base.len() {
++             base[start..].to_vec()
++         } else {
++             Vec::new()
++         }
++     };
++     let _cse_temp_1 = (local_part.len() as i32 == 0) || (domain_part.len() as i32 == 0);
++     if _cse_temp_1 {
++         return false;
++     }
++     if !domain_part.contains(&".") {
++         return false;
++     }
++     if email.contains(&"..") {
++         return false;
++     }
++     if (email.starts_with(".")) || (email.ends_with(".")) {
++         return false;
++     }
++     return true;
++ }
++ #[doc = "Normalize URL by removing trailing slash, converting to lowercase"]
++ pub fn normalize_url(url: String) -> String {
++     let mut normalized = url.trim().to_lowercase();
++     let _cse_temp_0 = (normalized.ends_with("/")) && (normalized.len() as i32 > 1);
++     if _cse_temp_0 {
++         if normalized.iter().filter(|x| **x == "/").count() as i32 > 2 {
++             normalized = {
++                 let base = &normalized;
++                 let stop = (-1).max(0) as usize;
++                 base[..stop.min(base.len())].to_vec()
++             };
++         }
++     }
++     return normalized;
++ }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,34 @@
+  init-subclass.toml :: init_subclass_validate
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust: use traits to enforce requirements at compile-time
+− trait Base {
+−     fn required_attr() -> &'static str;
++ #[derive(Debug, Copy, Clone)]
++ pub struct Base {}
++ impl Base {
++     pub fn new() -> Self {
++         Self {}
++     }
+  }
+− 
+− // Won't compile without required_attr:
+− // struct BadSub;
+− // impl Base for BadSub {}  // ERROR: missing required_attr
+− 
+− struct GoodSub;
+− impl Base for GoodSub {
+−     fn required_attr() -> &'static str {
+−         "present"
++ #[derive(Debug, Copy, Clone)]
++ pub struct GoodSub {}
++ impl GoodSub {
++     pub const required_attr: String = "present".to_string();
++     pub fn new() -> Self {
++         Self {}
+      }
+  }
+− 
+− assert_eq!(GoodSub::required_attr(), "present");
+────────────────────────────────────────────────────────────

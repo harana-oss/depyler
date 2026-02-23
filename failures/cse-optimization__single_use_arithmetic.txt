@@ -1,0 +1,9 @@
+  cse-optimization.toml :: single_use_arithmetic
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn add(a: i64, b: i64) -> i64 {
++ pub fn add(a: i32, b: i32) -> i32 {
+      return a + b;
+  }
+────────────────────────────────────────────────────────────

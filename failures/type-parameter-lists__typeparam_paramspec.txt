@@ -1,0 +1,8 @@
+  type-parameter-lists.toml :: typeparam_paramspec
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // def decorator[**P, R](f: Callable[P, R]): ...
+−     let result = true; // Placeholder
++ pub const result: bool = true;
+────────────────────────────────────────────────────────────

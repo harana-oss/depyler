@@ -1,0 +1,22 @@
+  dataclasses-comparison.toml :: dataclass_none_compare
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // In Rust, Option<T> implements Eq and can be compared
+−     #[derive(Debug, PartialEq, Eq)]
+−     struct Record {
+−         value: Option<i32>,
++ #[derive(Debug, Copy, Clone, PartialEq, Default)]
++ pub struct Record {
++     pub value: Option<i32>,
++ }
++ impl Record {
++     pub fn new(value: Option<i32>) -> Self {
++         Self { value }
+      }
+− 
+−     let r1 = Record { value: None };
+−     let r2 = Record { value: Some(1) };
+−     let result = r1.value != r2.value;
++ }
+────────────────────────────────────────────────────────────

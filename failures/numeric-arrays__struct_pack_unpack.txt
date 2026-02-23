@@ -1,0 +1,19 @@
+  numeric-arrays.toml :: struct_pack_unpack
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn pack_int(value: i32) -> Vec<i32> {
+−     let b0 = value & 0xFF;
+−     let b1 = (value >> 8) & 0xFF;
+−     let b2 = (value >> 16) & 0xFF;
+−     let b3 = (value >> 24) & 0xFF;
++     let b0 = value & 255;
++     let _cse_temp_0 = value >> 8 & 255;
++     let b1 = _cse_temp_0;
++     let _cse_temp_1 = value >> 16 & 255;
++     let b2 = _cse_temp_1;
++     let _cse_temp_2 = value >> 24 & 255;
++     let b3 = _cse_temp_2;
+      return vec![b0, b1, b2, b3];
+  }
+────────────────────────────────────────────────────────────

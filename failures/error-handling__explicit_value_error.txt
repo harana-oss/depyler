@@ -1,0 +1,31 @@
+  error-handling.toml :: explicit_value_error
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  #[derive(Debug, Clone)]
+  pub struct ValueError {
+      message: String,
+  }
+  impl std::fmt::Display for ValueError {
+      fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+          write!(f, "value error: {}", self.message)
+      }
+  }
+  impl std::error::Error for ValueError {}
+  impl ValueError {
+      pub fn new(message: impl Into<String>) -> Self {
+          Self {
+              message: message.into(),
+          }
+      }
+  }
+− pub fn check_range(n: i32) -> i32 {
++ pub fn check_range(n: i32) -> Result<i32, ValueError> {
+      if n > 100 {
+−         panic!("{}", "value exceeds maximum");
++         return Err(ValueError::new("value exceeds maximum"));
+      }
+−     return n;
++     return Ok(n);
+  }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,34 @@
+  dunder-format.toml :: bool_if
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct Gate {
+−     is_open: bool,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Gate {
++     pub is_open: serde_json::Value,
+  }
+− 
+  impl Gate {
+−     fn new(is_open: bool) -> Self {
+−         Gate { is_open }
++     pub fn new(is_open: serde_json::Value) -> Self {
++         Self { is_open }
+      }
+  }
+− 
+− let gate = Gate::new(true);
+− if gate.is_open {
+−     log::info!("Gate is open");
+− } else {
+−     log::info!("Gate is closed");
+− }
+− 
+− let gate2 = Gate::new(false);
+− if gate2.is_open {
+−     log::info!("Gate is open");
+− } else {
+−     log::info!("Gate is closed");
+− }
+────────────────────────────────────────────────────────────

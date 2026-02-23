@@ -1,0 +1,15 @@
+  match-class-patterns.toml :: builtin_int_pattern
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::any::Any;
+  
+−     let value: Box<dyn Any> = Box::new(42i32);
+−     let result = if value.is::<i32>() {
+−         "integer"
+−     } else if value.is::<String>() {
+−         "string"
+−     } else {
+−         "other"
+−     };
+────────────────────────────────────────────────────────────

@@ -1,0 +1,16 @@
+  numeric-arrays.toml :: struct_size
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn int_size() -> i32 {
+      return 4;
+  }
+− 
+  pub fn short_size() -> i32 {
+      return 2;
+  }
+− 
+  pub fn byte_size() -> i32 {
+      return 1;
+  }
+────────────────────────────────────────────────────────────

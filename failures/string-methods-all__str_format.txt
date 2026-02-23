@@ -1,0 +1,5 @@
+  string-methods-all.toml :: str_format
+    Assertion failed: Expected to contain: 'format!'
+    
+    Generated:
+    

@@ -1,0 +1,11 @@
+  assert-statement.toml :: assert_fstring_message
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− fn main() {
+−     let x = 5;
+−     assert!(x > 0, "{}", format!("x must be positive, got {}", x));
+−     let result = true;
+− }
++ 
+────────────────────────────────────────────────────────────

@@ -1,0 +1,9 @@
+  numeric-arrays.toml :: buffer_copy
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn copy_buffer(src: Vec<i32>) -> Vec<i32> {
+−     return src.clone();
++     return src.into_iter().collect::<Vec<_>>();
+  }
+────────────────────────────────────────────────────────────

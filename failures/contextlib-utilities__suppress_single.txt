@@ -1,0 +1,31 @@
+  contextlib-utilities.toml :: suppress_single
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn test_suppress_single() -> bool {
+−     let result: Result<(), String> = (|| Err("ignored".to_string()))();
+−     result.is_err();
+−     true
++ #[derive(Debug, Clone)]
++ pub struct ValueError {
++     message: String,
++ }
++ impl std::fmt::Display for ValueError {
++     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
++         write!(f, "value error: {}", self.message)
++     }
++ }
++ impl std::error::Error for ValueError {}
++ impl ValueError {
++     pub fn new(message: impl Into<String>) -> Self {
++         Self {
++             message: message.into(),
++         }
++     }
++ }
++ pub fn test_suppress_single() -> Result<bool, ValueError> {
++     let _context = suppress(ValueError);
++     return Err(ValueError::new("ignored"));
++     return Ok(true);
+  }
+────────────────────────────────────────────────────────────

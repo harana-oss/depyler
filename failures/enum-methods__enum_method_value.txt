@@ -1,0 +1,29 @@
+  enum-methods.toml :: enum_method_value
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  #[derive(Debug, Copy, Clone)]
+− enum Priority {
+−     Low = 1,
+−     Medium = 5,
+−     High = 10,
+− }
+− 
++ pub struct Priority {}
+  impl Priority {
+−     fn is_high(&self) -> bool {
+−         (*self as i32) >= 8
++     pub const LOW: i32 = 1;
++     pub const MEDIUM: i32 = 5;
++     pub const HIGH: i32 = 10;
++     pub fn new() -> Self {
++         Self {}
++     }
++     pub fn is_high(&self) -> bool {
++         return self.value >= 8;
+      }
+  }
+− 
+− log::info!("{}", Priority::Low.is_high());
+− log::info!("{}", Priority::High.is_high());
+────────────────────────────────────────────────────────────

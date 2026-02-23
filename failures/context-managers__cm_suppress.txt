@@ -1,0 +1,34 @@
+  context-managers.toml :: cm_suppress
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust doesn't have exception suppression; use Result
+− fn with_suppressor<F>(f: F) 
+− where F: FnOnce() -> Result<(), String>
+− {
+−     let _ = f(); // Ignore error
++ use serde_json;
++ #[derive(Debug, Copy, Clone)]
++ pub struct Suppressor {}
++ impl Suppressor {
++     pub fn new() -> Self {
++         Self {}
++     }
++     pub fn __enter__(&self) -> &Self {
++         return self;
++     }
++     pub fn __exit__(
++         &self,
++         exc_type: serde_json::Value,
++         exc_val: serde_json::Value,
++         exc_tb: serde_json::Value,
++     ) -> bool {
++         return true;
++     }
+  }
+− 
+− with_suppressor(|| {
+−     Err("This will be suppressed".to_string())
+− });
+− // Error suppressed by ignoring Result
+────────────────────────────────────────────────────────────

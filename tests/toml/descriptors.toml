@@ -38,12 +38,9 @@ impl fmt::Display for MyClass {
     }
 }
 
-fn main() {
-    let instance = MyClass { desc: Descriptor };
-    let result = format!("{}", instance);
-    log::info!("{}", result);
-}
-"""
+let instance = MyClass { desc: Descriptor };
+let result = format!("{}", instance);
+log::info!("{}", result);"""
 expected_output = "Descriptor accessed on MyClass"
 
 [[test]]
@@ -80,12 +77,9 @@ struct MyClass {
     desc: Descriptor,
 }
 
-fn main() {
-    log::info!("{}", Descriptor::get_class());
-    let instance = MyClass { desc: Descriptor };
-    log::info!("{}", instance.desc.get_instance());
-}
-"""
+log::info!("{}", Descriptor::get_class());
+let instance = MyClass { desc: Descriptor };
+log::info!("{}", instance.desc.get_instance());"""
 expected_output = """Accessed from class
 Accessed from instance"""
 
@@ -114,14 +108,11 @@ impl MyClass {
     }
 }
 
-fn main() {
-    let instance = MyClass;
-    // Method accessed via instance
-    log::info!("{}", instance.method());
-    // Method accessed via type
-    log::info!("{}", MyClass::method(&instance));
-}
-"""
+let instance = MyClass;
+// Method accessed via instance
+log::info!("{}", instance.method());
+// Method accessed via type
+log::info!("{}", MyClass::method(&instance));"""
 expected_output = """method called
 method called"""
 
@@ -143,7 +134,7 @@ class Descriptor:
         return self.value
     
     def __set__(self, obj, value):
-        self.value = value * 2
+        self.value *= 2
 
 class MyClass:
     x = Descriptor()
@@ -179,14 +170,11 @@ struct MyClass {
     x: Descriptor,
 }
 
-fn main() {
-    let instance = MyClass {
-        x: Descriptor::new(),
-    };
-    instance.x.set(5);
-    log::info!("{}", instance.x.get());
-}
-"""
+let instance = MyClass {
+    x: Descriptor::new(),
+};
+instance.x.set(5);
+log::info!("{}", instance.x.get());"""
 expected_output = "10"
 
 [[test]]
@@ -248,16 +236,13 @@ struct MyClass {
     x: Descriptor,
 }
 
-fn main() {
-    let instance = MyClass {
-        x: Descriptor::new(),
-    };
-    instance.x.set("new value".to_string());
-    log::info!("{}", instance.x.get());
-    instance.x.delete();
-    log::info!("{}", instance.x.get());
-}
-"""
+let instance = MyClass {
+    x: Descriptor::new(),
+};
+instance.x.set("new value".to_string());
+log::info!("{}", instance.x.get());
+instance.x.delete();
+log::info!("{}", instance.x.get());"""
 expected_output = """new value
 deleted"""
 
@@ -296,12 +281,9 @@ struct MyClass {
     x: DataDescriptor,
 }
 
-fn main() {
-    let instance = MyClass { x: DataDescriptor };
-    // In Rust, field access is direct and type-safe
-    log::info!("{}", instance.x.get());
-}
-"""
+let instance = MyClass { x: DataDescriptor };
+// In Rust, field access is direct and type-safe
+log::info!("{}", instance.x.get());"""
 expected_output = "descriptor value"
 
 # =============================================================================
@@ -352,15 +334,12 @@ struct MyClass {
     y: Descriptor,
 }
 
-fn main() {
-    let instance = MyClass {
-        x: Descriptor::new("x"),
-        y: Descriptor::new("y"),
-    };
-    log::info!("{}", instance.x.get());
-    log::info!("{}", instance.y.get());
-}
-"""
+let instance = MyClass {
+    x: Descriptor::new("x"),
+    y: Descriptor::new("y"),
+};
+log::info!("{}", instance.x.get());
+log::info!("{}", instance.y.get());"""
 expected_output = """Descriptor named 'x'
 Descriptor named 'y'"""
 
@@ -418,15 +397,12 @@ struct MyClass {
     value: NamedDescriptor,
 }
 
-fn main() {
-    let instance = MyClass {
-        value: NamedDescriptor::new("value"),
-    };
-    instance.value.set(42);
-    log::info!("{}", instance.value.get().unwrap());
-    log::info!("Private: true");
-}
-"""
+let instance = MyClass {
+    value: NamedDescriptor::new("value"),
+};
+instance.value.set(42);
+log::info!("{}", instance.value.get().unwrap());
+log::info!("Private: true");"""
 expected_output = """42
 Private: True"""
 
@@ -490,16 +466,13 @@ struct MyClass {
     age: TypedDescriptor,
 }
 
-fn main() {
-    let mut instance = MyClass {
-        age: TypedDescriptor::new(),
-    };
-    instance.age.set(25);
-    log::info!("{}", instance.age.get().unwrap());
-    // Rust's type system prevents type errors at compile time
-    log::info!("Error: age must be int");
-}
-"""
+let mut instance = MyClass {
+    age: TypedDescriptor::new(),
+};
+instance.age.set(25);
+log::info!("{}", instance.age.get().unwrap());
+// Rust's type system prevents type errors at compile time
+log::info!("Error: age must be int");"""
 expected_output = """25
 Error: age must be int"""
 
@@ -560,16 +533,13 @@ struct MyClass {
     expensive: LazyDescriptor,
 }
 
-fn main() {
-    let instance = MyClass {
-        expensive: LazyDescriptor::new(),
-    };
-    log::info!("First access:");
-    log::info!("{}", instance.expensive.get());
-    log::info!("Second access:");
-    log::info!("{}", instance.expensive.get());
-}
-"""
+let instance = MyClass {
+    expensive: LazyDescriptor::new(),
+};
+log::info!("First access:");
+log::info!("{}", instance.expensive.get());
+log::info!("Second access:");
+log::info!("{}", instance.expensive.get());"""
 expected_output = """First access:
 Computing expensive value
 42
@@ -648,18 +618,15 @@ struct MyClass {
     score: ValidatedDescriptor,
 }
 
-fn main() {
-    let mut instance = MyClass {
-        score: ValidatedDescriptor::new(0, 100),
-    };
-    instance.score.set(75).unwrap();
-    log::info!("{}", instance.score.get().unwrap());
-    match instance.score.set(150) {
-        Err(e) => log::info!("Error: {}", e),
-        Ok(_) => {}
-    }
-}
-"""
+let mut instance = MyClass {
+    score: ValidatedDescriptor::new(0, 100),
+};
+instance.score.set(75).unwrap();
+log::info!("{}", instance.score.get().unwrap());
+match instance.score.set(150) {
+    Err(e) => log::info!("Error: {}", e),
+    Ok(_) => {}
+}"""
 expected_output = """75
 Error: score must be <= 100"""
 
@@ -721,12 +688,9 @@ impl MyClass {
     }
 }
 
-fn main() {
-    let instance = MyClass::new(10);
-    log::info!("{}", instance.computed());
-    log::info!("{}", instance.computed());
-}
-"""
+let instance = MyClass::new(10);
+log::info!("{}", instance.computed());
+log::info!("{}", instance.computed());"""
 expected_output = """Computing...
 20
 20"""
@@ -777,15 +741,12 @@ struct MyClass {
     nondata: String,
 }
 
-fn main() {
-    let instance = MyClass {
-        data: DataDescriptor,
-        nondata: "instance value".to_string(),
-    };
-    log::info!("{}", instance.data.get());
-    log::info!("{}", instance.nondata);
-}
-"""
+let instance = MyClass {
+    data: DataDescriptor,
+    nondata: "instance value".to_string(),
+};
+log::info!("{}", instance.data.get());
+log::info!("{}", instance.nondata);"""
 expected_output = """data descriptor
 instance value"""
 
@@ -835,12 +796,9 @@ impl GetAttribute for MyClass {
     }
 }
 
-fn main() {
-    let instance = MyClass { x: Descriptor };
-    let result = instance.get_attribute("x");
-    log::info!("{}", result);
-}
-"""
+let instance = MyClass { x: Descriptor };
+let result = instance.get_attribute("x");
+log::info!("{}", result);"""
 expected_output = """__getattribute__: x
 descriptor value"""
 
@@ -898,14 +856,11 @@ struct MyClass {
     x: Descriptor,
 }
 
-fn main() {
-    let mut instance = MyClass {
-        x: Descriptor::new(),
-    };
-    instance.x.set(42);
-    log::info!("{}", instance.x.get().unwrap());
-}
-"""
+let mut instance = MyClass {
+    x: Descriptor::new(),
+};
+instance.x.set(42);
+log::info!("{}", instance.x.get().unwrap());"""
 expected_output = "42"
 
 [[test]]
@@ -942,12 +897,9 @@ struct MyClass {
     x: Descriptor,
 }
 
-fn main() {
-    log::info!("{}", Descriptor::class_access());
-    let instance = MyClass { x: Descriptor };
-    log::info!("{}", instance.x.instance_access());
-}
-"""
+log::info!("{}", Descriptor::class_access());
+let instance = MyClass { x: Descriptor };
+log::info!("{}", instance.x.instance_access());"""
 expected_output = """Class level access
 Instance level access"""
 
@@ -1012,18 +964,15 @@ struct Derived {
     y: Descriptor,
 }
 
-fn main() {
-    let mut instance = Derived {
-        base: Base {
-            x: Descriptor::new("base_x"),
-        },
-        y: Descriptor::new("derived_y"),
-    };
-    instance.base.x.set(10);
-    instance.y.set(20);
-    log::info!("{}", instance.base.x.get());
-    log::info!("{}", instance.y.get());
-}
-"""
+let mut instance = Derived {
+    base: Base {
+        x: Descriptor::new("base_x"),
+    },
+    y: Descriptor::new("derived_y"),
+};
+instance.base.x.set(10);
+instance.y.set(20);
+log::info!("{}", instance.base.x.get());
+log::info!("{}", instance.y.get());"""
 expected_output = """base_x: 10
 derived_y: 20"""

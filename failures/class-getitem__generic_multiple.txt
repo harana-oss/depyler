@@ -1,0 +1,38 @@
+  class-getitem.toml :: generic_multiple
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct Pair<K, V> {
+−     key: K,
+−     value: V,
++ #[derive(Debug, Clone)]
++ pub struct Pair {
++     pub key: K,
++     pub value: V,
+  }
+− 
+− impl<K, V> Pair<K, V> {
+−     fn new(key: K, value: V) -> Self {
+−         Pair { key, value }
++ impl Pair {
++     pub fn new(key: K, value: V) -> Self {
++         Self { key, value }
+      }
+− 
+−     fn get_key(&self) -> &K {
+−         &self.key
++     pub fn get_key(&self) -> K {
++         return self.key;
+      }
+− 
+−     fn get_value(&self) -> &V {
+−         &self.value
++     pub fn get_value(&self) -> V {
++         return self.value.clone();
+      }
+  }
+− 
+− let p = Pair::new("name", 42);
+− log::info!("{}", p.get_key());
+− log::info!("{}", p.get_value());
+────────────────────────────────────────────────────────────

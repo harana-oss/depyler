@@ -1,0 +1,14 @@
+  datetime-edge-cases.toml :: days_between
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn days_between(y1: i32, m1: i32, d1: i32, y2: i32, m2: i32, d2: i32) -> i32 {
+−     let days1 = y1 * 365 + m1 * 30 + d1;
+−     let days2 = y2 * 365 + m2 * 30 + d2;
++     let _cse_temp_0 = y1 * 365 + m1 * 30;
++     let days1 = _cse_temp_0 + d1;
++     let _cse_temp_1 = y2 * 365 + m2 * 30;
++     let days2 = _cse_temp_1 + d2;
+      return days2 - days1;
+  }
+────────────────────────────────────────────────────────────

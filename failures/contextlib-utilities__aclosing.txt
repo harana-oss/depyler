@@ -1,0 +1,46 @@
+  contextlib-utilities.toml :: aclosing
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct AsyncIterable {
+−     closed: bool,
++ #[derive(Debug, Copy, Clone)] pub struct AsyncIterable {
++     pub closed: bool
+  }
+− 
+  impl AsyncIterable {
+−     fn new() -> Self {
+−         Self { closed: false }
+−     }
+−     async fn aclose(&mut self) {
+−         self.closed = true;
+−     }
++     pub fn new() -> Self {
++     Self {
++     closed: false
+  }
+− 
+− pub async fn test_aclosing() -> bool {
+−     let mut gen = AsyncIterable::new();
++ } pub async fn __anext__(&self) {
++     panic!("Exception: {}", StopAsyncIteration);
++    
++ }
++ pub async fn aclose(&mut self) {
++     self.closed = true;
++    
++ }
++ } pub async fn test_aclosing() -> bool {
++     let gen = AsyncIterable::new();
+      {
+−         // use generator
+−     }
+−     gen.aclose().await;
+−     gen.closed
+− }
++     let _ctx = aclosing(gen);
++    
++ }
++ return gen.closed;
++     }
+────────────────────────────────────────────────────────────

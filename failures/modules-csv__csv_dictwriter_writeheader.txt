@@ -1,0 +1,26 @@
+  modules-csv.toml :: csv_dictwriter_writeheader
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use csv;
+− pub fn write_with_header(filename: String) {
++ use std::collections::HashMap;
++ pub fn write_with_header(filename: String) -> Result<(), std::io::Error> {
+      let mut f = std::fs::File::create(filename)?;
+      let writer = csv::Writer::from_writer(f);
+      writer.writeheader();
+−     writer.writerow(HashMap::from([
+−         ("id".to_string(), "1".to_string()),
+−         ("name".to_string(), "Bob".to_string()),
+−         ("email".to_string(), "bob@test.com".to_string()),
+−     ]));
++     writer.writerow({
++         let mut map = HashMap::new();
++         map.insert("id".to_string(), "1".to_string());
++         map.insert("name".to_string(), "Bob".to_string());
++         map.insert("email".to_string(), "bob@test.com".to_string());
++         map
++     });
++     Ok(())
+  }
+────────────────────────────────────────────────────────────

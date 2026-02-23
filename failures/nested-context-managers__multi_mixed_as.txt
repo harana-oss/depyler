@@ -1,0 +1,23 @@
+  nested-context-managers.toml :: multi_mixed_as
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn mixed_files() {
++ pub fn mixed_files() -> Result<(), std::io::Error> {
+      let mut f1 = std::fs::File::open("a.txt")?;
+      let _context = std::fs::File::open("b.txt")?;
+      let mut f3 = std::fs::File::open("c.txt")?;
+−     return {
++     return Ok({
+          let mut content = String::new();
+          f1.read_to_string(&mut content)?;
+          content
+      } + {
+          let mut content = String::new();
+          f3.read_to_string(&mut content)?;
+          content
+−     }
++     });
++     Ok(())
++ }
+────────────────────────────────────────────────────────────

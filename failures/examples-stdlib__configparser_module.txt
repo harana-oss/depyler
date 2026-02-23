@@ -1,0 +1,286 @@
+  examples-stdlib.toml :: configparser_module
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[doc = "// TODO: Map Python module 'configparser'"]
+− #[doc = "// TODO: Map Python module 'io'"]
+− const STR__: &'static str = "=";
++ #[derive(Debug, Clone)]
++ pub struct IndexError {
++     message: String,
++ }
++ impl std::fmt::Display for IndexError {
++     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
++         write!(f, "index out of range: {}", self.message)
++     }
++ }
++ impl std::error::Error for IndexError {}
++ impl IndexError {
++     pub fn new(message: impl Into<String>) -> Self {
++         Self {
++             message: message.into(),
++         }
++     }
++ }
+  #[doc = "Test basic reading of config from string."]
+  pub fn test_configparser_basic_read() {
+−     let config_string = "\n[DEFAULT]\nServerAliveInterval = 45\nCompression = yes\nCompressionLevel = 9\n\n[bitbucket.org]\nUser = hg\n\n[topsecret.server.com]\nPort = 50022\nForwardX11 = no\n";
++     let config_string = "\n[DEFAULT]\nServerAliveInterval = 45\nCompression = yes\nCompressionLevel = 9\n\n[bitbucket.org]\nUser = hg\n\n[topsecret.server.com]\nPort = 50022\nForwardX11 = no\n".to_string();
+      let config = configparser.ConfigParser();
+      config.read_string(config_string);
+−     assert!(config.contains_key(&"bitbucket.org".to_string()));
+−     assert!(config.contains_key(&"topsecret.server.com".to_string()));
++     assert!(config.contains(&"bitbucket.org"));
++     assert!(config.contains(&"topsecret.server.com"));
+      assert!(
+          config
+              .get("bitbucket.org")
+              .cloned()
+−             .unwrap_or_default()
++             .unwrap()
+              .get("User")
+              .cloned()
+−             .unwrap_or_default()
+−             == "hg".to_string()
++             .unwrap()
++             == "hg"
+      );
+      assert!(
+          config
+              .get("topsecret.server.com")
+              .cloned()
+−             .unwrap_or_default()
++             .unwrap()
+              .get("Port")
+              .cloned()
+−             .unwrap_or_default()
+−             == "50022".to_string()
++             .unwrap()
++             == "50022"
+      );
+      log::info!("{}", "PASS: test_configparser_basic_read");
+  }
+  #[doc = "Test DEFAULT section values."]
+  pub fn test_configparser_defaults() {
+      let config_string =
+−         "\n[DEFAULT]\nServerAliveInterval = 45\nCompression = yes\n\n[example.com]\nUser = john\n";
++         "\n[DEFAULT]\nServerAliveInterval = 45\nCompression = yes\n\n[example.com]\nUser = john\n"
++             .to_string();
+      let config = configparser.ConfigParser();
+      config.read_string(config_string);
+      assert!(
+          config
+              .get("example.com")
+              .cloned()
+−             .unwrap_or_default()
++             .unwrap()
+              .get("ServerAliveInterval")
+              .cloned()
+−             .unwrap_or_default()
+−             == "45".to_string()
++             .unwrap()
++             == "45"
+      );
+      assert!(
+          config
+              .get("example.com")
+              .cloned()
+−             .unwrap_or_default()
++             .unwrap()
+              .get("Compression")
+              .cloned()
+−             .unwrap_or_default()
+−             == "yes".to_string()
++             .unwrap()
++             == "yes"
+      );
+      assert!(
+          config
+              .get("example.com")
+              .cloned()
+−             .unwrap_or_default()
++             .unwrap()
+              .get("User")
+              .cloned()
+−             .unwrap_or_default()
+−             == "john".to_string()
++             .unwrap()
++             == "john"
+      );
+      log::info!("{}", "PASS: test_configparser_defaults");
+  }
+  #[doc = "Test type-converting get methods."]
+  pub fn test_configparser_get_methods() {
+−     let config_string = "\n[settings]\nport = 8080\ndebug = true\ntimeout = 30.5\n";
++     let config_string = "\n[settings]\nport = 8080\ndebug = true\ntimeout = 30.5\n".to_string();
+      let config = configparser.ConfigParser();
+      config.read_string(config_string);
+      assert!(
+          config
+−             .get(&"settings".to_string())
++             .get("settings")
+              .cloned()
+−             .unwrap_or("port".to_string())
+−             == "8080".to_string()
++             .unwrap_or_else(|| "port".to_string())
++             == "8080"
+      );
+−     assert!(config.getint("settings".to_string(), "port".to_string()) == 8080);
+−     assert!(config.getboolean("settings".to_string(), "debug".to_string()) == true);
+−     assert!(config.getfloat("settings".to_string(), "timeout".to_string()) == 30.5);
++     assert!(config.getint("settings", "port") == 8080);
++     assert!(config.getboolean("settings", "debug") == true);
++     assert!(config.getfloat("settings", "timeout") == 30.5);
+      log::info!("{}", "PASS: test_configparser_get_methods");
+  }
+  #[doc = "Test listing sections."]
+  pub fn test_configparser_sections() {
+      let config_string =
+−         "\n[section1]\nkey1 = value1\n\n[section2]\nkey2 = value2\n\n[section3]\nkey3 = value3\n";
++         "\n[section1]\nkey1 = value1\n\n[section2]\nkey2 = value2\n\n[section3]\nkey3 = value3\n"
++             .to_string();
+      let config = configparser.ConfigParser();
+      config.read_string(config_string);
+      let sections = config.sections();
+      assert!(sections.len() as i32 == 3);
+−     assert!(sections.contains_key(&"section1".to_string()));
+−     assert!(sections.contains_key(&"section2".to_string()));
+−     assert!(sections.contains_key(&"section3".to_string()));
++     assert!(sections.contains(&"section1"));
++     assert!(sections.contains(&"section2"));
++     assert!(sections.contains(&"section3"));
+      log::info!("{}", "PASS: test_configparser_sections");
+  }
+  #[doc = "Test listing options in a section."]
+  pub fn test_configparser_options() {
+      let config_string =
+−         "\n[database]\nhost = localhost\nport = 5432\nuser = admin\npassword = secret\n";
++         "\n[database]\nhost = localhost\nport = 5432\nuser = admin\npassword = secret\n"
++             .to_string();
+      let config = configparser.ConfigParser();
+      config.read_string(config_string);
+−     let options = config.options("database".to_string());
+−     assert!(options.contains_key(&"host".to_string()));
+−     assert!(options.contains_key(&"port".to_string()));
+−     assert!(options.contains_key(&"user".to_string()));
+−     assert!(options.contains_key(&"password".to_string()));
++     let options = config.options("database");
++     assert!(options.contains(&"host"));
++     assert!(options.contains(&"port"));
++     assert!(options.contains(&"user"));
++     assert!(options.contains(&"password"));
+      log::info!("{}", "PASS: test_configparser_options");
+  }
+  #[doc = "Test setting configuration values programmatically."]
+  pub fn test_configparser_set_values() {
+      let config = configparser.ConfigParser();
+−     config.add_section("newsection".to_string());
+−     config.set(
+−         "newsection".to_string(),
+−         "option1".to_string(),
+−         "value1".to_string(),
+−     );
+−     config.set(
+−         "newsection".to_string(),
+−         "option2".to_string(),
+−         "value2".to_string(),
+−     );
++     config.add_section("newsection");
++     config.set("newsection", "option1", "value1");
++     config.set("newsection", "option2", "value2");
+      assert!(
+          config
+              .get("newsection")
+              .cloned()
+−             .unwrap_or_default()
++             .unwrap()
+              .get("option1")
+              .cloned()
+−             .unwrap_or_default()
+−             == "value1".to_string()
++             .unwrap()
++             == "value1"
+      );
+      assert!(
+          config
+              .get("newsection")
+              .cloned()
+−             .unwrap_or_default()
++             .unwrap()
+              .get("option2")
+              .cloned()
+−             .unwrap_or_default()
+−             == "value2".to_string()
++             .unwrap()
++             == "value2"
+      );
+      log::info!("{}", "PASS: test_configparser_set_values");
+  }
+  #[doc = "Test checking for section existence."]
+  pub fn test_configparser_has_section() {
+−     let config_string = "\n[existing]\nkey = value\n";
++     let config_string = "\n[existing]\nkey = value\n".to_string();
+      let config = configparser.ConfigParser();
+      config.read_string(config_string);
+−     assert!(config.has_section("existing".to_string()) == true);
+−     assert!(config.has_section("nonexistent".to_string()) == false);
++     assert!(config.has_section("existing") == true);
++     assert!(config.has_section("nonexistent") == false);
+      log::info!("{}", "PASS: test_configparser_has_section");
+  }
+  #[doc = "Test checking for option existence."]
+  pub fn test_configparser_has_option() {
+−     let config_string = "\n[section]\nexisting_option = value\n";
++     let config_string = "\n[section]\nexisting_option = value\n".to_string();
+      let config = configparser.ConfigParser();
+      config.read_string(config_string);
+−     assert!(config.has_option("section".to_string(), "existing_option".to_string()) == true);
+−     assert!(config.has_option("section".to_string(), "missing_option".to_string()) == false);
++     assert!(config.has_option("section", "existing_option") == true);
++     assert!(config.has_option("section", "missing_option") == false);
+      log::info!("{}", "PASS: test_configparser_has_option");
+  }
+  #[doc = "Test removing sections and options."]
+  pub fn test_configparser_remove() {
+      let config_string =
+−         "\n[section1]\noption1 = value1\noption2 = value2\n\n[section2]\noption3 = value3\n";
++         "\n[section1]\noption1 = value1\noption2 = value2\n\n[section2]\noption3 = value3\n"
++             .to_string();
+      let config = configparser.ConfigParser();
+      config.read_string(config_string);
+−     config.remove_option("section1".to_string(), "option1".to_string());
+−     assert!(!config.has_option("section1".to_string(), "option1".to_string()));
+−     assert!(config.has_option("section1".to_string(), "option2".to_string()));
+−     config.remove_section("section2".to_string());
+−     assert!(!config.has_section("section2".to_string()));
++     config.remove_option("section1", "option1");
++     assert!(!config.has_option("section1", "option1"));
++     assert!(config.has_option("section1", "option2"));
++     config.remove_section("section2");
++     assert!(!config.has_section("section2"));
+      log::info!("{}", "PASS: test_configparser_remove");
+  }
+  #[doc = "Run all configparser tests."]
+  pub fn main() {
+−     log::info!("{}", STR__.repeat(60 as usize));
++     log::info!("{}", "=".repeat(60 as usize));
+      log::info!("{}", "CONFIGPARSER MODULE TESTS");
+−     log::info!("{}", STR__.repeat(60 as usize));
++     log::info!("{}", "=".repeat(60 as usize));
+      test_configparser_basic_read();
+      test_configparser_defaults();
+      test_configparser_get_methods();
+      test_configparser_sections();
+      test_configparser_options();
+      test_configparser_set_values();
+      test_configparser_has_section();
+      test_configparser_has_option();
+      test_configparser_remove();
+−     log::info!("{}", STR__.repeat(60 as usize));
++     log::info!("{}", "=".repeat(60 as usize));
+      log::info!("{}", "ALL CONFIGPARSER TESTS PASSED!");
+      log::info!("{}", "Total tests: 9");
+−     log::info!("{}", STR__.repeat(60 as usize));
++     log::info!("{}", "=".repeat(60 as usize));
+  }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,49 @@
+  async-generators.toml :: async_gen_early_return
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use async_stream::stream;
+− use tokio_stream::StreamExt;
+− 
+− async fn test_async_gen_early_return() -> usize {
+−     let g = stream! {
+−         yield 1;
+−         return;
+−         #[allow(unreachable_code)]
+−         yield 2;
+−     };
+−     g.count().await
+− }
++ #[doc = " Generator state struct"] #[derive(Debug)] struct GenState {
++     state: usize ,
++ }
++ #[doc = " Generator function - returns Iterator"] pub fn gen() -> impl Iterator<Item = i32>{
++     GenState {
++     state: 0 ,
++ }
++ } impl Iterator for GenState {
++     type Item = i32;
++     fn next(&mut self) -> Option<Self::Item>{
++     match self.state {
++     0 =>{
++     self.state = 1usize;
++     return Some(1);
++    
++ }
++ 1usize =>{
++     self.state = 1usize + 1;
++     None
++ }
++ _ =>None
++ }
++ }
++ }
++ pub async fn test_async_gen_early_return() -> i32 {
++     let count = 0;
++     while let Some(val) = gen().next().await {
++     count += 1;
++    
++ }
++ return count;
++     }
+────────────────────────────────────────────────────────────

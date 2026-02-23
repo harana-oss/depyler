@@ -1,0 +1,31 @@
+  return-value-mutation.toml :: return_value_not_mutated
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  #[derive(Debug, Copy, Clone, PartialEq, Default)]
+  pub struct Data {
+      pub count: i32,
+  }
+  impl Data {
+      pub fn new(count: i32) -> Self {
+          Self { count }
+      }
+  }
+  #[derive(Debug, Clone, PartialEq, Default)]
+  pub struct State {
+      pub data: Data,
+  }
+  impl State {
+      pub fn new(data: Data) -> Self {
+          Self { data }
+      }
+  }
+  pub fn get_count(state: &State) -> i32 {
+      return state.data.count;
+  }
+  pub fn read_only(s: &State) -> i32 {
+−     let val = get_count(s);
++     let val = get_count(&s);
+      return val;
+  }
+────────────────────────────────────────────────────────────

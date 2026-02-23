@@ -1,0 +1,21 @@
+  enum-copy-semantics.toml :: struct_needs_clone
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug, Clone, PartialEq, Default)]
++ #[derive(Debug, Copy, Clone, PartialEq, Default)]
+  pub struct Point {
+      pub x: i32,
+      pub y: i32,
+  }
+  impl Point {
+      pub fn new(x: i32, y: i32) -> Self {
+          Self { x, y }
+      }
+  }
+  pub fn use_point_twice(p: &Point) -> i32 {
+      let sum1 = p.x + p.y;
+      let sum2 = p.x + p.y;
+      return sum1 + sum2;
+  }
+────────────────────────────────────────────────────────────

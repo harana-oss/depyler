@@ -1,0 +1,22 @@
+  modules-collections.toml :: bisect_left
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use serde_json;
+  pub fn find_insert_left(a: &Vec<serde_json::Value>, x: i32) -> i32 {
+      return {
+          let arr = a;
+          let val = &x;
+          match arr.binary_search(val) {
+              Ok(mut pos) => {
+                  while pos > 0 && &arr[pos - 1] == val {
+                      pos -= 1;
+                  }
+                  pos
+              }
+              Err(pos) => pos,
+          }
+−     }
++     };
++ }
+────────────────────────────────────────────────────────────

@@ -26,7 +26,7 @@ python = '''
 def sum_list(items: list[int]) -> int:
     total = 0
     for item in items:
-        total = total + item
+        total += item
     return total
 '''
 
@@ -34,7 +34,7 @@ rust = '''
 pub fn sum_list(items: &Vec<i32>) -> i32 {
     let mut total = 0;
     for item in items.iter().cloned() {
-        total = total + item;
+        total += item;
     }
     return total;
 }
@@ -56,7 +56,6 @@ def compare_configs(a: Config, b: Config) -> bool:
 '''
 
 rust = '''
-use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Config {
     pub value: i32,
@@ -103,7 +102,6 @@ def get_x(p: Point) -> int:
 '''
 
 rust = '''
-use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Point {
     pub x: i32,

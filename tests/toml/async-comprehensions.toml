@@ -26,11 +26,8 @@ rust = """
 use futures::stream::{self, StreamExt};
 
 #[tokio::main]
-async fn main() {
-    let result: Vec<i32> = stream::iter(0..5).collect().await;
-    log::info!("{:?}", result);
-}
-"""
+async let result: Vec<i32> = stream::iter(0..5).collect().await;
+log::info!("{:?}", result);"""
 
 [[test]]
 name = "async_set_comp"
@@ -52,13 +49,10 @@ use futures::stream::{self, StreamExt};
 use std::collections::HashSet;
 
 #[tokio::main]
-async fn main() {
-    let result: HashSet<i32> = stream::iter(0..5).collect().await;
-    let mut sorted: Vec<_> = result.into_iter().collect();
-    sorted.sort();
-    log::info!("{:?}", sorted);
-}
-"""
+async let result: HashSet<i32> = stream::iter(0..5).collect().await;
+let mut sorted: Vec<_> = result.into_iter().collect();
+sorted.sort();
+log::info!("{:?}", sorted);"""
 
 [[test]]
 name = "async_dict_comp"
@@ -81,12 +75,9 @@ use futures::stream::{self, StreamExt};
 use std::collections::HashMap;
 
 #[tokio::main]
-async fn main() {
-    let items = vec![("a", 1), ("b", 2), ("c", 3)];
-    let result: HashMap<&str, i32> = stream::iter(items).collect().await;
-    log::info!("{:?}", result);
-}
-"""
+async let items = vec![("a", 1), ("b", 2), ("c", 3)];
+let result: HashMap<&str, i32> = stream::iter(items).collect().await;
+log::info!("{:?}", result);"""
 
 [[test]]
 name = "async_gen_expr"
@@ -110,15 +101,12 @@ rust = """
 use futures::stream::{self, StreamExt};
 
 #[tokio::main]
-async fn main() {
-    let mut stream = stream::iter(0..5);
-    let mut result = Vec::new();
-    while let Some(x) = stream.next().await {
-        result.push(x);
-    }
-    log::info!("{:?}", result);
+async let mut stream = stream::iter(0..5);
+let mut result = Vec::new();
+while let Some(x) = stream.next().await {
+    result.push(x);
 }
-"""
+log::info!("{:?}", result);"""
 
 # =============================================================================
 # Await in Comprehension
@@ -145,15 +133,12 @@ async fn fetch(x: i32) -> i32 {
 }
 
 #[tokio::main]
-async fn main() {
-    let items = vec![1, 2, 3];
-    let mut result = Vec::new();
-    for x in items {
-        result.push(fetch(x).await);
-    }
-    log::info!("{:?}", result);
+async let items = vec![1, 2, 3];
+let mut result = Vec::new();
+for x in items {
+    result.push(fetch(x).await);
 }
-"""
+log::info!("{:?}", result);"""
 
 [[test]]
 name = "await_async_for_comp"
@@ -181,15 +166,12 @@ async fn process(x: i32) -> i32 {
 }
 
 #[tokio::main]
-async fn main() {
-    let stream = stream::iter(0..5);
-    let result: Vec<i32> = stream
-        .then(|x| async move { process(x).await })
-        .collect()
-        .await;
-    log::info!("{:?}", result);
-}
-"""
+async let stream = stream::iter(0..5);
+let result: Vec<i32> = stream
+    .then(|x| async move { process(x).await })
+    .collect()
+    .await;
+log::info!("{:?}", result);"""
 
 [[test]]
 name = "await_in_filter"
@@ -212,17 +194,14 @@ async fn is_valid(x: i32) -> bool {
 }
 
 #[tokio::main]
-async fn main() {
-    let items = vec![1, 2, 3, 4, 5];
-    let mut result = Vec::new();
-    for x in items {
-        if is_valid(x).await {
-            result.push(x);
-        }
+async let items = vec![1, 2, 3, 4, 5];
+let mut result = Vec::new();
+for x in items {
+    if is_valid(x).await {
+        result.push(x);
     }
-    log::info!("{:?}", result);
 }
-"""
+log::info!("{:?}", result);"""
 
 # =============================================================================
 # Combined Patterns
@@ -247,14 +226,11 @@ rust = """
 use futures::stream::{self, StreamExt};
 
 #[tokio::main]
-async fn main() {
-    let result: Vec<i32> = stream::iter(-2..3)
-        .filter(|x| futures::future::ready(*x > 0))
-        .collect()
-        .await;
-    log::info!("{:?}", result);
-}
-"""
+async let result: Vec<i32> = stream::iter(-2..3)
+    .filter(|x| futures::future::ready(*x > 0))
+    .collect()
+    .await;
+log::info!("{:?}", result);"""
 
 [[test]]
 name = "async_comp_await_cond"
@@ -282,14 +258,11 @@ async fn check(x: i32) -> bool {
 }
 
 #[tokio::main]
-async fn main() {
-    let result: Vec<i32> = stream::iter(0..5)
-        .filter(|x| async move { check(*x).await })
-        .collect()
-        .await;
-    log::info!("{:?}", result);
-}
-"""
+async let result: Vec<i32> = stream::iter(0..5)
+    .filter(|x| async move { check(*x).await })
+    .collect()
+    .await;
+log::info!("{:?}", result);"""
 
 [[test]]
 name = "async_comp_nested"
@@ -311,15 +284,12 @@ rust = """
 use futures::stream::{self, StreamExt};
 
 #[tokio::main]
-async fn main() {
-    let lists = vec![vec![1, 2], vec![3, 4], vec![5, 6]];
-    let result: Vec<i32> = stream::iter(lists)
-        .flat_map(|lst| stream::iter(lst))
-        .collect()
-        .await;
-    log::info!("{:?}", result);
-}
-"""
+async let lists = vec![vec![1, 2], vec![3, 4], vec![5, 6]];
+let result: Vec<i32> = stream::iter(lists)
+    .flat_map(|lst| stream::iter(lst))
+    .collect()
+    .await;
+log::info!("{:?}", result);"""
 
 # =============================================================================
 # Use Cases
@@ -345,12 +315,9 @@ rust = """
 use futures::stream::{self, StreamExt};
 
 #[tokio::main]
-async fn main() {
-    let items = vec![1, 2, 3, 4, 5];
-    let results: Vec<i32> = stream::iter(items).map(|x| x * 2).collect().await;
-    log::info!("{:?}", results);
-}
-"""
+async let items = vec![1, 2, 3, 4, 5];
+let results: Vec<i32> = stream::iter(items).map(|x| x * 2).collect().await;
+log::info!("{:?}", results);"""
 
 [[test]]
 name = "async_comp_transform"
@@ -371,11 +338,8 @@ rust = """
 use futures::stream::{self, StreamExt};
 
 #[tokio::main]
-async fn main() {
-    let results: Vec<i32> = stream::iter(1..4).map(|x| x * x).collect().await;
-    log::info!("{:?}", results);
-}
-"""
+async let results: Vec<i32> = stream::iter(1..4).map(|x| x * x).collect().await;
+log::info!("{:?}", results);"""
 
 [[test]]
 name = "async_comp_filter"
@@ -396,14 +360,11 @@ rust = """
 use futures::stream::{self, StreamExt};
 
 #[tokio::main]
-async fn main() {
-    let evens: Vec<i32> = stream::iter(0..10)
-        .filter(|x| futures::future::ready(*x % 2 == 0))
-        .collect()
-        .await;
-    log::info!("{:?}", evens);
-}
-"""
+async let evens: Vec<i32> = stream::iter(0..10)
+    .filter(|x| futures::future::ready(*x % 2 == 0))
+    .collect()
+    .await;
+log::info!("{:?}", evens);"""
 
 # =============================================================================
 # Context Requirements
@@ -451,11 +412,8 @@ rust = """
 use futures::stream::{self, StreamExt};
 
 #[tokio::main]
-async fn main() {
-    let result: Vec<i32> = stream::empty().collect().await;
-    log::info!("{:?}", result);
-}
-"""
+async let result: Vec<i32> = stream::empty().collect().await;
+log::info!("{:?}", result);"""
 
 [[test]]
 name = "async_comp_exception"
@@ -481,20 +439,17 @@ rust = """
 use futures::stream::{self, StreamExt};
 
 #[tokio::main]
-async fn main() {
-    let stream = stream::iter(0..3).map(|i| if i == 2 { Err("Error at 2") } else { Ok(i) });
+async let stream = stream::iter(0..3).map(|i| if i == 2 { Err("Error at 2") } else { Ok(i) });
 
-    match stream
-        .collect::<Vec<_>>()
-        .await
-        .into_iter()
-        .collect::<Result<Vec<_>, _>>()
-    {
-        Ok(result) => log::info!("{:?}", result),
-        Err(e) => log::info!("{}", e),
-    }
-}
-"""
+match stream
+    .collect::<Vec<_>>()
+    .await
+    .into_iter()
+    .collect::<Result<Vec<_>, _>>()
+{
+    Ok(result) => log::info!("{:?}", result),
+    Err(e) => log::info!("{}", e),
+}"""
 
 [[test]]
 name = "async_comp_memory"
@@ -522,14 +477,11 @@ rust = """
 use futures::stream::{self, StreamExt};
 
 #[tokio::main]
-async fn main() {
-    // Eager collection
-    let list_comp: Vec<i32> = stream::iter(0..5).collect().await;
+async // Eager collection
+let list_comp: Vec<i32> = stream::iter(0..5).collect().await;
 
-    // Lazy stream
-    let gen_expr = stream::iter(0..5);
-    let gen_result: Vec<i32> = gen_expr.collect().await;
+// Lazy stream
+let gen_expr = stream::iter(0..5);
+let gen_result: Vec<i32> = gen_expr.collect().await;
 
-    log::info!("{:?} {:?}", list_comp, gen_result);
-}
-"""
+log::info!("{:?} {:?}", list_comp, gen_result);"""

@@ -1,0 +1,22 @@
+  asyncio-tasks.toml :: wait_for
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use tokio::time::{Duration, sleep, timeout};
+− 
+− async fn quick_coro() -> i32 {
+−     sleep(Duration::from_millis(10)).await;
+−     42
++ pub async fn quick_coro() -> i32 {
++     asyncio.sleep(0.01).await;
++     return 42;
++    
+  }
+− 
+  pub async fn test_wait_for() -> i32 {
+−     timeout(Duration::from_secs(1), quick_coro()).await.unwrap()
+− }
++     let result = asyncio.wait_for(quick_coro()).await;
++     return result;
++     }
+────────────────────────────────────────────────────────────

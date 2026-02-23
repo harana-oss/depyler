@@ -1,0 +1,45 @@
+  async-functions.toml :: async_init
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug, Copy, Clone] pub struct Example {
+−     pub value: i32
++ use serde_json;
++ #[derive(Debug, Clone)] pub struct Example {
++     pub value: serde_json::Value
+  }
+  impl Example {
+−     pub fn new(value: i32) -> Self {
++     pub fn new(value: serde_json::Value) -> Self {
+      Self {
+      value
+  }
+− } pub async fn create(value: i32) {
++ } pub async fn create(value: serde_json::Value) {
+      return Self::new(value);
+     
+  }
+− pub async fn increment(&mut self) -> i32 {
+−     self._simulate_delay().await;
+−     self.value += 1;
+−     return self.value.clone();
+−    
+− }
+− pub async fn get_value(&self) -> i32 {
+−     return self.value.clone();
+−    
+− }
+− pub async fn _simulate_delay(&self) {
+−     {
+− }
+− } pub async fn process(&self, data: String) -> String {
+−     self._async_work().await;
+−     return data.to_uppercase();
+−    
+− }
+− pub async fn _async_work(&self) {
+−     {
+− }
+− } }
++ }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,26 @@
+  functools-cache.toml :: cache_clear
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // f.cache_clear() empties cache
+−     use lru::LruCache;
+−     use std::sync::Mutex;
+− 
+−     lazy_static::lazy_static! {
+−         static ref CACHE: Mutex<LruCache<i32, i32>> = Mutex::new(LruCache::new(128.try_into().unwrap()));
+−     }
+− 
+−     fn cache_clear() {
+−         CACHE.lock().unwrap().clear();
+−     }
+− 
+−     let mut cache = CACHE.lock().unwrap();
+−     cache.put(3, 9);
+−     drop(cache);
+−     cache_clear();
+−     let result = CACHE.lock().unwrap().len() == 0;
++ use std;
++ pub fn func(x: i32) {
++     return x * x;
++ }
+────────────────────────────────────────────────────────────

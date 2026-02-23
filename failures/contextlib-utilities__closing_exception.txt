@@ -1,0 +1,59 @@
+  contextlib-utilities.toml :: closing_exception
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct Resource {
+−     closed: bool,
++ #[derive(Debug, Clone)]
++ pub struct ValueError {
++     message: String,
++ }
++ impl std::fmt::Display for ValueError {
++     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
++         write!(f, "value error: {}", self.message)
++     }
++ }
++ impl std::error::Error for ValueError {}
++ impl ValueError {
++     pub fn new(message: impl Into<String>) -> Self {
++         Self {
++             message: message.into(),
++         }
++     }
++ }
++ #[derive(Debug, Clone)]
++ pub struct Resource {
++     pub closed: bool,
+  }
+− 
+  impl Resource {
+−     fn new() -> Self {
++     pub fn new() -> Self {
+          Self { closed: false }
+      }
+−     fn close(&mut self) {
++     pub fn close(&mut self) {
+          self.closed = true;
+      }
+  }
+− 
+  impl Drop for Resource {
+      fn drop(&mut self) {
+          self.close();
+      }
+  }
+− 
+  pub fn test_closing_exception() -> bool {
+−     let mut res = Resource::new();
++     let res = Resource::new();
+      {
+−         let _r = &mut res;
+−         // Exception would happen here
++         let _context = closing(res);
++         let mut r = _context.__enter__();
++         panic!("{}", "error");
+      }
+−     res.closed
++     return res.closed;
+  }
+────────────────────────────────────────────────────────────

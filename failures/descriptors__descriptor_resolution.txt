@@ -1,0 +1,46 @@
+  descriptors.toml :: descriptor_resolution
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust handles this through its type system and ownership model
+− // The resolution is determined at compile time
+− 
+− struct DataDescriptor;
++ use serde_json;
++ #[derive(Debug, Copy, Clone)]
++ pub struct DataDescriptor {}
+  impl DataDescriptor {
+−     fn get(&self) -> &'static str {
+−         "data descriptor"
++     pub fn new() -> Self {
++         Self {}
+      }
+  }
+− 
+− struct MyClass {
+−     data: DataDescriptor,
+−     nondata: String,
++ #[derive(Debug, Copy, Clone)]
++ pub struct NonDataDescriptor {}
++ impl NonDataDescriptor {
++     pub fn new() -> Self {
++         Self {}
++     }
++ }
++ #[derive(Debug, Copy, Clone)]
++ pub struct MyClass {}
++ impl MyClass {
++     pub const data: serde_json::Value = DataDescriptor::new();
++     pub const nondata: serde_json::Value = NonDataDescriptor::new();
++     pub fn new() -> Self {
++         Self {}
++     }
+  }
+− 
+− let instance = MyClass {
+−     data: DataDescriptor,
+−     nondata: "instance value".to_string(),
+− };
+− log::info!("{}", instance.data.get());
+− log::info!("{}", instance.nondata);
+────────────────────────────────────────────────────────────

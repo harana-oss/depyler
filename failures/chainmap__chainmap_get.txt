@@ -1,0 +1,40 @@
+  chainmap.toml :: chainmap_get
+    Output mismatch
+
+────────────────────────────────────────────────────────────
++ use std::collections::ChainMap;
+  use std::collections::HashMap;
+− 
+  pub fn test_chainmap_get() -> (i32, i32) {
+−     let mut dict1 = HashMap::new();
+−     dict1.insert("a".to_string(), 1);
+− 
+−     let maps = vec![dict1];
+− 
+−     let mut val_a = 999;
+−     let mut val_z = 999;
+− 
+−     for map in &maps {
+−         if let Some(&v) = map.get("a") {
+−             val_a = v;
+−             break;
+−         }
+−     }
+− 
+−     for map in &maps {
+−         if let Some(&v) = map.get("z") {
+−             val_z = v;
+−             break;
+−         }
+−     }
+− 
+−     return (val_a, val_z);
++     let dict1 = {
++         let mut map = HashMap::new();
++         map.insert("a".to_string(), 1);
++         map
++     };
++     let c = ChainMap::new(dict1);
++     return (*c.get("a").unwrap_or(&999), *c.get("z").unwrap_or(&999));
+  }
+────────────────────────────────────────────────────────────

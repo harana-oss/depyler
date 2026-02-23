@@ -1,0 +1,15 @@
+  chained-comparisons.toml :: chained_greater_than
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // a > b > c
+−     let a = 5;
+−     let b = 3;
+−     let c = 1;
+−     let result = a > b && b > c;
++ pub const a: i32 = 5;
++ pub const b: i32 = 3;
++ pub const c: i32 = 1;
++ pub const result: serde_json::Value = (a > b) && (b > c);
++ use serde_json;
+────────────────────────────────────────────────────────────

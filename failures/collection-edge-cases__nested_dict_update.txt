@@ -1,0 +1,20 @@
+  collection-edge-cases.toml :: nested_dict_update
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use std::collections::HashMap;
+− 
+  pub fn update_nested(
+      data: &mut HashMap<String, HashMap<String, i32>>,
+−     key1: &str,
++     key1: String,
+      key2: String,
+      value: i32,
+  ) {
+−     if let Some(inner) = data.get_mut(key1) {
+−         inner.insert(key2, value);
++     if data.get(&key1).is_some() {
++         data.get_mut(key1 as usize).unwrap()[key2 as usize] = value;
+      }
+  }
+────────────────────────────────────────────────────────────

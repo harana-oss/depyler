@@ -1,0 +1,10 @@
+  exception-groups.toml :: except_mixed
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust uses match arms for error handling
+− // Different error types can be handled in separate match arms
+− let result = true;
+− log::info!("{}", result);
++ 
+────────────────────────────────────────────────────────────

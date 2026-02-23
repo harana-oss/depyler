@@ -24,13 +24,10 @@ fn greet(args: GreetArgs) -> String {
     format!("Hello, {}!", args.name)
 }
 
-fn main() {
-    let args = GreetArgs {
-        name: "Alice".to_string(),
-    };
-    log::info!("{}", greet(args));
-}
-"""
+let args = GreetArgs {
+    name: "Alice".to_string(),
+};
+log::info!("{}", greet(args));"""
 
 [[test]]
 name = "kwonly_multiple"
@@ -55,15 +52,12 @@ fn configure(args: ConfigArgs) -> String {
     )
 }
 
-fn main() {
-    let args = ConfigArgs {
-        host: "localhost".to_string(),
-        port: 8080,
-        debug: true,
-    };
-    log::info!("{}", configure(args));
-}
-"""
+let args = ConfigArgs {
+    host: "localhost".to_string(),
+    port: 8080,
+    debug: true,
+};
+log::info!("{}", configure(args));"""
 
 [[test]]
 name = "kwonly_defaults"
@@ -92,18 +86,15 @@ fn point(args: PointArgs) -> String {
     format!("({}, {})", args.x, args.y)
 }
 
-fn main() {
-    log::info!("{}", point(PointArgs::default()));
-    log::info!(
-        "{}",
-        point(PointArgs {
-            x: 5,
-            ..Default::default()
-        })
-    );
-    log::info!("{}", point(PointArgs { x: 3, y: 4 }));
-}
-"""
+log::info!("{}", point(PointArgs::default()));
+log::info!(
+    "{}",
+    point(PointArgs {
+        x: 5,
+        ..Default::default()
+    })
+);
+log::info!("{}", point(PointArgs { x: 3, y: 4 }));"""
 
 # =============================================================================
 # Combined with Regular Args
@@ -123,10 +114,7 @@ fn mixed(a: i32, b: i32, c: i32, d: i32) -> String {
     format!("a={}, b={}, c={}, d={}", a, b, c, d)
 }
 
-fn main() {
-    log::info!("{}", mixed(1, 2, 3, 4));
-}
-"""
+log::info!("{}", mixed(1, 2, 3, 4));"""
 
 [[test]]
 name = "kwonly_with_varargs"
@@ -142,11 +130,8 @@ fn varargs_kwonly(args: &[i32], x: i32, y: i32) -> String {
     format!("args={:?}, x={}, y={}", args, x, y)
 }
 
-fn main() {
-    let args = vec![1, 2, 3];
-    log::info!("{}", varargs_kwonly(&args, 10, 20));
-}
-"""
+let args = vec![1, 2, 3];
+log::info!("{}", varargs_kwonly(&args, 10, 20));"""
 
 [[test]]
 name = "kwonly_with_kwargs"
@@ -169,13 +154,10 @@ fn kwonly_kwargs(x: i32, kwargs: &HashMap<&str, i32>) {
     }
 }
 
-fn main() {
-    let mut kwargs = HashMap::new();
-    kwargs.insert("a", 1);
-    kwargs.insert("b", 2);
-    kwonly_kwargs(5, &kwargs);
-}
-"""
+let mut kwargs = HashMap::new();
+kwargs.insert("a", 1);
+kwargs.insert("b", 2);
+kwonly_kwargs(5, &kwargs);"""
 
 # =============================================================================
 # Use Cases
@@ -202,14 +184,11 @@ fn create_user(args: CreateUserArgs) -> String {
     format!("User: {} <{}>", args.username, args.email)
 }
 
-fn main() {
-    let args = CreateUserArgs {
-        username: "alice".to_string(),
-        email: "alice@example.com".to_string(),
-    };
-    log::info!("{}", create_user(args));
-}
-"""
+let args = CreateUserArgs {
+    username: "alice".to_string(),
+    email: "alice@example.com".to_string(),
+};
+log::info!("{}", create_user(args));"""
 
 [[test]]
 name = "kwonly_self_doc"
@@ -248,15 +227,12 @@ fn process_files(args: ProcessFilesArgs) -> String {
     format!("Processing with: {}", flags.join(", "))
 }
 
-fn main() {
-    let args = ProcessFilesArgs {
-        verbose: true,
-        recursive: false,
-        backup: true,
-    };
-    log::info!("{}", process_files(args));
-}
-"""
+let args = ProcessFilesArgs {
+    verbose: true,
+    recursive: false,
+    backup: true,
+};
+log::info!("{}", process_files(args));"""
 
 [[test]]
 name = "kwonly_clarity"
@@ -282,15 +258,12 @@ fn resize_image(args: ResizeImageArgs) -> String {
     )
 }
 
-fn main() {
-    let args = ResizeImageArgs {
-        width: 800,
-        height: 600,
-        maintain_aspect: false,
-    };
-    log::info!("{}", resize_image(args));
-}
-"""
+let args = ResizeImageArgs {
+    width: 800,
+    height: 600,
+    maintain_aspect: false,
+};
+log::info!("{}", resize_image(args));"""
 
 # =============================================================================
 # Required vs Optional Keyword-Only
@@ -314,13 +287,10 @@ fn login(args: LoginArgs) -> String {
     format!("Logging in as {}", args.username)
 }
 
-fn main() {
-    let args = LoginArgs {
-        username: "admin".to_string(),
-    };
-    log::info!("{}", login(args));
-}
-"""
+let args = LoginArgs {
+    username: "admin".to_string(),
+};
+log::info!("{}", login(args));"""
 
 [[test]]
 name = "kwonly_optional"
@@ -347,11 +317,8 @@ fn connect(args: ConnectArgs) -> String {
     format!("Connecting with timeout={}s", args.timeout)
 }
 
-fn main() {
-    log::info!("{}", connect(ConnectArgs::default()));
-    log::info!("{}", connect(ConnectArgs { timeout: 60 }));
-}
-"""
+log::info!("{}", connect(ConnectArgs::default()));
+log::info!("{}", connect(ConnectArgs { timeout: 60 }));"""
 
 [[test]]
 name = "kwonly_mixed_req"
@@ -379,17 +346,14 @@ fn setup(args: SetupArgs) -> String {
     format!("Server at {}:{}", args.host, args.port)
 }
 
-fn main() {
-    log::info!("{}", setup(SetupArgs::new("localhost".to_string())));
-    log::info!(
-        "{}",
-        setup(SetupArgs {
-            host: "example.com".to_string(),
-            port: 9000,
-        })
-    );
-}
-"""
+log::info!("{}", setup(SetupArgs::new("localhost".to_string())));
+log::info!(
+    "{}",
+    setup(SetupArgs {
+        host: "example.com".to_string(),
+        port: 9000,
+    })
+);"""
 
 # =============================================================================
 # Edge Cases
@@ -424,17 +388,14 @@ fn typed_func(args: TypedFuncArgs) -> String {
     format!("{}: {}", args.message, args.count)
 }
 
-fn main() {
-    log::info!("{}", typed_func(TypedFuncArgs::new(42)));
-    log::info!(
-        "{}",
-        typed_func(TypedFuncArgs {
-            count: 5,
-            message: "Items".to_string(),
-        })
-    );
-}
-"""
+log::info!("{}", typed_func(TypedFuncArgs::new(42)));
+log::info!(
+    "{}",
+    typed_func(TypedFuncArgs {
+        count: 5,
+        message: "Items".to_string(),
+    })
+);"""
 
 [[test]]
 name = "kwonly_method"
@@ -465,11 +426,8 @@ impl Calculator {
     }
 }
 
-fn main() {
-    let calc = Calculator::new();
-    log::info!("{}", calc.add(5));
-}
-"""
+let calc = Calculator::new();
+log::info!("{}", calc.add(5));"""
 
 [[test]]
 name = "kwonly_classmethod"
@@ -491,10 +449,7 @@ impl Factory {
     }
 }
 
-fn main() {
-    log::info!("{}", Factory::create("item", 42));
-}
-"""
+log::info!("{}", Factory::create("item", 42));"""
 
 [[test]]
 name = "kwonly_bare_star_end"
@@ -513,9 +468,6 @@ fn valid(a: i32, keyword_arg: i32) -> i32 {
     a + keyword_arg
 }
 
-fn main() {
-    let result = valid(1, 2);
-    log::info!("{}", result);
-}
-"""
+let result = valid(1, 2);
+log::info!("{}", result);"""
 expected_output = "3"

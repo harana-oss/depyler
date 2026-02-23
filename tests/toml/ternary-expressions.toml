@@ -18,15 +18,12 @@ result2 = x if False else y
 print(result2)
 """
 rust = """
-fn main() {
-    let x = 10;
-    let y = 20;
-    let result = if true { x } else { y };
-    log::info!("{}", result);
-    let result2 = if false { x } else { y };
-    log::info!("{}", result2);
-}
-"""
+let x = 10;
+let y = 20;
+let result = if true { x } else { y };
+log::info!("{}", result);
+let result2 = if false { x } else { y };
+log::info!("{}", result2);"""
 
 [[test]]
 name = "ternary_integers"
@@ -38,13 +35,10 @@ max_val = a if a > b else b
 print(max_val)
 """
 rust = """
-fn main() {
-    let a = 5;
-    let b = 3;
-    let max_val = if a > b { a } else { b };
-    log::info!("{}", max_val);
-}
-"""
+let a = 5;
+let b = 3;
+let max_val = if a > b { a } else { b };
+log::info!("{}", max_val);"""
 
 [[test]]
 name = "ternary_strings"
@@ -55,12 +49,9 @@ result = 'yes' if flag else 'no'
 print(result)
 """
 rust = """
-fn main() {
-    let flag = true;
-    let result = if flag { "yes" } else { "no" };
-    log::info!("{}", result);
-}
-"""
+let flag = true;
+let result = if flag { "yes" } else { "no" };
+log::info!("{}", result);"""
 
 # =============================================================================
 # Nested Ternary
@@ -76,19 +67,16 @@ result = 'a' if x else 'b' if y else 'c'
 print(result)
 """
 rust = """
-fn main() {
-    let x = false;
-    let y = true;
-    let result = if x {
-        "a"
-    } else if y {
-        "b"
-    } else {
-        "c"
-    };
-    log::info!("{}", result);
-}
-"""
+let x = false;
+let y = true;
+let result = if x {
+    "a"
+} else if y {
+    "b"
+} else {
+    "c"
+};
+log::info!("{}", result);"""
 
 [[test]]
 name = "ternary_deeply_nested"
@@ -99,20 +87,17 @@ grade = 'A' if score >= 90 else 'B' if score >= 80 else 'C' if score >= 70 else 
 print(grade)
 """
 rust = """
-fn main() {
-    let score = 75;
-    let grade = if score >= 90 {
-        "A"
-    } else if score >= 80 {
-        "B"
-    } else if score >= 70 {
-        "C"
-    } else {
-        "F"
-    };
-    log::info!("{}", grade);
-}
-"""
+let score = 75;
+let grade = if score >= 90 {
+    "A"
+} else if score >= 80 {
+    "B"
+} else if score >= 70 {
+    "C"
+} else {
+    "F"
+};
+log::info!("{}", grade);"""
 
 # =============================================================================
 # Ternary with Expressions
@@ -134,11 +119,8 @@ fn f() -> &'static str {
 fn g() -> &'static str {
     "g"
 }
-fn main() {
-    let result = if true { f() } else { g() };
-    log::info!("{}", result);
-}
-"""
+let result = if true { f() } else { g() };
+log::info!("{}", result);"""
 
 [[test]]
 name = "ternary_method_calls"
@@ -161,12 +143,9 @@ impl Obj {
         "m2"
     }
 }
-fn main() {
-    let obj = Obj;
-    let result = if false { obj.method1() } else { obj.method2() };
-    log::info!("{}", result);
-}
-"""
+let obj = Obj;
+let result = if false { obj.method1() } else { obj.method2() };
+log::info!("{}", result);"""
 
 [[test]]
 name = "ternary_with_comprehension"
@@ -177,15 +156,12 @@ result = [x if x > 0 else 0 for x in items]
 print(result)
 """
 rust = """
-fn main() {
-    let items = vec![-2, 1, -1, 3];
-    let result: Vec<i32> = items
-        .into_iter()
-        .map(|x| if x > 0 { x } else { 0 })
-        .collect();
-    log::info!("{:?}", result);
-}
-"""
+let items = vec![-2, 1, -1, 3];
+let result: Vec<i32> = items
+    .into_iter()
+    .map(|x| if x > 0 { x } else { 0 })
+    .collect();
+log::info!("{:?}", result);"""
 
 # =============================================================================
 # Ternary in Assignments
@@ -201,13 +177,10 @@ result = value if valid else 0
 print(result)
 """
 rust = """
-fn main() {
-    let value = 42;
-    let valid = true;
-    let result = if valid { value } else { 0 };
-    log::info!("{}", result);
-}
-"""
+let value = 42;
+let valid = true;
+let result = if valid { value } else { 0 };
+log::info!("{}", result);"""
 
 [[test]]
 name = "ternary_augmented_assignment"
@@ -219,13 +192,10 @@ x += 1 if cond else 0
 print(x)
 """
 rust = """
-fn main() {
-    let mut x = 10;
-    let cond = true;
-    x += if cond { 1 } else { 0 };
-    log::info!("{}", x);
-}
-"""
+let mut x = 10;
+let cond = true;
+x += if cond { 1 } else { 0 };
+log::info!("{}", x);"""
 
 # =============================================================================
 # Ternary as Arguments
@@ -244,11 +214,8 @@ rust = """
 fn func(val: i32) -> i32 {
     val * 2
 }
-fn main() {
-    let result = func(if true { 10 } else { 5 });
-    log::info!("{}", result);
-}
-"""
+let result = func(if true { 10 } else { 5 });
+log::info!("{}", result);"""
 
 [[test]]
 name = "ternary_multiple_args"
@@ -265,13 +232,10 @@ rust = """
 fn func(a: i32, b: i32) -> i32 {
     a + b
 }
-fn main() {
-    let x = true;
-    let y = false;
-    let result = func(if x { 10 } else { 20 }, if y { 30 } else { 40 });
-    log::info!("{}", result);
-}
-"""
+let x = true;
+let y = false;
+let result = func(if x { 10 } else { 20 }, if y { 30 } else { 40 });
+log::info!("{}", result);"""
 
 # =============================================================================
 # Edge Cases
@@ -289,15 +253,12 @@ result = value if value is not None else 'default'
 print(result)
 """
 rust = """
-fn main() {
-    let value: Option<&str> = None;
-    let result = value.unwrap_or("default");
-    log::info!("{}", result);
-    let value: Option<&str> = Some("actual");
-    let result = value.unwrap_or("default");
-    log::info!("{}", result);
-}
-"""
+let value: Option<&str> = None;
+let result = value.unwrap_or("default");
+log::info!("{}", result);
+let value: Option<&str> = Some("actual");
+let result = value.unwrap_or("default");
+log::info!("{}", result);"""
 
 [[test]]
 name = "ternary_boolean_result"
@@ -308,12 +269,9 @@ result = True if x > 5 else False
 print(result)
 """
 rust = """
-fn main() {
-    let x = 10;
-    let result = if x > 5 { true } else { false };
-    log::info!("{}", result);
-}
-"""
+let x = 10;
+let result = if x > 5 { true } else { false };
+log::info!("{}", result);"""
 
 [[test]]
 name = "ternary_same_type"
@@ -324,12 +282,9 @@ result = 'yes' if cond else 'no'
 print(type(result).__name__, result)
 """
 rust = """
-fn main() {
-    let cond = true;
-    let result = if cond { "yes" } else { "no" };
-    log::info!("str {}", result);
-}
-"""
+let cond = true;
+let result = if cond { "yes" } else { "no" };
+log::info!("str {}", result);"""
 
 [[test]]
 name = "ternary_numeric_promotion"
@@ -370,15 +325,12 @@ fn side_effect_false() -> i32 {
     2
 }
 
-fn main() {
-    let result = if true {
-        side_effect_true()
-    } else {
-        side_effect_false()
-    };
-    log::info!("{}", result);
-}
-"""
+let result = if true {
+    side_effect_true()
+} else {
+    side_effect_false()
+};
+log::info!("{}", result);"""
 
 # =============================================================================
 # Primitive Casts with Ternary (DEPYLER-0350)
@@ -410,13 +362,10 @@ impl State {
     }
 }
 
-fn main() {
-    let state = State::new();
-    let cond = true;
-    let result = (if cond { state.x } else { state.y }) as f64;
-    log::info!("{}", result);
-}
-"""
+let state = State::new();
+let cond = true;
+let result = (if cond { state.x } else { state.y }) as f64;
+log::info!("{}", result);"""
 
 [[test]]
 name = "ternary_int_cast_no_reference"
@@ -444,13 +393,10 @@ impl Data {
     }
 }
 
-fn main() {
-    let data = Data::new();
-    let cond = false;
-    let result = (if cond { data.a } else { data.b }) as i32;
-    log::info!("{}", result);
-}
-"""
+let data = Data::new();
+let cond = false;
+let result = (if cond { data.a } else { data.b }) as i32;
+log::info!("{}", result);"""
 
 [[test]]
 name = "ternary_float_cast_with_expression"
@@ -478,14 +424,11 @@ impl State {
     }
 }
 
-fn main() {
-    let state = State::new();
-    let is_home = true;
-    let result = (if is_home {
-        state.ball_location_y
-    } else {
-        700 - state.ball_location_y
-    }) as f64;
-    log::info!("{}", result);
-}
-"""
+let state = State::new();
+let is_home = true;
+let result = (if is_home {
+    state.ball_location_y
+} else {
+    700 - state.ball_location_y
+}) as f64;
+log::info!("{}", result);"""

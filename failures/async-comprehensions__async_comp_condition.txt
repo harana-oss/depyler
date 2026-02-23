@@ -1,0 +1,41 @@
+  async-comprehensions.toml :: async_comp_condition
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use futures::stream::{self, StreamExt};
+− 
+− #[tokio::main]
+− async let result: Vec<i32> = stream::iter(-2..3)
+−     .filter(|x| futures::future::ready(*x > 0))
+−     .collect()
+−     .await;
+− log::info!("{:?}", result);
++ use serde_json;
++ #[doc = " Generator state struct"] #[derive(Debug)] struct AsyncRangeState {
++     state: usize, start: serde_json::Value, end: serde_json::Value
++ }
++ #[doc = " Generator function - returns Iterator"] pub fn async_range(start: & serde_json::Value, end: & serde_json::Value) -> impl Iterator<Item = i32>{
++     AsyncRangeState {
++     state: 0, start: start, end: end
++ }
++ } impl Iterator for AsyncRangeState {
++     type Item = i32;
++     fn next(&mut self) -> Option<Self::Item>{
++     match self.state {
++     0 =>{
++     self.state = 1;
++     for _i in self.start..self.end {
++     return Some(i);
++    
++ }
++ None
++ }
++ _ =>None
++ }
++ }
++ }
++ pub async fn test() -> Vec<serde_json::Value>{
++     let result = async_range(-2, 3).iter().cloned().filter(| x | * x>0).collect::<Vec<_>>();
++     return result;
++     }
+────────────────────────────────────────────────────────────

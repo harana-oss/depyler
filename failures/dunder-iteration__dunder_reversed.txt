@@ -1,0 +1,29 @@
+  dunder-iteration.toml :: dunder_reversed
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct MyList {
+−     items: Vec<i32>,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct MyList {
++     pub items: serde_json::Value,
+  }
+− 
+  impl MyList {
+−     fn new(items: Vec<i32>) -> Self {
+−         MyList { items }
+−     }
+− 
+−     fn reversed(&self) -> impl Iterator<Item = &i32> {
+−         self.items.iter().rev()
++     pub fn new(items: serde_json::Value) -> Self {
++         Self { items }
+      }
+  }
+− 
+− let my_list = MyList::new(vec![1, 2, 3]);
+− for item in my_list.reversed() {
+−     log::info!("{}", item);
+− }
+────────────────────────────────────────────────────────────

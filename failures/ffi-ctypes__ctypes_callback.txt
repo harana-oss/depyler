@@ -1,0 +1,21 @@
+  ffi-ctypes.toml :: ctypes_callback
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn apply_callback<F>(value: i32, callback: F) -> i32
+− where
+−     F: Fn(i32) -> i32,
+− {
++ use serde_json;
++ pub fn apply_callback(value: i32, callback: &serde_json::Value) -> i32 {
+      return callback(value);
+  }
+− 
+  pub fn double_it(x: i32) -> i32 {
+      return x * 2;
+  }
+− 
+  pub fn triple_it(x: i32) -> i32 {
+      return x * 3;
+  }
+────────────────────────────────────────────────────────────

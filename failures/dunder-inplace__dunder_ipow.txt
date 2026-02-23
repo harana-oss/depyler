@@ -1,0 +1,26 @@
+  dunder-inplace.toml :: dunder_ipow
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust doesn't have a PowAssign trait, need to implement manually
+− #[derive(Debug)]
+− struct Counter {
+−     x: i32,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Counter {
++     pub x: serde_json::Value,
+  }
+− 
+  impl Counter {
+−     fn pow_assign(&mut self, other: Counter) {
+−         self.x = self.x.pow(other.x as u32);
++     pub fn new(x: serde_json::Value) -> Self {
++         Self { x }
+      }
+  }
+− 
+− let mut a = Counter { x: 2 };
+− a.pow_assign(Counter { x: 3 });
+− log::info!("Counter({})", a.x);
+────────────────────────────────────────────────────────────

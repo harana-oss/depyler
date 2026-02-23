@@ -1,0 +1,19 @@
+  dunder-bitwise.toml :: bitmask_extract
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− let value: u32 = 0x12345678;
+  
+− let byte0 = value & 0xFF;
+− let byte1 = (value >> 8) & 0xFF;
+− let byte2 = (value >> 16) & 0xFF;
+− let byte3 = (value >> 24) & 0xFF;
+− 
+− log::info!(
+−     "Bytes: {:#x}, {:#x}, {:#x}, {:#x}",
+−     byte0,
+−     byte1,
+−     byte2,
+−     byte3
+− );
+────────────────────────────────────────────────────────────

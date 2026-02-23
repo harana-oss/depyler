@@ -1,0 +1,46 @@
+  contextlib-utilities.toml :: closing_file_like
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::io::Cursor;
+− 
+− struct ClosableWrapper {
+−     cursor: Cursor<Vec<u8>>,
+−     closed: bool,
+− }
+− 
+− impl ClosableWrapper {
+−     fn new(data: Vec<u8>) -> Self {
+−         Self {
+−             cursor: Cursor::new(data),
+−             closed: false,
+−         }
+−     }
+−     fn close(&mut self) {
+−         self.closed = true;
+−     }
+− }
+− 
+− impl Drop for ClosableWrapper {
+−     fn drop(&mut self) {
+−         self.close();
+−     }
+− }
+− 
+  pub fn test_closing_file_like() -> bool {
+−     let mut f = ClosableWrapper::new(b"test".to_vec());
+−     {
+−         let _file = &mut f;
+−     }
+−     f.closed
++     let f = StringIO::new("test");
++     let _context = closing(f);
++     let mut file = _context.__enter__();
++     let content = {
++         let mut content = String::new();
++         file.read_to_string(&mut content)?;
++         content
++     };
++     return f.closed;
+  }
+────────────────────────────────────────────────────────────

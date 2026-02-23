@@ -1,0 +1,13 @@
+  basic-types.toml :: mixed_type_constants
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub const INT_VALUE: i32 = 42;
+  pub const FLOAT_VALUE: f64 = 3.14;
++ pub const STRING_VALUE: &str = "test";
+  pub const BOOL_VALUE: bool = true;
+− lazy_static! {
+−     pub static ref STRING_VALUE: String = "test";
+− }
+− use lazy_static::lazy_static;
+────────────────────────────────────────────────────────────

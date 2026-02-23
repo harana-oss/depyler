@@ -1,0 +1,12 @@
+  match-guards.toml :: guard_basic
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // case x if x > 0: ...
+−     let value = 5;
+−     let result = match value {
+−         x if x > 0 => true,
+−         _ => false,
+−     };
++ 
+────────────────────────────────────────────────────────────

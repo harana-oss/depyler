@@ -68,9 +68,8 @@ def assign_dict():
 '''
 
 rust = '''
-use serde_json;
 use std::collections::HashMap;
-pub fn assign_dict() -> HashMap<serde_json::Value, serde_json::Value> {
+pub fn assign_dict() -> HashMap<String, i32> {
     let d = {
         let map = HashMap::new();
         map
@@ -222,7 +221,7 @@ pub fn process_bounds() -> i32 {
         .map(|(i, x)| (i as i32, x.clone()))
     {
         let (lower, upper) = bounds;
-        total = total + lower + upper;
+        total += lower + upper;
     }
     return total;
 }
@@ -267,7 +266,7 @@ pub fn access_bounds() -> i32 {
         .enumerate()
         .map(|(i, x)| (i as i32, x.clone()))
     {
-        total = total + bounds.0 + bounds.1;
+        total += bounds.0 + bounds.1;
     }
     return total;
 }
@@ -329,7 +328,7 @@ def set_first(items: list[int], value: int):
 
 rust = '''
 pub fn set_first(items: &mut Vec<i32>, value: i32) {
-    items.insert((0) as usize, value);
+    items[0 as usize] = value;
 }
 '''
 
@@ -343,9 +342,8 @@ def set_key(d: dict, key: str, value: int):
 '''
 
 rust = '''
-use serde_json;
 use std::collections::HashMap;
-pub fn set_key(d: &mut HashMap<serde_json::Value, serde_json::Value>, key: String, value: i32) {
+pub fn set_key(d: &mut HashMap<String, i32>, key: String, value: i32) {
     d.insert(key, value);
 }
 '''
@@ -915,7 +913,7 @@ python = '''
 def accumulate(items: list[int]) -> int:
     total = 0
     for item in items:
-        total = total + item
+        total += item
     return total
 '''
 
@@ -923,7 +921,7 @@ rust = '''
 pub fn accumulate(items: &Vec<i32>) -> i32 {
     let mut total = 0;
     for item in items.iter().cloned() {
-        total = total + item;
+        total += item;
     }
     return total;
 }
@@ -941,7 +939,7 @@ def update_list(items: list[int]) -> list[int]:
 
 rust = '''
 pub fn update_list(mut items: Vec<i32>) -> Vec<i32> {
-    items.insert((0) as usize, 42);
+    items[0 as usize] = 42;
     return items;
 }
 '''
@@ -958,7 +956,7 @@ def update_at_index(items: list[int], index: int, value: int) -> list[int]:
 
 rust = '''
 pub fn update_at_index(mut items: Vec<i32>, index: i32, value: i32) -> Vec<i32> {
-    items.insert((index) as usize, value);
+    items[index as usize] = value;
     return items;
 }
 '''
@@ -975,7 +973,7 @@ def update_next_item(items: list[int], i: int) -> list[int]:
 
 rust = '''
 pub fn update_next_item(mut items: Vec<i32>, i: i32) -> Vec<i32> {
-    items.insert((i + 1) as usize, 100);
+    items[(i + 1) as usize] = 100;
     return items;
 }
 '''
@@ -1052,7 +1050,7 @@ def modify_list() -> list[int]:
 rust = '''
 pub fn modify_list() -> Vec<i32> {
     let mut numbers: Vec<i32> = vec![1, 2, 3];
-    numbers.insert((0) as usize, 10);
+    numbers[0 as usize] = 10;
     return numbers;
 }
 '''
@@ -1092,7 +1090,7 @@ def update_matrix(matrix: list[list[int]]) -> list[list[int]]:
 
 rust = '''
 pub fn update_matrix(mut matrix: Vec<Vec<i32>>) -> Vec<Vec<i32>> {
-    matrix.get_mut(0 as usize).unwrap().insert((1) as usize, 99);
+    matrix.get_mut(0 as usize).unwrap()[1 as usize] = 99;
     return matrix;
 }
 '''
@@ -1154,9 +1152,9 @@ def update_multiple(items: list[int]) -> list[int]:
 
 rust = '''
 pub fn update_multiple(mut items: Vec<i32>) -> Vec<i32> {
-    items.insert((0) as usize, 1);
-    items.insert((1) as usize, 2);
-    items.insert((2) as usize, 3);
+    items[0 as usize] = 1;
+    items[1 as usize] = 2;
+    items[2 as usize] = 3;
     return items;
 }
 '''
@@ -1196,7 +1194,7 @@ def calculate_and_store(items: list[int], x: int, y: int) -> list[int]:
 rust = '''
 pub fn calculate_and_store(mut items: Vec<i32>, x: i32, y: i32) -> Vec<i32> {
     let _cse_temp_0 = x * 2;
-    items.insert((0) as usize, _cse_temp_0 + y);
+    items[0 as usize] = _cse_temp_0 + y;
     return items;
 }
 '''
@@ -1231,7 +1229,7 @@ impl IndexError {
     }
 }
 pub fn double_values(mut items: Vec<i32>) -> Vec<i32> {
-    for i in 0..items.clone().len() as i32 {
+    for i in 0..items.len() as i32 {
         {
             let _key = i;
             let _old_val = items.clone().get(&_key).cloned().unwrap_or_default();
@@ -1311,10 +1309,8 @@ pub fn complex_updates(
     HashMap<String, Vec<i32>>,
     HashMap<String, HashMap<String, i32>>,
 ) {
-    numbers.insert((0) as usize, 42);
-    data.get_mut("key" as usize)
-        .unwrap()
-        .insert((1) as usize, 100);
+    numbers[0 as usize] = 42;
+    data.get_mut("key" as usize).unwrap()[1 as usize] = 100;
     nested
         .get_mut(&"outer")
         .unwrap()

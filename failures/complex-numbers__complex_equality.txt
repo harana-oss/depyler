@@ -1,0 +1,10 @@
+  complex-numbers.toml :: complex_equality
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use num::Complex;
+  
+− let x = Complex::new(3.0, 4.0);
+− let y = Complex::new(3.0, 4.0);
+− log::info!("{}", x == y);
+────────────────────────────────────────────────────────────

@@ -34,11 +34,8 @@ impl MyClass {
         return Self::count;
     }
 }
-fn main() {
-    log::info!("{}", MyClass::increment());
-    log::info!("{}", MyClass::increment());
-}
-"""
+log::info!("{}", MyClass::increment());
+log::info!("{}", MyClass::increment());"""
 expected_output = """1
 2"""
 
@@ -64,10 +61,7 @@ impl Calculator {
         return a + b;
     }
 }
-fn main() {
-    log::info!("{}", Calculator::add(5, 3));
-}
-"""
+log::info!("{}", Calculator::add(5, 3));"""
 expected_output = "8"
 
 [[test]]
@@ -113,49 +107,9 @@ impl Date {
         );
         return Self::new(year, month, day);
     }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "year" => Some(Box::new(self.year.clone()) as Box<dyn std::any::Any>),
-            "month" => Some(Box::new(self.month.clone()) as Box<dyn std::any::Any>),
-            "day" => Some(Box::new(self.day.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "year" => {
-                if let Some(v) = value.downcast_ref::<serde_json::Value>() {
-                    self.year = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "month" => {
-                if let Some(v) = value.downcast_ref::<serde_json::Value>() {
-                    self.month = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "day" => {
-                if let Some(v) = value.downcast_ref::<serde_json::Value>() {
-                    self.day = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
-    }
 }
-fn main() {
-    let d = Date::from_string("2023-12-25");
-    log::info!("{}", d);
-}
-"""
+let d = Date::from_string("2023-12-25");
+log::info!("{}", d);"""
 expected_output = "2023-12-25"
 
 [[test]]
@@ -185,12 +139,9 @@ impl MyClass {
         return Self::value;
     }
 }
-fn main() {
-    let obj = MyClass::new();
-    log::info!("{}", obj.get_value());
-    log::info!("{}", MyClass::get_value());
-}
-"""
+let obj = MyClass::new();
+log::info!("{}", obj.get_value());
+log::info!("{}", MyClass::get_value());"""
 expected_output = """100
 100"""
 
@@ -227,11 +178,8 @@ impl Child {
         Self {}
     }
 }
-fn main() {
-    log::info!("{}", Parent::who_am_i());
-    log::info!("{}", Child::who_am_i());
-}
-"""
+log::info!("{}", Parent::who_am_i());
+log::info!("{}", Child::who_am_i());"""
 expected_output = """Parent
 Child"""
 
@@ -261,10 +209,7 @@ impl Math {
         return 3.14159;
     }
 }
-fn main() {
-    log::info!("{}", Math::pi());
-}
-"""
+log::info!("{}", Math::pi());"""
 expected_output = "3.14159"
 
 [[test]]
@@ -289,10 +234,7 @@ impl Math {
         return a + b;
     }
 }
-fn main() {
-    log::info!("{}", Math::add(10, 20));
-}
-"""
+log::info!("{}", Math::add(10, 20));"""
 expected_output = "30"
 
 [[test]]
@@ -339,11 +281,8 @@ impl StringUtils {
         };
     }
 }
-fn main() {
-    log::info!("{}", StringUtils::is_palindrome("racecar"));
-    log::info!("{}", StringUtils::is_palindrome("hello"));
-}
-"""
+log::info!("{}", StringUtils::is_palindrome("racecar"));
+log::info!("{}", StringUtils::is_palindrome("hello"));"""
 expected_output = """True
 False"""
 
@@ -371,12 +310,9 @@ impl Math {
         return a * b;
     }
 }
-fn main() {
-    let obj = Math::new();
-    log::info!("{}", obj.multiply(3, 4));
-    log::info!("{}", Math::multiply(3, 4));
-}
-"""
+let obj = Math::new();
+log::info!("{}", obj.multiply(3, 4));
+log::info!("{}", Math::multiply(3, 4));"""
 expected_output = """12
 12"""
 
@@ -424,31 +360,9 @@ impl Person {
         let mut age = 2023 - year;
         return Self::new(name);
     }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "name" => Some(Box::new(self.name.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "name" => {
-                if let Some(v) = value.downcast_ref::<serde_json::Value>() {
-                    self.name = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
-    }
 }
-fn main() {
-    let p = Person::from_birth_year("Alice", 1990);
-    log::info!("{}", Person::get_species());
-}
-"""
+let p = Person::from_birth_year("Alice", 1990);
+log::info!("{}", Person::get_species());"""
 expected_output = "Homo sapiens"
 
 [[test]]
@@ -482,11 +396,8 @@ impl Validator {
         return phone.len() == 10 && !phone.is_empty() && phone.chars().all(|c| c.is_ascii_digit());
     }
 }
-fn main() {
-    log::info!("{}", Validator::is_valid_email("test@example.com"));
-    log::info!("{}", Validator::is_valid_phone("1234567890"));
-}
-"""
+log::info!("{}", Validator::is_valid_email("test@example.com"));
+log::info!("{}", Validator::is_valid_phone("1234567890"));"""
 expected_output = """True
 True"""
 
@@ -531,10 +442,7 @@ pub fn uppercase_decorator(func: &serde_json::Value) {
     }
     return wrapper;
 }
-fn main() {
-    log::info!("{}", MyClass::greet());
-}
-"""
+log::info!("{}", MyClass::greet());"""
 expected_output = "HELLO"
 
 [[test]]
@@ -574,10 +482,7 @@ pub fn double_decorator(func: &serde_json::Value) {
     }
     return wrapper;
 }
-fn main() {
-    log::info!("{}", Math::add_five(10));
-}
-"""
+log::info!("{}", Math::add_five(10));"""
 expected_output = "30"
 
 # =============================================================================
@@ -614,10 +519,7 @@ impl Calculator {
         return Self::add(a, b) * 2;
     }
 }
-fn main() {
-    log::info!("{}", Calculator::add_and_double(5, 3));
-}
-"""
+log::info!("{}", Calculator::add_and_double(5, 3));"""
 expected_output = "16"
 
 [[test]]
@@ -651,10 +553,7 @@ impl MyClass {
         return obj.instance_method();
     }
 }
-fn main() {
-    log::info!("{}", MyClass::class_method());
-}
-"""
+log::info!("{}", MyClass::class_method());"""
 expected_output = "instance"
 
 [[test]]
@@ -681,11 +580,8 @@ impl Utils {
         return a + b;
     }
 }
-fn main() {
-    let func = Utils.add;
-    log::info!("{}", func(5, 10));
-}
-"""
+let func = Utils.add;
+log::info!("{}", func(5, 10));"""
 expected_output = "15"
 
 [[test]]
@@ -715,12 +611,9 @@ impl MyClass {
         return Self::__name__;
     }
 }
-fn main() {
-    let descriptor = MyClass.__dict__.get("method").cloned().unwrap();
-    log::info!("{}", std::any::type_name_of_val(&descriptor).__name__);
-    log::info!("{}", MyClass::method());
-}
-"""
+let descriptor = MyClass.__dict__.get("method").cloned().unwrap();
+log::info!("{}", std::any::type_name_of_val(&descriptor).__name__);
+log::info!("{}", MyClass::method());"""
 expected_output = """classmethod
 MyClass"""
 
@@ -752,11 +645,8 @@ impl MyClass {
         return Self::count;
     }
 }
-fn main() {
-    log::info!("{}", MyClass::increment());
-    log::info!("{}", MyClass::increment());
-}
-"""
+log::info!("{}", MyClass::increment());
+log::info!("{}", MyClass::increment());"""
 expected_output = """1
 2"""
 
@@ -787,8 +677,5 @@ impl MyClass {
         return Self::count;
     }
 }
-fn main() {
-    log::info!("{}", MyClass::reset());
-}
-"""
+log::info!("{}", MyClass::reset());"""
 expected_output = "0"

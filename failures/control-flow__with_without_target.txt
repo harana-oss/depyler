@@ -1,0 +1,10 @@
+  control-flow.toml :: with_without_target
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn use_context_no_var() {
++ pub fn use_context_no_var() -> Result<(), std::io::Error> {
+      let _context = std::fs::File::open("file.txt")?;
++     Ok(())
+  }
+────────────────────────────────────────────────────────────

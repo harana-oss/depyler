@@ -26,7 +26,7 @@ python = '''
 def sum_items(items: list[int]) -> int:
     total = 0
     for item in items:
-        total = total + item
+        total += item
     return total
 '''
 
@@ -34,7 +34,7 @@ rust = '''
 pub fn sum_items(items: &Vec<i32>) -> i32 {
     let mut total = 0;
     for item in items.iter().cloned() {
-        total = total + item;
+        total += item;
     }
     return total;
 }
@@ -57,7 +57,6 @@ def get_age(person: Person) -> int:
 '''
 
 rust = '''
-use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Person {
     pub name: String,
@@ -93,7 +92,6 @@ def get_players(game: Game) -> list[str]:
 '''
 
 rust = '''
-use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Team {
     pub players: Vec<String>,

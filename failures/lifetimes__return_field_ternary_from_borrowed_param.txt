@@ -1,0 +1,23 @@
+  lifetimes.toml :: return_field_ternary_from_borrowed_param
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  #[derive(Debug, Clone)]
+  pub struct Team {
+      pub home: Vec<String>,
+      pub away: Vec<String>,
+  }
+  impl Team {
+      pub fn new(home: Vec<String>, away: Vec<String>) -> Self {
+          Self { home, away }
+      }
+  }
+  pub fn get_team_players(team: &Team, is_home: bool) -> Vec<String> {
+−     return if is_home {
+−         team.home.clone()
+−     } else {
+−         team.away.clone()
+−     };
++     return if is_home { team.home } else { team.away };
+  }
+────────────────────────────────────────────────────────────

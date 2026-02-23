@@ -1,0 +1,30 @@
+  enum-methods.toml :: enum_method_name
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug)]
+− enum Color {
+−     Red = 1,
+−     Green = 2,
+−     Blue = 3,
+− }
+− 
++ #[derive(Debug, Copy, Clone)]
++ pub struct Color {}
+  impl Color {
+−     fn display_name(&self) -> String {
+−         format!("{:?}", self)
++     pub const RED: i32 = 1;
++     pub const GREEN: i32 = 2;
++     pub const BLUE: i32 = 3;
++     pub fn new() -> Self {
++         Self {}
+      }
++     pub fn display_name(&self) {
++         return self.name.to_lowercase().capitalize();
++     }
+  }
+− 
+− log::info!("{}", Color::Red.display_name());
+− log::info!("{}", Color::Blue.display_name());
+────────────────────────────────────────────────────────────

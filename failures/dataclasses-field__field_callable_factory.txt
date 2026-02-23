@@ -1,0 +1,48 @@
+  dataclasses-field.toml :: field_callable_factory
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug)]
+−     struct MyClass {
+−         value: i32,
++ #[derive(Debug, Copy, Clone)]
++ pub struct MyClass {
++     pub value: i32,
++ }
++ impl MyClass {
++     pub fn new() -> Self {
++         Self { value: 42 }
+      }
+− 
+−     impl Default for MyClass {
+−         fn default() -> Self {
+−             MyClass { value: 42 }
++ }
++ #[derive(Debug, Clone, PartialEq, Default)]
++ pub struct Container {
++     pub obj: MyClass,
++ }
++ impl Container {
++     pub fn new() -> Self {
++         Self {
++             obj: Default::default(),
+          }
+      }
+− 
+−     #[derive(Debug)]
+−     struct Container {
+−         obj: MyClass,
+−     }
+− 
+−     impl Default for Container {
+−         fn default() -> Self {
+−             Container {
+−                 obj: MyClass::default(),
+−             }
+−         }
+−     }
+− 
+−     let c = Container::default();
+−     let result = c.obj.value == 42;
++ }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,21 @@
+  field-alias-mutation.toml :: field_alias_index_mutation
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  #[derive(Debug, Clone, PartialEq, Default)]
+  pub struct State {
+      pub data: Vec<i32>,
+  }
+  impl State {
+      pub fn new(data: Vec<i32>) -> Self {
+          Self { data }
+      }
+  }
+− pub fn update_list(state: &mut State) {
+−     let mut items = state.data.clone();
+−     items[0] = 42;
++ pub fn update_list(state: &State) {
++     let mut items = state.data;
++     items[0 as usize] = 42;
+  }
+────────────────────────────────────────────────────────────

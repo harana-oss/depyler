@@ -1,0 +1,16 @@
+  new-vs-init.toml :: new_args
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug, Clone)]
++ #[derive(Debug, Copy, Clone)]
+  pub struct CustomInt {}
+  impl CustomInt {
+      pub fn new() -> Self {
+          Self {}
+      }
+  }
+  pub fn create_int() -> CustomInt {
+      return CustomInt::new(42);
+  }
+────────────────────────────────────────────────────────────

@@ -15,8 +15,7 @@ result = 'hello'.upper()
 '''
 
 rust = '''
-pub const result: serde_json::Value = "hello".to_uppercase();
-use serde_json;
+pub const result: String = "hello".to_uppercase();
 '''
 
 [[test]]
@@ -28,8 +27,7 @@ result = 'HELLO'.lower()
 '''
 
 rust = '''
-pub const result: serde_json::Value = "HELLO".to_lowercase();
-use serde_json;
+pub const result: String = "HELLO".to_lowercase();
 '''
 
 [[test]]
@@ -41,8 +39,14 @@ result = 'hello world'.capitalize()
 '''
 
 rust = '''
-pub const result: serde_json::Value = "hello world".capitalize();
-use serde_json;
+pub const result: String = {
+    let s = "hello world";
+    let mut chars = s.chars();
+    match chars.next() {
+        None => String::new(),
+        Some(first) => first.to_uppercase().collect::<String>() + &chars.as_str().to_lowercase(),
+    }
+};
 '''
 
 [[test]]
@@ -54,7 +58,7 @@ result = 'hello world'.title()
 '''
 
 rust = '''
-pub const result: serde_json::Value = "hello world"
+pub const result: String = "hello world"
     .split_whitespace()
     .map(|word| {
         let mut chars = word.chars();
@@ -65,7 +69,6 @@ pub const result: serde_json::Value = "hello world"
     })
     .collect::<Vec<_>>()
     .join(" ");
-use serde_json;
 '''
 
 [[test]]
@@ -77,8 +80,16 @@ result = 'Hello'.swapcase()
 '''
 
 rust = '''
-pub const result: serde_json::Value = "Hello".swapcase();
-use serde_json;
+pub const result: String = "Hello"
+    .chars()
+    .map(|c| {
+        if c.is_uppercase() {
+            c.to_lowercase().collect::<String>()
+        } else {
+            c.to_uppercase().collect::<String>()
+        }
+    })
+    .collect();
 '''
 
 [[test]]
@@ -90,8 +101,7 @@ result = 'ß'.casefold()
 '''
 
 rust = '''
-pub const result: serde_json::Value = "ß".casefold();
-use serde_json;
+pub const result: String = "ß".to_lowercase();
 '''
 
 # =============================================================================
@@ -107,8 +117,7 @@ result = 'hello'.find('l')
 '''
 
 rust = '''
-pub const result: serde_json::Value = "hello".find("l").map(|i| i as i32).unwrap_or(-1);
-use serde_json;
+pub const result: i32 = "hello".find("l").map(|i| i as i32).unwrap_or(-1);
 '''
 
 [[test]]
@@ -120,8 +129,7 @@ result = 'hello'.rfind('l')
 '''
 
 rust = '''
-pub const result: serde_json::Value = "hello".rfind("l").map(|i| i as i32).unwrap_or(-1);
-use serde_json;
+pub const result: i32 = "hello".rfind("l").map(|i| i as i32).unwrap_or(-1);
 '''
 
 [[test]]
@@ -133,12 +141,10 @@ result = 'hello'.index('l')
 '''
 
 rust = '''
-pub const result: serde_json::Value = "hello"
-    .iter()
-    .position(|x| x == &"l")
+pub const result: i32 = "hello"
+    .find("l")
     .map(|i| i as i32)
-    .expect("ValueError: value is not in list");
-use serde_json;
+    .expect("substring not found");
 '''
 
 [[test]]
@@ -150,11 +156,10 @@ result = 'hello'.rindex('l')
 '''
 
 rust = '''
-pub const result: serde_json::Value = "hello"
+pub const result: i32 = "hello"
     .rfind("l")
     .map(|i| i as i32)
     .expect("substring not found");
-use serde_json;
 '''
 
 [[test]]
@@ -166,8 +171,7 @@ result = 'hello'.count('l')
 '''
 
 rust = '''
-pub const result: serde_json::Value = "hello".matches("l").count() as i32;
-use serde_json;
+pub const result: i32 = "hello".matches("l").count() as i32;
 '''
 
 # =============================================================================
@@ -183,8 +187,7 @@ result = 'hello'.startswith('he')
 '''
 
 rust = '''
-pub const result: serde_json::Value = "hello".starts_with("he");
-use serde_json;
+pub const result: bool = "hello".starts_with("he");
 '''
 
 [[test]]
@@ -196,8 +199,7 @@ result = 'hello'.endswith('lo')
 '''
 
 rust = '''
-pub const result: serde_json::Value = "hello".ends_with("lo");
-use serde_json;
+pub const result: bool = "hello".ends_with("lo");
 '''
 
 [[test]]
@@ -209,8 +211,7 @@ result = 'hello'.startswith(('he', 'hi'))
 '''
 
 rust = '''
-pub const result: serde_json::Value = "hello".starts_with(&("he", "hi"));
-use serde_json;
+pub const result: bool = ["he", "hi"].iter().any(|prefix| "hello".starts_with(prefix));
 '''
 
 [[test]]
@@ -222,8 +223,7 @@ result = 'hello'.removeprefix('he')
 '''
 
 rust = '''
-pub const result: serde_json::Value = "hello".removeprefix("he");
-use serde_json;
+pub const result: String = "hello".strip_prefix("he").unwrap_or("hello").to_string();
 '''
 
 [[test]]
@@ -235,8 +235,7 @@ result = 'hello'.removesuffix('lo')
 '''
 
 rust = '''
-pub const result: serde_json::Value = "hello".removesuffix("lo");
-use serde_json;
+pub const result: String = "hello".strip_suffix("lo").unwrap_or("hello").to_string();
 '''
 
 # =============================================================================
@@ -252,8 +251,7 @@ result = '  hello  '.strip()
 '''
 
 rust = '''
-pub const result: serde_json::Value = "  hello  ".trim();
-use serde_json;
+pub const result: String = "  hello  ".trim().to_string();
 '''
 
 [[test]]
@@ -265,8 +263,7 @@ result = '  hello'.lstrip()
 '''
 
 rust = '''
-pub const result: serde_json::Value = "  hello".trim_start();
-use serde_json;
+pub const result: String = "  hello".trim_start().to_string();
 '''
 
 [[test]]
@@ -278,8 +275,7 @@ result = 'hello  '.rstrip()
 '''
 
 rust = '''
-pub const result: serde_json::Value = "hello  ".trim_end();
-use serde_json;
+pub const result: String = "hello  ".trim_end().to_string();
 '''
 
 [[test]]
@@ -291,8 +287,7 @@ result = 'xxhelloxx'.strip('x')
 '''
 
 rust = '''
-pub const result: serde_json::Value = "xxhelloxx".trim_matches(|c: char| "x".contains(c));
-use serde_json;
+pub const result: String = "xxhelloxx".trim_matches(|c: char| "x".contains(c)).to_string();
 '''
 
 # =============================================================================
@@ -303,16 +298,19 @@ use serde_json;
 name = "str_split"
 description = "'a,b,c'.split(',')"
 
+[[test]]
+name = "str_split"
+description = "'a,b,c'.split(',')"
+
 python = '''
 result = 'a,b,c'.split(',')
 '''
 
 rust = '''
-pub const result: serde_json::Value = "a,b,c"
+pub const result: Vec<String> = "a,b,c"
     .split(",")
     .map(|s| s.to_string())
     .collect::<Vec<String>>();
-use serde_json;
 '''
 
 [[test]]
@@ -335,8 +333,10 @@ result = 'a,b,c'.rsplit(',', 1)
 '''
 
 rust = '''
-pub const result: serde_json::Value = "a,b,c".rsplit(",", 1);
-use serde_json;
+pub const result: Vec<String> = {
+    let parts: Vec<&str> = "a,b,c".rsplitn(2, ",").collect();
+    parts.into_iter().rev().map(|s| s.to_string()).collect()
+};
 '''
 
 [[test]]
@@ -348,11 +348,10 @@ result = 'a\nb\nc'.splitlines()
 '''
 
 rust = '''
-pub const result: serde_json::Value = "a\nb\nc"
+pub const result: Vec<String> = "a\nb\nc"
     .lines()
     .map(|s| s.to_string())
     .collect::<Vec<String>>();
-use serde_json;
 '''
 
 [[test]]
@@ -364,8 +363,18 @@ result = 'hello'.partition('l')
 '''
 
 rust = '''
-pub const result: serde_json::Value = "hello".partition("l");
-use serde_json;
+pub const result: (String, String, String) = {
+    let s = "hello";
+    let sep = "l";
+    match s.find(sep) {
+        Some(pos) => (
+            s[..pos].to_string(),
+            sep.to_string(),
+            s[pos + sep.len()..].to_string(),
+        ),
+        None => (s.to_string(), String::new(), String::new()),
+    }
+};
 '''
 
 [[test]]
@@ -377,8 +386,18 @@ result = 'hello'.rpartition('l')
 '''
 
 rust = '''
-pub const result: serde_json::Value = "hello".rpartition("l");
-use serde_json;
+pub const result: (String, String, String) = {
+    let s = "hello";
+    let sep = "l";
+    match s.rfind(sep) {
+        Some(pos) => (
+            s[..pos].to_string(),
+            sep.to_string(),
+            s[pos + sep.len()..].to_string(),
+        ),
+        None => (String::new(), String::new(), s.to_string()),
+    }
+};
 '''
 
 # =============================================================================
@@ -394,9 +413,8 @@ result = ','.join(['a', 'b', 'c'])
 '''
 
 rust = '''
-pub const result: serde_json::Value =
+pub const result: String =
     vec!["a".to_string(), "b".to_string(), "c".to_string()].join(",");
-use serde_json;
 '''
 
 [[test]]
@@ -408,8 +426,7 @@ result = 'hello'.replace('l', 'L')
 '''
 
 rust = '''
-pub const result: serde_json::Value = "hello".replace("l", "L");
-use serde_json;
+pub const result: String = "hello".replace("l", "L");
 '''
 
 [[test]]
@@ -421,8 +438,7 @@ result = 'hello'.replace('l', 'L', 1)
 '''
 
 rust = '''
-pub const result: serde_json::Value = "hello".replacen("l", "L", 1 as usize);
-use serde_json;
+pub const result: String = "hello".replacen("l", "L", 1 as usize);
 '''
 
 # =============================================================================
@@ -438,7 +454,7 @@ result = 'hi'.center(10)
 '''
 
 rust = '''
-pub const result: serde_json::Value = {
+pub const result: String = {
     let s = "hi";
     let width = 10 as usize;
     let fillchar = " ";
@@ -456,7 +472,6 @@ pub const result: serde_json::Value = {
         )
     }
 };
-use serde_json;
 '''
 
 [[test]]
@@ -468,7 +483,7 @@ result = 'hi'.ljust(10)
 '''
 
 rust = '''
-pub const result: serde_json::Value = {
+pub const result: String = {
     let s = "hi";
     let width = 10 as usize;
     let fillchar = " ";
@@ -478,7 +493,6 @@ pub const result: serde_json::Value = {
         format!("{}{}", s, fillchar.repeat(width - s.len()))
     }
 };
-use serde_json;
 '''
 
 [[test]]
@@ -490,7 +504,7 @@ result = 'hi'.rjust(10)
 '''
 
 rust = '''
-pub const result: serde_json::Value = {
+pub const result: String = {
     let s = "hi";
     let width = 10 as usize;
     let fillchar = " ";
@@ -500,7 +514,6 @@ pub const result: serde_json::Value = {
         format!("{}{}", fillchar.repeat(width - s.len()), s)
     }
 };
-use serde_json;
 '''
 
 [[test]]
@@ -512,7 +525,7 @@ result = '42'.zfill(5)
 '''
 
 rust = '''
-pub const result: serde_json::Value = {
+pub const result: String = {
     let s = "42";
     let width = 5 as usize;
     if s.len() >= width {
@@ -527,7 +540,6 @@ pub const result: serde_json::Value = {
         format!("{}{}{}", sign, "0".repeat(width - s.len()), num)
     }
 };
-use serde_json;
 '''
 
 # =============================================================================
@@ -543,8 +555,7 @@ result = 'abc'.isalpha()
 '''
 
 rust = '''
-pub const result: serde_json::Value = "abc".chars().all(|c| c.is_alphabetic());
-use serde_json;
+pub const result: bool = "abc".chars().all(|c| c.is_alphabetic());
 '''
 
 [[test]]
@@ -556,8 +567,7 @@ result = '123'.isdigit()
 '''
 
 rust = '''
-pub const result: serde_json::Value = "123".chars().all(|c| c.is_numeric());
-use serde_json;
+pub const result: bool = "123".chars().all(|c| c.is_numeric());
 '''
 
 [[test]]
@@ -569,8 +579,7 @@ result = 'abc123'.isalnum()
 '''
 
 rust = '''
-pub const result: serde_json::Value = "abc123".chars().all(|c| c.is_alphanumeric());
-use serde_json;
+pub const result: bool = "abc123".chars().all(|c| c.is_alphanumeric());
 '''
 
 [[test]]
@@ -582,8 +591,7 @@ result = '   '.isspace()
 '''
 
 rust = '''
-pub const result: serde_json::Value = "   ".isspace();
-use serde_json;
+pub const result: bool = !("   ").is_empty() && "   ".chars().all(|c| c.is_whitespace());
 '''
 
 [[test]]
@@ -595,8 +603,7 @@ result = 'ABC'.isupper()
 '''
 
 rust = '''
-pub const result: serde_json::Value = "ABC".isupper();
-use serde_json;
+pub const result: bool = "ABC".chars().any(|c| c.is_alphabetic()) && "ABC".chars().filter(|c| c.is_alphabetic()).all(|c| c.is_uppercase());
 '''
 
 [[test]]
@@ -608,8 +615,7 @@ result = 'abc'.islower()
 '''
 
 rust = '''
-pub const result: serde_json::Value = "abc".islower();
-use serde_json;
+pub const result: bool = "abc".chars().any(|c| c.is_alphabetic()) && "abc".chars().filter(|c| c.is_alphabetic()).all(|c| c.is_lowercase());
 '''
 
 [[test]]
@@ -621,8 +627,29 @@ result = 'Hello World'.istitle()
 '''
 
 rust = '''
-pub const result: serde_json::Value = "Hello World".istitle();
-use serde_json;
+pub const result: bool = {
+    let s = "Hello World";
+    let mut prev_is_cased = false;
+    let mut result = false;
+    for c in s.chars() {
+        if c.is_uppercase() || c.is_titlecase() {
+            if prev_is_cased {
+                return false;
+            }
+            prev_is_cased = true;
+            result = true;
+        } else if c.is_lowercase() {
+            if !prev_is_cased {
+                return false;
+            }
+            prev_is_cased = true;
+            result = true;
+        } else {
+            prev_is_cased = false;
+        }
+    }
+    result
+};
 '''
 
 [[test]]
@@ -634,8 +661,7 @@ result = '123'.isnumeric()
 '''
 
 rust = '''
-pub const result: serde_json::Value = "123".isnumeric();
-use serde_json;
+pub const result: bool = !("123").is_empty() && "123".chars().all(|c| c.is_numeric());
 '''
 
 [[test]]
@@ -647,8 +673,7 @@ result = '123'.isdecimal()
 '''
 
 rust = '''
-pub const result: serde_json::Value = "123".isdecimal();
-use serde_json;
+pub const result: bool = !("123").is_empty() && "123".chars().all(|c| c.is_ascii_digit());
 '''
 
 [[test]]
@@ -660,8 +685,15 @@ result = 'var_name'.isidentifier()
 '''
 
 rust = '''
-pub const result: serde_json::Value = "var_name".isidentifier();
-use serde_json;
+pub const result: bool = {
+    let s = "var_name";
+    let mut chars = s.chars();
+    if let Some(first) = chars.next() {
+        (first.is_alphabetic() || first == '_') && chars.all(|c| c.is_alphanumeric() || c == '_')
+    } else {
+        false
+    }
+};
 '''
 
 [[test]]
@@ -673,8 +705,7 @@ result = 'hello'.isprintable()
 '''
 
 rust = '''
-pub const result: serde_json::Value = "hello".isprintable();
-use serde_json;
+pub const result: bool = "hello".chars().all(|c| !c.is_control() || c == '\n' || c == '\r' || c == '\t');
 '''
 
 [[test]]
@@ -686,8 +717,7 @@ result = 'hello'.isascii()
 '''
 
 rust = '''
-pub const result: serde_json::Value = "hello".isascii();
-use serde_json;
+pub const result: bool = "hello".is_ascii();
 '''
 
 # =============================================================================
@@ -703,8 +733,7 @@ result = 'hello'.encode('utf-8')
 '''
 
 rust = '''
-pub const result: serde_json::Value = "hello".encode("utf-8");
-use serde_json;
+pub const result: Vec<u8> = "hello".as_bytes().to_vec();
 '''
 
 [[test]]
@@ -727,12 +756,11 @@ result = '{x}'.format_map({'x': 1})
 '''
 
 rust = '''
-pub const result: serde_json::Value = "{x}".format_map({
+pub const result: String = {
     let mut map = HashMap::new();
-    map.insert("x".to_string(), 1);
-    map
-});
-use serde_json;
+    map.insert("x", 1);
+    format!("{}", map.get("x").unwrap())
+};
 use std::collections::HashMap;
 '''
 
@@ -749,8 +777,16 @@ result = str.maketrans('abc', 'xyz')
 '''
 
 rust = '''
-pub const result: serde_json::Value = str.maketrans("abc", "xyz");
-use serde_json;
+pub const result: HashMap<char, char> = {
+    let mut map = HashMap::new();
+    let from = "abc".chars().collect::<Vec<_>>();
+    let to = "xyz".chars().collect::<Vec<_>>();
+    for (f, t) in from.iter().zip(to.iter()) {
+        map.insert(*f, *t);
+    }
+    map
+};
+use std::collections::HashMap;
 '''
 
 [[test]]
@@ -763,9 +799,20 @@ result = 'abc'.translate(table)
 '''
 
 rust = '''
-pub const table: serde_json::Value = str.maketrans("abc", "xyz");
-pub const result: serde_json::Value = "abc".translate(table);
-use serde_json;
+pub const table: HashMap<char, char> = {
+    let mut map = HashMap::new();
+    let from = "abc".chars().collect::<Vec<_>>();
+    let to = "xyz".chars().collect::<Vec<_>>();
+    for (f, t) in from.iter().zip(to.iter()) {
+        map.insert(*f, *t);
+    }
+    map
+};
+pub const result: String = "abc"
+    .chars()
+    .map(|c| table.get(&c).copied().unwrap_or(c))
+    .collect();
+use std::collections::HashMap;
 '''
 
 # =============================================================================
@@ -781,8 +828,27 @@ result = 'a\tb'.expandtabs(4)
 '''
 
 rust = '''
-pub const result: serde_json::Value = "a\tb".expandtabs(4);
-use serde_json;
+pub const result: String = {
+    let s = "a\tb";
+    let tabsize = 4;
+    let mut result = String::new();
+    let mut col = 0;
+    for c in s.chars() {
+        if c == '\t' {
+            let spaces = tabsize - (col % tabsize);
+            result.push_str(&" ".repeat(spaces));
+            col += spaces;
+        } else {
+            result.push(c);
+            if c == '\n' || c == '\r' {
+                col = 0;
+            } else {
+                col += 1;
+            }
+        }
+    }
+    result
+};
 '''
 
 # =============================================================================

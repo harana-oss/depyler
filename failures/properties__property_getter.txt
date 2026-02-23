@@ -1,0 +1,31 @@
+  properties.toml :: property_getter
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct Person {
+−     name: String,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Person {
++     pub _name: serde_json::Value,
+  }
+− 
+  impl Person {
+−     fn new(name: &str) -> Self {
+−         Person {
+−             name: name.to_string(),
+−         }
++     pub fn new(name: serde_json::Value) -> Self {
++         Self { _name: name }
+      }
+− 
+−     fn name(&self) -> &str {
+−         &self.name
++     pub fn name(&self) {
++         return self._name.clone();
+      }
+  }
+− 
+− let p = Person::new("Alice");
+− log::info!("Name: {}", p.name());
+────────────────────────────────────────────────────────────

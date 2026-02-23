@@ -1,0 +1,12 @@
+  counter.toml :: counter_missing
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use std::collections::HashMap;
+− let s = "abc";
+− let mut c: HashMap<char, usize> = HashMap::new();
+− for ch in s.chars() {
+−     *c.entry(ch).or_insert(0) += 1;
+− }
+− log::info!("{}", c.get(&'x').unwrap_or(&0));
+────────────────────────────────────────────────────────────

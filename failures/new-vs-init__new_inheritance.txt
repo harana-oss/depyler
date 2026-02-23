@@ -1,0 +1,24 @@
+  new-vs-init.toml :: new_inheritance
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug, Clone)]
++ #[derive(Debug, Copy, Clone)]
+  pub struct Base {}
+  impl Base {
+      pub fn new() -> Self {
+          Self {}
+      }
+  }
+− #[derive(Debug, Clone)]
++ #[derive(Debug, Copy, Clone)]
+  pub struct Derived {}
+  impl Derived {
+      pub fn new() -> Self {
+          Self {}
+      }
+  }
+  pub fn create() -> Derived {
+      return Derived::new();
+  }
+────────────────────────────────────────────────────────────

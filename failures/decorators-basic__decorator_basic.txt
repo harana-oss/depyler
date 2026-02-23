@@ -1,0 +1,25 @@
+  decorators-basic.toml :: decorator_basic
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− fn identity<F>(f: F) -> F
+−     where
+−         F: Fn() -> String,
+−     {
+−         f
+−     }
+− 
+−     fn greet_impl() -> String {
+−         "hello".to_string()
+−     }
+− 
+−     let greet = identity(greet_impl);
+−     let result = greet();
++ use serde_json;
++ pub fn identity(f: serde_json::Value) {
++     return f;
++ }
++ pub fn greet() -> String {
++     return "hello".to_string();
++ }
+────────────────────────────────────────────────────────────

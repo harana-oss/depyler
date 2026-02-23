@@ -1,0 +1,9 @@
+  bytes.toml :: bytes_empty
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− let empty1 = b"";
+−     let empty2: Vec<u8> = Vec::new();
+−     let result = (empty1.len(), empty2.len());
++ 
+────────────────────────────────────────────────────────────

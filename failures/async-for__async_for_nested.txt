@@ -1,0 +1,75 @@
+  async-for.toml :: async_for_nested
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use futures::stream::{self, StreamExt};
+− 
+− async fn inner_iter(x: i32) -> Vec<i32> {
+−     stream::iter(0..2).map(|j| x * 10 + j).collect().await
++ use serde_json;
++ #[doc = " Generator state struct"] #[derive(Debug)] struct OuterIterState {
++     state: usize ,
++ }
++ #[doc = " Generator function - returns Iterator"] pub fn outer_iter() -> impl Iterator<Item = i32>{
++     OuterIterState {
++     state: 0 ,
++ }
++ } impl Iterator for OuterIterState {
++     type Item = i32;
++     fn next(&mut self) -> Option<Self::Item>{
++     match self.state {
++     0 =>{
++     self.state = 1;
++     for _i in 0..3 {
++     return Some(i);
++    
++ }
++ None
++ }
++ _ =>None
++ }
++ }
++ }
++ #[doc = " Generator state struct"] #[derive(Debug)] struct InnerIterState {
++     state: usize, x: serde_json::Value
++ }
++ #[doc = " Generator function - returns Iterator"] pub fn inner_iter(x: & serde_json::Value) -> impl Iterator<Item = serde_json::Value>{
++     InnerIterState {
++     state: 0, x: x
++ }
++ } impl Iterator for InnerIterState {
++     type Item = serde_json::Value;
++     fn next(&mut self) -> Option<Self::Item>{
++     match self.state {
++     0 =>{
++     self.state = 1;
++     for _j in 0..2 {
++     return Some(self.x * 10 + j);
++    
++ }
++ None
++ }
++ _ =>None
++ }
+  }
+− 
+− #[tokio::main]
+− async let mut result = Vec::new();
+− let mut outer = stream::iter(0..3);
+− while let Some(i) = outer.next().await {
+−     let inner_results = inner_iter(i).await;
+−     for j in inner_results {
+−         result.push(j);
+−     }
+  }
+− log::info!("{:?}", result);
++ pub async fn test() -> Vec<serde_json::Value>{
++     let result = vec! [];
++     while let Some(i) = outer_iter().next().await {
++     while let Some(j) = inner_iter(& i).next().await {
++     result.push(j);
++    
++ }
++ } return result;
++     }
+────────────────────────────────────────────────────────────

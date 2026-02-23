@@ -1,0 +1,15 @@
+  async-generators.toml :: async_gen_yield_from
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust doesn't have yield from syntax
+− async fn test_async_gen_yield_from() -> bool {
+−     true
+− }
++ pub async fn gen() {
++    
++ }
++ pub async fn test_async_gen_yield_from() -> bool {
++     return true;
++     }
+────────────────────────────────────────────────────────────

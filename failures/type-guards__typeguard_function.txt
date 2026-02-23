@@ -1,0 +1,18 @@
+  type-guards.toml :: typeguard_function
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn is_int_list(value: &Vec<i32>) -> bool {
++ use serde_json;
++ pub fn is_int_list(value: &Vec<serde_json::Value>) -> bool {
+      return value.iter().cloned().map(|x| true).all(|x| x);
+  }
+− pub fn process_ints(items: &Vec<i32>) -> i32 {
+−     if is_int_list(items) {
++ pub fn process_ints(items: &Vec<serde_json::Value>) -> i32 {
++     if is_int_list(&items) {
+          return items.iter().sum::<i32>();
+      }
+      return 0;
+  }
+────────────────────────────────────────────────────────────

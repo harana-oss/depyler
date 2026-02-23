@@ -1,0 +1,15 @@
+  counter.toml :: counter_iterable
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use std::collections::HashMap;
+− 
+− let s = "abracadabra";
+− let mut c: HashMap<char, usize> = HashMap::new();
+− for ch in s.chars() {
+−     *c.entry(ch).or_insert(0) += 1;
+− }
+− let mut items: Vec<_> = c.iter().collect();
+− items.sort_by_key(|&(k, _)| k);
+− log::info!("{:?}", items);
+────────────────────────────────────────────────────────────

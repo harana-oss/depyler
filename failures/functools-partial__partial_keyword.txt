@@ -1,0 +1,14 @@
+  functools-partial.toml :: partial_keyword
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− fn greet(name: &str, greeting: &str) -> String {
+−     format!("{}, {}!", greeting, name)
++ use std;
++ pub fn greet(name: String, greeting: String) -> String {
++     return format!("{}, {}!", greeting, name);
+  }
+− 
+− let greet_hi = |name| greet(name, "Hi");
+− log::info!("{}", greet_hi("Alice"));
+────────────────────────────────────────────────────────────

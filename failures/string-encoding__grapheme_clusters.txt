@@ -1,0 +1,10 @@
+  string-encoding.toml :: grapheme_clusters
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn count_display_chars(s: &str) -> i32 {
+−     return s.chars().count() as i32;
++ pub fn count_display_chars(s: String) -> i32 {
++     return s.len() as i32 as i32;
+  }
+────────────────────────────────────────────────────────────

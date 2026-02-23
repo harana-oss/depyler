@@ -1,0 +1,41 @@
+  enum-int.toml :: intflag_basic
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::ops::{BitAnd, BitOr};
+− 
+− #[repr(i32)]
+− #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+− struct Perm(i32);
+− 
++ #[derive(Debug, Copy, Clone)]
++ pub struct Perm {}
+  impl Perm {
+−     const R: Perm = Perm(4);
+−     const W: Perm = Perm(2);
+−     const X: Perm = Perm(1);
+− }
+− 
+− impl BitOr for Perm {
+−     type Output = Perm;
+−     fn bitor(self, rhs: Self) -> Self::Output {
+−         Perm(self.0 | rhs.0)
+−     }
+− }
+− 
+− impl BitAnd for Perm {
+−     type Output = Perm;
+−     fn bitand(self, rhs: Self) -> Self::Output {
+−         Perm(self.0 & rhs.0)
++     pub const R: i32 = 4;
++     pub const W: i32 = 2;
++     pub const X: i32 = 1;
++     pub fn new() -> Self {
++         Self {}
+      }
+  }
+− 
+− assert_eq!(Perm::R.0, 4);
+− assert_eq!(Perm::W.0, 2);
+− assert_eq!(Perm::X.0, 1);
+────────────────────────────────────────────────────────────

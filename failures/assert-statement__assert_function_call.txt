@@ -1,0 +1,14 @@
+  assert-statement.toml :: assert_function_call
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− fn is_valid(x: i32) -> bool {
+−     x > 0
++ pub fn is_valid(x: i32) -> bool {
++     return x > 0;
+  }
+− 
+− let x = 5;
+− assert!(is_valid(x));
+− let result = true;
+────────────────────────────────────────────────────────────

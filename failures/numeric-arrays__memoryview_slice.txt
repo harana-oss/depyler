@@ -1,0 +1,21 @@
+  numeric-arrays.toml :: memoryview_slice
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn view_slice(data: &[i32], start: i32, end: i32) -> Vec<i32> {
+−     return data[(start as usize)..(end as usize)].to_vec();
++ pub fn view_slice(data: &Vec<i32>, start: i32, end: i32) -> Vec<i32> {
++     return {
++         let base = &data;
++         let start = (start).max(0) as usize;
++         let stop = (end).max(0) as usize;
++         if start < base.len() {
++             base[start..stop.min(base.len())].to_vec()
++         } else {
++             Vec::new()
++         }
++     }
++     .into_iter()
++     .collect::<Vec<_>>();
+  }
+────────────────────────────────────────────────────────────

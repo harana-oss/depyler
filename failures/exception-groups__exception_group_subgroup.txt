@@ -1,0 +1,48 @@
+  exception-groups.toml :: exception_group_subgroup
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug, Clone)]
+− enum Error {
+−     ValueError(String),
+−     TypeError(String),
+− }
+− 
+− struct ErrorGroup {
+−     message: String,
+−     errors: Vec<Error>,
+− }
+− 
+− impl ErrorGroup {
+−     fn subgroup_value_errors(&self) -> Option<ErrorGroup> {
+−         let filtered: Vec<Error> = self
+−             .errors
+−             .iter()
+−             .filter(|e| matches!(e, Error::ValueError(_)))
+−             .cloned()
+−             .collect();
+− 
+−         if filtered.is_empty() {
+−             None
+−         } else {
+−             Some(ErrorGroup {
+−                 message: self.message.clone(),
+−                 errors: filtered,
+−             })
+−         }
+−     }
+− }
+  
+− let eg = ErrorGroup {
+−     message: "errors".to_string(),
+−     errors: vec![
+−         Error::ValueError("v1".to_string()),
+−         Error::TypeError("t1".to_string()),
+−         Error::ValueError("v2".to_string()),
+−     ],
+− };
+− 
+− if let Some(value_errors) = eg.subgroup_value_errors() {
+−     log::info!("ValueErrors: {}", value_errors.errors.len());
+− }
+────────────────────────────────────────────────────────────

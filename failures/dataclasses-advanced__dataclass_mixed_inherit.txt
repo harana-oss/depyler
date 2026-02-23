@@ -1,0 +1,44 @@
+  dataclasses-advanced.toml :: dataclass_mixed_inherit
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct Regular {
+−     base_value: i32,
++ #[derive(Debug, Copy, Clone)]
++ pub struct Regular {
++     pub base_value: i32,
+  }
+− 
+  impl Regular {
+−     fn new() -> Self {
++     pub fn new() -> Self {
+          Self { base_value: 42 }
+      }
+  }
+− 
+− #[derive(Debug)]
+− struct Child {
+−     base: Regular,
+−     x: i32,
++ #[derive(Debug, Copy, Clone, PartialEq, Default)]
++ pub struct Child {
++     pub x: i32,
+  }
+− 
+  impl Child {
+−     fn new(x: i32) -> Self {
+−         Self {
+−             base: Regular::new(),
+−             x,
+−         }
++     pub fn new(x: i32) -> Self {
++         Self { x }
+      }
+  }
+− 
+  pub fn test_dataclass_mixed_inherit() -> i32 {
+      let c = Child::new(10);
+−     c.base.base_value
++     return c.base_value;
+  }
+────────────────────────────────────────────────────────────

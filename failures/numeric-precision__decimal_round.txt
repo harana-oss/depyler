@@ -1,0 +1,29 @@
+  numeric-precision.toml :: decimal_round
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn round_to_places(value: f64, places: i32) -> f64 {
+−     let factor = 10.0_f64.powi(places);
+−     return (value * factor).round() / factor;
++ #[derive(Debug, Clone)]
++ pub struct ZeroDivisionError {
++     message: String,
++ }
++ impl std::fmt::Display for ZeroDivisionError {
++     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
++         write!(f, "division by zero: {}", self.message)
++     }
++ }
++ impl std::error::Error for ZeroDivisionError {}
++ impl ZeroDivisionError {
++     pub fn new(message: impl Into<String>) -> Self {
++         Self {
++             message: message.into(),
++         }
++     }
++ }
++ pub fn round_to_places(value: f64, places: i32) -> Result<f64, ZeroDivisionError> {
++     let factor = (10.0 as f64).powf(places as f64);
++     return Ok((value * factor.round() as f64) / factor);
+  }
+────────────────────────────────────────────────────────────

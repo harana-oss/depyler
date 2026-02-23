@@ -1,0 +1,8 @@
+  async-with.toml :: async_with_multiple
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // async with a, b, c: ...
+−     let result = true; // Placeholder
++ pub const result: bool = true;
+────────────────────────────────────────────────────────────

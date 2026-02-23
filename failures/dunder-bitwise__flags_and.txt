@@ -1,0 +1,14 @@
+  dunder-bitwise.toml :: flags_and
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− const READ: i32 = 1;
+− const WRITE: i32 = 2;
+− 
+− let permissions = 3; // READ | WRITE
+− let has_read = (permissions & READ) != 0;
+− let has_write = (permissions & WRITE) != 0;
+  
+− log::info!("Has read: {}", has_read);
+− log::info!("Has write: {}", has_write);
+────────────────────────────────────────────────────────────

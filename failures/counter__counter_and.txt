@@ -1,0 +1,17 @@
+  counter.toml :: counter_and
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use std::collections::HashMap;
+− let c1: HashMap<char, i32> = [('a', 3), ('b', 1)].iter().cloned().collect();
+− let c2: HashMap<char, i32> = [('a', 1), ('b', 2)].iter().cloned().collect();
+− let mut result: HashMap<char, i32> = HashMap::new();
+− for (k, v1) in &c1 {
+−     if let Some(v2) = c2.get(k) {
+−         result.insert(*k, *v1.min(v2));
+−     }
+− }
+− let mut items: Vec<_> = result.iter().collect();
+− items.sort_by_key(|&(k, _)| k);
+− log::info!("{:?}", items);
+────────────────────────────────────────────────────────────

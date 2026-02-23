@@ -1,0 +1,8 @@
+  async-with.toml :: aenter_return
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Return value bound to as target
+−     let result = true; // Placeholder
++ pub const result: bool = true;
+────────────────────────────────────────────────────────────

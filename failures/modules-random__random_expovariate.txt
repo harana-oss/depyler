@@ -1,0 +1,17 @@
+  modules-random.toml :: random_expovariate
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use rand as random;
+− use rand::Rng;
+− use rand::prelude::*;
+  pub fn exponential_random(rate: f64) -> f64 {
+      return {
+          use rand::distributions::Distribution;
+          let exp = rand_distr::Exp::new(rate as f64).unwrap();
+−         exp.sample(&mut rand::thread_rng())
+−     }
++         DEPYLER_RNG.with(|rng| exp.sample(&mut *rng.borrow_mut()))
++     };
++ }
+────────────────────────────────────────────────────────────

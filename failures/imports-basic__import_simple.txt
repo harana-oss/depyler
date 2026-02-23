@@ -1,0 +1,11 @@
+  imports-basic.toml :: import_simple
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust: use statement imports from crate/module
+−     use std::env;
+−     // Check that function is available
+−     let result = env::current_dir().is_ok();
+−     assert!(result);
++ use std as os;
+────────────────────────────────────────────────────────────

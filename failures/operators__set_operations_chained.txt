@@ -1,0 +1,19 @@
+  operators.toml :: set_operations_chained
+    Output mismatch
+
+────────────────────────────────────────────────────────────
++ use serde_json;
+  use std::collections::HashSet;
+− pub fn test_ops(a: &HashSet<Point>, b: &HashSet<Point>, c: &HashSet<Point>) -> HashSet<Point> {
++ pub fn test_ops(
++     a: &HashSet<serde_json::Value>,
++     b: &HashSet<serde_json::Value>,
++     c: &HashSet<serde_json::Value>,
++ ) -> HashSet<serde_json::Value> {
+      return a
+          .union(&b)
+          .cloned()
+          .collect::<std::collections::HashSet<_>>()
+          & c;
+  }
+────────────────────────────────────────────────────────────

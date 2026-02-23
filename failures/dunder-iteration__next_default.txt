@@ -1,0 +1,48 @@
+  dunder-iteration.toml :: next_default
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct MyIterator {
+−     items: Vec<i32>,
+−     index: usize,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct MyIterator {
++     pub items: serde_json::Value,
++     pub index: i32,
+  }
+− 
+  impl MyIterator {
+−     fn new(items: Vec<i32>) -> Self {
+−         MyIterator { items, index: 0 }
++     pub fn new(items: serde_json::Value) -> Self {
++         Self { items, index: 0 }
+      }
+− }
+− 
+− impl Iterator for MyIterator {
+−     type Item = i32;
+− 
+−     fn next(&mut self) -> Option<Self::Item> {
++     pub fn __iter__(&self) -> &Self {
++         return self;
++     }
++     pub fn __next__(&mut self) {
+          if self.index < self.items.len() {
+−             let result = self.items[self.index];
++             let mut result = self.items[self.index as usize];
+              self.index += 1;
+−             Some(result)
+−         } else {
+−             None
++             return result;
+          }
++         panic!("Exception: {}", StopIteration);
+      }
+  }
+− 
+− let mut it = MyIterator::new(vec![1, 2]);
+− log::info!("{}", it.next().unwrap_or(-1));
+− log::info!("{}", it.next().unwrap_or(-1));
+− log::info!("{}", it.next().unwrap_or(-1));
+────────────────────────────────────────────────────────────

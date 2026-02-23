@@ -1,0 +1,26 @@
+  dataclasses-field.toml :: field_default
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug)]
+−     struct Counter {
+−         value: i32,
++ #[derive(Debug, Copy, Clone, PartialEq, Default)]
++ pub struct Counter {
++     pub value: i32,
++ }
++ impl Counter {
++     pub fn new() -> Self {
++         Self { value: 0 }
+      }
+− 
+−     impl Default for Counter {
+−         fn default() -> Self {
+−             Counter { value: 0 }
+−         }
+−     }
+− 
+−     let c = Counter::default();
+−     let result = c.value == 0;
++ }
+────────────────────────────────────────────────────────────

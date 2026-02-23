@@ -1,0 +1,13 @@
+  basic-types.toml :: untyped_set_parameter
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use serde_json;
+  use std::collections::HashSet;
+  #[doc = "Count unique items in a set."]
+− pub fn count_unique(items: &HashSet<Point>) -> i32 {
+−     return items.len() as i32;
++ pub fn count_unique(items: &HashSet<serde_json::Value>) -> i32 {
++     return items.len() as i32 as i32;
+  }
+────────────────────────────────────────────────────────────

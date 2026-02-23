@@ -1,0 +1,8 @@
+  async-with.toml :: async_with_lock
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // async with asyncio.Lock(): ...
+−     let result = true; // Placeholder
++ pub const result: bool = true;
+────────────────────────────────────────────────────────────

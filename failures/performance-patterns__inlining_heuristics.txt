@@ -1,0 +1,14 @@
+  performance-patterns.toml :: inlining_heuristics
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[inline]
+  pub fn square(x: i32) -> i32 {
+      return x * x;
+  }
+− 
+− pub fn sum_of_squares(a: i32, b: i32) -> i32 {
++ pub fn sum_of_squares(a: &i32, b: &i32) -> i32 {
+      return square(a) + square(b);
+  }
+────────────────────────────────────────────────────────────

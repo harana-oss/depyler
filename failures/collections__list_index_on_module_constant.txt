@@ -1,0 +1,29 @@
+  collections.toml :: list_index_on_module_constant
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− lazy_static! {
+−     pub static ref VALUES: Vec<String> = vec![
+−         "1".to_string(),
+−         "2".to_string(),
+−         "3".to_string(),
+−         "4".to_string()
+−     ];
+− }
+− use lazy_static::lazy_static;
++ pub const VALUES: serde_json::Value = vec![
++     "1".to_string(),
++     "2".to_string(),
++     "3".to_string(),
++     "4".to_string(),
++ ];
++ use serde_json;
+  pub fn find_index() -> i32 {
+−     return VALUES
+−         .iter()
+−         .position(|x| x == &"4")
+−         .map(|i| i as i32)
+−         .expect("ValueError: value is not in list");
++     return VALUES::index("4");
+  }
+────────────────────────────────────────────────────────────

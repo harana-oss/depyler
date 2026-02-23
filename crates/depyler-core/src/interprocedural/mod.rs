@@ -28,6 +28,7 @@
 //!     protocols: vec![],
 //!     classes: vec![],
 //!     constants: vec![],
+//!     statements: vec![],
 //! };
 //! let mut analyzer = InterproceduralAnalyzer::new(&module);
 //! let analysis = analyzer.analyze();

@@ -1,0 +1,8 @@
+  multiple-inheritance.toml :: mro_inconsistent
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Invalid inheritance that breaks C3
+−     let result = true; // Placeholder
++ pub const result: bool = true;
+────────────────────────────────────────────────────────────

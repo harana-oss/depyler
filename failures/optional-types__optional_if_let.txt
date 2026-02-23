@@ -1,0 +1,12 @@
+  optional-types.toml :: optional_if_let
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn process(value: &Option<i32>) -> i32 {
+      if value.is_some() {
+−         return value.clone().unwrap() * 2;
++         return value.unwrap() * 2;
+      }
+      return 0;
+  }
+────────────────────────────────────────────────────────────

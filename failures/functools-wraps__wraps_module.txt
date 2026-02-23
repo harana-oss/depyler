@@ -1,0 +1,20 @@
+  functools-wraps.toml :: wraps_module
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Module name preserved
+−     // Rust uses module paths: module_path!()
+−     fn func() {}
+− 
+−     let result = module_path!().len() > 0;
++ use std;
++ pub const result: serde_json::Value = func.__module__ == "__main__";
++ use serde_json;
++ pub fn my_decorator(f: &serde_json::Value) {
++     fn wrapper() -> () {
++         return f(args);
++     }
++     return wrapper;
++ }
++ pub fn func() {}
+────────────────────────────────────────────────────────────

@@ -1,0 +1,22 @@
+  optional-types.toml :: optional_field_or_method
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  #[derive(Debug, Clone, PartialEq, Default)]
+  pub struct Config {
+      pub prefix: Option<String>,
+  }
+  impl Config {
+      pub fn new(prefix: Option<String>) -> Self {
+          Self { prefix }
+      }
+  }
+  pub fn get_prefix(c: &Config) -> String {
+−     return c
+−         .prefix
+−         .clone()
+−         .clone()
+−         .unwrap_or_else(|| "default_".to_string());
++     return (c.prefix) || ("default_");
+  }
+────────────────────────────────────────────────────────────

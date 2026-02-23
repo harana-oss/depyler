@@ -1,0 +1,361 @@
+  examples-tooling.toml :: interactive_annotation
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− Error: Augmented assignment not supported for this target type
++ use serde_json;
++ use std::collections::HashMap;
++ use std::collections::HashSet;
++ use std::f64 as math;
++ #[derive(Debug, Clone)]
++ pub struct ZeroDivisionError {
++     message: String,
++ }
++ impl std::fmt::Display for ZeroDivisionError {
++     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
++         write!(f, "division by zero: {}", self.message)
++     }
++ }
++ impl std::error::Error for ZeroDivisionError {}
++ impl ZeroDivisionError {
++     pub fn new(message: impl Into<String>) -> Self {
++         Self {
++             message: message.into(),
++         }
++     }
++ }
++ #[derive(Debug, Clone)]
++ pub struct IndexError {
++     message: String,
++ }
++ impl std::fmt::Display for IndexError {
++     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
++         write!(f, "index out of range: {}", self.message)
++     }
++ }
++ impl std::error::Error for IndexError {}
++ impl IndexError {
++     pub fn new(message: impl Into<String>) -> Self {
++         Self {
++             message: message.into(),
++         }
++     }
++ }
++ #[derive(Debug, Clone)]
++ pub struct DataBuffer {
++     pub data: serde_json::Value,
++     pub position: i32,
++ }
++ impl DataBuffer {
++     pub fn new(size: i32) -> Self {
++         Self {
++             data: vec![0] * size,
++             position: 0,
++         }
++     }
++     pub fn write(&mut self, values: Vec<i32>) {
++         for value in values {
++             if self.position < self.data.len() {
++                 self.data.insert(self.position, value);
++                 self.position += 1;
++             }
++         }
++     }
++     pub fn read(&self, count: i32) -> Vec<i32> {
++         let mut start = max(0, self.position - count);
++         return {
++             let base = &self.data;
++             let start = (start).max(0) as usize;
++             let stop = (self.position).max(0) as usize;
++             if start < base.len() {
++                 base[start..stop.min(base.len())].to_vec()
++             } else {
++                 Vec::new()
++             }
++         };
++     }
++ }
++ #[doc = "\n    Matrix multiplication with nested loops.\n    \n    Interactive mode will suggest:\n    - Aggressive optimization for nested loops\n    - Potential SIMD vectorization\n    - Loop unrolling opportunities\n    "]
++ pub fn matrix_multiply(a: &Vec<Vec<f64>>, b: &Vec<Vec<f64>>) -> Result<Vec<Vec<f64>>, IndexError> {
++     let n = a.len() as i32;
++     let m = b.get(0usize).cloned().unwrap().len() as i32;
++     let k = b.len() as i32;
++     let result = (0..n)
++         .map(|_| (0..m).map(|_| 0.0).collect::<Vec<_>>())
++         .collect::<Vec<_>>();
++     for i in 0..n {
++         for j in 0..m {
++             for p in 0..k {
++                 result.get_mut(i as usize).unwrap()[j as usize] = result
++                     .get(i as usize)
++                     .cloned()
++                     .unwrap()
++                     .get(j as usize)
++                     .cloned()
++                     .unwrap()
++                     + a.get(i as usize)
++                         .cloned()
++                         .unwrap()
++                         .get(p as usize)
++                         .cloned()
++                         .unwrap()
++                         * b.get(p as usize)
++                             .cloned()
++                             .unwrap()
++                             .get(j as usize)
++                             .cloned()
++                             .unwrap();
++             }
++         }
++     }
++     return Ok(result);
++ }
++ #[doc = "\n    Process text data to count keyword occurrences.\n    \n    Interactive mode will suggest:\n    - String ownership strategy(borrowed vs owned)\n    - Potential zero-copy optimizations\n    "]
++ pub fn process_text_data(
++     texts: &Vec<String>,
++     keywords: &Vec<String>,
++ ) -> Result<HashMap<String, i32>, IndexError> {
++     let mut keyword_counts = keywords
++         .iter()
++         .cloned()
++         .map(|kw| (kw, 0))
++         .collect::<HashMap<_, _>>();
++     for text in texts.iter().cloned() {
++         let normalized = text.to_lowercase().trim();
++         for keyword in keywords.iter().cloned() {
++             if normalized.contains(&keyword) {
++                 {
++                     let _key = keyword;
++                     let _old_val = keyword_counts.get(&_key).cloned().unwrap_or_default();
++                     keyword_counts.insert(_key, _old_val + 1);
++                 }
++             }
++         }
++     }
++     return Ok(keyword_counts);
++ }
++ #[doc = "\n    Recursive quicksort implementation.\n    \n    Interactive mode will suggest:\n    - Stack depth limits\n    - Tail recursion optimization\n    - Memory allocation strategy\n    "]
++ pub fn quicksort(arr: Vec<i32>) -> Result<Vec<i32>, IndexError> {
++     if arr.len() as i32 <= 1 {
++         return Ok(arr);
++     }
++     let pivot = {
++         let base = &arr;
++         let idx: i32 = {
++             let a = arr.len() as i32;
++             let b = 2;
++             let q = a / b;
++             let r = a % b;
++             let r_negative = r < 0;
++             let b_negative = b < 0;
++             let r_nonzero = r != 0;
++             let signs_differ = r_negative != b_negative;
++             let needs_adjustment = r_nonzero && signs_differ;
++             if needs_adjustment {
++                 q - 1
++             } else {
++                 q
++             }
++         };
++         let actual_idx = if idx < 0 {
++             base.len().saturating_sub(idx.abs() as usize)
++         } else {
++             idx as usize
++         };
++         base.get(actual_idx).cloned().unwrap()
++     };
++     let left = arr
++         .iter()
++         .cloned()
++         .filter(|x| *x < pivot)
++         .collect::<Vec<_>>();
++     let middle = arr
++         .iter()
++         .cloned()
++         .filter(|x| *x == pivot)
++         .collect::<Vec<_>>();
++     let right = arr
++         .iter()
++         .cloned()
++         .filter(|x| *x > pivot)
++         .collect::<Vec<_>>();
++     return Ok(quicksort(left)
++         .iter()
++         .chain(middle.iter())
++         .cloned()
++         .collect::<Vec<_>>()
++         + quicksort(right));
++ }
++ #[doc = "\n    Safe division with error handling.\n    \n    Interactive mode will suggest:\n    - Error handling strategy\n    - Result type usage\n    - Panic-free guarantees\n    "]
++ pub fn safe_divide(
++     numbers: &Vec<f64>,
++     divisors: &Vec<f64>,
++ ) -> Result<Vec<Option<f64>>, IndexError> {
++     let mut results = vec![];
++     for i in 0..std::cmp::min(numbers.len() as i32, divisors.len() as i32) {
++         if divisors.get(i as usize).cloned().unwrap() != 0 {
++             results.push(
++                 (numbers.get(i as usize).cloned().unwrap() as f64)
++                     / (divisors.get(i as usize).cloned().unwrap() as f64),
++             );
++         } else {
++             results.push(None);
++         }
++     }
++     return Ok(results);
++ }
++ #[doc = "\n    Function that could benefit from parallelization.\n    \n    Interactive mode will suggest:\n    - Thread safety requirements\n    - Parallelization strategy\n    - Send/Sync trait bounds\n    "]
++ pub fn parallel_map(
++     func: &serde_json::Value,
++     data: &Vec<i32>,
++ ) -> Result<Vec<i32>, ZeroDivisionError> {
++     let mut results = vec![];
++     for item in data.iter().cloned() {
++         let mut result = func(item);
++         for __ in 0..1000 {
++             result = (result * 7 + 13) % 1000000;
++         }
++         results.push(result);
++     }
++     return Ok(results);
++ }
++ #[doc = "\n    Route optimization using dynamic programming.\n    \n    Interactive mode will suggest multiple annotations:\n    - Algorithm complexity hints\n    - Memory vs speed tradeoffs\n    - Caching strategy\n    - Error handling approach\n    "]
++ pub fn optimize_route(
++     distances: &HashMap<String, HashMap<String, f64>>,
++     start: String,
++     end: String,
++ ) -> Result<Option<Vec<String>>, IndexError> {
++     let mut visited = HashSet::<i32>::new();
++     let mut distances_from_start = {
++         let mut map = HashMap::new();
++         map.insert(start, 0);
++         map
++     };
++     let mut previous = {
++         let map = HashMap::new();
++         map
++     };
++     while (visited.len() as i32) < distances.len() as i32 {
++         let mut current = None;
++         let mut current_distance = ("inf") as f64;
++         for node in distances.iter().cloned() {
++             if (!visited.contains(&node)) && (distances_from_start.get(&node).is_some()) {
++                 if distances_from_start.get(&node).cloned().unwrap() < current_distance {
++                     current = node;
++                     current_distance = distances_from_start.get(&node).cloned().unwrap();
++                 }
++             }
++         }
++         if current.is_none() {
++             break;
++         }
++         visited.insert(current);
++         for neighbor in distances.get(&current).cloned().unwrap() {
++             if !visited.contains(&neighbor) {
++                 let new_distance = distances_from_start.get(&current).cloned().unwrap()
++                     + distances
++                         .get(&current)
++                         .cloned()
++                         .unwrap()
++                         .get(neighbor as usize)
++                         .cloned()
++                         .unwrap();
++                 if (!distances_from_start.get(&neighbor).is_some())
++                     || (new_distance < distances_from_start.get(&neighbor).cloned().unwrap())
++                 {
++                     distances_from_start.insert(neighbor, new_distance);
++                     previous.insert(neighbor, current);
++                 }
++             }
++         }
++     }
++     if !previous.get(&end).is_some() {
++         return Ok(None);
++     }
++     let mut path = vec![];
++     let mut current = end;
++     while current != start {
++         path.push(current);
++         current = previous.get(&current).cloned().unwrap();
++     }
++     path.push(start);
++     path.reverse();
++     return Ok(Some(path));
++ }
++ #[doc = "\n    Demonstration of functions that benefit from interactive annotation.\n    \n    When run with --interactive --annotate, Depyler will:\n    1. Analyze each function's characteristics\n    2. Suggest appropriate annotations\n    3. Guide you through the annotation process\n    4. Show before/after transpilation results\n    "]
++ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
++     log::info!("{}", "Interactive Annotation Examples");
++     log::info!("{}", "=".repeat(40 as usize));
++     let a = vec![vec![1, 2], vec![3, 4]];
++     let b = vec![vec![5, 6], vec![7, 8]];
++     let mut result = matrix_multiply(&a, &b)?;
++     log::info!("{}", format!("Matrix multiplication result: {:?}", result));
++     let texts = vec![
++         "Hello world".to_string(),
++         "Hello Python".to_string(),
++         "Rust is fast".to_string(),
++     ];
++     let keywords = vec![
++         "hello".to_string(),
++         "rust".to_string(),
++         "python".to_string(),
++     ];
++     let counts = process_text_data(&texts, &keywords)?;
++     log::info!("{}", format!("Keyword counts: {:?}", counts));
++     let numbers = vec![64, 34, 25, 12, 22, 11, 90];
++     let sorted_nums = quicksort(numbers)?;
++     log::info!("{}", format!("Sorted: {:?}", sorted_nums));
++     let nums = vec![10.0, 20.0, 30.0];
++     let divs = vec![2.0, 0.0, 5.0];
++     let mut results = safe_divide(&nums, &divs)?;
++     log::info!("{}", format!("Division results: {:?}", results));
++     let data = (0..10).collect::<Vec<_>>();
++     let mapped = parallel_map(|x| x * x, &data)?;
++     log::info!("{}", format!("Mapped data: {:?}", mapped));
++     let mut buffer = DataBuffer::new(100);
++     buffer.write(vec![1, 2, 3, 4, 5]);
++     let recent = buffer.read(3);
++     log::info!("{}", format!("Recent buffer data: {}", recent));
++     let graph = {
++         let mut map = HashMap::new();
++         map.insert("A".to_string(), {
++             let mut map = HashMap::new();
++             map.insert("B".to_string(), 1);
++             map.insert("C".to_string(), 4);
++             map
++         });
++         map.insert("B".to_string(), {
++             let mut map = HashMap::new();
++             map.insert("A".to_string(), 1);
++             map.insert("C".to_string(), 2);
++             map.insert("D".to_string(), 5);
++             map
++         });
++         map.insert("C".to_string(), {
++             let mut map = HashMap::new();
++             map.insert("A".to_string(), 4);
++             map.insert("B".to_string(), 2);
++             map.insert("D".to_string(), 1);
++             map
++         });
++         map.insert("D".to_string(), {
++             let mut map = HashMap::new();
++             map.insert("B".to_string(), 5);
++             map.insert("C".to_string(), 1);
++             map
++         });
++         map
++     };
++     let route = optimize_route(&graph, "A".to_string(), "D".to_string())?;
++     log::info!(
++         "{}",
++         format!("Optimal route: {}", {
++             match &route {
++                 Some(v) => format!("{}", v),
++                 None => "None".to_string(),
++             }
++         })
++     );
++     Ok(())
++ }
+────────────────────────────────────────────────────────────

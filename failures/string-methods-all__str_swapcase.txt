@@ -1,0 +1,16 @@
+  string-methods-all.toml :: str_swapcase
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub const result: String = "Hello"
+−     .chars()
+−     .map(|c| {
+−         if c.is_uppercase() {
+−             c.to_lowercase().collect::<String>()
+−         } else {
+−             c.to_uppercase().collect::<String>()
+−         }
+−     })
+−     .collect();
++ 
+────────────────────────────────────────────────────────────

@@ -1,0 +1,11 @@
+  assert-statement.toml :: assert_not
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− fn main() {
+−     let invalid = false;
+−     assert!(!invalid);
+−     let result = true;
+− }
++ 
+────────────────────────────────────────────────────────────

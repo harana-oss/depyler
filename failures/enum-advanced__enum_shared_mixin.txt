@@ -1,0 +1,36 @@
+  enum-advanced.toml :: enum_shared_mixin
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug)]
+− enum Color {
+−     Red = 1,
+−     Green = 2,
++ #[derive(Debug, Copy, Clone)]
++ pub struct Mixin {}
++ impl Mixin {
++     pub fn new() -> Self {
++         Self {}
++     }
++     pub fn double(&self) -> i32 {
++         return self.value * 2;
++     }
+  }
+− 
++ #[derive(Debug, Copy, Clone)]
++ pub struct Color {}
+  impl Color {
+−     fn double(&self) -> i32 {
+−         (*self as i32) * 2
++     pub const RED: i32 = 1;
++     pub const GREEN: i32 = 2;
++     pub fn new() -> Self {
++         Self {}
+      }
+  }
+− 
+  pub fn test_enum_shared_mixin() -> i32 {
+−     Color::Red.double()
++     return Color::RED.double();
+  }
+────────────────────────────────────────────────────────────

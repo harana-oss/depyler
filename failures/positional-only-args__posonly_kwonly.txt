@@ -1,0 +1,12 @@
+  positional-only-args.toml :: posonly_kwonly
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− fn combined(a: i32, b: i32, c: i32) -> String {
+−     format!("a={}, b={}, c={}", a, b, c)
++ pub fn combined(b: String) -> String {
++     return format!("a={}, b={}, c={}", a, b, c);
+  }
+− 
+− log::info!("{}", combined(1, 2, 3));
+────────────────────────────────────────────────────────────

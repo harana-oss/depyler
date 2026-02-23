@@ -1,0 +1,45 @@
+  contextlib-utilities.toml :: exitstack_enter
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct Resource {
+−     closed: bool,
++ #[derive(Debug, Copy, Clone)]
++ pub struct Resource {
++     pub closed: bool,
+  }
+− 
+  impl Resource {
+−     fn new() -> Self {
++     pub fn new() -> Self {
+          Self { closed: false }
+      }
+−     fn close(&mut self) {
+−         self.closed = true;
++     pub fn __enter__(&self) -> &Self {
++         return self;
+      }
+− }
+− 
+− impl Drop for Resource {
+−     fn drop(&mut self) {
+−         self.close();
++     pub fn __exit__(&mut self) -> bool {
++         self.closed = true;
++         return false;
+      }
+  }
+− 
+  pub fn test_exitstack_enter() -> bool {
+−     let mut res = Resource::new();
+−     {
+−         let _r = &mut res;
+−     }
+−     res.closed
++     let res = Resource::new();
++     let _context = ExitStack::new();
++     let mut stack = _context.__enter__();
++     let r = stack.enter_context(res);
++     return res.closed;
+  }
+────────────────────────────────────────────────────────────

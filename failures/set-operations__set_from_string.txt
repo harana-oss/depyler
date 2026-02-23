@@ -1,0 +1,9 @@
+  set-operations.toml :: set_from_string
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub const result: HashSet<char> = "hello".chars().collect::<HashSet<_>>();
+− use serde_json;
+− use std::collections::HashSet;
++ 
+────────────────────────────────────────────────────────────

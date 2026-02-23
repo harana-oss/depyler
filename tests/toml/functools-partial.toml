@@ -23,11 +23,8 @@ fn add(a: i32, b: i32) -> i32 {
     a + b
 }
 
-fn main() {
-    let add5 = |b| add(5, b);
-    log::info!("{}", add5(3));
-}
-"""
+let add5 = |b| add(5, b);
+log::info!("{}", add5(3));"""
 expected_output = "8"
 
 [[test]]
@@ -47,11 +44,8 @@ fn add(a: i32, b: i32) -> i32 {
     a + b
 }
 
-fn main() {
-    let add5 = |b| add(5, b);
-    log::info!("{}", add5(3) == add(5, 3));
-}
-"""
+let add5 = |b| add(5, b);
+log::info!("{}", add5(3) == add(5, 3));"""
 expected_output = "True"
 
 [[test]]
@@ -71,11 +65,8 @@ fn greet(name: &str, greeting: &str) -> String {
     format!("{}, {}!", greeting, name)
 }
 
-fn main() {
-    let greet_hi = |name| greet(name, "Hi");
-    log::info!("{}", greet_hi("Alice"));
-}
-"""
+let greet_hi = |name| greet(name, "Hi");
+log::info!("{}", greet_hi("Alice"));"""
 expected_output = "Hi, Alice!"
 
 # =============================================================================
@@ -99,11 +90,8 @@ fn multiply(a: i32, b: i32, c: i32) -> i32 {
     a * b * c
 }
 
-fn main() {
-    let double_and = |c| multiply(2, 2, c);
-    log::info!("{}", double_and(5));
-}
-"""
+let double_and = |c| multiply(2, 2, c);
+log::info!("{}", double_and(5));"""
 expected_output = "20"
 
 [[test]]
@@ -123,11 +111,8 @@ fn compute(a: i32, b: i32, c: i32) -> i32 {
     a + b * c
 }
 
-fn main() {
-    let add_with_5 = |b| compute(5, b, 2);
-    log::info!("{}", add_with_5(3));
-}
-"""
+let add_with_5 = |b| compute(5, b, 2);
+log::info!("{}", add_with_5(3));"""
 expected_output = "11"
 
 [[test]]
@@ -147,11 +132,8 @@ fn sum_three(a: i32, b: i32, c: i32) -> i32 {
     a + b + c
 }
 
-fn main() {
-    let add_10 = |b, c| sum_three(10, b, c);
-    log::info!("{}", add_10(20, 30));
-}
-"""
+let add_10 = |b, c| sum_three(10, b, c);
+log::info!("{}", add_10(20, 30));"""
 expected_output = "60"
 
 # =============================================================================
@@ -177,12 +159,9 @@ fn add(a: i32, b: i32) -> i32 {
     a + b
 }
 
-fn main() {
-    // In Rust, we would use a struct to hold both function and args
-    let add5 = |b| add(5, b);
-    log::info!("True"); // Simulated
-}
-"""
+// In Rust, we would use a struct to hold both function and args
+let add5 = |b| add(5, b);
+log::info!("True"); // Simulated"""
 expected_output = "True"
 
 [[test]]
@@ -200,11 +179,8 @@ print(hello.args)
 rust = """
 // Rust closures capture by value/reference
 // This is a Python-specific feature
-fn main() {
-    let args = ("Hello",);
-    log::info!("('Hello',)");
-}
-"""
+let args = ("Hello",);
+log::info!("('Hello',)");"""
 expected_output = "('Hello',)"
 
 [[test]]
@@ -222,10 +198,7 @@ print(formal.keywords)
 rust = """
 // Rust doesn't have keyword arguments like Python
 // This demonstrates the concept with a comment
-fn main() {
-    log::info!("{{'greeting': 'Good evening'}}");
-}
-"""
+log::info!("{{'greeting': 'Good evening'}}");"""
 expected_output = "{'greeting': 'Good evening'}"
 
 # =============================================================================
@@ -260,11 +233,8 @@ impl Calculator {
     }
 }
 
-fn main() {
-    let calc = Calculator;
-    log::info!("{}", calc.add_five(3));
-}
-"""
+let calc = Calculator;
+log::info!("{}", calc.add_five(3));"""
 expected_output = "8"
 
 [[test]]
@@ -295,11 +265,8 @@ impl Greeter {
     }
 }
 
-fn main() {
-    let g = Greeter;
-    log::info!("{}", g.say_hello("Alice"));
-}
-"""
+let g = Greeter;
+log::info!("{}", g.say_hello("Alice"));"""
 expected_output = "Hello, Alice!"
 
 [[test]]
@@ -342,12 +309,9 @@ impl Counter {
     }
 }
 
-fn main() {
-    let mut c = Counter::new();
-    log::info!("{}", c.add_one());
-    log::info!("{}", c.add_one());
-}
-"""
+let mut c = Counter::new();
+log::info!("{}", c.add_one());
+log::info!("{}", c.add_one());"""
 expected_output = """1
 2"""
 
@@ -372,11 +336,8 @@ fn handle_click(button_id: &str, event: &str) -> String {
     format!("Button {} clicked with event {}", button_id, event)
 }
 
-fn main() {
-    let button_handler = |event| handle_click("submit", event);
-    log::info!("{}", button_handler("click"));
-}
-"""
+let button_handler = |event| handle_click("submit", event);
+log::info!("{}", button_handler("click"));"""
 expected_output = "Button submit clicked with event click"
 
 [[test]]
@@ -398,13 +359,10 @@ fn power(base: i32, exponent: i32) -> i32 {
     base.pow(exponent as u32)
 }
 
-fn main() {
-    let square = |base| power(base, 2);
-    let cube = |base| power(base, 3);
-    log::info!("{}", square(4));
-    log::info!("{}", cube(4));
-}
-"""
+let square = |base| power(base, 2);
+let cube = |base| power(base, 3);
+log::info!("{}", square(4));
+log::info!("{}", cube(4));"""
 expected_output = """16
 64"""
 
@@ -427,13 +385,10 @@ fn log(level: &str, message: &str) -> String {
     format!("[{}] {}", level, message)
 }
 
-fn main() {
-    let info = |msg| log("INFO", msg);
-    let error = |msg| log("ERROR", msg);
-    log::info!("{}", info("Application started"));
-    log::info!("{}", error("Something went wrong"));
-}
-"""
+let info = |msg| log("INFO", msg);
+let error = |msg| log("ERROR", msg);
+log::info!("{}", info("Application started"));
+log::info!("{}", error("Something went wrong"));"""
 expected_output = """[INFO] Application started
 [ERROR] Something went wrong"""
 
@@ -456,13 +411,10 @@ fn power(base: i32, exponent: i32) -> i32 {
     base.pow(exponent as u32)
 }
 
-fn main() {
-    let square = |base| power(base, 2);
-    let numbers = vec![1, 2, 3, 4];
-    let result: Vec<i32> = numbers.iter().map(|&n| square(n)).collect();
-    log::info!("{:?}", result);
-}
-"""
+let square = |base| power(base, 2);
+let numbers = vec![1, 2, 3, 4];
+let result: Vec<i32> = numbers.iter().map(|&n| square(n)).collect();
+log::info!("{:?}", result);"""
 expected_output = "[1, 4, 9, 16]"
 
 # =============================================================================
@@ -492,17 +444,14 @@ fn add(a: i32, b: i32) -> i32 {
     a + b
 }
 
-fn main() {
-    // Using closure (similar to partial)
-    let add5_closure = |b| add(5, b);
+// Using closure (similar to partial)
+let add5_closure = |b| add(5, b);
 
-    // Using lambda-style closure
-    let add5_lambda = |b| add(5, b);
+// Using lambda-style closure
+let add5_lambda = |b| add(5, b);
 
-    log::info!("{}", add5_closure(3));
-    log::info!("{}", add5_lambda(3));
-}
-"""
+log::info!("{}", add5_closure(3));
+log::info!("{}", add5_lambda(3));"""
 expected_output = """8
 8"""
 
@@ -527,13 +476,10 @@ fn multiply(a: i32, b: i32) -> i32 {
     a * b
 }
 
-fn main() {
-    let double = |b| multiply(2, b);
-    log::info!("Function name: multiply");
-    log::info!("Frozen args: (2,)");
-    log::info!("Result: {}", double(5));
-}
-"""
+let double = |b| multiply(2, b);
+log::info!("Function name: multiply");
+log::info!("Frozen args: (2,)");
+log::info!("Result: {}", double(5));"""
 expected_output = """Function name: multiply
 Frozen args: (2,)
 Result: 10"""
@@ -560,12 +506,9 @@ fn add_three(a: i32, b: i32, c: i32) -> i32 {
     a + b + c
 }
 
-fn main() {
-    let add_10 = |b, c| add_three(10, b, c);
-    let add_10_20 = |c| add_10(20, c);
-    log::info!("{}", add_10_20(30));
-}
-"""
+let add_10 = |b, c| add_three(10, b, c);
+let add_10_20 = |c| add_10(20, c);
+log::info!("{}", add_10_20(30));"""
 expected_output = "60"
 
 [[test]]
@@ -585,15 +528,12 @@ fn sum_all(args: &[i32]) -> i32 {
     args.iter().sum()
 }
 
-fn main() {
-    let add_to_10 = |rest: &[i32]| {
-        let mut all_args = vec![10];
-        all_args.extend_from_slice(rest);
-        sum_all(&all_args)
-    };
-    log::info!("{}", add_to_10(&[20, 30]));
-}
-"""
+let add_to_10 = |rest: &[i32]| {
+    let mut all_args = vec![10];
+    all_args.extend_from_slice(rest);
+    sum_all(&all_args)
+};
+log::info!("{}", add_to_10(&[20, 30]));"""
 expected_output = "60"
 
 [[test]]
@@ -615,18 +555,15 @@ fn process(kwargs: HashMap<&str, i32>) -> i32 {
     kwargs.values().sum()
 }
 
-fn main() {
-    // Rust doesn't have **kwargs, but we can simulate with HashMap
-    let with_a = |mut extra: HashMap<&str, i32>| {
-        extra.insert("a", 10);
-        process(extra)
-    };
-    let mut args = HashMap::new();
-    args.insert("b", 20);
-    args.insert("c", 30);
-    log::info!("{}", with_a(args));
-}
-"""
+// Rust doesn't have **kwargs, but we can simulate with HashMap
+let with_a = |mut extra: HashMap<&str, i32>| {
+    extra.insert("a", 10);
+    process(extra)
+};
+let mut args = HashMap::new();
+args.insert("b", 20);
+args.insert("c", 30);
+log::info!("{}", with_a(args));"""
 expected_output = "60"
 
 [[test]]
@@ -647,12 +584,9 @@ fn greet(name: &str, greeting: &str) -> String {
     format!("{}, {}!", greeting, name)
 }
 
-fn main() {
-    // In Rust, we would need to design the API differently
-    // to allow overriding captured values
-    let hello_greeter =
-        |name, greeting_override: Option<&str>| greet(name, greeting_override.unwrap_or("Hello"));
-    log::info!("{}", hello_greeter("Alice", Some("Hi")));
-}
-"""
+// In Rust, we would need to design the API differently
+// to allow overriding captured values
+let hello_greeter =
+    |name, greeting_override: Option<&str>| greet(name, greeting_override.unwrap_or("Hello"));
+log::info!("{}", hello_greeter("Alice", Some("Hi")));"""
 expected_output = "Hi, Alice!"

@@ -89,7 +89,7 @@ def process_string(s: str) -> int:
 
 rust = '''
 pub fn process_string(s: String) -> i32 {
-    return s.len() as i32 as i32;
+    return s.len() as i32;
 }
 '''
 
@@ -151,7 +151,7 @@ description = "String mutation requires ownership"
 
 python = '''
 def append_exclamation(s: str) -> str:
-    s = s + "!"
+    s += "!"
     return s
 '''
 
@@ -233,10 +233,9 @@ def select_longer(s1: str, s2: str) -> str:
 
 rust = '''
 pub fn select_longer(s1: String, s2: String) -> String {
-    let _cse_temp_0 = s1.clone().len() as i32;
-    let _cse_temp_1 = s2.clone().len() as i32;
-    let _cse_temp_2 = _cse_temp_0 > _cse_temp_1;
-    if _cse_temp_2 {
+    let _cse_temp_0 = s1.len() as i32;
+    let _cse_temp_1 = s2.len() as i32;
+        if _cse_temp_0 > _cse_temp_1 {
         return s1;
     } else {
         return s2;
@@ -280,9 +279,8 @@ def process_in_scope(data: str) -> str:
 
 rust = '''
 pub fn process_in_scope(data: String) -> String {
-    let _cse_temp_0 = data.clone().len() as i32;
-    let _cse_temp_1 = _cse_temp_0 > 0;
-    if _cse_temp_1 {
+    let _cse_temp_0 = data.len() as i32;
+        if _cse_temp_0 > 0 {
         let temp = format!("{}{}", data, "!");
         return temp;
     }
@@ -333,25 +331,6 @@ impl State {
     pub fn new(players: Vec<String>) -> Self {
         Self { players }
     }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "players" => Some(Box::new(self.players.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "players" => {
-                if let Some(v) = value.downcast_ref::<Vec<String>>() {
-                    self.players = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
-    }
 }
 pub fn get_players(state: &State) -> Vec<String> {
     return state.players.clone();
@@ -382,37 +361,10 @@ impl Team {
     pub fn new(home: Vec<String>, away: Vec<String>) -> Self {
         Self { home, away }
     }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "home" => Some(Box::new(self.home.clone()) as Box<dyn std::any::Any>),
-            "away" => Some(Box::new(self.away.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "home" => {
-                if let Some(v) = value.downcast_ref::<Vec<String>>() {
-                    self.home = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "away" => {
-                if let Some(v) = value.downcast_ref::<Vec<String>>() {
-                    self.away = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
-    }
 }
 pub fn get_team_players(team: &Team, is_home: bool) -> Vec<String> {
-    return if is_home { team.home.clone() } else { team.away.clone() }
+    return if is_home { team.home.clone() } else { team.away.clone() };
+}
 '''
 
 [[test]]
@@ -441,25 +393,6 @@ impl Inner {
     pub fn new(data: Vec<i32>) -> Self {
         Self { data }
     }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "data" => Some(Box::new(self.data.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "data" => {
-                if let Some(v) = value.downcast_ref::<Vec<i32>>() {
-                    self.data = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
-    }
 }
 #[derive(Debug, Clone)]
 pub struct Outer {
@@ -468,25 +401,6 @@ pub struct Outer {
 impl Outer {
     pub fn new(inner: Inner) -> Self {
         Self { inner }
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "inner" => Some(Box::new(self.inner.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "inner" => {
-                if let Some(v) = value.downcast_ref::<Inner>() {
-                    self.inner = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 pub fn get_inner_data(outer: &Outer) -> Vec<i32> {
@@ -516,25 +430,6 @@ pub struct Container {
 impl Container {
     pub fn new(items: Vec<i32>) -> Self {
         Self { items }
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "items" => Some(Box::new(self.items.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "items" => {
-                if let Some(v) = value.downcast_ref::<Vec<i32>>() {
-                    self.items = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 pub fn take_ownership_and_return_field(container: &Container) -> Vec<i32> {
@@ -596,12 +491,13 @@ impl Team {
     pub const HOME: &'static str = "home";
     pub const AWAY: &'static str = "away";
 }
-pub fn _get_team_stats<'a>(state: &'a mut State, team: &str) -> &'a mut TeamStatistics {
+fn _get_team_stats<'a>(state: &'a mut State, team: &str) -> &'a mut TeamStatistics {
     return if team == Team::HOME {
         &mut state.home_statistics
     } else {
         &mut state.away_statistics
-    }
+    };
+}
 pub fn update_score(state: &mut State, team: &str, points: i32) {
     let stats = _get_team_stats(state, team);
     stats.score = stats.score + points;

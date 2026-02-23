@@ -1,0 +1,75 @@
+  multiple-inheritance.toml :: c3_linearization
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // MRO follows C3 algorithm
+−     // Rust uses trait bounds for hierarchies
+−     trait O {}
+−     trait A: O {}
+−     trait B: O {}
+−     trait C: O {}
+− 
+−     struct F;
+− 
+−     impl O for F {}
+−     impl A for F {}
+−     impl B for F {}
+−     impl C for F {}
+− 
+−     pub fn test_c3() -> bool {
+−         // Verify F implements all traits in hierarchy
+−         let f = F;
+−         let _o: &dyn O = &f;
+−         true
++ #[derive(Debug, Copy, Clone)]
++ pub struct O {}
++ impl O {
++     pub fn new() -> Self {
++         Self {}
+      }
+− 
+−     let result = test_c3();
++ }
++ #[derive(Debug, Copy, Clone)]
++ pub struct A {}
++ impl A {
++     pub fn new() -> Self {
++         Self {}
++     }
++ }
++ #[derive(Debug, Copy, Clone)]
++ pub struct B {}
++ impl B {
++     pub fn new() -> Self {
++         Self {}
++     }
++ }
++ #[derive(Debug, Copy, Clone)]
++ pub struct C {}
++ impl C {
++     pub fn new() -> Self {
++         Self {}
++     }
++ }
++ #[derive(Debug, Copy, Clone)]
++ pub struct D {}
++ impl D {
++     pub fn new() -> Self {
++         Self {}
++     }
++ }
++ #[derive(Debug, Copy, Clone)]
++ pub struct E {}
++ impl E {
++     pub fn new() -> Self {
++         Self {}
++     }
++ }
++ #[derive(Debug, Copy, Clone)]
++ pub struct F {}
++ impl F {
++     pub fn new() -> Self {
++         Self {}
++     }
++ }
+────────────────────────────────────────────────────────────

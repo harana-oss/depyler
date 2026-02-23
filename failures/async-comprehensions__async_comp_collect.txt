@@ -1,0 +1,40 @@
+  async-comprehensions.toml :: async_comp_collect
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use futures::stream::{self, StreamExt};
+− 
+− #[tokio::main]
+− async let items = vec![1, 2, 3, 4, 5];
+− let results: Vec<i32> = stream::iter(items).map(|x| x * 2).collect().await;
+− log::info!("{:?}", results);
++ use serde_json;
++ #[doc = " Generator state struct"] #[derive(Debug)] struct FetchDataState {
++     state: usize, items: serde_json::Value
++ }
++ #[doc = " Generator function - returns Iterator"] pub fn fetch_data(items: & serde_json::Value) -> impl Iterator<Item = serde_json::Value>{
++     FetchDataState {
++     state: 0, items: items
++ }
++ } impl Iterator for FetchDataState {
++     type Item = serde_json::Value;
++     fn next(&mut self) -> Option<Self::Item>{
++     match self.state {
++     0 =>{
++     self.state = 1;
++     for _item in self.items.iter().cloned() {
++     return Some(item * 2);
++    
++ }
++ None
++ }
++ _ =>None
++ }
++ }
++ }
++ pub async fn test() -> Vec<serde_json::Value>{
++     let items = vec! [1, 2, 3, 4, 5];
++     let results = fetch_data(& items).iter().cloned().collect::<Vec<_>>();
++     return results;
++     }
+────────────────────────────────────────────────────────────

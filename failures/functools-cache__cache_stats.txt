@@ -1,0 +1,24 @@
+  functools-cache.toml :: cache_stats
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Track hits, misses, size, maxsize
+−     struct CacheStats {
+−         hits: usize,
+−         misses: usize,
+−         size: usize,
+−         maxsize: usize,
+−     }
+− 
+−     let stats = CacheStats {
+−         hits: 1,
+−         misses: 2,
+−         size: 2,
+−         maxsize: 2,
+−     };
+−     let result = stats.hits == 1 && stats.misses == 2;
++ use std;
++ pub fn func(x: i32) {
++     return x * x;
++ }
+────────────────────────────────────────────────────────────

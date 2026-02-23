@@ -1,0 +1,14 @@
+  borrow-checker-violations.toml :: dangling_reference_loop
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn process_items(items: Vec<i32>) -> i32 {
++ pub fn process_items(items: &Vec<i32>) -> i32 {
+      let mut total = 0;
+−     for item in items {
++     for item in items.iter().cloned() {
+          total += item;
+      }
+      return total;
+  }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,9 @@
+  match-or-patterns.toml :: or_class
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // case int() | float(): any number
+−     // Type checked at compile time
+−     let result = true;
++ 
+────────────────────────────────────────────────────────────

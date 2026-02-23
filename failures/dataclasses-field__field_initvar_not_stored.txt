@@ -1,0 +1,30 @@
+  dataclasses-field.toml :: field_initvar_not_stored
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // In Rust, constructor parameters don't become fields unless stored
+−     #[derive(Debug)]
+−     struct C {
+−         x: i32,
+−     }
+− 
+−     impl C {
+−         fn new(x: i32, multiplier: i32) -> Self {
+−             C { x: x * multiplier }
++ #[derive(Debug, Clone, PartialEq, Default)]
++ pub struct C {
++     pub x: i32,
++     pub multiplier: InitVar<i32>,
++ }
++ impl C {
++     pub fn new(x: i32) -> Self {
++         Self {
++             x,
++             multiplier: Default::default(),
+          }
+      }
+− 
+−     let c = C::new(5, 2);
+−     let result = true; // multiplier is not stored
++ }
+────────────────────────────────────────────────────────────

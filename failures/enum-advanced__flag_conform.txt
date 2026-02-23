@@ -1,0 +1,28 @@
+  enum-advanced.toml :: flag_conform
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug, Clone, Copy)]
+− struct Permission {
+−     value: u8,
++ #[derive(Debug, Copy, Clone)]
++ pub struct Permission {}
++ impl Permission {
++     pub const READ: i32 = 1;
++     pub const WRITE: i32 = 2;
++     pub fn new() -> Self {
++         Self {}
++     }
++ }
++ pub fn test_flag_conform() -> i32 {
++     return Permission.READ.value;
+  }
+− 
+− impl Permission {
+−     const READ: Self = Self { value: 1 };
+−     const WRITE: Self = Self { value: 2 }
+− 
+− pub fn test_flag_conform() -> u8 {
+−     Permission::READ.value
+− }
+────────────────────────────────────────────────────────────

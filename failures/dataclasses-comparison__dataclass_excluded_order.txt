@@ -1,0 +1,49 @@
+  dataclasses-comparison.toml :: dataclass_excluded_order
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug)]
+−     struct Record {
+−         key: i32,
+−         timestamp: f64,
+−     }
+− 
+−     impl PartialEq for Record {
+−         fn eq(&self, other: &Self) -> bool {
+−             self.key == other.key
+−         }
+−     }
+− 
+−     impl Eq for Record {}
+− 
+−     impl PartialOrd for Record {
+−         fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+−             self.key.partial_cmp(&other.key)
+−         }
+−     }
+− 
+−     impl Ord for Record {
+−         fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+−             self.key.cmp(&other.key)
+−         }
++ pub const result: serde_json::Value = Record::new(1, 100.0) < Record::new(2, 200.0);
++ use serde_json;
++ #[derive(Debug, Copy, Clone)]
++ pub struct Record {
++     pub key: i32,
++ }
++ impl Record {
++     pub const timestamp: f64 = field();
++     pub fn new(key: i32) -> Self {
++         Self { key }
+      }
+− 
+−     let result = Record {
+−         key: 1,
+−         timestamp: 100.0,
+−     } < Record {
+−         key: 2,
+−         timestamp: 200.0,
+−     };
++ }
+────────────────────────────────────────────────────────────

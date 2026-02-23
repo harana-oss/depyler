@@ -1,0 +1,9 @@
+  imports-dynamic.toml :: dynamic_call
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // importlib.import_module(name).func()
+−     // Dynamic module loading and calling not supported
+−     let result = true;
++ pub const result: bool = true;
+────────────────────────────────────────────────────────────

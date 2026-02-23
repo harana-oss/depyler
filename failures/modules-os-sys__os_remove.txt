@@ -1,0 +1,14 @@
+  modules-os-sys.toml :: os_remove
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use std as os;
+  pub fn delete_file(path: String) {
+      if let Some(pos) = os.iter().position(|x| x == &path) {
+          os.remove(pos)
+      } else {
+          panic!("ValueError: list.remove(x): x not in list")
+−     }
++     };
++ }
+────────────────────────────────────────────────────────────

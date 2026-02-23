@@ -1,0 +1,16 @@
+  functions.toml :: only_positional_args
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn add(a: i32, b: i32) -> i32 {
+      return a + b;
+  }
+  pub fn test() -> i32 {
+      return add(5, 3);
+  }
+−             let result1 = add(a.clone(), b.clone());
+−             let result2 = add(b.clone(), a.clone());
+−             if result1 != result2 {
+−                 return TestResult::failed();
+−             }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,44 @@
+  properties.toml :: property_override
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− trait HasValue {
+−     fn value(&self) -> &str;
+− }
+− 
+− struct Base;
+− struct Derived;
+− 
+− impl HasValue for Base {
+−     fn value(&self) -> &str {
+−         "base"
++ #[derive(Debug, Copy, Clone)]
++ pub struct Base {}
++ impl Base {
++     pub fn new() -> Self {
++         Self {}
++     }
++     pub fn value(&self) -> String {
++         return "base".to_string();
+      }
+  }
+− 
+− impl HasValue for Derived {
+−     fn value(&self) -> &str {
+−         "derived"
++ #[derive(Debug, Copy, Clone)]
++ pub struct Derived {}
++ impl Derived {
++     pub fn new() -> Self {
++         Self {}
+      }
++     pub fn value(&self) -> String {
++         return "derived".to_string();
++     }
+  }
+− 
+− let b = Base;
+− let d = Derived;
+− log::info!("Base: {}", b.value());
+− log::info!("Derived: {}", d.value());
+────────────────────────────────────────────────────────────

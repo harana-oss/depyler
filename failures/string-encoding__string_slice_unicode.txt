@@ -1,0 +1,37 @@
+  string-encoding.toml :: string_slice_unicode
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn substring(s: &str, start: i32, end: i32) -> String {
+−     return s
+−         .chars()
+−         .skip(start as usize)
+−         .take((end - start) as usize)
+−         .collect();
++ pub fn substring(s: String, start: i32, end: i32) -> String {
++     return {
++         let base = &s;
++         let start_idx: i32 = start;
++         let stop_idx: i32 = end;
++         let len = base.chars().count() as i32;
++         let actual_start = if start_idx < 0 {
++             (len + start_idx).max(0) as usize
++         } else {
++             start_idx.min(len) as usize
++         };
++         let actual_stop = if stop_idx < 0 {
++             (len + stop_idx).max(0) as usize
++         } else {
++             stop_idx.min(len) as usize
++         };
++         if actual_start < actual_stop {
++             base.chars()
++                 .skip(actual_start)
++                 .take(actual_stop - actual_start)
++                 .collect::<String>()
++         } else {
++             String::new()
++         }
++     };
+  }
+────────────────────────────────────────────────────────────

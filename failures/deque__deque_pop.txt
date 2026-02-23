@@ -1,0 +1,12 @@
+  deque.toml :: deque_pop
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // d.pop()
+−     use std::collections::VecDeque;
+− 
+−     let mut d = VecDeque::from(vec![1, 2, 3]);
+−     let x = d.pop_back().unwrap();
+−     let result = x == 3 && d.iter().cloned().collect::<Vec<_>>() == vec![1, 2];
++ use std::collections::VecDeque;
+────────────────────────────────────────────────────────────

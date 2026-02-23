@@ -1,0 +1,14 @@
+  deque.toml :: deque_rotate_left
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // d.rotate(-1)
+−     use std::collections::VecDeque;
+− 
+−     let mut d = VecDeque::from(vec![1, 2, 3]);
+−     if let Some(x) = d.pop_front() {
+−         d.push_back(x);
+−     }
+−     let result = d.iter().cloned().collect::<Vec<_>>() == vec![2, 3, 1];
++ use std::collections::VecDeque;
+────────────────────────────────────────────────────────────

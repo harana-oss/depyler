@@ -1,0 +1,13 @@
+  packages-init.toml :: init_with_code
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // In Rust, mod.rs or lib.rs code runs on first use
+−     // Example lib.rs:
+−     // const VERSION: &str = "1.0.0";
+  
+−     // Code at module level runs when module is loaded
+−     const VERSION: &str = "1.0.0";
+−     let result = true;
+−     log::info!("Rust module initialization happens on first use");
+────────────────────────────────────────────────────────────

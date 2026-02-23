@@ -1,0 +1,27 @@
+  dunder-comparison.toml :: dunder_chaining
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(PartialOrd, PartialEq)]
+− struct Number {
+−     x: i32,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Number {
++     pub x: serde_json::Value,
+  }
+− 
+  impl Number {
+−     fn new(x: i32) -> Self {
+−         Number { x }
++     pub fn new(x: serde_json::Value) -> Self {
++         Self { x }
+      }
+  }
+− 
+− let a = Number::new(1);
+− let b = Number::new(2);
+− let c = Number::new(3);
+− log::info!("{}", a < b && b < c);
+− log::info!("{}", c < b && b < a);
+────────────────────────────────────────────────────────────

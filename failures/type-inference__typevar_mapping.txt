@@ -1,0 +1,10 @@
+  type-inference.toml :: typevar_mapping
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use serde_json;
+  pub fn wrap<T: Clone>(value: T) -> T {
+      return value;
+− };
++ }
+────────────────────────────────────────────────────────────

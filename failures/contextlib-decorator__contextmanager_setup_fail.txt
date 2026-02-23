@@ -1,0 +1,56 @@
+  contextlib-decorator.toml :: contextmanager_setup_fail
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− fn fail_in_setup<F, R>(f: F) -> Result<R, String>
+−     where
+−         F: FnOnce() -> R,
+−     {
+−         Err("setup failed".to_string())
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct ValueError {
++     message: String,
++ }
++ impl std::fmt::Display for ValueError {
++     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
++         write!(f, "value error: {}", self.message)
++     }
++ }
++ impl std::error::Error for ValueError {}
++ impl ValueError {
++     pub fn new(message: impl Into<String>) -> Self {
++         Self {
++             message: message.into(),
++         }
++     }
++ }
++ #[doc = " Generator state struct"]
++ #[derive(Debug)]
++ struct FailInSetupState {
++     state: usize,
++ }
++ #[doc = " Generator function - returns Iterator"]
++ pub fn fail_in_setup() -> impl Iterator<Item = serde_json::Value> {
++     FailInSetupState { state: 0 }
++ }
++ impl Iterator for FailInSetupState {
++     type Item = serde_json::Value;
++     fn next(&mut self) -> Option<Self::Item> {
++         match self.state {
++             0 => {
++                 self.state = 1;
++                 panic!("{}", "setup failed");
++                 return None;
++                 None
++             }
++             _ => None,
++         }
+      }
+− 
+−     let result = match fail_in_setup(|| ()) {
+−         Err(e) => e,
+−         Ok(_) => String::new(),
+−     };
++ }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,34 @@
+  dunder-attribute.toml :: getattribute_vs_getattr
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct Both {
+−     real: &'static str,
+− }
+− 
++ #[derive(Debug, Copy, Clone)]
++ pub struct Both {}
+  impl Both {
+−     fn new() -> Self {
+−         Both { real: "real" }
+−     }
+− 
+−     fn get_attribute(&self, name: &str) -> String {
+−         match name {
+−             "real" => self.real.to_string(),
+−             _ => self.get_attr(name),
+−         }
++     pub const real: String = "real".to_string();
++     pub fn new() -> Self {
++         Self {}
+      }
+− 
+−     fn get_attr(&self, name: &str) -> String {
+−         format!("fallback: {}", name)
+−     }
+  }
+− 
+− let obj = Both::new();
+− log::info!("{}", obj.get_attribute("real"));
+− log::info!("{}", obj.get_attribute("missing"));
+────────────────────────────────────────────────────────────

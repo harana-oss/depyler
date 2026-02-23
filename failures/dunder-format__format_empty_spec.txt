@@ -1,0 +1,34 @@
+  dunder-format.toml :: format_empty_spec
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct Person {
+−     name: String,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Person {
++     pub name: serde_json::Value,
+  }
+− 
+  impl Person {
+−     fn new(name: &str) -> Self {
+−         Person {
+−             name: name.to_string(),
+−         }
+−     }
+− 
+−     fn format_spec(&self, spec: &str) -> String {
+−         if spec.is_empty() {
+−             self.name.clone()
+−         } else {
+−             format!("Person({})", self.name)
+−         }
++     pub fn new(name: serde_json::Value) -> Self {
++         Self { name }
+      }
+  }
+− 
+− let p = Person::new("Alice");
+− log::info!("{}", p.format_spec(""));
+− log::info!("{}", p.format_spec("full"));
+────────────────────────────────────────────────────────────

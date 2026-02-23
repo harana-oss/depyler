@@ -1,0 +1,10 @@
+  argparse.toml :: string_splitlines_method
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn count_lines(text: String) -> i32 {
+      let lines = text.lines().map(|s| s.to_string()).collect::<Vec<String>>();
+−     return lines.len() as i32;
++     return lines.len() as i32 as i32;
+  }
+────────────────────────────────────────────────────────────

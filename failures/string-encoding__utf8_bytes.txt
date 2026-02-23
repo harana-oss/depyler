@@ -1,0 +1,10 @@
+  string-encoding.toml :: utf8_bytes
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn byte_length(s: &str) -> i32 {
+−     return s.len() as i32;
++ pub fn byte_length(s: String) -> i32 {
++     return s.encode("utf-8").len() as i32 as i32;
+  }
+────────────────────────────────────────────────────────────

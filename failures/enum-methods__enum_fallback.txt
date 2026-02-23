@@ -1,0 +1,49 @@
+  enum-methods.toml :: enum_fallback
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // In Rust, we implement the fallback logic in a from_value method
+− #[derive(Debug, Clone, Copy)]
+− enum Grade {
+−     A,
+−     B,
+−     C,
+−     F,
+− }
+− 
++ #[derive(Debug, Copy, Clone)]
++ pub struct Grade {}
+  impl Grade {
+−     fn from_score(value: i32) -> Self {
++     pub const A: i32 = 90;
++     pub const B: i32 = 80;
++     pub const C: i32 = 70;
++     pub const F: i32 = 0;
++     pub fn new() -> Self {
++         Self {}
++     }
++     pub fn _missing_(value: i32) {
+          if value >= 90 {
+−             Grade::A
+−         } else if value >= 80 {
+−             Grade::B
+−         } else if value >= 70 {
+−             Grade::C
++             return Self::A;
+          } else {
+−             Grade::F
++             if value >= 80 {
++                 return Self::B;
++             } else {
++                 if value >= 70 {
++                     return Self::C;
++                 }
++             }
+          }
++         return Self::F;
+      }
+  }
+− 
+− log::info!("{:?}", Grade::from_score(95));
+− log::info!("{:?}", Grade::from_score(85));
+────────────────────────────────────────────────────────────

@@ -1,0 +1,28 @@
+  dunder-inplace.toml :: dunder_ilshift
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::ops::ShlAssign;
+− 
+− #[derive(Debug)]
+− struct Shifter {
+−     x: i32,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Shifter {
++     pub x: serde_json::Value,
+  }
+− 
+− impl ShlAssign<Shifter> for Shifter {
+−     fn shl_assign(&mut self, other: Shifter) {
+−         self.x <<= other.x;
++ impl Shifter {
++     pub fn new(x: serde_json::Value) -> Self {
++         Self { x }
+      }
+  }
+− 
+− let mut a = Shifter { x: 5 };
+− a <<= Shifter { x: 2 };
+− log::info!("Shifter({})", a.x);
+────────────────────────────────────────────────────────────

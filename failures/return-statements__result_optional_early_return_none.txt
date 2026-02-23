@@ -1,0 +1,55 @@
+  return-statements.toml :: result_optional_early_return_none
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  #[derive(Debug, Clone)]
+  pub struct IndexError {
+      message: String,
+  }
+  impl std::fmt::Display for IndexError {
+      fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+          write!(f, "index out of range: {}", self.message)
+      }
+  }
+  impl std::error::Error for IndexError {}
+  impl IndexError {
+      pub fn new(message: impl Into<String>) -> Self {
+          Self {
+              message: message.into(),
+          }
+      }
+  }
+  #[derive(Debug, Clone)]
+  pub struct ValueError {
+      message: String,
+  }
+  impl std::fmt::Display for ValueError {
+      fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+          write!(f, "value error: {}", self.message)
+      }
+  }
+  impl std::error::Error for ValueError {}
+  impl ValueError {
+      pub fn new(message: impl Into<String>) -> Self {
+          Self {
+              message: message.into(),
+          }
+      }
+  }
+− pub fn validate_and_search(items: &Vec<i32>, target: i32) -> Option<i32> {
++ pub fn validate_and_search(
++     items: &Vec<i32>,
++     target: i32,
++ ) -> Result<Option<i32>, Box<dyn std::error::Error>> {
+      if items.len() as i32 == 0 {
+−         panic!("{}", "Empty list");
++         return Err(Box::new(ValueError::new("Empty list")));
+      }
+      if target < 0 {
+−         return None;
++         return Ok(None);
+      }
+−     return Some(items.get(0usize).cloned().unwrap());
++     return Ok(Some(items.get(0usize).cloned().unwrap()));
+  }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,28 @@
+  dataclasses-basic.toml :: dataclass_initvar
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub const r: Rectangle = Rectangle::new(3, 4, 2);
+− pub const result: i32 = r.area;
+− use serde_json;
+  #[derive(Debug, Clone, PartialEq, Default)]
+  pub struct Rectangle {
+      pub width: i32,
+      pub height: i32,
++     pub scale: InitVar<i32>,
++     pub area: i32,
+  }
+  impl Rectangle {
+−     pub const scale: InitVar<i32> = 1;
+−     pub const area: i32 = field();
+      pub fn new(width: i32, height: i32) -> Self {
+−         Self { width, height }
++         Self {
++             width,
++             height,
++             scale: Default::default(),
++             area: Default::default(),
++         }
+      }
+  }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,18 @@
+  mutability.toml :: for_loop_mut_field_assignment
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  #[derive(Debug, Copy, Clone)]
+  pub struct PlayerStats {}
+  impl PlayerStats {
+      pub fn new() -> Self {
+          Self {}
+      }
+  }
+− pub fn add_time_to_players(players: &Vec<PlayerStats>, seconds: i32) {
++ pub fn add_time_to_players(players: &mut Vec<PlayerStats>, seconds: i32) {
+      for mut s in players.iter().cloned() {
+          s.time_on_field_in_seconds += seconds;
+      }
+  }
+────────────────────────────────────────────────────────────

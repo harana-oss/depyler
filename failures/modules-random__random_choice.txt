@@ -1,0 +1,13 @@
+  modules-random.toml :: random_choice
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use rand as random;
+− use rand::prelude::*;
+− use rand::seq::SliceRandom;
+− use rand::Rng;
+  pub fn pick_one(items: &Vec<String>) -> String {
+−     return *items.choose(&mut rand::thread_rng()).unwrap();
++     return DEPYLER_RNG.with(|rng| *items.choose(&mut *rng.borrow_mut()).unwrap());
+  }
+────────────────────────────────────────────────────────────

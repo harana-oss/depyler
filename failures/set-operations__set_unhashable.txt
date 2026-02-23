@@ -1,0 +1,11 @@
+  set-operations.toml :: set_unhashable
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::collections::HashSet;
+  
+−     // Rust: Vec is not hashable, use tuples or arrays
+−     let result: HashSet<(i32, i32)> = vec![(1, 2), (3, 4)].into_iter().collect();
+−     assert_eq!(result.len(), 2);
+−     let result = true;
+────────────────────────────────────────────────────────────

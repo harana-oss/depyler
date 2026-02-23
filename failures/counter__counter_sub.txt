@@ -1,0 +1,19 @@
+  counter.toml :: counter_sub
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use std::collections::HashMap;
+− let mut c1: HashMap<char, i32> = [('a', 4), ('b', 2)].iter().cloned().collect();
+− let c2: HashMap<char, i32> = [('a', 1), ('b', 2)].iter().cloned().collect();
+− for (k, v) in c2 {
+−     if let Some(count) = c1.get_mut(&k) {
+−         *count = (*count - v).max(0);
+−         if *count == 0 {
+−             c1.remove(&k);
+−         }
+−     }
+− }
+− let mut items: Vec<_> = c1.iter().collect();
+− items.sort_by_key(|&(k, _)| k);
+− log::info!("{:?}", items);
+────────────────────────────────────────────────────────────

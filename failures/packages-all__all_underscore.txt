@@ -1,0 +1,11 @@
+  packages-all.toml :: all_underscore
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // In Rust, items without pub are module-private
+−     // No star imports; visibility is explicit
+−     // Private items cannot be accessed outside module
+−     let result = true;
+−     log::info!("Rust uses pub keyword for visibility");
++ 
+────────────────────────────────────────────────────────────

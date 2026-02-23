@@ -1,0 +1,65 @@
+  dataclasses-advanced.toml :: dataclass_nested_convert
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::collections::HashMap;
+− 
+− #[derive(Debug)]
+− struct Point {
+−     x: i32,
+−     y: i32,
++ #[derive(Debug, Clone)]
++ pub struct IndexError {
++     message: String,
+  }
+− 
+− #[derive(Debug)]
+− struct Line {
+−     start: Point,
+−     end: Point,
++ impl std::fmt::Display for IndexError {
++     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
++         write!(f, "index out of range: {}", self.message)
++     }
+  }
+− 
+− pub fn test_dataclass_nested_convert() -> i32 {
+−     let line = Line {
+−         start: Point { x: 0, y: 0 },
+−         end: Point { x: 1, y: 1 },
+−     };
+−     line.start.x
++ impl std::error::Error for IndexError {}
++ impl IndexError {
++     pub fn new(message: impl Into<String>) -> Self {
++         Self {
++             message: message.into(),
++         }
++     }
++ }
++ #[derive(Debug, Copy, Clone, PartialEq, Default)]
++ pub struct Point {
++     pub x: i32,
++     pub y: i32,
++ }
++ impl Point {
++     pub fn new(x: i32, y: i32) -> Self {
++         Self { x, y }
++     }
++ }
++ #[derive(Debug, Clone, PartialEq, Default)]
++ pub struct Line {
++     pub start: Point,
++     pub end: Point,
++ }
++ impl Line {
++     pub fn new(start: Point, end: Point) -> Self {
++         Self { start, end }
++     }
++ }
++ pub fn test_dataclass_nested_convert() -> Result<i32, IndexError> {
++     let line = Line::new(Point::new(0, 0), Point::new(1, 1));
++     let d = asdict(line);
++     return Ok(d.get("start").cloned().unwrap().get("x").cloned().unwrap());
+  }
+────────────────────────────────────────────────────────────

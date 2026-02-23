@@ -19,7 +19,6 @@ def get_data(state: State) -> int:
 '''
 
 rust = '''
-use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct State {
     pub data: i32,
@@ -54,7 +53,6 @@ def get_nested(state: State) -> int:
 '''
 
 rust = '''
-use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Inner {
     pub value: i32,
@@ -94,7 +92,6 @@ def process(state: Data, other: Data) -> int:
 '''
 
 rust = '''
-use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Data {
     pub value: i32,
@@ -140,7 +137,6 @@ def get_length(state: State) -> int:
 '''
 
 rust = '''
-use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct State {
     pub items: Vec<i32>,
@@ -183,7 +179,6 @@ def get_deep(a: A) -> int:
 '''
 
 rust = '''
-use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct D {
     pub value: i32,
@@ -242,8 +237,7 @@ def add_coords(p1: Point, p2: Point) -> int:
 '''
 
 rust = '''
-use serde_json;
-#[derive(Debug, Clone, PartialEq, Default)]
+#[derive(Debug, Copy, Clone, PartialEq, Default)]
 pub struct Point {
     pub x: i32,
     pub y: i32,

@@ -1,0 +1,40 @@
+  numeric-arrays.toml :: buffer_compare
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn buffers_equal(a: &Vec<i32>, b: &Vec<i32>) -> bool {
+−     if a.len() != b.len() {
+−         return false;
++ #[derive(Debug, Clone)]
++ pub struct IndexError {
++     message: String,
++ }
++ impl std::fmt::Display for IndexError {
++     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
++         write!(f, "index out of range: {}", self.message)
+      }
+−     for i in 0..a.len() {
+−         if a[i] != b[i] {
+−             return false;
++ }
++ impl std::error::Error for IndexError {}
++ impl IndexError {
++     pub fn new(message: impl Into<String>) -> Self {
++         Self {
++             message: message.into(),
+          }
+      }
+−     return true;
+  }
++ pub fn buffers_equal(a: &Vec<i32>, b: &Vec<i32>) -> Result<bool, IndexError> {
++     if a.len() as i32 != b.len() as i32 {
++         return Ok(false);
++     }
++     for i in 0..a.len() as i32 {
++         if a.get(i as usize).cloned().unwrap() != b.get(i as usize).cloned().unwrap() {
++             return Ok(false);
++         }
++     }
++     return Ok(true);
++ }
+────────────────────────────────────────────────────────────

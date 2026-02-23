@@ -1,0 +1,61 @@
+  generator-liveness.toml :: generator_captures_used_variables
+    Output mismatch
+
+────────────────────────────────────────────────────────────
++ use serde_json;
+  #[doc = " Generator state struct"]
+  #[derive(Debug)]
+  struct CountWithStepState {
+−     current: i32,
+−     step: i32,
+      state: usize,
++     current: serde_json::Value,
++     start: i32,
++     step: i32,
+  }
+  #[doc = " Generator function - returns Iterator"]
+  pub fn count_with_step(start: i32, step: i32) -> impl Iterator<Item = i32> {
+−     let current = start;
+      CountWithStepState {
+−         current,
+−         step,
+          state: 0,
++         current: Default::default(),
++         start: start,
++         step: step,
+      }
+  }
+  impl Iterator for CountWithStepState {
+      type Item = i32;
+      fn next(&mut self) -> Option<Self::Item> {
+          match self.state {
+              0 => {
+−                 self.state = 1usize;
++                 self.current = self.start;
++                 self.state = 1;
++                 self.next()
+              }
+−             _ => {}
+−         }
+−         loop {
+−             if self.current < 10 {
+−                 let result = self.current;
+−                 self.current = self.current + self.step;
+−                 return Some(result);
+−             } else {
+−                 return None;
++             1 => {
++                 if self.current < 10 {
++                     let result = self.current;
++                     self.current = self.current + self.step;
++                     return Some(result);
++                 } else {
++                     self.state = 2;
++                     None
++                 }
+              }
++             _ => None,
+          }
+      }
+  }
+────────────────────────────────────────────────────────────

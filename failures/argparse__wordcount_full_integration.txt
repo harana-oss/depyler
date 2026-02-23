@@ -1,0 +1,52 @@
+  argparse.toml :: wordcount_full_integration
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use clap::Parser;
+  use std as sys;
+  use std::path::PathBuf;
+  #[derive(Debug, Clone)]
+  pub struct Stats {
+      pub lines: i32,
+      pub words: i32,
+      pub chars: i32,
+      pub filename: String,
+  }
+− impl Stats {}
+  #[derive(Debug, clap::Parser)]
+  #[command(about = "Count words")]
+  struct Args {
+      files: Vec<PathBuf>,
+      #[arg(short = 'l', long)]
+      #[arg(action = clap::ArgAction::SetTrue)]
+      lines: bool,
+  }
+  pub fn count_file(filepath: &Path) -> Stats {
+−     let content = std::fs::read_to_string(filepath.clone()).unwrap();
++     let content = std::fs::read_to_string(filepath).unwrap();
+      let lines = content
+          .lines()
+          .map(|s| s.to_string())
+          .collect::<Vec<String>>()
+          .len() as i32;
+      let words = content
+          .split_whitespace()
+          .map(|s| s.to_string())
+          .collect::<Vec<String>>()
+          .len() as i32;
+      let chars = content.len() as i32;
+      return Stats::new(lines, words, chars, (filepath).to_string());
+  }
+  pub fn run() -> i32 {
+      let args = Args::parse();
+      for filepath in &args.files {
+          let filepath = filepath.clone();
+          let stats = count_file(&filepath);
+          if args.lines {
+−             log::info!("{}", format!("{} {}", stats.lines, stats.filename.clone()));
++             log::info!("{}", format!("{} {}", stats.lines, stats.filename));
+          }
+      }
+      return 0;
+  }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,8 @@
+  match-guards.toml :: guard_vs_or
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // case x if x in (1, 2, 3): vs case 1 | 2 | 3:
+−     let result = true; // Placeholder
++ pub const result: bool = true;
+────────────────────────────────────────────────────────────

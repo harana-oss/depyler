@@ -1,0 +1,13 @@
+  lifetimes.toml :: function_composition_lifetimes
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn outer(s: String) -> String {
++ pub fn outer(s: &str) -> String {
+      return inner(s);
+  }
+  pub fn inner(s: String) -> String {
+      return s;
+− };
++ }
+────────────────────────────────────────────────────────────

@@ -191,8 +191,7 @@ impl ValueError {
     }
 }
 pub fn validate_positive(x: i32) -> i32 {
-    let _cse_temp_0 = x < 0;
-    if _cse_temp_0 {
+        if x < 0 {
         panic!("{}", "must be positive");
     }
     return x;
@@ -212,8 +211,7 @@ def require_int(x: int) -> int:
 
 rust = '''
 pub fn require_int(x: i32) -> i32 {
-    let _cse_temp_0 = x == 0;
-    if _cse_temp_0 {
+        if x == 0 {
         panic!("{}", "cannot be zero");
     }
     return x;
@@ -338,8 +336,7 @@ impl ZeroDivisionError {
     }
 }
 pub fn divide_safe(a: i32, b: i32) -> i32 {
-    let _cse_temp_0 = b == 0;
-    if _cse_temp_0 {
+        if b == 0 {
         panic!("{}", "division by zero");
     }
     return {
@@ -369,7 +366,7 @@ def validate(x: int) -> int:
 
 rust = '''
 pub fn validate(x: i32) -> i32 {
-    assert!(x > 0, "{}", "must be positive");
+    assert!(x > 0, "must be positive");
     return x;
 }
 '''
@@ -406,7 +403,7 @@ impl IndexError {
         }
     }
 }
-pub fn get_or_default(d: &HashMap<serde_json::Value, serde_json::Value>, key: String) -> i32 {
+pub fn get_or_default(d: &HashMap<String, i32>, key: String) -> i32 {
     {
         return d.get(&key).cloned().unwrap();
         return 0;
@@ -551,7 +548,7 @@ def with_finally(x: int) -> int:
     except ZeroDivisionError:
         result = -1
     finally:
-        result = result + 1
+        result += 1
     return result
 '''
 
@@ -589,7 +586,7 @@ pub fn with_finally(x: i32) -> i32 {
             if needs_adjustment { q - 1 } else { q }
         };
         result = -1;
-        result = result + 1;
+        result += 1;
     }
     return result;
 }
@@ -668,8 +665,7 @@ impl ValueError {
     }
 }
 pub fn validate_positive(n: i32) -> i32 {
-    let _cse_temp_0 = n < 0;
-    if _cse_temp_0 {
+        if n < 0 {
         panic!("{}", "must be positive");
     }
     return n * 2;
@@ -707,8 +703,7 @@ impl ValueError {
     }
 }
 pub fn check_positive(x: i32) -> Result<i32, ValueError> {
-    let _cse_temp_0 = x < 0;
-    if _cse_temp_0 {
+        if x < 0 {
         return Err(ValueError::new("negative value"));
     }
     return Ok(x);
@@ -988,8 +983,7 @@ impl ZeroDivisionError {
     }
 }
 pub fn divide(a: i32, b: i32) -> i32 {
-    let _cse_temp_0 = b == 0;
-    if _cse_temp_0 {
+        if b == 0 {
         panic!("{}", "division by zero");
     }
     return {
@@ -1081,9 +1075,8 @@ impl IndexError {
     }
 }
 pub fn get_item(items: &Vec<serde_json::Value>, index: i32) -> i32 {
-    let _cse_temp_0 = items.clone().len() as i32;
-    let _cse_temp_1 = index >= _cse_temp_0;
-    if _cse_temp_1 {
+    let _cse_temp_0 = items.len() as i32;
+        if index >= _cse_temp_0 {
         panic!("{}", "index out of range");
     }
     return items.get(index as usize).cloned().unwrap();
@@ -1153,8 +1146,7 @@ impl ValueError {
     }
 }
 pub fn validate(x: i32) -> i32 {
-    let _cse_temp_0 = x < 0;
-    if _cse_temp_0 {
+        if x < 0 {
         panic!("{}", "value must be non-negative");
     }
     return x;
@@ -1191,8 +1183,7 @@ impl ValueError {
     }
 }
 pub fn check_range(n: i32) -> i32 {
-    let _cse_temp_0 = n > 100;
-    if _cse_temp_0 {
+        if n > 100 {
         panic!("{}", "value exceeds maximum");
     }
     return n;
@@ -1268,17 +1259,14 @@ impl ValueError {
     }
 }
 pub fn complex_operation(a: i32, b: i32, items: &Vec<serde_json::Value>) -> i32 {
-    let _cse_temp_0 = b == 0;
-    if _cse_temp_0 {
+        if b == 0 {
         panic!("{}", "cannot divide by zero");
     }
-    let _cse_temp_1 = a < 0;
-    if _cse_temp_1 {
+        if a < 0 {
         panic!("{}", "a must be non-negative");
     }
-    let _cse_temp_2 = items.clone().len() as i32;
-    let _cse_temp_3 = b >= _cse_temp_2;
-    if _cse_temp_3 {
+    let _cse_temp_2 = items.len() as i32;
+        if b >= _cse_temp_2 {
         panic!("{}", "index out of range");
     }
     return {
@@ -1346,8 +1334,7 @@ impl ValueError {
     }
 }
 pub fn validate_positive(n: i32) -> i32 {
-    let _cse_temp_0 = n <= 0;
-    if _cse_temp_0 {
+        if n <= 0 {
         panic!("{}", "number must be positive");
     }
     return n;
@@ -1403,10 +1390,8 @@ impl ValueError {
     }
 }
 pub fn nested(x: i32, y: i32) -> i32 {
-    let _cse_temp_0 = x == 0;
-    if _cse_temp_0 {
-        let _cse_temp_1 = y == 0;
-        if _cse_temp_1 {
+        if x == 0 {
+                if y == 0 {
             panic!("{}", "both zero");
         }
         panic!("{}", "x is zero");
@@ -1436,7 +1421,7 @@ def process_items(items: list) -> int:
     for i in range(len(items)):
         if items[i] < 0:
             raise ValueError("negative value found")
-        total = total + items[i]
+        total += items[i]
     return total
 '''
 
@@ -1476,13 +1461,13 @@ impl ValueError {
         }
     }
 }
-pub fn process_items(items: &Vec<serde_json::Value>) -> i32 {
+pub fn process_items(items: &Vec<i32>) -> i32 {
     let mut total = 0;
-    for i in 0..items.clone().len() as i32 {
+    for i in 0..items.len() as i32 {
         if items.clone().get(i as usize).cloned().unwrap() < 0 {
             panic!("{}", "negative value found");
         }
-        total = total + items.get(i as usize).cloned().unwrap();
+        total += items.get(i as usize).cloned().unwrap();
     }
     return total;
 }
@@ -1840,7 +1825,7 @@ def complex_exception_handling(items: list[int]) -> int:
             try:
                 if item < 0:
                     raise ValueError("negative")
-                total = total + item
+                total += item
             except ValueError as e:
                 print("skipping negative")
                 continue
@@ -1877,7 +1862,7 @@ pub fn complex_exception_handling(items: &Vec<i32>) -> i32 {
             if item < 0 {
                 panic!("{}", "negative");
             }
-            total = total + item;
+            total += item;
         }
         return -1;
         log::info!("{}", "done processing");
@@ -1916,8 +1901,7 @@ impl ValueError {
     }
 }
 pub fn validate_positive(x: i32) -> i32 {
-    let _cse_temp_0 = x < 0;
-    if _cse_temp_0 {
+        if x < 0 {
         panic!("{}", "Must be positive");
     }
     return x;
@@ -1954,8 +1938,7 @@ impl IndexError {
     }
 }
 pub fn check_bounds(x: i32, max_val: i32) -> i32 {
-    let _cse_temp_0 = x > max_val;
-    if _cse_temp_0 {
+        if x > max_val {
         panic!("{}", "Out of bounds");
     }
     return x;
@@ -1994,12 +1977,10 @@ impl ValueError {
     }
 }
 pub fn validate_range(x: i32) -> i32 {
-    let _cse_temp_0 = x < 0;
-    if _cse_temp_0 {
+        if x < 0 {
         panic!("{}", "Too small");
     }
-    let _cse_temp_1 = x > 100;
-    if _cse_temp_1 {
+        if x > 100 {
         panic!("{}", "Too large");
     }
     return x;
@@ -2036,8 +2017,7 @@ impl ZeroDivisionError {
     }
 }
 pub fn divide_safe(a: i32, b: i32) -> i32 {
-    let _cse_temp_0 = b == 0;
-    if _cse_temp_0 {
+        if b == 0 {
         panic!("{}", "Cannot divide by zero");
     }
     return a / b;
@@ -2076,10 +2056,8 @@ impl ValueError {
     }
 }
 pub fn complex_validation(x: i32, y: i32) -> i32 {
-    let _cse_temp_0 = x > 0;
-    if _cse_temp_0 {
-        let _cse_temp_1 = y < 0;
-        if _cse_temp_1 {
+        if x > 0 {
+                if y < 0 {
             panic!("{}", "Invalid combination");
         }
         return x + y;
@@ -2163,8 +2141,7 @@ pub fn process_or_fail(x: i32) -> i32 {
     let _cse_temp_0 = x * 2;
     let y = _cse_temp_0;
     let z = y + 1;
-    let _cse_temp_1 = z > 100;
-    if _cse_temp_1 {
+        if z > 100 {
         panic!("{}", "Result too large");
     }
     return z;
@@ -2239,16 +2216,13 @@ impl ValueError {
     }
 }
 pub fn validate_input(x: i32) -> i32 {
-    let _cse_temp_0 = x < 0;
-    if _cse_temp_0 {
+        if x < 0 {
         panic!("{}", "Negative");
     }
-    let _cse_temp_1 = x == 0;
-    if _cse_temp_1 {
+        if x == 0 {
         panic!("{}", "Zero");
     }
-    let _cse_temp_2 = x > 1000;
-    if _cse_temp_2 {
+        if x > 1000 {
         panic!("{}", "Too large");
     }
     return x;
@@ -2285,8 +2259,7 @@ impl ValueError {
     }
 }
 pub fn check_minimum(x: i32, min_val: i32) -> i32 {
-    let _cse_temp_0 = x < min_val;
-    if _cse_temp_0 {
+        if x < min_val {
         panic!("{}", "Value must be>= minimum");
     }
     return x;
@@ -2326,12 +2299,10 @@ impl ValueError {
     }
 }
 pub fn categorize_or_fail(x: i32) -> String {
-    let _cse_temp_0 = x < 0;
-    if _cse_temp_0 {
+        if x < 0 {
         return "negative".to_string();
     } else {
-        let _cse_temp_1 = x == 0;
-        if _cse_temp_1 {
+                if x == 0 {
             panic!("{}", "Zero not allowed");
         } else {
             return "positive".to_string();
@@ -2398,7 +2369,7 @@ def complex_process(items: list[int], threshold: int) -> int:
             raise ValueError("Negative value")
         if item > threshold:
             raise ValueError("Value exceeds threshold")
-        total = total + item
+        total += item
     
     if total == 0:
         raise RuntimeError("Sum is zero")
@@ -2425,9 +2396,8 @@ impl ValueError {
     }
 }
 pub fn complex_process(items: &Vec<i32>, threshold: i32) -> i32 {
-    let _cse_temp_0 = items.clone().len() as i32;
-    let _cse_temp_1 = _cse_temp_0 == 0;
-    if _cse_temp_1 {
+    let _cse_temp_0 = items.len() as i32;
+        if _cse_temp_0 == 0 {
         panic!("{}", "Empty list");
     }
     let mut total = 0;
@@ -2438,10 +2408,9 @@ pub fn complex_process(items: &Vec<i32>, threshold: i32) -> i32 {
         if item > threshold {
             panic!("{}", "Value exceeds threshold");
         }
-        total = total + item;
+        total += item;
     }
-    let _cse_temp_2 = total == 0;
-    if _cse_temp_2 {
+        if total == 0 {
         panic!("{}", RuntimeError::new("Sum is zero"));
     }
     return total;
@@ -2482,8 +2451,7 @@ impl ValueError {
     }
 }
 pub fn validate_single(x: i32) -> i32 {
-    let _cse_temp_0 = x < 0;
-    if _cse_temp_0 {
+        if x < 0 {
         panic!("{}", "must be non-negative");
     }
     return x;

@@ -1,0 +1,15 @@
+  cse-optimization.toml :: method_call_str_find
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn check_position(text: &str, char: &str) -> bool {
+−     let _cse_temp_0 = text.find(char).map(|i| i as i32).unwrap_or(-1);
+−     if _cse_temp_0 >= 0 {
+−         return _cse_temp_0 < 10;
++ pub fn check_position(text: String, char: String) -> bool {
++     if text.find(&char).map(|i| i as i32).unwrap_or(-1) >= 0 {
++         return text.find(&char).map(|i| i as i32).unwrap_or(-1) < 10;
+      }
+      return false;
+  }
+────────────────────────────────────────────────────────────

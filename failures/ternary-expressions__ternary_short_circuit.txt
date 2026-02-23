@@ -1,0 +1,27 @@
+  ternary-expressions.toml :: ternary_short_circuit
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− fn side_effect_true() -> i32 {
+−     log::info!("true branch");
+−     1
++ pub fn side_effect_true() -> i32 {
++     log::info!("{}", "true branch");
++     return 1;
+  }
+− 
+− fn side_effect_false() -> i32 {
+−     log::info!("false branch");
+−     2
++ pub fn side_effect_false() -> i32 {
++     log::info!("{}", "false branch");
++     return 2;
+  }
+− 
+− let result = if true {
+−     side_effect_true()
+− } else {
+−     side_effect_false()
+− };
+− log::info!("{}", result);
+────────────────────────────────────────────────────────────

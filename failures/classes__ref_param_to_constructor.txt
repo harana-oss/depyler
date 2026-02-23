@@ -1,0 +1,29 @@
+  classes.toml :: ref_param_to_constructor
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  #[derive(Debug, Clone)]
+  pub struct Team {
+      pub name: String,
+  }
+  impl Team {
+      pub fn new(name: String) -> Self {
+          Self { name }
+      }
+  }
+  #[derive(Debug, Clone)]
+  pub struct PlayerOutputs {
+      pub executed: bool,
+      pub team: Team,
+  }
+  impl PlayerOutputs {
+      pub fn new(executed: bool, team: Team) -> Self {
+          Self { executed, team }
+      }
+  }
+  #[doc = "Function takes team by reference but constructor needs owned."]
+  pub fn process_team(team: &Team) -> PlayerOutputs {
+−     return PlayerOutputs::new(true, team.clone());
++     return PlayerOutputs::new(true, team);
+  }
+────────────────────────────────────────────────────────────

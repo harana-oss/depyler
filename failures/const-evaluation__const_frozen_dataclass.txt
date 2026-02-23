@@ -1,0 +1,22 @@
+  const-evaluation.toml :: const_frozen_dataclass
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Clone, PartialEq, Eq, Hash)]
++ #[derive(Debug, Copy, Clone)]
+  pub struct Point {
+      pub x: i32,
+      pub y: i32,
+  }
+− 
+  impl Point {
+      pub fn new(x: i32, y: i32) -> Self {
+          Self { x, y }
+      }
+− }
+− 
+− lazy_static! {
+−     pub static ref ORIGIN: Point = Point::new(0, 0);
+  }
+− use lazy_static::lazy_static;
+────────────────────────────────────────────────────────────

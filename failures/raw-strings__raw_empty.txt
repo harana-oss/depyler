@@ -1,0 +1,10 @@
+  raw-strings.toml :: raw_empty
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− let s = r"";
+−     let result = s == "";
++ pub const s: &str = "";
++ pub const result: serde_json::Value = s == "";
++ use serde_json;
+────────────────────────────────────────────────────────────

@@ -152,7 +152,7 @@ def count_occurrences(s: str, substring: str) -> int:
 
 rust = '''
 pub fn count_occurrences(s: String, substring: String) -> i32 {
-    return s.matches(substring).count() as i32 as i32;
+    return s.matches(substring).count() as i32;
 }
 '''
 
@@ -271,7 +271,7 @@ def string_length(s: str) -> int:
 
 rust = '''
 pub fn string_length(s: String) -> i32 {
-    return s.len() as i32 as i32;
+    return s.len() as i32;
 }
 '''
 
@@ -887,9 +887,8 @@ def translate_str(s: str, table: dict) -> str:
 '''
 
 rust = '''
-use serde_json;
 use std::collections::HashMap;
-pub fn translate_str(s: String, table: &HashMap<serde_json::Value, serde_json::Value>) -> String {
+pub fn translate_str(s: String, table: &HashMap<String, i32>) -> String {
     return s.translate(table);
 }
 '''
@@ -1049,25 +1048,6 @@ impl State {
     pub fn new(value: String) -> Self {
         Self { value }
     }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "value" => Some(Box::new(self.value.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "value" => {
-                if let Some(v) = value.downcast_ref::<String>() {
-                    self.value = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
-    }
 }
 pub fn set_value(state: &mut State) {
     state.value = "updated".to_string();
@@ -1095,25 +1075,6 @@ pub struct Container {
 impl Container {
     pub fn new(text: String) -> Self {
         Self { text }
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "text" => Some(Box::new(self.text.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "text" => {
-                if let Some(v) = value.downcast_ref::<String>() {
-                    self.text = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 pub fn get_text(c: &Container) -> String {
@@ -1517,7 +1478,7 @@ def reverse_string(s: str) -> str:
     """Reverse a string"""
     result = ""
     for i in range(len(s) - 1, -1, -1):
-        result = result + s[i]
+        result += s[i]
     
     return result
 
@@ -1528,7 +1489,7 @@ def count_vowels(s: str) -> int:
     
     for char in s:
         if char in vowels:
-            count = count + 1
+            count += 1
     
     return count
 
@@ -1537,7 +1498,7 @@ def is_palindrome_simple(s: str) -> bool:
     cleaned = ""
     for char in s:
         if char.isalpha():
-            cleaned = cleaned + char.lower()
+            cleaned += char.lower()
     
     length = len(cleaned)
     for i in range(length // 2):
@@ -1640,7 +1601,7 @@ pub fn count_vowels(s: &str) -> i32 {
     for _char in s.chars() {
         let char = _char.to_string();
         if vowels.contains_key(&char) {
-            count = count + 1;
+            count += 1;
         }
     }
     count
@@ -1651,7 +1612,7 @@ pub fn is_palindrome_simple(s: &str) -> Result<bool, Box<dyn std::error::Error>>
     for _char in s.chars() {
         let char = _char.to_string();
         if char.chars().all(|c| c.is_alphabetic()) {
-            cleaned = cleaned + char.to_lowercase();
+            cleaned += char.to_lowercase();
         }
     }
     let _cse_temp_0 = cleaned.len() as i32;
@@ -1693,7 +1654,7 @@ pub fn count_words(text: &str) -> i32 {
         .split_whitespace()
         .map(|s| s.to_string())
         .collect::<Vec<String>>();
-    words.len() as i32 as i32
+    words.len() as i32
 }
 #[doc = "Capitalize first letter of each word"]
 pub fn capitalize_words(text: &str) -> String {
@@ -1896,7 +1857,7 @@ pub fn word_frequency(text: &str) -> Result<HashMap<String, i32>, IndexError> {
         for _char in word.chars() {
             let char = _char.to_string();
             if char.chars().all(|c| c.is_alphabetic()) {
-                clean_word = clean_word + char;
+                clean_word += char;
             }
         }
         if clean_word {
@@ -1950,8 +1911,7 @@ pub fn longest_common_prefix(strings: &Vec<String>) -> Result<String, IndexError
         return Ok(STR_EMPTY);
     }
     let _cse_temp_0 = strings.len() as i32;
-    let _cse_temp_1 = _cse_temp_0 == 1;
-    if _cse_temp_1 {
+        if _cse_temp_0 == 1 {
         return Ok(strings.get(0usize).cloned().unwrap_or_default());
     }
     let _cse_temp_2 = strings.get(0usize).cloned().unwrap_or_default().len() as i32;
@@ -2019,7 +1979,7 @@ pub fn is_palindrome(s: &str) -> Result<bool, Box<dyn std::error::Error>> {
     let mut cleaned = STR_EMPTY;
     for char in s.to_lowercase() {
         if char.chars().all(|c| c.is_alphanumeric()) {
-            cleaned = cleaned + char;
+            cleaned += char;
         }
     }
     let _cse_temp_0 = cleaned.len() as i32;
@@ -2092,9 +2052,9 @@ def tokenize_text(text: str) -> List[str]:
                 break
 
         if not is_punct:
-            cleaned = cleaned + char
+            cleaned += char
         else:
-            cleaned = cleaned + " "
+            cleaned += " "
 
     # Split into words
     words: List[str] = cleaned.split()
@@ -2175,7 +2135,7 @@ def extract_sentences(text: str) -> List[str]:
     current_sentence: str = ""
 
     for char in text:
-        current_sentence = current_sentence + char
+        current_sentence += char
 
         # End of sentence markers
         if char == "." or char == "!" or char == "?":
@@ -2209,7 +2169,7 @@ def calculate_readability_metrics(text: str) -> Dict[str, float]:
     # Average word length
     total_chars: int = 0
     for word in words:
-        total_chars = total_chars + len(word)
+        total_chars += len(word)
 
     if len(words) > 0:
         metrics["avg_word_length"] = float(total_chars) / float(len(words))
@@ -2301,7 +2261,7 @@ def find_palindromes(words: List[str]) -> List[str]:
         # Reverse word
         reversed_word: str = ""
         for i in range(len(word) - 1, -1, -1):
-            reversed_word = reversed_word + word[i]
+            reversed_word += word[i]
 
         if word == reversed_word and len(word) > 1:
             # Check if already in list
@@ -2326,9 +2286,9 @@ def analyze_vowel_consonant_ratio(text: str) -> Dict[str, float]:
     for char in text:
         if char.isalpha():
             if char in vowels:
-                vowel_count = vowel_count + 1
+                vowel_count += 1
             else:
-                consonant_count = consonant_count + 1
+                consonant_count += 1
 
     total_letters: int = vowel_count + consonant_count
 
@@ -2465,7 +2425,7 @@ pub fn tokenize_text(text: &str) -> Vec<String> {
         }
         let mut cleaned;
         if !is_punct {
-            cleaned = cleaned + char;
+            cleaned += char;
         } else {
             cleaned = format!("{}{}", cleaned, " ");
         }
@@ -2583,7 +2543,7 @@ pub fn extract_sentences(text: &str) -> Vec<String> {
     let mut current_sentence: String = STR_EMPTY.to_string();
     for _char in text.chars() {
         let char = _char.to_string();
-        current_sentence = current_sentence + char;
+        current_sentence += char;
         if ((char == ".") || (char == "!")) || (char == "?") {
             let trimmed: String = current_sentence.trim().to_string();
             if trimmed.len() as i32 > 0 {
@@ -2593,8 +2553,7 @@ pub fn extract_sentences(text: &str) -> Vec<String> {
         }
     }
     let _cse_temp_0 = current_sentence.trim().to_string().len() as i32;
-    let _cse_temp_1 = _cse_temp_0 > 0;
-    if _cse_temp_1 {
+        if _cse_temp_0 > 0 {
         sentences.push(current_sentence.trim().to_string());
     }
     sentences
@@ -2617,18 +2576,16 @@ pub fn calculate_readability_metrics(
     metrics.insert("sentence_count".to_string(), _cse_temp_3);
     let mut total_chars: i32 = 0;
     for word in words.iter().cloned() {
-        total_chars = total_chars + word.len() as i32;
+        total_chars += word.len() as i32;
     }
-    let _cse_temp_4 = _cse_temp_0 > 0;
-    if _cse_temp_4 {
+        if _cse_temp_0 > 0 {
         let _cse_temp_5 = (total_chars) as f64;
         let _cse_temp_6 = _cse_temp_5 / _cse_temp_1;
         metrics.insert("avg_word_length".to_string(), _cse_temp_6);
     } else {
         metrics.insert("avg_word_length".to_string(), 0.0);
     }
-    let _cse_temp_7 = _cse_temp_2 > 0;
-    if _cse_temp_7 {
+        if _cse_temp_2 > 0 {
         let _cse_temp_8 = _cse_temp_1 / _cse_temp_3;
         metrics.insert("avg_sentence_length".to_string(), _cse_temp_8);
     } else {
@@ -2643,7 +2600,7 @@ pub fn group_words_by_length(words: &Vec<String>) -> HashMap<i32, Vec<String>> {
         map
     };
     for word in words.iter().cloned() {
-        let length: i32 = word.len() as i32 as i32;
+        let length: i32 = word.len() as i32;
         if !groups.contains_key(&length) {
             groups.insert(length, vec![]);
         }
@@ -2740,8 +2697,7 @@ pub fn create_ngrams(words: &Vec<String>, n: i32) -> Vec<String> {
 #[doc = "Calculate lexical diversity(unique words / total words)"]
 pub fn calculate_word_diversity(words: &Vec<String>) -> Result<f64, ZeroDivisionError> {
     let _cse_temp_0 = words.len() as i32;
-    let _cse_temp_1 = _cse_temp_0 == 0;
-    if _cse_temp_1 {
+        if _cse_temp_0 == 0 {
         return Ok(0.0);
     }
     let mut unique_words: HashMap<String, bool> = {
@@ -2772,7 +2728,7 @@ pub fn find_palindromes(words: &Vec<String>) -> Result<Vec<String>, IndexError> 
                 .rev()
                 .step_by(step.max(1))
         } {
-            reversed_word = reversed_word + {
+            reversed_word += {
                 let base = &word;
                 let idx: i32 = i;
                 let actual_idx = if idx < 0 {
@@ -2812,9 +2768,9 @@ pub fn analyze_vowel_consonant_ratio(
         let char = _char.to_string();
         if char.chars().all(|c| c.is_alphabetic()) {
             if vowels.contains_key(&char) {
-                vowel_count = vowel_count + 1;
+                vowel_count += 1;
             } else {
-                consonant_count = consonant_count + 1;
+                consonant_count += 1;
             }
         }
     }
@@ -2823,8 +2779,7 @@ pub fn analyze_vowel_consonant_ratio(
         let map = HashMap::new();
         map
     };
-    let _cse_temp_0 = total_letters > 0;
-    if _cse_temp_0 {
+        if total_letters > 0 {
         let _cse_temp_1 = (vowel_count) as f64;
         let _cse_temp_2 = (total_letters) as f64;
         let _cse_temp_3 = _cse_temp_1 / _cse_temp_2;

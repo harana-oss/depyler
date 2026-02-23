@@ -1,0 +1,11 @@
+  match-as-patterns.toml :: as_wildcard
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // case _ as x: capture anything
+−     let value = 42;
+−     let result = match value {
+−         x @ _ => x == 42,
+−     };
++ 
+────────────────────────────────────────────────────────────

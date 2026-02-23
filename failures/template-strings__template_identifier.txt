@@ -1,0 +1,11 @@
+  template-strings.toml :: template_identifier
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust: valid identifiers
+−     let _name = "under";
+−     let name1 = "digit";
+−     let result = format!("{} and {}", _name, name1);
+−     assert_eq!(result, "under and digit");
++ 
+────────────────────────────────────────────────────────────

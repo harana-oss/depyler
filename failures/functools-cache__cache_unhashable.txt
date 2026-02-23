@@ -1,0 +1,13 @@
+  functools-cache.toml :: cache_unhashable
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // TypeError with unhashable args
+−     // Rust enforces hashability at compile time
+−     // Cannot use non-Hash types as cache keys
+−     let result = true;
++ use std;
++ pub fn func(x: i32) -> i32 {
++     return x * 2;
++ }
+────────────────────────────────────────────────────────────

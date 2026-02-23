@@ -1,0 +1,12 @@
+  string-operations.toml :: string_literal_plus_variable
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn display(text: String) -> String {
+      return text;
+  }
+  pub fn show_greeting(name: String) -> String {
+−     return display(format!("Hello, {}!", name));
++     return display(format!("{}{}", format!("{}{}", "Hello, ", name), "!"));
+  }
+────────────────────────────────────────────────────────────

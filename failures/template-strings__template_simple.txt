@@ -1,0 +1,10 @@
+  template-strings.toml :: template_simple
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust: simple string replacement
+−     let name = "World";
+−     let result = format!("Hello {}", name);
+−     assert_eq!(result, "Hello World");
++ 
+────────────────────────────────────────────────────────────

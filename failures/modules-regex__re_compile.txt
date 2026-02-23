@@ -1,0 +1,14 @@
+  modules-regex.toml :: re_compile
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use regex as re;
+− pub const pattern: serde_json::Value = regex::Regex::new("\\d+").unwrap();
+− use serde_json;
+  pub fn find_numbers(s: String) -> Vec<String> {
+      return pattern
+          .find_iter(s)
+          .map(|m| m.as_str().to_string())
+          .collect::<Vec<String>>();
+  }
+────────────────────────────────────────────────────────────

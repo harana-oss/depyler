@@ -38,11 +38,8 @@ impl Person {
     }
 }
 
-fn main() {
-    let p = Person::new("Alice");
-    log::info!("Name: {}", p.name());
-}
-"""
+let p = Person::new("Alice");
+log::info!("Name: {}", p.name());"""
 
 [[test]]
 name = "property_setter"
@@ -86,13 +83,10 @@ impl Person {
     }
 }
 
-fn main() {
-    let mut p = Person::new("Alice");
-    log::info!("Before: {}", p.name());
-    p.set_name("Bob");
-    log::info!("After: {}", p.name());
-}
-"""
+let mut p = Person::new("Alice");
+log::info!("Before: {}", p.name());
+p.set_name("Bob");
+log::info!("After: {}", p.name());"""
 
 [[test]]
 name = "property_deleter"
@@ -136,13 +130,10 @@ impl Person {
     }
 }
 
-fn main() {
-    let mut p = Person::new("Alice");
-    log::info!("Has name: {}", p.has_name());
-    p.delete_name();
-    log::info!("Has name after delete: {}", p.has_name());
-}
-"""
+let mut p = Person::new("Alice");
+log::info!("Has name: {}", p.has_name());
+p.delete_name();
+log::info!("Has name after delete: {}", p.has_name());"""
 
 # =============================================================================
 # Property Patterns
@@ -185,14 +176,11 @@ impl Circle {
     }
 }
 
-fn main() {
-    let c = Circle::new(5.0);
-    log::info!("Area: {:.2}", c.area());
+let c = Circle::new(5.0);
+log::info!("Area: {:.2}", c.area());
 
-    // In Rust, there's no setter so this is enforced at compile time
-    log::info!("Cannot set read-only property");
-}
-"""
+// In Rust, there's no setter so this is enforced at compile time
+log::info!("Cannot set read-only property");"""
 
 [[test]]
 name = "property_computed"
@@ -235,12 +223,9 @@ impl Rectangle {
     }
 }
 
-fn main() {
-    let r = Rectangle::new(5, 3);
-    log::info!("Area: {}", r.area());
-    log::info!("Perimeter: {}", r.perimeter());
-}
-"""
+let r = Rectangle::new(5, 3);
+log::info!("Area: {}", r.area());
+log::info!("Perimeter: {}", r.perimeter());"""
 
 [[test]]
 name = "property_validated"
@@ -296,17 +281,14 @@ impl Person {
     }
 }
 
-fn main() {
-    let mut p = Person::new(25).unwrap();
-    log::info!("Age: {}", p.age());
-    p.set_age(30).unwrap();
-    log::info!("New age: {}", p.age());
+let mut p = Person::new(25).unwrap();
+log::info!("Age: {}", p.age());
+p.set_age(30).unwrap();
+log::info!("New age: {}", p.age());
 
-    if let Err(e) = p.set_age(200) {
-        log::info!("Error: {}", e);
-    }
-}
-"""
+if let Err(e) = p.set_age(200) {
+    log::info!("Error: {}", e);
+}"""
 
 [[test]]
 name = "property_type_conversion"
@@ -353,13 +335,10 @@ impl Config {
     }
 }
 
-fn main() {
-    let mut c = Config::new("8080").unwrap();
-    log::info!("Port: {}, type: i32", c.port());
-    c.set_port("9000").unwrap();
-    log::info!("New port: {}, type: i32", c.port());
-}
-"""
+let mut c = Config::new("8080").unwrap();
+log::info!("Port: {}, type: i32", c.port());
+c.set_port("9000").unwrap();
+log::info!("New port: {}, type: i32", c.port());"""
 
 # =============================================================================
 # Property Factory
@@ -411,13 +390,10 @@ impl Person {
     }
 }
 
-fn main() {
-    let mut p = Person::new("Alice");
-    log::info!("Name: {}", p.name());
-    p.set_name("Bob");
-    log::info!("Changed: {}", p.name());
-}
-"""
+let mut p = Person::new("Alice");
+log::info!("Name: {}", p.name());
+p.set_name("Bob");
+log::info!("Changed: {}", p.name());"""
 
 [[test]]
 name = "property_lambda"
@@ -454,11 +430,8 @@ impl Point {
     }
 }
 
-fn main() {
-    let p = Point::new(10, 20);
-    log::info!("Point: ({}, {})", p.x(), p.y());
-}
-"""
+let p = Point::new(10, 20);
+log::info!("Point: ({}, {})", p.x(), p.y());"""
 
 # =============================================================================
 # Property Inheritance
@@ -503,13 +476,10 @@ impl HasValue for Derived {
     }
 }
 
-fn main() {
-    let b = Base;
-    let d = Derived;
-    log::info!("Base: {}", b.value());
-    log::info!("Derived: {}", d.value());
-}
-"""
+let b = Base;
+let d = Derived;
+log::info!("Base: {}", b.value());
+log::info!("Derived: {}", d.value());"""
 
 [[test]]
 name = "property_extend"
@@ -586,17 +556,14 @@ impl Derived {
     }
 }
 
-fn main() {
-    let mut d = Derived::new();
-    log::info!("Initial: {}", d.value());
-    d.set_value(10).unwrap();
-    log::info!("After set: {}", d.value());
+let mut d = Derived::new();
+log::info!("Initial: {}", d.value());
+d.set_value(10).unwrap();
+log::info!("After set: {}", d.value());
 
-    if let Err(e) = d.set_value(-5) {
-        log::info!("Error: {}", e);
-    }
-}
-"""
+if let Err(e) = d.set_value(-5) {
+    log::info!("Error: {}", e);
+}"""
 
 # =============================================================================
 # Property with Descriptors
@@ -618,12 +585,9 @@ print(f"Has __delete__: {hasattr(MyClass.value, '__delete__')}")
 """
 rust = """
 // Rust doesn't have descriptors, but methods work similarly
-fn main() {
-    log::info!("Has __get__: true");
-    log::info!("Has __set__: true");
-    log::info!("Has __delete__: true");
-}
-"""
+log::info!("Has __get__: true");
+log::info!("Has __set__: true");
+log::info!("Has __delete__: true");"""
 
 [[test]]
 name = "property_class_access"
@@ -645,11 +609,8 @@ print(f"Value: {obj.value}")
 rust = """
 // In Rust, methods are accessed differently
 // This demonstrates the conceptual difference
-fn main() {
-    log::info!("Type: property");
-    log::info!("Value: 42");
-}
-"""
+log::info!("Type: property");
+log::info!("Value: 42");"""
 
 # =============================================================================
 # Edge Cases
@@ -679,10 +640,7 @@ impl MyClass {
     }
 }
 
-fn main() {
-    log::info!("Docstring: This is the value property");
-}
-"""
+log::info!("Docstring: This is the value property");"""
 
 [[test]]
 name = "property_classmethod"
@@ -710,10 +668,7 @@ impl MyClass {
     }
 }
 
-fn main() {
-    log::info!("{}", MyClass::get_class_value());
-}
-"""
+log::info!("{}", MyClass::get_class_value());"""
 expected_output = "42"
 
 [[test]]
@@ -755,12 +710,9 @@ impl MyClass {
     }
 }
 
-fn main() {
-    let obj = MyClass::new(42);
-    log::info!("Value: {}", obj.value());
-    log::info!("Backing: {}", obj._value);
-}
-"""
+let obj = MyClass::new(42);
+log::info!("Value: {}", obj.value());
+log::info!("Backing: {}", obj._value);"""
 
 [[test]]
 name = "cached_property"
@@ -813,17 +765,14 @@ impl ExpensiveCalculation {
     }
 }
 
-fn main() {
-    let obj = ExpensiveCalculation::new();
-    log::info!(
-        "First call: {}, call_count: {}",
-        obj.expensive(),
-        obj.call_count()
-    );
-    log::info!(
-        "Second call: {}, call_count: {}",
-        obj.expensive(),
-        obj.call_count()
-    );
-}
-"""
+let obj = ExpensiveCalculation::new();
+log::info!(
+    "First call: {}, call_count: {}",
+    obj.expensive(),
+    obj.call_count()
+);
+log::info!(
+    "Second call: {}, call_count: {}",
+    obj.expensive(),
+    obj.call_count()
+);"""

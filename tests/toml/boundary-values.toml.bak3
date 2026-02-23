@@ -1,0 +1,887 @@
+[metadata]
+name = "boundary-values"
+description = "Tests for boundary conditions and edge cases"
+
+# ========== ZERO AND EMPTY VALUES ==========
+
+[[test]]
+name = "zero_values"
+description = "Test zero values for int, float, list, and dict"
+
+python = '''
+def zero_test() -> int:
+    zero_int = 0
+    zero_float = 0.0
+    zero_list = []
+    zero_dict = {}
+    return len(zero_list) + len(zero_dict) + zero_int
+'''
+
+rust = '''
+use std::collections::HashMap;
+pub fn zero_test() -> i32 {
+    let zero_int = 0;
+    let zero_float = 0.0;
+    let zero_list = vec![];
+    let zero_dict = {
+        let map = HashMap::new();
+        map
+    };
+    return zero_list.len() as i32 + zero_dict.len() as i32 + zero_int as i32;
+}
+'''
+
+[[test]]
+name = "negative_one_values"
+description = "Test negative indexing with -1"
+
+python = '''
+def negative_one_test(arr: list) -> int:
+    last_index = -1
+    if arr:
+        return arr[last_index]
+    return -1
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn negative_one_test(arr: &Vec<i32>) -> i32 {
+    let last_index = -1;
+    if !arr.clone().is_empty() {
+        return arr.get(last_index as usize).cloned().unwrap();
+    }
+    return -1;
+}
+'''
+
+[[test]]
+name = "maximum_list_size"
+description = "Test creating large lists with append"
+
+python = '''
+def create_large_list(size: int) -> list:
+    result = []
+    for i in range(size):
+        result.append(i)
+    return result
+'''
+
+rust = '''
+pub fn create_large_list(size: i32) -> Vec<i32> {
+    let mut result = vec![];
+    for i in 0..size {
+        result.push(i);
+    }
+    return result;
+}
+'''
+
+[[test]]
+name = "single_element_collections"
+description = "Test single element list and dict"
+
+python = '''
+def single_element_test() -> int:
+    single_list = [42]
+    single_dict = {"key": "value"}
+    return len(single_list) + len(single_dict)
+'''
+
+rust = '''
+use std::collections::HashMap;
+pub fn single_element_test() -> i32 {
+    let single_list = vec![42];
+    let single_dict = {
+        let mut map = HashMap::new();
+        map.insert("key".to_string(), "value".to_string());
+        map
+    };
+    return single_list.len() as i32 + single_dict.len() as i32;
+}
+'''
+
+[[test]]
+name = "power_of_two_boundaries"
+description = "Test power of two values in loops"
+
+python = '''
+def power_of_two_test() -> int:
+    powers = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024]
+    total = 0
+    for power in powers:
+        total += power
+    return total
+'''
+
+rust = '''
+pub fn power_of_two_test() -> i32 {
+    let powers = vec![1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024];
+    let mut total = 0;
+    for power in powers.iter().cloned() {
+        total = total + power;
+    }
+    return total;
+}
+'''
+
+[[test]]
+name = "off_by_one_loop_conditions"
+description = "Test loop boundary conditions to avoid off-by-one errors"
+
+python = '''
+def off_by_one_test(n: int) -> int:
+    count1 = 0
+    for i in range(n):
+        count1 += 1
+    
+    count2 = 0  
+    for i in range(n + 1):
+        count2 += 1
+        
+    count3 = 0
+    for i in range(n - 1):
+        count3 += 1
+        
+    return count1 + count2 + count3
+'''
+
+rust = '''
+pub fn off_by_one_test(n: i32) -> i32 {
+    let mut count1 = 0;
+    for _i in 0..n {
+        count1 = count1 + 1;
+    }
+    let mut count2 = 0;
+    for _i in 0..n + 1 {
+        count2 = count2 + 1;
+    }
+    let mut count3 = 0;
+    for _i in 0..n - 1 {
+        count3 = count3 + 1;
+    }
+    return count1 + count2 + count3;
+}
+'''
+
+[[test]]
+name = "floating_point_boundaries"
+description = "Test floating point boundary values"
+
+python = '''
+def float_boundary_test() -> float:
+    tiny = 0.0001
+    zero = 0.0
+    negative_tiny = -0.0001
+    one = 1.0
+    
+    return tiny + zero + negative_tiny + one
+'''
+
+rust = '''
+pub fn float_boundary_test() -> f64 {
+    let tiny = 0.0001;
+    let zero = 0.0;
+    let negative_tiny = -0.0001;
+    let one = 1.0;
+    return tiny + zero + negative_tiny + one;
+}
+'''
+
+[[test]]
+name = "arithmetic_overflow_boundaries"
+description = "Test potential overflow conditions with large values"
+
+python = '''
+def arithmetic_boundary_test() -> int:
+    large_positive = 1000000
+    large_negative = -1000000
+    
+    addition = large_positive + large_positive
+    subtraction = large_positive - large_negative
+    multiplication = large_positive * 2
+    
+    return addition + subtraction + multiplication
+'''
+
+rust = '''
+pub fn arithmetic_boundary_test() -> i32 {
+    let large_positive = 1000000;
+    let large_negative = -1000000;
+    let addition = large_positive + large_positive;
+    let subtraction = large_positive - large_negative;
+    let multiplication = large_positive * 2;
+    return addition + subtraction + multiplication;
+}
+'''
+
+[[test]]
+name = "string_length_boundaries"
+description = "Test empty, single-char, and long strings"
+
+python = '''
+def string_boundary_test() -> int:
+    empty_string = ""
+    single_char = "a"
+    long_string = "a" * 1000
+    
+    return len(empty_string) + len(single_char) + len(long_string)
+'''
+
+rust = '''
+pub fn string_boundary_test() -> i32 {
+    let empty_string = "".to_string();
+    let single_char = "a".to_string();
+    let long_string = "a".repeat(1000 as usize);
+    return empty_string.len() as i32 + single_char.len() as i32 + long_string.len() as i32;
+}
+'''
+
+[[test]]
+name = "recursive_depth_boundaries"
+description = "Test recursive function calls at various depths"
+
+python = '''
+def factorial_recursive(n: int) -> int:
+    if n <= 1:
+        return 1
+    return n * factorial_recursive(n - 1)
+
+def test_recursion_depths() -> int:
+    small = factorial_recursive(5)
+    medium = factorial_recursive(10)
+    return small + medium
+'''
+
+rust = '''
+pub fn factorial_recursive(n: i32) -> i32 {
+    if n <= 1 {
+        return 1;
+    }
+    return n * factorial_recursive(n - 1);
+}
+pub fn test_recursion_depths() -> i32 {
+    let small = factorial_recursive(5);
+    let medium = factorial_recursive(10);
+    return small + medium;
+}
+'''
+
+[[test]]
+name = "boolean_boundaries"
+description = "Test boolean truthiness boundaries"
+
+python = '''
+def boolean_boundary_test() -> bool:
+    true_val = True
+    false_val = False
+    
+    zero_truthy = bool(0)
+    one_truthy = bool(1)
+    empty_list_truthy = bool([])
+    non_empty_list_truthy = bool([1])
+    
+    return true_val and not false_val
+'''
+
+rust = '''
+pub fn boolean_boundary_test() -> bool {
+    let true_val = true;
+    let false_val = false;
+    let zero_truthy = 0 != 0;
+    let one_truthy = 1 != 0;
+    let empty_list_truthy = vec![] != 0;
+    let non_empty_list_truthy = vec![1] != 0;
+    return (true_val) && (!false_val);
+}
+'''
+
+[[test]]
+name = "modulo_operation_boundaries"
+description = "Test modulo with various divisors"
+
+python = '''
+def modulo_boundary_test(n: int) -> int:
+    mod_one = n % 1 if n != 0 else 0
+    mod_two = n % 2
+    mod_ten = n % 10
+    mod_hundred = n % 100
+    
+    return mod_two + mod_ten + mod_hundred
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn modulo_boundary_test(n: i32) -> i32 {
+    let mod_one = if n != 0 { n % 1 } else { 0 };
+    let mod_two = n % 2;
+    let mod_ten = n % 10;
+    let mod_hundred = n % 100;
+    return mod_two + mod_ten + mod_hundred;
+}
+'''
+
+[[test]]
+name = "range_boundaries"
+description = "Test edge cases for range function"
+
+python = '''
+def range_boundary_test() -> int:
+    empty_range = list(range(0))
+    single_range = list(range(1))
+    reverse_range = list(range(5, 0, -1))
+    
+    return len(empty_range) + len(single_range) + len(reverse_range)
+'''
+
+rust = '''
+pub fn range_boundary_test() -> i32 {
+    let empty_range = (0..0).collect::<Vec<_>>();
+    let single_range = (0..1).collect::<Vec<_>>();
+    let reverse_range = {
+        let step = (-1 as i32).abs() as usize;
+        if step == 0 {
+            panic!("range() arg 3 must not be zero");
+        }
+        (0..5).rev().step_by(step.max(1))
+    }
+    .into_iter()
+    .collect::<Vec<_>>();
+    return empty_range.len() as i32
+        + single_range.len() as i32
+        + reverse_range.len() as i32;
+}
+'''
+
+[[test]]
+name = "conditional_boundaries"
+description = "Test boundary conditions in if statements"
+
+python = '''
+def conditional_boundary_test(x: int) -> int:
+    if x < 0:
+        return -1
+    elif x == 0:
+        return 0
+    elif x == 1:
+        return 1
+    else:
+        return x
+'''
+
+rust = '''
+pub fn conditional_boundary_test(x: i32) -> i32 {
+    if x < 0 {
+        return -1;
+    } else {
+        if x == 0 {
+            return 0;
+        } else {
+            if x == 1 {
+                return 1;
+            } else {
+                return x;
+            }
+        }
+    }
+}
+'''
+
+[[test]]
+name = "comparison_operator_boundaries"
+description = "Test all comparison operators at boundaries"
+
+python = '''
+def comparison_boundary_test(a: int, b: int) -> bool:
+    equal = a == b
+    not_equal = a != b
+    less_than = a < b
+    less_equal = a <= b
+    greater_than = a > b
+    greater_equal = a >= b
+    
+    return equal or not_equal or less_than or less_equal or greater_than or greater_equal
+'''
+
+rust = '''
+pub fn comparison_boundary_test(a: i32, b: i32) -> bool {
+    let equal = a == b;
+    let not_equal = a != b;
+    let less_than = a < b;
+    let less_equal = a <= b;
+    let greater_than = a > b;
+    let greater_equal = a >= b;
+    return (((((equal) || (not_equal)) || (less_than)) || (less_equal)) || (greater_than))
+        || (greater_equal);
+}
+'''
+
+[[test]]
+name = "container_access_boundaries"
+description = "Test boundary access patterns for lists including slicing"
+
+python = '''
+def container_access_test() -> int:
+    items = [1, 2, 3, 4, 5]
+    
+    first = items[0]
+    last = items[-1]
+    
+    all_items = items[:]
+    first_two = items[:2]
+    last_two = items[-2:]
+    middle = items[1:-1]
+    
+    return first + last + len(all_items) + len(first_two) + len(last_two) + len(middle)
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn container_access_test() -> i32 {
+    let items = vec![1, 2, 3, 4, 5];
+    let first = items.clone().get(0usize).cloned().unwrap();
+    let last = items.clone().last().cloned().unwrap();
+    let all_items = items.clone().clone();
+    let first_two = {
+        let base = &items.clone();
+        let stop = (2).max(0) as usize;
+        base[..stop.min(base.len())].to_vec()
+    };
+    let last_two = {
+        let base = &items.clone();
+        let start = (-2).max(0) as usize;
+        if start < base.len() {
+            base[start..].to_vec()
+        } else {
+            Vec::new()
+        }
+    };
+    let middle = {
+        let base = &items;
+        let start = (1).max(0) as usize;
+        let stop = (-1).max(0) as usize;
+        if start < base.len() {
+            base[start..stop.min(base.len())].to_vec()
+        } else {
+            Vec::new()
+        }
+    };
+    return first
+        + last
+        + all_items.len() as i32
+        + first_two.len() as i32
+        + last_two.len() as i32
+        + middle.len() as i32;
+}
+'''
+
+[[test]]
+name = "empty_python_file"
+description = "Empty Python source should transpile to empty output"
+
+python = ''
+
+rust = '''
+'''
+
+[[test]]
+name = "whitespace_only_file"
+description = "Whitespace-only source should transpile"
+
+python = '''
+   
+	  
+   
+'''
+
+rust = '''
+'''
+
+[[test]]
+name = "comments_only_file"
+description = "Comments-only source should transpile"
+
+python = '''
+# This is a comment
+# Another comment
+    # Indented comment
+        # More comments
+'''
+
+rust = '''
+pub fn level1(x: i32) -> i32 {
+    fn level2(y: i64) -> i64 {
+        fn level3(z: i64) -> i64 {
+            fn level4(w: i64) -> i64 {
+                return w + 1;
+            }
+            return level4(z) + 1;
+        }
+        return level3(y) + 1;
+    }
+    return level2(x) + 1;
+}
+'''
+
+[[test]]
+name = "deeply_nested_functions"
+description = "Deeply nested function definitions"
+
+python = '''
+def level1(x: int) -> int:
+    def level2(y: int) -> int:
+        def level3(z: int) -> int:
+            def level4(w: int) -> int:
+                return w + 1
+            return level4(z) + 1
+        return level3(y) + 1
+    return level2(x) + 1
+'''
+
+rust = '''
+pub fn f() {}
+'''
+
+[[test]]
+name = "extremely_simple_function"
+description = "Function with only pass statement"
+
+python = '''
+def f(): pass
+'''
+
+rust = '''
+pub fn get_five() -> i32 {
+    return 5;
+}
+'''
+
+[[test]]
+name = "function_with_only_return"
+description = "Function that only returns a literal"
+
+python = '''
+def get_five() -> int:
+    return 5
+'''
+
+rust = '''
+pub fn функция(x: i32) -> i32 {
+    return x * 2;
+}
+'''
+
+[[test]]
+name = "unicode_function_names"
+description = "Function names with unicode characters"
+
+python = '''
+def функция(x: int) -> int:
+    return x * 2
+'''
+
+rust = '''
+pub fn greet() -> String {
+    return "Hello, 世界! 🌍".to_string();
+}
+'''
+
+[[test]]
+name = "unicode_strings"
+description = "String literals with unicode and emoji"
+
+python = '''
+def greet() -> str:
+    return "Hello, 世界! 🌍"
+'''
+
+rust = '''
+pub fn big_numbers() -> i32 {
+    let x = 9223372036854775807;
+    let y = 0;
+    return x + y;
+}
+'''
+
+[[test]]
+name = "max_integer_values"
+description = "Maximum i64 integer values"
+
+python = '''
+def big_numbers() -> int:
+    x = 9223372036854775807
+    y = -9223372036854775808
+    return x + y
+'''
+
+rust = '''
+use std::collections::HashMap;
+pub fn empty_collections() -> i32 {
+    let empty_list = vec![];
+    let empty_dict = {
+        let map = HashMap::new();
+        map
+    };
+    return empty_list.len() as i32 + empty_dict.len() as i32;
+}
+'''
+
+[[test]]
+name = "empty_lists_and_dicts"
+description = "Empty collection initializers"
+
+python = '''
+def empty_collections() -> int:
+    empty_list = []
+    empty_dict = {}
+    return len(empty_list) + len(empty_dict)
+'''
+
+rust = '''
+pub fn single_chars(a: i32, b: i32, c: i32) -> i32 {
+    let x = a;
+    let y = b;
+    let z = c;
+    return x + y + z;
+}
+'''
+
+[[test]]
+name = "single_character_variables"
+description = "Single character variable names"
+
+python = '''
+def single_chars(a: int, b: int, c: int) -> int:
+    x = a
+    y = b
+    z = c
+    return x + y + z
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn nested_control(n: i32) -> i32 {
+    let mut result = 0;
+    for i in 0..n {
+        if i % 2 == 0 {
+            for j in 0..i {
+                if j % 3 == 0 {
+                    result = result + j;
+                }
+            }
+        }
+    }
+    return result;
+}
+'''
+
+[[test]]
+name = "nested_control_structures"
+description = "Deeply nested control flow structures"
+
+python = '''
+def nested_control(n: int) -> int:
+    result = 0
+    for i in range(n):
+        if i % 2 == 0:
+            for j in range(i):
+                if j % 3 == 0:
+                    result += j
+    return result
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn all_operators(a: i32, b: i32) -> bool {
+    let add = a + b;
+    let sub = a - b;
+    let mul = a * b;
+    let div = {
+        let a = a;
+        let b = b;
+        let q = a / b;
+        let r = a % b;
+        let r_negative = r < 0;
+        let b_negative = b < 0;
+        let r_nonzero = r != 0;
+        let signs_differ = r_negative != b_negative;
+        let needs_adjustment = r_nonzero && signs_differ;
+        if needs_adjustment { q - 1 } else { q }
+    };
+    let r#mod = a % b;
+    let eq = a == b;
+    let ne = a != b;
+    let lt = a < b;
+    let le = a <= b;
+    let gt = a > b;
+    let ge = a >= b;
+    let and_op = (a != 0) && (b != 0);
+    let or_op = (a != 0) || (b != 0);
+    let not_op = !a;
+    return (((((eq) || (ne)) || (lt)) || (le)) || (gt)) || (ge);
+}
+'''
+
+[[test]]
+name = "all_python_operators"
+description = "All Python operators in a single function"
+
+python = '''
+def all_operators(a: int, b: int) -> bool:
+    add = a + b
+    sub = a - b
+    mul = a * b
+    div = a // b
+    mod = a % b
+    
+    eq = a == b
+    ne = a != b
+    lt = a < b
+    le = a <= b
+    gt = a > b
+    ge = a >= b
+    
+    and_op = a and b
+    or_op = a or b
+    not_op = not a
+    
+    return eq or ne or lt or le or gt or ge
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn all_operators(a: i32, b: i32) -> bool {
+    let add = a + b;
+    let sub = a - b;
+    let _cse_temp_0 = a * b;
+    let mul = _cse_temp_0;
+    let _cse_temp_1 = {
+        let a = a;
+        let b = b;
+        let q = a / b;
+        let r = a % b;
+        let r_negative = r < 0;
+        let b_negative = b < 0;
+        let r_nonzero = r != 0;
+        let signs_differ = r_negative != b_negative;
+        let needs_adjustment = r_nonzero && signs_differ;
+        if needs_adjustment { q - 1 } else { q }
+    };
+    let div = _cse_temp_1;
+    let _cse_temp_2 = a % b;
+    let r#mod = _cse_temp_2;
+    let _cse_temp_3 = a == b;
+    let eq = _cse_temp_3;
+    let _cse_temp_4 = a != b;
+    let ne = _cse_temp_4;
+    let _cse_temp_5 = a < b;
+    let lt = _cse_temp_5;
+    let _cse_temp_6 = a <= b;
+    let le = _cse_temp_6;
+    let _cse_temp_7 = a > b;
+    let gt = _cse_temp_7;
+    let _cse_temp_8 = a >= b;
+    let ge = _cse_temp_8;
+    let _cse_temp_9 = (a != 0) && (b != 0);
+    let and_op = _cse_temp_9;
+    let _cse_temp_10 = (a != 0) || (b != 0);
+    let or_op = _cse_temp_10;
+    let not_op = !a;
+    return (((((eq) || (ne)) || (lt)) || (le)) || (gt)) || (ge);
+}
+'''

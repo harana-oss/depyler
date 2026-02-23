@@ -1,0 +1,8 @@
+  match-guards.toml :: guard_not
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // case x if not is_blocked(x): ...
+−     let result = true; // Placeholder
++ pub const result: bool = true;
+────────────────────────────────────────────────────────────

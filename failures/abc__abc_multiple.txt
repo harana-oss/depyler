@@ -1,0 +1,52 @@
+  abc.toml :: abc_multiple
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− trait ABC1 {
+−     fn method1(&self) -> i32;
++ #[derive(Debug, Copy, Clone)]
++ pub struct ABC1 {}
++ impl ABC1 {
++     pub fn new() -> Self {
++         Self {}
++     }
++     pub fn method1(&self) -> i32 {
++         {}
++     }
+  }
+− trait ABC2 {
+−     fn method2(&self) -> i32;
++ #[derive(Debug, Copy, Clone)]
++ pub struct ABC2 {}
++ impl ABC2 {
++     pub fn new() -> Self {
++         Self {}
++     }
++     pub fn method2(&self) -> i32 {
++         {}
++     }
+  }
+  #[derive(Debug, Copy, Clone)]
+  pub struct Concrete {}
+  impl Concrete {
+      pub fn new() -> Self {
+          Self {}
+      }
+−     pub fn method1(&self) -> i32 {
++ }
++ impl ABC1 for Concrete {
++     fn method1(&self) -> i32 {
+          return 10;
+      }
+−     pub fn method2(&self) -> i32 {
++ }
++ impl ABC2 for Concrete {
++     fn method2(&self) -> i32 {
+          return 20;
+      }
+  }
+  pub fn test_abc_multiple() -> i32 {
+      let obj = Concrete::new();
+      return obj.method1() + obj.method2();
+  }
+────────────────────────────────────────────────────────────

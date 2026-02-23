@@ -20,8 +20,7 @@ def create_point(x: int, y: int) -> Point:
 '''
 
 rust = '''
-use serde_json;
-#[derive(Debug, Clone, PartialEq, Default)]
+#[derive(Debug, Copy, Clone, PartialEq, Default)]
 pub struct Point {
     pub x: i32,
     pub y: i32,
@@ -53,7 +52,6 @@ def make_square(size: int) -> Rectangle:
 '''
 
 rust = '''
-use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Rectangle {
     pub width: i32,
@@ -85,7 +83,6 @@ def create_pair(a: int, b: int) -> tuple[Item, Item]:
 '''
 
 rust = '''
-use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Item {
     pub value: i32,
@@ -117,7 +114,6 @@ def default_config() -> Config:
 '''
 
 rust = '''
-use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Config {
     pub enabled: bool,
@@ -153,7 +149,6 @@ def create_nested(v: int) -> Outer:
 '''
 
 rust = '''
-use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Inner {
     pub value: i32,

@@ -1,0 +1,56 @@
+  dataclasses-advanced.toml :: dataclass_order_fields
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug)]
+− struct Point {
+−     x: i32,
+−     y: i32,
+−     label: String,
+− }
+− 
+− impl PartialEq for Point {
+−     fn eq(&self, other: &Self) -> bool {
+−         self.x == other.x && self.y == other.y
+−     }
++ #[derive(Debug, Copy, Clone)]
++ pub struct Point {
++     pub x: i32,
++     pub y: i32,
+  }
+− 
+− impl Eq for Point {}
+− 
+− impl PartialOrd for Point {
+−     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+−         Some(self.cmp(other))
+−     }
+− }
+− 
+− impl Ord for Point {
+−     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+−         (self.x, self.y).cmp(&(other.x, other.y))
++ impl Point {
++     pub const label: String = field();
++     pub fn new(x: i32, y: i32) -> Self {
++         Self { x, y }
+      }
+  }
+− 
+  pub fn test_dataclass_order_fields() -> bool {
+−     let p1 = Point {
+−         x: 1,
+−         y: 2,
+−         label: "A".to_string(),
+−     };
+−     let p2 = Point {
+−         x: 1,
+−         y: 2,
+−         label: "B".to_string(),
+−     };
+−     p1 == p2
++     let p1 = Point::new(1, 2, "A".to_string());
++     let p2 = Point::new(1, 2, "B".to_string());
++     return p1 == p2;
+  }
+────────────────────────────────────────────────────────────

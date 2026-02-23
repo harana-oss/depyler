@@ -1,0 +1,21 @@
+  optional-types.toml :: optional_if_condition
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  #[derive(Debug, Clone, PartialEq, Default)]
+  pub struct Person {
+      pub name: Option<String>,
+  }
+  impl Person {
+      pub fn new(name: Option<String>) -> Self {
+          Self { name }
+      }
+  }
+  pub fn check_name(p: &Person) -> bool {
+−     if p.name.as_ref().is_some_and(|s| !s.is_empty()) {
++     if p.name {
+          return true;
+      }
+      return false;
+  }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,11 @@
+  bytes.toml :: bytearray_methods
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− let mut ba = b"ab".to_vec();
+−     ba.push(99);
+−     ba.extend_from_slice(b"de");
+−     let last = ba.pop();
+−     let result = ba;
++ 
+────────────────────────────────────────────────────────────

@@ -1,0 +1,11 @@
+  bytes-strings.toml :: bytes_decode_errors
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn test_bytes_decode_errors() -> String {
+−     let data = vec![0xff, 0xfe];
+−     return String::from_utf8_lossy(&data).to_string();
++     let data = b"\xFF\xFE";
++     return data.decode("utf-8");
+  }
+────────────────────────────────────────────────────────────

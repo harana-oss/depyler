@@ -1,0 +1,22 @@
+  enum-int.toml :: intenum_int_ops
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[repr(i32)]
+−     #[derive(Debug, Clone, Copy)]
+−     enum Priority {
+−         Low = 1,
+−         High = 2,
++ #[derive(Debug, Copy, Clone)]
++ pub struct Priority {}
++ impl Priority {
++     pub const LOW: i32 = 1;
++     pub const HIGH: i32 = 2;
++     pub fn new() -> Self {
++         Self {}
+      }
+− 
+−     let result = (Priority::High as i32) + 1;
+−     assert_eq!(result, 3);
++ }
+────────────────────────────────────────────────────────────

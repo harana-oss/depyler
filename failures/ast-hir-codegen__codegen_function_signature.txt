@@ -1,0 +1,14 @@
+  ast-hir-codegen.toml :: codegen_function_signature
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn add(a: i32, b: i32) -> i32 {
+      return a + b;
+− };
+−             let result1 = add(a.clone(), b.clone());
+−             let result2 = add(b.clone(), a.clone());
+−             if result1 != result2 {
+−                 return TestResult::failed();
+−             }
++ }
+────────────────────────────────────────────────────────────

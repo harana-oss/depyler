@@ -1,0 +1,9 @@
+  return-statements.toml :: type_conversion_len_to_int
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn count_items(items: &Vec<i32>) -> i32 {
+−     return items.len() as i32;
++     return items.len() as i32 as i32;
+  }
+────────────────────────────────────────────────────────────

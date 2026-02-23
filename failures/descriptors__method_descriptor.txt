@@ -1,0 +1,25 @@
+  descriptors.toml :: method_descriptor
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct MyClass;
+− 
++ #[derive(Debug, Copy, Clone)]
++ pub struct MyClass {}
+  impl MyClass {
+−     fn method(&self) -> &'static str {
+−         "method called"
++     pub fn new() -> Self {
++         Self {}
+      }
++     pub fn method(&self) -> String {
++         return "method called".to_string();
++     }
+  }
+− 
+− let instance = MyClass;
+− // Method accessed via instance
+− log::info!("{}", instance.method());
+− // Method accessed via type
+− log::info!("{}", MyClass::method(&instance));
+────────────────────────────────────────────────────────────

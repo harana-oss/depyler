@@ -56,13 +56,10 @@ impl Iterator for Counter {
     }
 }
 
-fn main() {
-    let counter = Counter::new(3);
-    for i in counter {
-        log::info!("{}", i);
-    }
-}
-"""
+let counter = Counter::new(3);
+for i in counter {
+    log::info!("{}", i);
+}"""
 expected_output = """1
 2
 3"""
@@ -102,13 +99,10 @@ impl IntoIterator for NumberList {
     }
 }
 
-fn main() {
-    let num_list = NumberList::new(vec![1, 2, 3]);
-    for n in num_list {
-        log::info!("{}", n);
-    }
-}
-"""
+let num_list = NumberList::new(vec![1, 2, 3]);
+for n in num_list {
+    log::info!("{}", n);
+}"""
 expected_output = """1
 2
 3"""
@@ -154,13 +148,10 @@ impl Iterator for NumberGenerator {
     }
 }
 
-fn main() {
-    let gen = NumberGenerator::new(3);
-    for n in gen {
-        log::info!("{}", n);
-    }
-}
-"""
+let gen = NumberGenerator::new(3);
+for n in gen {
+    log::info!("{}", n);
+}"""
 expected_output = """1
 2
 3"""
@@ -203,13 +194,10 @@ impl IntoIterator for MyList {
     }
 }
 
-fn main() {
-    let my_list = MyList::new(vec![1, 2, 3]);
-    let mut iterator = my_list.into_iter();
-    log::info!("{}", iterator.next().unwrap());
-    log::info!("{}", iterator.next().unwrap());
-}
-"""
+let my_list = MyList::new(vec![1, 2, 3]);
+let mut iterator = my_list.into_iter();
+log::info!("{}", iterator.next().unwrap());
+log::info!("{}", iterator.next().unwrap());"""
 expected_output = """__iter__ called
 1
 2"""
@@ -268,13 +256,10 @@ impl Iterator for SimpleIterator {
     }
 }
 
-fn main() {
-    let mut it = SimpleIterator::new(vec![10, 20, 30]);
-    log::info!("{}", it.next().unwrap());
-    log::info!("{}", it.next().unwrap());
-    log::info!("{}", it.next().unwrap());
-}
-"""
+let mut it = SimpleIterator::new(vec![10, 20, 30]);
+log::info!("{}", it.next().unwrap());
+log::info!("{}", it.next().unwrap());
+log::info!("{}", it.next().unwrap());"""
 expected_output = """10
 20
 30"""
@@ -327,14 +312,11 @@ impl Iterator for ThreeIterator {
     }
 }
 
-fn main() {
-    let mut it = ThreeIterator::new();
-    while let Some(val) = it.next() {
-        log::info!("{}", val);
-    }
-    log::info!("Done");
+let mut it = ThreeIterator::new();
+while let Some(val) = it.next() {
+    log::info!("{}", val);
 }
-"""
+log::info!("Done");"""
 expected_output = """1
 2
 3
@@ -389,12 +371,9 @@ impl Iterator for MyIterator {
     }
 }
 
-fn main() {
-    let mut it = MyIterator::new(vec!['a', 'b', 'c']);
-    log::info!("{}", it.next().unwrap());
-    log::info!("{}", it.next().unwrap());
-}
-"""
+let mut it = MyIterator::new(vec!['a', 'b', 'c']);
+log::info!("{}", it.next().unwrap());
+log::info!("{}", it.next().unwrap());"""
 expected_output = """a
 b"""
 
@@ -448,13 +427,10 @@ impl Iterator for MyIterator {
     }
 }
 
-fn main() {
-    let mut it = MyIterator::new(vec![1, 2]);
-    log::info!("{}", it.next().unwrap_or(-1));
-    log::info!("{}", it.next().unwrap_or(-1));
-    log::info!("{}", it.next().unwrap_or(-1));
-}
-"""
+let mut it = MyIterator::new(vec![1, 2]);
+log::info!("{}", it.next().unwrap_or(-1));
+log::info!("{}", it.next().unwrap_or(-1));
+log::info!("{}", it.next().unwrap_or(-1));"""
 expected_output = """1
 2
 -1"""
@@ -493,13 +469,10 @@ impl MyList {
     }
 }
 
-fn main() {
-    let my_list = MyList::new(vec![1, 2, 3]);
-    for item in my_list.reversed() {
-        log::info!("{}", item);
-    }
-}
-"""
+let my_list = MyList::new(vec![1, 2, 3]);
+for item in my_list.reversed() {
+    log::info!("{}", item);
+}"""
 expected_output = """3
 2
 1"""
@@ -537,13 +510,10 @@ impl MySequence {
     }
 }
 
-fn main() {
-    let seq = MySequence::new(vec![10, 20, 30]);
-    for item in seq.reversed() {
-        log::info!("{}", item);
-    }
-}
-"""
+let seq = MySequence::new(vec![10, 20, 30]);
+for item in seq.reversed() {
+    log::info!("{}", item);
+}"""
 expected_output = """__reversed__ called
 30
 20
@@ -586,13 +556,10 @@ impl MySequence {
     }
 }
 
-fn main() {
-    let seq = MySequence::new(vec![5, 10, 15]);
-    for i in (0..seq.len()).rev() {
-        log::info!("{}", seq.get(i).unwrap());
-    }
-}
-"""
+let seq = MySequence::new(vec![5, 10, 15]);
+for i in (0..seq.len()).rev() {
+    log::info!("{}", seq.get(i).unwrap());
+}"""
 expected_output = """15
 10
 5"""
@@ -646,12 +613,9 @@ impl Iterator for Countdown {
     }
 }
 
-fn main() {
-    for i in Countdown::new(3) {
-        log::info!("{}", i);
-    }
-}
-"""
+for i in Countdown::new(3) {
+    log::info!("{}", i);
+}"""
 expected_output = """3
 2
 1"""
@@ -707,14 +671,11 @@ impl Iterator for PositionIterator {
     }
 }
 
-fn main() {
-    let mut it = PositionIterator::new(vec!['a', 'b', 'c']);
-    log::info!("{}", it.next().unwrap());
-    log::info!("Position: {}", it.position);
-    log::info!("{}", it.next().unwrap());
-    log::info!("Position: {}", it.position);
-}
-"""
+let mut it = PositionIterator::new(vec!['a', 'b', 'c']);
+log::info!("{}", it.next().unwrap());
+log::info!("Position: {}", it.position);
+log::info!("{}", it.next().unwrap());
+log::info!("Position: {}", it.position);"""
 expected_output = """a
 Position: 1
 b
@@ -769,16 +730,13 @@ impl Iterator for TwoIterator {
     }
 }
 
-fn main() {
-    let mut it = TwoIterator::new();
-    log::info!("{}", it.next().unwrap());
-    log::info!("{}", it.next().unwrap());
-    match it.next() {
-        Some(val) => log::info!("{}", val),
-        None => log::info!("Exhausted"),
-    }
-}
-"""
+let mut it = TwoIterator::new();
+log::info!("{}", it.next().unwrap());
+log::info!("{}", it.next().unwrap());
+match it.next() {
+    Some(val) => log::info!("{}", val),
+    None => log::info!("Exhausted"),
+}"""
 expected_output = """1
 2
 Exhausted"""
@@ -822,18 +780,15 @@ impl<'a> IntoIterator for &'a ReusableIterable {
     }
 }
 
-fn main() {
-    let iterable = ReusableIterable::new(vec![1, 2, 3]);
-    log::info!("First iteration:");
-    for item in &iterable {
-        log::info!("{}", item);
-    }
-    log::info!("Second iteration:");
-    for item in &iterable {
-        log::info!("{}", item);
-    }
+let iterable = ReusableIterable::new(vec![1, 2, 3]);
+log::info!("First iteration:");
+for item in &iterable {
+    log::info!("{}", item);
 }
-"""
+log::info!("Second iteration:");
+for item in &iterable {
+    log::info!("{}", item);
+}"""
 expected_output = """First iteration:
 1
 2
@@ -921,12 +876,9 @@ impl IntoIterator for CustomRange {
     }
 }
 
-fn main() {
-    for i in CustomRange::new(3) {
-        log::info!("{}", i);
-    }
-}
-"""
+for i in CustomRange::new(3) {
+    log::info!("{}", i);
+}"""
 expected_output = """0
 1
 2"""
@@ -968,19 +920,16 @@ impl Iterator for InfiniteCounter {
     }
 }
 
-fn main() {
-    let counter = InfiniteCounter::new();
-    let mut count = 0;
-    for val in counter {
-        count += 1;
-        log::info!("{}", val);
-        if count >= 3 {
-            break;
-        }
+let counter = InfiniteCounter::new();
+let mut count = 0;
+for val in counter {
+    count += 1;
+    log::info!("{}", val);
+    if count >= 3 {
+        break;
     }
-    log::info!("Done");
 }
-"""
+log::info!("Done");"""
 expected_output = """1
 1
 1
@@ -1016,12 +965,9 @@ impl Triple {
     }
 }
 
-fn main() {
-    let triple = Triple::new(10, 20, 30);
-    let (a, b, c) = triple.unpack();
-    log::info!("{}, {}, {}", a, b, c);
-}
-"""
+let triple = Triple::new(10, 20, 30);
+let (a, b, c) = triple.unpack();
+log::info!("{}, {}, {}", a, b, c);"""
 expected_output = "10, 20, 30"
 
 # =============================================================================
@@ -1078,12 +1024,9 @@ impl Iterator for MyRange {
     }
 }
 
-fn main() {
-    for i in MyRange::new(0, 6, 2) {
-        log::info!("{}", i);
-    }
-}
-"""
+for i in MyRange::new(0, 6, 2) {
+    log::info!("{}", i);
+}"""
 expected_output = """0
 2
 4"""
@@ -1123,17 +1066,14 @@ impl IntoIterator for LineReader {
     }
 }
 
-fn main() {
-    let reader = LineReader::new(vec![
-        "line 1".to_string(),
-        "line 2".to_string(),
-        "line 3".to_string(),
-    ]);
-    for line in reader {
-        log::info!("{}", line);
-    }
-}
-"""
+let reader = LineReader::new(vec![
+    "line 1".to_string(),
+    "line 2".to_string(),
+    "line 3".to_string(),
+]);
+for line in reader {
+    log::info!("{}", line);
+}"""
 expected_output = """line 1
 line 2
 line 3"""
@@ -1177,16 +1117,13 @@ impl Iterator for Repeater {
     }
 }
 
-fn main() {
-    let repeater = Repeater::new(42);
-    for (i, val) in repeater.enumerate() {
-        log::info!("{}", val);
-        if i >= 2 {
-            break;
-        }
+let repeater = Repeater::new(42);
+for (i, val) in repeater.enumerate() {
+    log::info!("{}", val);
+    if i >= 2 {
+        break;
     }
-}
-"""
+}"""
 expected_output = """42
 42
 42"""
@@ -1249,19 +1186,16 @@ impl Iterator for OneTimeIterator {
     }
 }
 
-fn main() {
-    let mut it = OneTimeIterator::new(vec![1, 2, 3]);
-    log::info!("First pass:");
-    for item in &mut it {
-        log::info!("{}", item);
-    }
-    log::info!("Second pass:");
-    for item in &mut it {
-        log::info!("{}", item);
-    }
-    log::info!("Done");
+let mut it = OneTimeIterator::new(vec![1, 2, 3]);
+log::info!("First pass:");
+for item in &mut it {
+    log::info!("{}", item);
 }
-"""
+log::info!("Second pass:");
+for item in &mut it {
+    log::info!("{}", item);
+}
+log::info!("Done");"""
 expected_output = """First pass:
 1
 2
@@ -1302,17 +1236,14 @@ impl Counter {
     }
 }
 
-fn main() {
-    let mut counter = Counter::new();
-    loop {
-        let val = counter.next();
-        if val == 3 {
-            break;
-        }
-        log::info!("{}", val);
+let mut counter = Counter::new();
+loop {
+    let val = counter.next();
+    if val == 3 {
+        break;
     }
-}
-"""
+    log::info!("{}", val);
+}"""
 expected_output = """1
 2"""
 
@@ -1379,14 +1310,11 @@ impl Iterator for HintedIterator {
     }
 }
 
-fn main() {
-    let mut it = HintedIterator::new(vec![1, 2, 3, 4, 5]);
-    log::info!("Length hint: {}", it.length_hint());
-    log::info!("{}", it.next().unwrap());
-    log::info!("{}", it.next().unwrap());
-    log::info!("Length hint: {}", it.length_hint());
-}
-"""
+let mut it = HintedIterator::new(vec![1, 2, 3, 4, 5]);
+log::info!("Length hint: {}", it.length_hint());
+log::info!("{}", it.next().unwrap());
+log::info!("{}", it.next().unwrap());
+log::info!("Length hint: {}", it.length_hint());"""
 expected_output = """Length hint: 5
 1
 2

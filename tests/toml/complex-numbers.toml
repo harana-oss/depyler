@@ -17,11 +17,9 @@ print(x.imag)
 rust = """
 use num::Complex;
 
-fn main() {
-    let x = Complex::new(0.0, 3.0);
-    log::info!("{}", x.re);
-    log::info!("{}", x.im);
-}
+let x = Complex::new(0.0, 3.0);
+log::info!("{}", x.re);
+log::info!("{}", x.im);
 """
 expected_output = """0.0
 3.0"""
@@ -37,11 +35,9 @@ print(x.imag)
 rust = """
 use num::Complex;
 
-fn main() {
-    let x = Complex::new(3.0, 4.0);
-    log::info!("{}", x.re);
-    log::info!("{}", x.im);
-}
+let x = Complex::new(3.0, 4.0);
+log::info!("{}", x.re);
+log::info!("{}", x.im);
 """
 expected_output = """3.0
 4.0"""
@@ -57,11 +53,9 @@ print(f"{x.imag:.2f}")
 rust = """
 use num::Complex;
 
-fn main() {
-    let x = Complex::new(3.14, 2.71);
-    log::info!("{:.2}", x.re);
-    log::info!("{:.2}", x.im);
-}
+let x = Complex::new(3.14, 2.71);
+log::info!("{:.2}", x.re);
+log::info!("{:.2}", x.im);
 """
 expected_output = """3.14
 2.71"""
@@ -77,11 +71,9 @@ print(x.imag)
 rust = """
 use num::Complex;
 
-fn main() {
-    let x = Complex::new(0.0, 1.0);
-    log::info!("{}", x.re);
-    log::info!("{}", x.im);
-}
+let x = Complex::new(0.0, 1.0);
+log::info!("{}", x.re);
+log::info!("{}", x.im);
 """
 expected_output = """0.0
 1.0"""
@@ -97,11 +89,9 @@ print(x.imag)
 rust = """
 use num::Complex;
 
-fn main() {
-    let x = Complex::new(3.0, 4.0);
-    log::info!("{}", x.re);
-    log::info!("{}", x.im);
-}
+let x = Complex::new(3.0, 4.0);
+log::info!("{}", x.re);
+log::info!("{}", x.im);
 """
 expected_output = """3.0
 4.0"""
@@ -117,12 +107,10 @@ print(x.imag)
 rust = """
 use num::Complex;
 
-fn main() {
-    // Rust requires explicit parsing
-    let x = Complex::new(3.0, 4.0);
-    log::info!("{}", x.re);
-    log::info!("{}", x.im);
-}
+// Rust requires explicit parsing
+let x = Complex::new(3.0, 4.0);
+log::info!("{}", x.re);
+log::info!("{}", x.im);
 """
 expected_output = """3.0
 4.0"""
@@ -141,12 +129,10 @@ print(f"{result.real}+{result.imag}j")
 rust = """
 use num::Complex;
 
-fn main() {
-    let a = Complex::new(1.0, 2.0);
-    let b = Complex::new(3.0, 4.0);
-    let result = a + b;
-    log::info!("{}+{}j", result.re, result.im);
-}
+let a = Complex::new(1.0, 2.0);
+let b = Complex::new(3.0, 4.0);
+let result = a + b;
+log::info!("{}+{}j", result.re, result.im);
 """
 expected_output = "4.0+6.0j"
 
@@ -160,12 +146,10 @@ print(f"{result.real}+{result.imag}j")
 rust = """
 use num::Complex;
 
-fn main() {
-    let a = Complex::new(5.0, 6.0);
-    let b = Complex::new(1.0, 2.0);
-    let result = a - b;
-    log::info!("{}+{}j", result.re, result.im);
-}
+let a = Complex::new(5.0, 6.0);
+let b = Complex::new(1.0, 2.0);
+let result = a - b;
+log::info!("{}+{}j", result.re, result.im);
 """
 expected_output = "4.0+4.0j"
 
@@ -179,12 +163,10 @@ print(f"{result.real}+{result.imag}j")
 rust = """
 use num::Complex;
 
-fn main() {
-    let a = Complex::new(1.0, 2.0);
-    let b = Complex::new(3.0, 4.0);
-    let result = a * b;
-    log::info!("{}+{}j", result.re, result.im);
-}
+let a = Complex::new(1.0, 2.0);
+let b = Complex::new(3.0, 4.0);
+let result = a * b;
+log::info!("{}+{}j", result.re, result.im);
 """
 expected_output = "-5.0+10.0j"
 
@@ -198,12 +180,10 @@ print(f"{result.real:.2f}+{result.imag:.2f}j")
 rust = """
 use num::Complex;
 
-fn main() {
-    let a = Complex::new(1.0, 2.0);
-    let b = Complex::new(3.0, 4.0);
-    let result = a / b;
-    log::info!("{:.2}+{:.2}j", result.re, result.im);
-}
+let a = Complex::new(1.0, 2.0);
+let b = Complex::new(3.0, 4.0);
+let result = a / b;
+log::info!("{:.2}+{:.2}j", result.re, result.im);
 """
 expected_output = "0.44+0.08j"
 
@@ -217,11 +197,9 @@ print(f"{result.real}+{result.imag}j")
 rust = """
 use num::Complex;
 
-fn main() {
-    let base = Complex::new(1.0, 1.0);
-    let result = base.powu(2);
-    log::info!("{}+{}j", result.re, result.im);
-}
+let base = Complex::new(1.0, 1.0);
+let result = base.powu(2);
+log::info!("{}+{}j", result.re, result.im);
 """
 expected_output = "0.0+2.0j"
 
@@ -236,11 +214,9 @@ print(f"{result.real}+{result.imag}j")
 rust = """
 use num::Complex;
 
-fn main() {
-    let x = Complex::new(3.0, 4.0);
-    let result = -x;
-    log::info!("{}+{}j", result.re, result.im);
-}
+let x = Complex::new(3.0, 4.0);
+let result = -x;
+log::info!("{}+{}j", result.re, result.im);
 """
 expected_output = "-3.0+-4.0j"
 
@@ -258,10 +234,8 @@ print(x.real)
 rust = """
 use num::Complex;
 
-fn main() {
-    let x = Complex::new(3.0, 4.0);
-    log::info!("{}", x.re);
-}
+let x = Complex::new(3.0, 4.0);
+log::info!("{}", x.re);
 """
 expected_output = "3.0"
 
@@ -275,10 +249,8 @@ print(x.imag)
 rust = """
 use num::Complex;
 
-fn main() {
-    let x = Complex::new(3.0, 4.0);
-    log::info!("{}", x.im);
-}
+let x = Complex::new(3.0, 4.0);
+log::info!("{}", x.im);
 """
 expected_output = "4.0"
 
@@ -293,11 +265,9 @@ print(f"{result.real}+{result.imag}j")
 rust = """
 use num::Complex;
 
-fn main() {
-    let x = Complex::new(3.0, 4.0);
-    let result = x.conj();
-    log::info!("{}+{}j", result.re, result.im);
-}
+let x = Complex::new(3.0, 4.0);
+let result = x.conj();
+log::info!("{}+{}j", result.re, result.im);
 """
 expected_output = "3.0+-4.0j"
 
@@ -315,10 +285,8 @@ print(abs(x))
 rust = """
 use num::Complex;
 
-fn main() {
-    let x = Complex::new(3.0, 4.0);
-    log::info!("{}", x.norm());
-}
+let x = Complex::new(3.0, 4.0);
+log::info!("{}", x.norm());
 """
 expected_output = "5.0"
 
@@ -334,11 +302,9 @@ print(f"{sqrt_result.real:.2f}+{sqrt_result.imag:.2f}j")
 rust = """
 use num::Complex;
 
-fn main() {
-    let x = Complex::new(1.0, 1.0);
-    let sqrt_result = x.sqrt();
-    log::info!("{:.2}+{:.2}j", sqrt_result.re, sqrt_result.im);
-}
+let x = Complex::new(1.0, 1.0);
+let sqrt_result = x.sqrt();
+log::info!("{:.2}+{:.2}j", sqrt_result.re, sqrt_result.im);
 """
 expected_output = "1.10+0.46j"
 
@@ -356,11 +322,9 @@ print(f"{result.real}+{result.imag}j")
 rust = """
 use num::Complex;
 
-fn main() {
-    let x = Complex::new(3.0, 4.0);
-    let result = x + 1.0;
-    log::info!("{}+{}j", result.re, result.im);
-}
+let x = Complex::new(3.0, 4.0);
+let result = x + 1.0;
+log::info!("{}+{}j", result.re, result.im);
 """
 expected_output = "4.0+4.0j"
 
@@ -374,11 +338,9 @@ print(f"{result.real}+{result.imag}j")
 rust = """
 use num::Complex;
 
-fn main() {
-    let x = Complex::new(3.0, 4.0);
-    let result = x + 1.0;
-    log::info!("{}+{}j", result.re, result.im);
-}
+let x = Complex::new(3.0, 4.0);
+let result = x + 1.0;
+log::info!("{}+{}j", result.re, result.im);
 """
 expected_output = "4.0+4.0j"
 
@@ -392,11 +354,9 @@ print(f"{result.real}+{result.imag}j")
 rust = """
 use num::Complex;
 
-fn main() {
-    let x = Complex::new(3.0, 4.0);
-    let result = 1.0 + x;
-    log::info!("{}+{}j", result.re, result.im);
-}
+let x = Complex::new(3.0, 4.0);
+let result = 1.0 + x;
+log::info!("{}+{}j", result.re, result.im);
 """
 expected_output = "4.0+4.0j"
 
@@ -418,14 +378,12 @@ print(x != y)
 rust = """
 use num::Complex;
 
-fn main() {
-    // Complex numbers in Rust don't implement Ord
-    // Only PartialEq for equality
-    let x = Complex::new(3.0, 4.0);
-    let y = Complex::new(2.0, 5.0);
-    log::info!("{}", x == y);
-    log::info!("{}", x != y);
-}
+// Complex numbers in Rust don't implement Ord
+// Only PartialEq for equality
+let x = Complex::new(3.0, 4.0);
+let y = Complex::new(2.0, 5.0);
+log::info!("{}", x == y);
+log::info!("{}", x != y);
 """
 expected_output = """False
 True"""
@@ -441,11 +399,9 @@ print(x == y)
 rust = """
 use num::Complex;
 
-fn main() {
-    let x = Complex::new(3.0, 4.0);
-    let y = Complex::new(3.0, 4.0);
-    log::info!("{}", x == y);
-}
+let x = Complex::new(3.0, 4.0);
+let y = Complex::new(3.0, 4.0);
+log::info!("{}", x == y);
 """
 expected_output = "True"
 
@@ -459,10 +415,8 @@ print(x.imag)
 rust = """
 use num::Complex;
 
-fn main() {
-    let x = Complex::new(5.0, 0.0);
-    log::info!("{}", x.im);
-}
+let x = Complex::new(5.0, 0.0);
+log::info!("{}", x.im);
 """
 expected_output = "0.0"
 
@@ -477,15 +431,13 @@ print(f"{numbers[0].real}+{numbers[0].imag}j")
 rust = """
 use num::Complex;
 
-fn main() {
-    let numbers = vec![
-        Complex::new(1.0, 2.0),
-        Complex::new(3.0, 4.0),
-        Complex::new(5.0, 6.0),
-    ];
-    log::info!("{}", numbers.len());
-    log::info!("{}+{}j", numbers[0].re, numbers[0].im);
-}
+let numbers = vec![
+    Complex::new(1.0, 2.0),
+    Complex::new(3.0, 4.0),
+    Complex::new(5.0, 6.0),
+];
+log::info!("{}", numbers.len());
+log::info!("{}+{}j", numbers[0].re, numbers[0].im);
 """
 expected_output = """3
 1.0+2.0j"""

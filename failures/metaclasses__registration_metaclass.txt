@@ -1,0 +1,53 @@
+  metaclasses.toml :: registration_metaclass
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // In Rust, we use the inventory crate or a manual registry
+− use std::collections::HashMap;
+− use std::sync::Mutex;
+− 
+− static REGISTRY: Mutex<HashMap<&str, fn()>> = Mutex::new(HashMap::new());
+− 
+− fn register(name: &'static str, _factory: fn()) {
+−     REGISTRY.lock().unwrap().insert(name, _factory);
++ use serde_json;
++ #[derive(Debug, Copy, Clone)]
++ pub struct RegistryMeta {}
++ impl RegistryMeta {
++     pub const registry: HashMap<serde_json::Value, serde_json::Value> = {
++         let mut map = HashMap::new();
++         map
++     };
++     pub fn new() -> Self {
++         Self {}
++     }
+  }
+− 
+− register("PluginA", || {});
+− register("PluginB", || {});
+− 
+− let mut keys: Vec<_> = REGISTRY.lock().unwrap().keys().copied().collect();
+− keys.sort();
+− log::info!("{:?}", keys);
++ #[derive(Debug, Copy, Clone)]
++ pub struct Base {}
++ impl Base {
++     pub fn new() -> Self {
++         Self {}
++     }
++ }
++ #[derive(Debug, Copy, Clone)]
++ pub struct PluginA {}
++ impl PluginA {
++     pub fn new() -> Self {
++         Self {}
++     }
++ }
++ #[derive(Debug, Copy, Clone)]
++ pub struct PluginB {}
++ impl PluginB {
++     pub fn new() -> Self {
++         Self {}
++     }
++ }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,12 @@
+  modules-os-sys.toml :: os_environ_not_in
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use std as os;
+  pub fn test() -> bool {
+−     let _cse_temp_0 = !std::env::var("NONEXISTENT").is_ok();
+−     let missing: bool = _cse_temp_0;
++     let missing: bool = !std::env::var("NONEXISTENT").is_ok();
+      return missing;
+  }
+────────────────────────────────────────────────────────────

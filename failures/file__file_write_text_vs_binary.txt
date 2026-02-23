@@ -1,0 +1,11 @@
+  file.toml :: file_write_text_vs_binary
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn write_text(path: String, text: String) {
++ pub fn write_text(path: String, text: String) -> Result<(), std::io::Error> {
+      let mut f = std::fs::File::create(path)?;
+      f.write(text);
++     Ok(())
+  }
+────────────────────────────────────────────────────────────

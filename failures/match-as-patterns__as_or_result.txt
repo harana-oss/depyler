@@ -1,0 +1,12 @@
+  match-as-patterns.toml :: as_or_result
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // case ('yes' | 'y') as answer: ...
+−     let response = "yes";
+−     let result = match response {
+−         answer @ ("yes" | "y") => answer == "yes",
+−         _ => false,
+−     };
++ 
+────────────────────────────────────────────────────────────

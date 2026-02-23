@@ -1,0 +1,17 @@
+  string-encoding.toml :: surrogate_pairs
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn has_high_codepoint(s: &str) -> bool {
+−     for c in s.chars() {
+−         if c as u32 > 0xFFFF {
++ pub fn has_high_codepoint(s: String) -> bool {
++     for _c in s.chars() {
++         let c = _c.to_string();
++         if c.chars().next().unwrap() as i32 > 65535 {
+              return true;
+          }
+      }
+      return false;
+  }
+────────────────────────────────────────────────────────────

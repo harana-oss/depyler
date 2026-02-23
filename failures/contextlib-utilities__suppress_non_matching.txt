@@ -1,0 +1,11 @@
+  contextlib-utilities.toml :: suppress_non_matching
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− let value = 1;
+−     let result = match value {
+−         1 => "one",
+−         _ => "other",
+−     };
++ 
+────────────────────────────────────────────────────────────

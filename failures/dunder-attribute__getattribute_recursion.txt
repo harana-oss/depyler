@@ -1,0 +1,22 @@
+  dunder-attribute.toml :: getattribute_recursion
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct Safe {
+−     value: i32,
+− }
+− 
++ #[derive(Debug, Copy, Clone)]
++ pub struct Safe {}
+  impl Safe {
+−     fn new() -> Self {
+−         Safe { value: 10 }
++     pub const value: i32 = 10;
++     pub fn new() -> Self {
++         Self {}
+      }
+  }
+− 
+− let obj = Safe::new();
+− log::info!("{}", obj.value);
+────────────────────────────────────────────────────────────

@@ -1,0 +1,16 @@
+  assert-statement.toml :: assert_expression_message
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− fn main() {
+−     let valid = true;
+−     let error_details = {
+−         let mut map = HashMap::new();
+−         map.insert("code".to_string(), 500);
+−         map
+−     };
+−     assert!(valid, "{}", (error_details).to_string());
+−     let result = true;
+− }
++ 
+────────────────────────────────────────────────────────────

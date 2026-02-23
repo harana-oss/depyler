@@ -1,0 +1,11 @@
+  unpacking.toml :: unpacking_with_annotations
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− let data: (i32, i32) = (10, 20);
+− let x: i32;
+− let y: i32;
+− (x, y) = data;
+− log::info!("{}", format!("x={}, y={}", x, y));
++ 
+────────────────────────────────────────────────────────────

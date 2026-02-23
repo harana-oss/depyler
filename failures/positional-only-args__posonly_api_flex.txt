@@ -1,0 +1,19 @@
+  positional-only-args.toml :: posonly_api_flex
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− fn calculate(x: i32) -> i32 {
+−     x * 2
++ pub fn calculate() -> i32 {
++     return x * 2;
+  }
+− 
+− fn calculate_v2(value: i32) -> i32 {
+−     value * 2
++ pub fn calculate_v2() -> i32 {
++     return value * 2;
+  }
+− 
+− log::info!("{}", calculate(10));
+− log::info!("{}", calculate_v2(10));
+────────────────────────────────────────────────────────────

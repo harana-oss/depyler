@@ -1,0 +1,14 @@
+  operators.toml :: power_negative_exponent
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn test_negative() -> (f64, f64) {
+−     let _cse_temp_0 = (2.0 as f64).powf(-1 as f64);
+−     let a = _cse_temp_0;
+−     let _cse_temp_1 = (10.0 as f64).powf(-2 as f64);
+−     let b = _cse_temp_1;
++     let a = (2.0 as f64).powf(-1 as f64);
++     let b = (10.0 as f64).powf(-2 as f64);
+      return (a, b);
+  }
+────────────────────────────────────────────────────────────

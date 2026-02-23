@@ -1,0 +1,15 @@
+  ellipsis.toml :: ellipsis_in_dict
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::collections::HashMap;
+  
+− let mut d1: HashMap<(), &str> = HashMap::new();
+− d1.insert((), "ellipsis_key");
+− 
+− let mut d2: HashMap<&str, ()> = HashMap::new();
+− d2.insert("key", ());
+− 
+− log::info!("Dict with ellipsis key: {{(): 'ellipsis_key'}}");
+− log::info!("Dict with ellipsis value: {{'key': ()}}");
+────────────────────────────────────────────────────────────

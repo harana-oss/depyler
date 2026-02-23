@@ -1,0 +1,29 @@
+  functools-wraps.toml :: wraps_factory
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // @wraps in parameterized decorator
+−     // Rust proc macros can take parameters
+−     fn greet() -> &'static str {
+−         "Hello"
++ use std;
++ pub const result: serde_json::Value = greet.__name__ == "greet";
++ use serde_json;
++ pub fn repeat(times: &serde_json::Value) {
++     fn decorator(f: ()) -> () {
++         fn wrapper() -> () {
++             for __ in 0..times {
++                 let result = f(args);
++             }
++             return result;
++         }
++         return wrapper;
+      }
+− 
+−     let result = true;
++     return decorator;
++ }
++ pub fn greet() -> String {
++     return "Hello".to_string();
++ }
+────────────────────────────────────────────────────────────

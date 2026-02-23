@@ -37,7 +37,7 @@ result = True
 rust = '''
 fn main() {
     let x = 5;
-    assert!(x > 0, "{}", "x must be positive");
+    assert!(x > 0, "x must be positive");
     let result = true;
 }
 '''
@@ -214,13 +214,13 @@ result = True
 '''
 
 rust = '''
-    fn is_valid(x: i32) -> bool {
-        x > 0
-    }
+fn is_valid(x: i32) -> bool {
+    x > 0
+}
 
-    let x = 5;
-    assert!(is_valid(x));
-    let result = true;
+let x = 5;
+assert!(is_valid(x));
+let result = true;
 '''
 
 # =============================================================================
@@ -286,12 +286,12 @@ result = divide(10, 2) == 5.0
 '''
 
 rust = '''
-    fn divide(a: i32, b: i32) -> i32 {
-        assert!(b != 0, "Divisor cannot be zero");
-        a / b
-    }
+fn divide(a: i32, b: i32) -> i32 {
+    assert!(b != 0, "Divisor cannot be zero");
+    a / b
+}
 
-    let result = divide(10, 2) == 5;
+let result = divide(10, 2) == 5;
 '''
 
 [[test]]
@@ -309,14 +309,14 @@ result = value == 5
 '''
 
 rust = '''
-    fn get_positive(x: i32) -> i32 {
-        let result = x.abs();
-        assert!(result >= 0, "Result must be positive");
-        result
-    }
+fn get_positive(x: i32) -> i32 {
+    let result = x.abs();
+    assert!(result >= 0, "Result must be positive");
+    result
+}
 
-    let value = get_positive(-5);
-    let result = value == 5;
+let value = get_positive(-5);
+let result = value == 5;
 '''
 
 [[test]]
@@ -333,13 +333,13 @@ result = total == 15
 '''
 
 rust = '''
-    let mut total = 0;
-    for i in 1..=5 {
-        total += i;
-        assert!(total == i * (i + 1) / 2, "Sum invariant violated");
-    }
+let mut total = 0;
+for i in 1..=5 {
+    total += i;
+    assert!(total == i * (i + 1) / 2, "Sum invariant violated");
+}
 
-    let result = total == 15;
+let result = total == 15;
 '''
 
 # =============================================================================
@@ -362,7 +362,7 @@ result = True
 rust = '''
 fn main() {
     let value = 10;
-    assert!(value > 0, "{}", "Value must be positive");
+    assert!(value > 0, "Value must be positive");
     let result = true;
 }
 '''
@@ -395,9 +395,9 @@ result = True
 '''
 
 rust = '''
-    // Rust has debug_assert! for debug-only checks
-    debug_assert!(true);
-    // Regular assert! is always checked
-    assert!(true);
-    let result = true;
+// Rust has debug_assert! for debug-only checks
+debug_assert!(true);
+// Regular assert! is always checked
+assert!(true);
+let result = true;
 '''

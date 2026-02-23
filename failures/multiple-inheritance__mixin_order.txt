@@ -1,0 +1,70 @@
+  multiple-inheritance.toml :: mixin_order
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Mixin before base class in inheritance
+−     trait Base {
+−         fn method(&self) -> &str {
+−             "base"
+−         }
++ pub const result: serde_json::Value =
++     (WithMixinFirst::new().method() == "mixin") && (WithBaseFirst::new().method() == "base");
++ use serde_json;
++ #[derive(Debug, Copy, Clone)]
++ pub struct Base {}
++ impl Base {
++     pub fn new() -> Self {
++         Self {}
+      }
+− 
+−     trait Mixin {
+−         fn method_mixin(&self) -> &str {
+−             "mixin"
+−         }
++     pub fn method(&self) -> String {
++         return "base".to_string();
+      }
+− 
+−     struct WithMixinFirst;
+−     impl Mixin for WithMixinFirst {}
+−     impl Base for WithMixinFirst {
+−         fn method(&self) -> &str {
+−             "mixin"
+−         }
++ }
++ #[derive(Debug, Copy, Clone)]
++ pub struct Mixin {}
++ impl Mixin {
++     pub fn new() -> Self {
++         Self {}
++     }
++     pub fn method(&self) -> String {
++         return "mixin".to_string();
+      }
+− 
+−     struct WithBaseFirst;
+−     impl Base for WithBaseFirst {}
+−     impl Mixin for WithBaseFirst {}
+− 
+−     pub fn test_mixin_order() -> bool {
+−         let first = WithMixinFirst;
+−         let second = WithBaseFirst;
+−         first.method() == "mixin" && second.method() == "base"
++ }
++ #[derive(Debug, Copy, Clone)]
++ pub struct WithMixinFirst {}
++ impl WithMixinFirst {
++     pub fn new() -> Self {
++         Self {}
++     }
++ }
++ #[derive(Debug, Copy, Clone)]
++ pub struct WithBaseFirst {}
++ impl WithBaseFirst {
++     pub fn new() -> Self {
++         Self {}
+      }
+− 
+−     let result = test_mixin_order();
++ }
+────────────────────────────────────────────────────────────

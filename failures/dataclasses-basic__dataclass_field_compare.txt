@@ -1,0 +1,24 @@
+  dataclasses-basic.toml :: dataclass_field_compare
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub const p1: Person = Person::new("Alice".to_string(), 30);
+− pub const p2: Person = Person::new("Alice".to_string(), 40);
+− pub const result: bool = p1 == p2;
+− use serde_json;
+  #[derive(Debug, Clone, PartialEq, Default)]
+  pub struct Person {
+      pub name: String,
++     pub age: i32,
+  }
+  impl Person {
+−     pub const age: i32 = field();
+      pub fn new(name: String) -> Self {
+−         Self { name }
++         Self {
++             name,
++             age: Default::default(),
++         }
+      }
+  }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,29 @@
+  functools-cache.toml :: cache_different_args
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Different args compute fresh result
+− use std::collections::HashMap;
+− use std::sync::Mutex;
+− 
+− lazy_static::lazy_static! {
+−     static ref CACHE: Mutex<HashMap<i32, i32>> = Mutex::new(HashMap::new());
+−     static ref CALL_COUNT: Mutex<i32> = Mutex::new(0);
+− }
+− 
+− fn func(x: i32) -> i32 {
+−     let mut cache = CACHE.lock().unwrap();
+−     *cache.entry(x).or_insert_with(|| {
+−         *CALL_COUNT.lock().unwrap() += 1;
+−         x * 2
+−     })
++ use std::cache;
++ pub fn func(x: i32) -> i32 {
++     call_count += 1;
++     return x * 2;
+  }
+− 
+− func(5);
+− func(10);
+− let result = *CALL_COUNT.lock().unwrap() == 2;
+────────────────────────────────────────────────────────────

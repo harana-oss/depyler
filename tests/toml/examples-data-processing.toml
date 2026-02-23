@@ -53,7 +53,7 @@ def calculate_statistics(data: List[float]) -> Dict[str, float]:
     # Mean
     total: float = 0.0
     for value in data:
-        total = total + value
+        total += value
     mean: float = total / float(len(data))
     stats["mean"] = mean
 
@@ -61,7 +61,7 @@ def calculate_statistics(data: List[float]) -> Dict[str, float]:
     variance_sum: float = 0.0
     for value in data:
         diff: float = value - mean
-        variance_sum = variance_sum + (diff * diff)
+        variance_sum += (diff * diff)
 
     variance: float = variance_sum / float(len(data))
     stats["variance"] = variance
@@ -195,8 +195,8 @@ def calculate_correlation(x: List[float], y: List[float]) -> float:
     x_sum: float = 0.0
     y_sum: float = 0.0
     for i in range(len(x)):
-        x_sum = x_sum + x[i]
-        y_sum = y_sum + y[i]
+        x_sum += x[i]
+        y_sum += y[i]
 
     x_mean: float = x_sum / float(len(x))
     y_mean: float = y_sum / float(len(y))
@@ -210,9 +210,9 @@ def calculate_correlation(x: List[float], y: List[float]) -> float:
         x_diff: float = x[i] - x_mean
         y_diff: float = y[i] - y_mean
 
-        numerator = numerator + (x_diff * y_diff)
-        x_variance_sum = x_variance_sum + (x_diff * x_diff)
-        y_variance_sum = y_variance_sum + (y_diff * y_diff)
+        numerator += (x_diff * y_diff)
+        x_variance_sum += (x_diff * x_diff)
+        y_variance_sum += (y_diff * y_diff)
 
     denominator: float = math.sqrt(x_variance_sum * y_variance_sum)
 
@@ -231,14 +231,14 @@ def normalize_data(data: List[float]) -> List[float]:
     # Calculate mean
     total: float = 0.0
     for value in data:
-        total = total + value
+        total += value
     mean: float = total / float(len(data))
 
     # Calculate standard deviation
     variance_sum: float = 0.0
     for value in data:
         diff: float = value - mean
-        variance_sum = variance_sum + (diff * diff)
+        variance_sum += (diff * diff)
 
     stddev: float = math.sqrt(variance_sum / float(len(data)))
 
@@ -398,8 +398,7 @@ pub fn calculate_statistics(
     data: &mut Vec<f64>,
 ) -> Result<HashMap<String, f64>, Box<dyn std::error::Error>> {
     let _cse_temp_0 = data.len() as i32;
-    let _cse_temp_1 = _cse_temp_0 == 0;
-    if _cse_temp_1 {
+        if _cse_temp_0 == 0 {
         return Ok({
             let map = HashMap::new();
             map
@@ -411,7 +410,7 @@ pub fn calculate_statistics(
     };
     let mut total: f64 = 0.0;
     for value in data.iter().cloned() {
-        total = total + value;
+        total += value;
     }
     let _cse_temp_2 = (_cse_temp_0) as f64;
     let _cse_temp_3 = total / _cse_temp_2;
@@ -420,7 +419,7 @@ pub fn calculate_statistics(
     let mut variance_sum: f64 = 0.0;
     for value in data.iter().cloned() {
         let diff: f64 = value - mean;
-        variance_sum = variance_sum + diff * diff;
+        variance_sum += diff * diff;
     }
     let _cse_temp_4 = variance_sum / _cse_temp_2;
     let variance: f64 = _cse_temp_4;
@@ -473,8 +472,7 @@ pub fn calculate_statistics(
     };
     let mid: i32 = _cse_temp_6;
     let _cse_temp_7 = _cse_temp_5 % 2;
-    let _cse_temp_8 = _cse_temp_7 == 1;
-    if _cse_temp_8 {
+        if _cse_temp_7 == 1 {
         stats.insert(
             "median".to_string(),
             sorted_data.get(mid as usize).cloned().unwrap_or_default(),
@@ -500,8 +498,7 @@ pub fn calculate_percentiles(
     data: &mut Vec<f64>,
 ) -> Result<HashMap<String, f64>, Box<dyn std::error::Error>> {
     let _cse_temp_0 = data.len() as i32;
-    let _cse_temp_1 = _cse_temp_0 == 0;
-    if _cse_temp_1 {
+        if _cse_temp_0 == 0 {
         return Ok({
             let map = HashMap::new();
             map
@@ -609,8 +606,7 @@ pub fn calculate_percentiles(
 pub fn detect_outliers(mut data: Vec<f64>) -> Result<Vec<f64>, IndexError> {
     let mut percentiles: HashMap<String, f64> = calculate_percentiles(&data)?;
     let _cse_temp_0 = percentiles.len() as i32;
-    let _cse_temp_1 = _cse_temp_0 == 0;
-    if _cse_temp_1 {
+        if _cse_temp_0 == 0 {
         return Ok(vec![]);
     }
     let q1: f64 = percentiles.get("q1").cloned().unwrap_or_default();
@@ -691,8 +687,8 @@ pub fn calculate_correlation<'a, 'b>(
     let mut x_sum: f64 = 0.0;
     let mut y_sum: f64 = 0.0;
     for i in 0..x.len() as i32 {
-        x_sum = x_sum + x.get(i as usize).cloned().unwrap_or_default();
-        y_sum = y_sum + y.get(i as usize).cloned().unwrap_or_default();
+        x_sum += x.get(i as usize).cloned().unwrap_or_default();
+        y_sum += y.get(i as usize).cloned().unwrap_or_default();
     }
     let _cse_temp_5 = (_cse_temp_0) as f64;
     let _cse_temp_6 = (x_sum as f64) / (_cse_temp_5 as f64);
@@ -706,13 +702,12 @@ pub fn calculate_correlation<'a, 'b>(
     for i in 0..x.len() as i32 {
         let x_diff: f64 = x.get(i as usize).cloned().unwrap_or_default() - x_mean;
         let y_diff: f64 = y.get(i as usize).cloned().unwrap_or_default() - y_mean;
-        numerator = numerator + x_diff * y_diff;
-        x_variance_sum = x_variance_sum + x_diff * x_diff;
-        y_variance_sum = y_variance_sum + y_diff * y_diff;
+        numerator += x_diff * y_diff;
+        x_variance_sum += x_diff * x_diff;
+        y_variance_sum += y_diff * y_diff;
     }
     let denominator: f64 = (x_variance_sum * y_variance_sum as f64).sqrt();
-    let _cse_temp_9 = denominator == 0.0;
-    if _cse_temp_9 {
+        if denominator == 0.0 {
         return Ok(0.0);
     }
     let _cse_temp_10 = (numerator as f64) / (denominator as f64);
@@ -722,13 +717,12 @@ pub fn calculate_correlation<'a, 'b>(
 #[doc = "Z-score normalization using statistics"]
 pub fn normalize_data(mut data: Vec<f64>) -> Result<Vec<f64>, ZeroDivisionError> {
     let _cse_temp_0 = data.len() as i32;
-    let _cse_temp_1 = _cse_temp_0 == 0;
-    if _cse_temp_1 {
+        if _cse_temp_0 == 0 {
         return Ok(vec![]);
     }
     let mut total: f64 = 0.0;
     for value in data.iter().cloned() {
-        total = total + value;
+        total += value;
     }
     let _cse_temp_2 = (_cse_temp_0) as f64;
     let _cse_temp_3 = (total as f64) / (_cse_temp_2 as f64);
@@ -736,11 +730,10 @@ pub fn normalize_data(mut data: Vec<f64>) -> Result<Vec<f64>, ZeroDivisionError>
     let mut variance_sum: f64 = 0.0;
     for value in data.iter().cloned() {
         let diff: f64 = value - mean;
-        variance_sum = variance_sum + diff * diff;
+        variance_sum += diff * diff;
     }
-    let stddev: f64 = ((variance_sum as f64) / ((data.len() as i32) as f64 as f64) as f64).sqrt();
-    let _cse_temp_4 = stddev == 0.0;
-    if _cse_temp_4 {
+    let stddev: f64 = ((variance_sum as f64) / ((data.len() as i32) as f64) as f64).sqrt();
+        if stddev == 0.0 {
         return Ok(data);
     }
     let mut normalized: Vec<f64> = vec![];
@@ -912,20 +905,20 @@ def merge_sorted_lists(list1: List[int], list2: List[int]) -> List[int]:
     while i < len(list1) and j < len(list2):
         if list1[i] <= list2[j]:
             result.append(list1[i])
-            i = i + 1
+            i += 1
         else:
             result.append(list2[j])
-            j = j + 1
+            j += 1
     
     # Add remaining elements
     while i < len(list1):
         result.append(list1[i])
-        i = i + 1
+        i += 1
     
     while j < len(list2):
         result.append(list2[j])
-        j = j + 1
-    
+        j += 1
+     
     return result
 
 def calculate_running_sum(numbers: List[int]) -> List[int]:
@@ -937,7 +930,7 @@ def calculate_running_sum(numbers: List[int]) -> List[int]:
     running_total = 0
     
     for num in numbers:
-        running_total = running_total + num
+        running_total += num
         result.append(running_total)
     
     return result
@@ -1036,19 +1029,19 @@ pub fn merge_sorted_lists<'a, 'b>(
             <= list2.get(j as usize).cloned().unwrap_or_default()
         {
             result.push(list1.get(i as usize).cloned().unwrap_or_default());
-            i = i + 1;
+            i += 1;
         } else {
             result.push(list2.get(j as usize).cloned().unwrap_or_default());
-            j = j + 1;
+            j += 1;
         }
     }
     while i < list1.len() as i32 {
         result.push(list1.get(i as usize).cloned().unwrap_or_default());
-        i = i + 1;
+        i += 1;
     }
     while j < list2.len() as i32 {
         result.push(list2.get(j as usize).cloned().unwrap_or_default());
-        j = j + 1;
+        j += 1;
     }
     Ok(result)
 }
@@ -1060,7 +1053,7 @@ pub fn calculate_running_sum(numbers: &Vec<i32>) -> Vec<i32> {
     let mut result: Vec<i32> = vec![];
     let mut running_total = 0;
     for num in numbers.iter().cloned() {
-        running_total = running_total + num;
+        running_total += num;
         result.push(running_total);
     }
     result

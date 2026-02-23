@@ -1,0 +1,14 @@
+  iterators.toml :: hashmap_values_iteration
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use std::collections::HashMap;
+  pub fn sum_values(d: &HashMap<String, i32>) -> i32 {
+      let mut total = 0;
+−     for v in d.values() {
++     for v in d.values().cloned().collect::<Vec<_>>() {
+          total += v;
+      }
+      return total;
+  }
+────────────────────────────────────────────────────────────

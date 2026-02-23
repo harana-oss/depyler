@@ -1,0 +1,22 @@
+  functools-wraps.toml :: wraps_partial
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // @wraps with functools.partial
+−     fn multiply(x: i32, y: i32) -> i32 {
+−         x * y
++ use serde_json;
++ use std;
++ pub fn my_decorator(f: &serde_json::Value) {
++     fn wrapper() -> () {
++         return f(args);
+      }
+− 
+−     let double = |y| multiply(2, y);
+−     let result = double(5) == 10;
++     return wrapper;
++ }
++ pub fn multiply(x: i32, y: i32) {
++     return x * y;
++ }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,10 @@
+  regressions.toml :: method_name_match_keyword
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn test_match_method<T>(obj: &T) {
++ use serde_json;
++ pub fn test_match_method(obj: &serde_json::Value) {
+      return obj.match_pattern();
+  }
+────────────────────────────────────────────────────────────

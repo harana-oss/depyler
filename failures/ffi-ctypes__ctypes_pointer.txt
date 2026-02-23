@@ -1,0 +1,33 @@
+  ffi-ctypes.toml :: ctypes_pointer
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub struct IntRef {
+−     pub value: i32,
++ #[derive(Debug, Copy, Clone)] pub struct IntRef {
++     pub value: i32
+  }
+− 
+  impl IntRef {
+      pub fn new(value: i32) -> Self {
+−         Self { value }
+−     }
++     Self {
++     value
++ }
+  }
+− 
+− pub fn read_ref(ref_: &IntRef) -> i32 {
+−     return ref_.value;
+  }
+− 
+− pub fn write_ref(ref_: &mut IntRef, value: i32) {
+−     ref_.value = value;
++ pub fn read_ref(ref: & IntRef) -> i32 {
++     return r#ref.value;
++    
+  }
++ pub fn write_ref(ref: &mut IntRef, value: i32) {
++     r#ref.value = value;
++     }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,42 @@
+  protocols.toml :: protocol_generic_bounded
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub trait Summable {
+−     fn sum_values(&self) -> i32;
++ use serde_json;
++ #[derive(Debug, Copy, Clone)]
++ pub struct Summable {}
++ impl Summable {
++     pub fn new() -> Self {
++         Self {}
++     }
++     pub fn sum_values(&self) -> T {
++         ();
++     }
+  }
+− 
++ #[derive(Debug, Clone)]
+  pub struct IntList {
+−     pub values: Vec<i32>,
++     pub values: Vec<serde_json::Value>,
+  }
+− 
+  impl IntList {
+      pub fn new() -> Self {
+          Self { values: vec![] }
+      }
+− 
+      pub fn add(&mut self, value: i32) {
+          self.values.push(value);
+      }
+− }
+− 
+− impl Summable for IntList {
+−     fn sum_values(&self) -> i32 {
+−         return self.values.iter().sum::<i32>();
++     pub fn sum_values(&self) -> i32 {
++         return sum(self.values);
+      }
+  }
+────────────────────────────────────────────────────────────

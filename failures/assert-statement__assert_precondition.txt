@@ -1,0 +1,33 @@
+  assert-statement.toml :: assert_precondition
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− fn divide(a: i32, b: i32) -> i32 {
+−     assert!(b != 0, "Divisor cannot be zero");
+−     a / b
++ pub const result: serde_json::Value = divide(10, 2) == 5.0;
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct ZeroDivisionError {
++     message: String,
+  }
+− 
+− let result = divide(10, 2) == 5;
++ impl std::fmt::Display for ZeroDivisionError {
++     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
++         write!(f, "division by zero: {}", self.message)
++     }
++ }
++ impl std::error::Error for ZeroDivisionError {}
++ impl ZeroDivisionError {
++     pub fn new(message: impl Into<String>) -> Self {
++         Self {
++             message: message.into(),
++         }
++     }
++ }
++ pub fn divide(a: i32, b: i32) -> Result<(), ZeroDivisionError> {
++     assert!(b != 0, "{}", "Divisor cannot be zero");
++     return Ok((a as f64) / (b as f64));
++ }
+────────────────────────────────────────────────────────────

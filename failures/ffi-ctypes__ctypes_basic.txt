@@ -1,0 +1,17 @@
+  ffi-ctypes.toml :: ctypes_basic
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn c_int_to_int(value: i32) -> i32 {
+      return value;
+  }
+− 
+− pub fn c_float_to_float(value: f32) -> f32 {
++ pub fn c_float_to_float(value: f64) -> f64 {
+      return value;
+  }
+− 
+  pub fn c_bool_to_bool(value: bool) -> bool {
+      return value;
+  }
+────────────────────────────────────────────────────────────

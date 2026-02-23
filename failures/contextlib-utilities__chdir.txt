@@ -1,0 +1,32 @@
+  contextlib-utilities.toml :: chdir
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::env;
+− 
++ use std as os;
+  pub fn test_chdir() -> bool {
+−     let original = env::current_dir().unwrap();
+−     {
+−         env::set_current_dir("/tmp").ok();
+−         let _changed = env::current_dir().unwrap();
+−     }
+−     env::set_current_dir(&original).ok();
+−     let restored = env::current_dir().unwrap();
+−     original == restored
++     let original = std::env::current_dir()
++         .unwrap()
++         .to_string_lossy()
++         .to_string();
++     let _context = chdir("/tmp".to_string());
++     let changed = std::env::current_dir()
++         .unwrap()
++         .to_string_lossy()
++         .to_string();
++     let restored = std::env::current_dir()
++         .unwrap()
++         .to_string_lossy()
++         .to_string();
++     return (original == restored) && (changed != original);
+  }
+────────────────────────────────────────────────────────────

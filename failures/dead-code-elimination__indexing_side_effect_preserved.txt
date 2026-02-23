@@ -1,0 +1,9 @@
+  dead-code-elimination.toml :: indexing_side_effect_preserved
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn set_first(items: &mut Vec<i32>, value: i32) {
+−     items[0] = value;
++     items[0 as usize] = value;
+  }
+────────────────────────────────────────────────────────────

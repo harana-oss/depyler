@@ -1,0 +1,11 @@
+  deque.toml :: deque_len
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // len(d)
+−     use std::collections::VecDeque;
+− 
+−     let d = VecDeque::from(vec![1, 2, 3]);
+−     let result = d.len() == 3;
++ use std::collections::VecDeque;
+────────────────────────────────────────────────────────────

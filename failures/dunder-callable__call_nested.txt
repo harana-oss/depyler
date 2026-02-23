@@ -1,0 +1,31 @@
+  dunder-callable.toml :: call_nested
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct Outer;
+− struct Inner;
+− 
++ #[derive(Debug, Copy, Clone)]
++ pub struct Outer {}
+  impl Outer {
+−     fn call(&self) -> Inner {
+−         Inner
++     pub fn new() -> Self {
++         Self {}
+      }
+  }
+− 
++ #[derive(Debug, Copy, Clone)]
++ pub struct Inner {}
+  impl Inner {
+−     fn call(&self, x: i32) -> i32 {
+−         x * 2
++     pub fn new() -> Self {
++         Self {}
+      }
+  }
+− 
+− let obj = Outer;
+− let result = obj.call().call(5);
+− log::info!("{}", result);
+────────────────────────────────────────────────────────────

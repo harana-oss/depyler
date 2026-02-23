@@ -1,0 +1,7 @@
+  argparse.toml :: argparse_smoke_with_flags
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use clap::Parser;
+− fn main() {}
+────────────────────────────────────────────────────────────

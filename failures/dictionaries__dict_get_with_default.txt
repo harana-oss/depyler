@@ -1,0 +1,26 @@
+  dictionaries.toml :: dict_get_with_default
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use std::collections::HashMap;
+  pub fn test_dict_get(d: &HashMap<String, i32>) -> i32 {
+      return *d.get("key").unwrap_or(&0);
+  }
+  pub fn test_dict_get_no_default(d: &HashMap<String, i32>) {
+      return d.get("key").cloned().unwrap();
+  }
+− let d1 = {
+−     let mut map = HashMap::new();
+−     map.insert("key".to_string(), 42);
+−     map
+− };
+− let d2 = {
+−     let mut map = HashMap::new();
+−     map.insert("other".to_string(), 100);
+−     map
+− };
+− log::info!("{}", test_dict_get(&d1));
+− log::info!("{}", test_dict_get(&d2));
+− log::info!("{}", test_dict_get_no_default(&d1));
+− log::info!("{}", test_dict_get_no_default(&d2));
+────────────────────────────────────────────────────────────

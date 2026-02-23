@@ -1,0 +1,14 @@
+  type-inference.toml :: untyped_list_parameter_no_dynamic
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use serde_json;
+− pub fn sum_list(numbers: &Vec<i32>) -> i32 {
++ pub fn sum_list(numbers: &Vec<serde_json::Value>) -> i32 {
+      let mut total = 0;
+      for num in numbers.iter().cloned() {
+          total += num;
+      }
+      return total;
+  }
+────────────────────────────────────────────────────────────

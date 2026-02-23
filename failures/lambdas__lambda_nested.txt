@@ -1,0 +1,13 @@
+  lambdas.toml :: lambda_nested
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use serde_json;
+− pub fn nested_transform(matrix: Vec<serde_json::Value>) -> Vec<i32> {
++ pub fn nested_transform(matrix: Vec<serde_json::Value>) -> Vec<serde_json::Value> {
+      return matrix
+          .iter()
+          .map(|row| row.iter().map(|x| x * 2).collect::<Vec<_>>())
+          .collect::<Vec<_>>();
+  }
+────────────────────────────────────────────────────────────

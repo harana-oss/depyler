@@ -1,0 +1,11 @@
+  verification-contracts.toml :: debug_assert_only
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn debug_checked_add(a: i32, b: i32) -> i32 {
+      let result = a + b;
+−     assert!((result >= a) || (result >= b), "overflow check");
++     assert!((result >= a) || (result >= b), "{}", "overflow check");
+      return result;
+  }
+────────────────────────────────────────────────────────────

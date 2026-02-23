@@ -1,0 +1,41 @@
+  dunder-context.toml :: dunder_enter
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust uses RAII pattern with Drop trait
+− struct MyContext;
+− 
++ use serde_json;
++ #[derive(Debug, Copy, Clone)]
++ pub struct MyContext {}
+  impl MyContext {
+−     fn enter(&self) {
+−         log::info!("Entering");
++     pub fn new() -> Self {
++         Self {}
++     }
++     pub fn __enter__(&self) -> &Self {
++         log::info!("{}", "Entering".to_string());
++         return self;
+      }
+− }
+− 
+− impl Drop for MyContext {
+−     fn drop(&mut self) {
+−         log::info!("Exiting");
++     pub fn __exit__(
++         &self,
++         exc_type: serde_json::Value,
++         exc_val: serde_json::Value,
++         exc_tb: serde_json::Value,
++     ) -> bool {
++         log::info!("{}", "Exiting".to_string());
++         return false;
+      }
+  }
+− 
+− let ctx = MyContext;
+− ctx.enter();
+− log::info!("Inside");
+− // Drop called automatically
+────────────────────────────────────────────────────────────

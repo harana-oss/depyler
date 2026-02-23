@@ -1,0 +1,37 @@
+  slots.toml :: slots_memory
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::mem::size_of_val;
+− 
+− struct WithSlots {
+−     x: i32,
+−     y: i32,
++ use std as sys;
++ #[derive(Debug, Copy, Clone)]
++ pub struct WithSlots {
++     pub x: i32,
++     pub y: i32,
+  }
+− 
+− let s = WithSlots { x: 1, y: 2 };
+− log::info!("With slots: {}", size_of_val(&s));
+− log::info!("Without slots: {}", size_of_val(&s));
+− log::info!("Slots saves memory: true");
++ impl WithSlots {
++     pub const __slots__: Vec<String> = vec!["x".to_string(), "y".to_string()];
++     pub fn new() -> Self {
++         Self { x: 1, y: 2 }
++     }
++ }
++ #[derive(Debug, Copy, Clone)]
++ pub struct WithoutSlots {
++     pub x: i32,
++     pub y: i32,
++ }
++ impl WithoutSlots {
++     pub fn new() -> Self {
++         Self { x: 1, y: 2 }
++     }
++ }
+────────────────────────────────────────────────────────────

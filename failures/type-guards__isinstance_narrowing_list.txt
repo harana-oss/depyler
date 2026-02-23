@@ -1,0 +1,12 @@
+  type-guards.toml :: isinstance_narrowing_list
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn sum_if_list(value: &object) -> i32 {
+      if true {
+−         return value.clone().iter().sum::<i32>();
++         return value.iter().sum::<i32>();
+      }
+      return 0;
+  }
+────────────────────────────────────────────────────────────

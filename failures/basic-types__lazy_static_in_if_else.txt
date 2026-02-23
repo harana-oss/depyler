@@ -1,0 +1,24 @@
+  basic-types.toml :: lazy_static_in_if_else
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− lazy_static! {
+−     pub static ref X_VALUES: Vec<Vec<i32>> = vec![vec![0, 100], vec![100, 200]];
+−     pub static ref X_VALUES_AWAY: Vec<Vec<i32>> = vec![vec![50, 150], vec![150, 250]];
+− }
+− use lazy_static::lazy_static;
++ pub const X_VALUES: serde_json::Value = vec![vec![0, 100], vec![100, 200]];
++ pub const X_VALUES_AWAY: serde_json::Value = vec![vec![50, 150], vec![150, 250]];
++ use serde_json;
+  pub fn get_values(is_home: bool) -> Vec<Vec<i32>> {
+      let mut x_ranges: Vec<Vec<i32>>;
+      if is_home {
+−         x_ranges = X_VALUES.clone();
++         x_ranges = X_VALUES;
+      } else {
+−         x_ranges = X_VALUES_AWAY.clone();
++         x_ranges = X_VALUES_AWAY;
+      }
+      return x_ranges;
+  }
+────────────────────────────────────────────────────────────

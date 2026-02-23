@@ -1,0 +1,18 @@
+  slots.toml :: slots_empty
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct NoAttributes;
+− 
+− let _obj = NoAttributes;
+− log::info!("created");
++ use serde_json;
++ #[derive(Debug, Copy, Clone)]
++ pub struct NoAttributes {}
++ impl NoAttributes {
++     pub const __slots__: serde_json::Value = ();
++     pub fn new() -> Self {
++         Self {}
++     }
++ }
+────────────────────────────────────────────────────────────

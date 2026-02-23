@@ -1,0 +1,82 @@
+  examples-tooling.toml :: custom_attributes_demo
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  #[derive(Debug, Clone)]
+  pub struct ZeroDivisionError {
+      message: String,
+  }
+  impl std::fmt::Display for ZeroDivisionError {
+      fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+          write!(f, "division by zero: {}", self.message)
+      }
+  }
+  impl std::error::Error for ZeroDivisionError {}
+  impl ZeroDivisionError {
+      pub fn new(message: impl Into<String>) -> Self {
+          Self {
+              message: message.into(),
+          }
+      }
+  }
+  #[doc = "Simple addition with inline hint."]
+  #[inline]
+  pub fn add_numbers(a: i32, b: i32) -> i32 {
+−     a + b
++     return a + b;
+  }
+  #[doc = "Performance-critical multiplication with aggressive inlining."]
+  #[inline(always)]
+  pub fn multiply_fast(x: i32, y: i32) -> i32 {
+−     x * y
++     return x * y;
+  }
+  #[doc = "Calculate checksum - result must be used."]
+  #[must_use]
+  pub fn calculate_checksum(data: &Vec<i32>) -> i32 {
+      let mut checksum = 0;
+      for value in data.iter().cloned() {
+−         checksum = checksum ^ value;
++         checksum ^= value;
+      }
+−     checksum
++     return checksum;
+  }
+  #[doc = "Error handler - rarely executed."]
+  #[cold]
+  pub fn handle_panic(message: String) {
+      log::info!("{}", format!("PANIC: {}", message));
+  }
+  #[doc = "Hash function with multiple attributes."]
+  #[inline]
+  #[must_use]
+− pub fn compute_hash(text: &str) -> Result<i32, ZeroDivisionError> {
++ pub fn compute_hash(text: String) -> Result<i32, ZeroDivisionError> {
+      let mut hash_val = 0;
+      for _char in text.chars() {
+          let char = _char.to_string();
+−         hash_val = (hash_val * 31 + char.chars().next().unwrap() as i32)
+−             % (2 as i32)
+−                 .checked_pow(32 as u32)
+−                 .expect("Power operation overflowed");
+−     }
+−     Ok(hash_val)
+− };
+−             let result1 = add_numbers(a.clone(), b.clone());
+−             let result2 = add_numbers(b.clone(), a.clone());
+−             if result1 != result2 {
+−                 return TestResult::failed();
+−             }
+−             TestResult::passed()
+−         }
+−         quickcheck(prop as fn(i32, i32) -> TestResult);
++         hash_val = (hash_val * 31 + char.chars().next().unwrap() as i32) % 2_i32.pow(32 as u32);
+      }
+−             let result1 = multiply_fast(x.clone(), y.clone());
+−             let result2 = multiply_fast(y.clone(), x.clone());
+−             if result1 != result2 {
+−                 return TestResult::failed();
+−             }
++     return Ok(hash_val);
++ }
+────────────────────────────────────────────────────────────

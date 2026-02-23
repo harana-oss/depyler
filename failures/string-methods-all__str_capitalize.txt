@@ -1,0 +1,14 @@
+  string-methods-all.toml :: str_capitalize
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub const result: String = {
+−     let s = "hello world";
+−     let mut chars = s.chars();
+−     match chars.next() {
+−         None => String::new(),
+−         Some(first) => first.to_uppercase().collect::<String>() + &chars.as_str().to_lowercase(),
+−     }
+− };
++ 
+────────────────────────────────────────────────────────────

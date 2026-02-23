@@ -1,0 +1,7 @@
+  string-methods-all.toml :: str_isspace
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub const result: bool = !("   ").is_empty() && "   ".chars().all(|c| c.is_whitespace());
++ 
+────────────────────────────────────────────────────────────

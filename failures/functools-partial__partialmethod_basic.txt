@@ -1,0 +1,28 @@
+  functools-partial.toml :: partialmethod_basic
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct Calculator;
+− 
++ use serde_json;
++ use std::partialmethod;
++ #[derive(Debug, Copy, Clone)]
++ pub struct Calculator {}
+  impl Calculator {
+−     fn add(&self, a: i32, b: i32) -> i32 {
+−         a + b
++     pub const add_five: serde_json::Value = partialmethod(add, 5);
++     pub fn new() -> Self {
++         Self {}
+      }
+− 
+−     fn add_five(&self, b: i32) -> i32 {
+−         self.add(5, b)
++     pub fn add(&self, a: i32, b: i32) {
++         return a + b;
+      }
+  }
+− 
+− let calc = Calculator;
+− log::info!("{}", calc.add_five(3));
+────────────────────────────────────────────────────────────

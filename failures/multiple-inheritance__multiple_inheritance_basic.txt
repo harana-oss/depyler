@@ -1,0 +1,39 @@
+  multiple-inheritance.toml :: multiple_inheritance_basic
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust uses traits for composition
+− trait Mixin1 {
+−     fn method1(&self) -> i32 {
+−         1
++ #[derive(Debug, Copy, Clone)]
++ pub struct Mixin1 {}
++ impl Mixin1 {
++     pub fn new() -> Self {
++         Self {}
++     }
++     pub fn method1(&self) -> i32 {
++         return 1;
++     }
++ }
++ #[derive(Debug, Copy, Clone)]
++ pub struct Mixin2 {}
++ impl Mixin2 {
++     pub fn new() -> Self {
++         Self {}
++     }
++     pub fn method2(&self) -> i32 {
++         return 2;
+      }
+  }
+− trait Mixin2 {
+−     fn method2(&self) -> i32 {
+−         2
++ #[derive(Debug, Copy, Clone)]
++ pub struct Combined {}
++ impl Combined {
++     pub fn new() -> Self {
++         Self {}
+      }
+  }
+────────────────────────────────────────────────────────────

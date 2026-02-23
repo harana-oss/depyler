@@ -136,6 +136,7 @@ fn extract_nested_indices(
 ///     type_aliases: vec![],
 ///     protocols: vec![],
 ///     constants: vec![],
+///     statements: vec![],
 /// };
 ///
 /// let type_mapper = TypeMapper::new();
@@ -170,10 +171,20 @@ pub fn apply_rules(module: &HirModule, type_mapper: &TypeMapper) -> Result<syn::
         .map(|c| (c.name.clone(), c))
         .collect();
 
-    // Convert classes to structs
+    // Convert ABC classes to traits
     for class in &module.classes {
-        let struct_items = convert_class_to_struct(class, type_mapper, &abc_classes)?;
-        items.extend(struct_items);
+        if class.is_abc {
+            let trait_item = convert_abc_to_trait(class, type_mapper)?;
+            items.push(trait_item);
+        }
+    }
+
+    // Convert non-ABC classes to structs
+    for class in &module.classes {
+        if !class.is_abc {
+            let struct_items = convert_class_to_struct(class, type_mapper, &abc_classes)?;
+            items.extend(struct_items);
+        }
     }
 
     // Convert functions
@@ -265,6 +276,93 @@ fn convert_protocol_to_trait(protocol: &Protocol, type_mapper: &TypeMapper) -> R
         supertraits: syn::punctuated::Punctuated::new(),
         brace_token: syn::token::Brace::default(),
         items: trait_items,
+    }))
+}
+
+fn convert_abc_to_trait(class: &HirClass, type_mapper: &TypeMapper) -> Result<syn::Item> {
+    let trait_name = syn::Ident::new(&class.name, proc_macro2::Span::call_site());
+
+    // Convert ABC methods to trait methods (excluding __init__ and other special methods)
+    let mut trait_items = Vec::new();
+    for method in &class.methods {
+        // Skip __init__ and __del__ as they're not part of the trait interface
+        if method.name == "__init__" || method.name == "__del__" {
+            continue;
+        }
+
+        let method_item = convert_abc_method_to_trait_method(method, type_mapper)?;
+        trait_items.push(method_item);
+    }
+
+    Ok(syn::Item::Trait(syn::ItemTrait {
+        attrs: vec![],
+        vis: parse_quote! { pub },
+        unsafety: None,
+        auto_token: None,
+        restriction: None,
+        trait_token: syn::Token![trait](proc_macro2::Span::call_site()),
+        ident: trait_name,
+        generics: syn::Generics::default(),
+        colon_token: None,
+        supertraits: syn::punctuated::Punctuated::new(),
+        brace_token: syn::token::Brace::default(),
+        items: trait_items,
+    }))
+}
+
+fn convert_abc_method_to_trait_method(
+    method: &HirMethod,
+    type_mapper: &TypeMapper,
+) -> Result<syn::TraitItem> {
+    let method_name = if is_rust_keyword(&method.name) {
+        syn::Ident::new_raw(&method.name, proc_macro2::Span::call_site())
+    } else {
+        syn::Ident::new(&method.name, proc_macro2::Span::call_site())
+    };
+
+    // Convert parameters (skip 'self')
+    let mut params: Vec<syn::FnArg> = Vec::new();
+    
+    // Add self parameter if needed
+    if !method.is_static {
+        params.push(parse_quote! { &self });
+    }
+
+    // Add other parameters
+    for param in &method.params {
+        let param_name = syn::Ident::new(&param.name, proc_macro2::Span::call_site());
+        let rust_type = type_mapper.map_type(&param.ty);
+        let param_type = rust_type_to_syn_type(&rust_type)?;
+        params.push(parse_quote! { #param_name: #param_type });
+    }
+
+    // Convert return type
+    let return_type = if method.ret_type == Type::None {
+        parse_quote! { -> () }
+    } else {
+        let rust_return_type = type_mapper.map_type(&method.ret_type);
+        let syn_return_type = rust_type_to_syn_type(&rust_return_type)?;
+        parse_quote! { -> #syn_return_type }
+    };
+
+    // Create trait method signature (no body for abstract methods)
+    Ok(syn::TraitItem::Fn(syn::TraitItemFn {
+        attrs: vec![],
+        sig: syn::Signature {
+            constness: None,
+            asyncness: None,
+            unsafety: None,
+            abi: None,
+            fn_token: syn::Token![fn](proc_macro2::Span::call_site()),
+            ident: method_name,
+            generics: syn::Generics::default(),
+            paren_token: syn::token::Paren::default(),
+            inputs: params.into_iter().collect(),
+            variadic: None,
+            output: return_type,
+        },
+        default: None,
+        semi_token: Some(syn::Token![;](proc_macro2::Span::call_site())),
     }))
 }
 
@@ -369,6 +467,7 @@ fn build_derive_attributes(class: &HirClass) -> Vec<syn::Attribute> {
 /// use depyler_core::type_mapper::TypeMapper;
 /// use depyler_annotations::TranspilationAnnotations;
 /// use smallvec::smallvec;
+/// use std::collections::HashMap;
 ///
 /// let class = HirClass {
 ///     name: "Point".to_string(),
@@ -391,12 +490,15 @@ fn build_derive_attributes(class: &HirClass) -> Vec<syn::Attribute> {
 ///     is_dataclass: true,
 ///     is_enum: false,
 ///     is_intflag: false,
+///     is_abc: false,
+///     needs_dynamic_field_access: false,
 ///     docstring: Some("A 2D point".to_string()),
 ///     annotations: TranspilationAnnotations::default(),
 /// };
 ///
 /// let type_mapper = TypeMapper::new();
-/// let items = convert_class_to_struct(&class, &type_mapper).unwrap();
+/// let abc_classes = HashMap::new();
+/// let items = convert_class_to_struct(&class, &type_mapper, &abc_classes).unwrap();
 /// assert!(!items.is_empty()); // Should have at least the struct definition
 /// ```
 pub fn convert_class_to_struct(
@@ -538,19 +640,17 @@ pub fn convert_class_to_struct(
     }
 
     // Generate _get_field method for dynamic attribute access
-    // Only generate if the class actually uses dynamic attribute access (getattr/setattr with variable names)
-    // For now, we don't generate these methods as they add unnecessary boilerplate
-    // They would only be needed if the code uses getattr(obj, variable_name) or setattr(obj, variable_name, value)
-    // where variable_name is not a string literal.
-    // TODO: Implement analysis to detect when these methods are actually needed
-    // if let Some(get_field_method) = generate_get_field_method(class, type_mapper)? {
-    //     impl_items.push(syn::ImplItem::Fn(get_field_method));
-    // }
+    // Only generate if the class defines __getattr__ or __setattr__ methods
+    if class.needs_dynamic_field_access {
+        if let Some(get_field_method) = generate_get_field_method(class, type_mapper)? {
+            impl_items.push(syn::ImplItem::Fn(get_field_method));
+        }
 
-    // Generate _set_field method for dynamic attribute mutation
-    // if let Some(set_field_method) = generate_set_field_method(class, type_mapper)? {
-    //     impl_items.push(syn::ImplItem::Fn(set_field_method));
-    // }
+        // Generate _set_field method for dynamic attribute mutation
+        if let Some(set_field_method) = generate_set_field_method(class, type_mapper)? {
+            impl_items.push(syn::ImplItem::Fn(set_field_method));
+        }
+    }
 
     // Only generate impl block if there are methods
     if !impl_items.is_empty() {

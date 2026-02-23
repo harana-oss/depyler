@@ -1,0 +1,15 @@
+  chained-comparisons.toml :: chained_in
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // a in b in c
+−     let a = 1;
+−     let b = vec![1, 2, 3];
+−     let c = vec![vec![1, 2, 3], vec![4, 5, 6]];
+−     let result = b.contains(&a) && c.contains(&b);
++ pub const a: i32 = 1;
++ pub const b: serde_json::Value = vec![1, 2, 3];
++ pub const c: serde_json::Value = vec![vec![1, 2, 3], vec![4, 5, 6]];
++ pub const result: serde_json::Value = (b.contains(&a)) && (c.contains(&b));
++ use serde_json;
+────────────────────────────────────────────────────────────

@@ -1,0 +1,21 @@
+  modules-random.toml :: random_sample
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use rand as random;
+− use rand::prelude::*;
+− use rand::seq::SliceRandom;
+− use rand::Rng;
+  pub fn pick_unique(items: &Vec<String>, k: i32) -> Vec<String> {
+−     return items
+−         .choose_multiple(&mut rand::thread_rng(), k as usize)
+−         .cloned()
+−         .collect::<Vec<_>>();
++     return DEPYLER_RNG.with(|rng| {
++         items
++             .choose_multiple(&mut *rng.borrow_mut(), k as usize)
++             .cloned()
++             .collect::<Vec<_>>()
++     });
+  }
+────────────────────────────────────────────────────────────

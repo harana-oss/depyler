@@ -1,0 +1,17 @@
+  numeric-csv.toml :: csv_writerow
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use csv;
+  use serde_json;
+− pub fn write_single_row(filename: String, row: &Vec<serde_json::Value>) {
++ pub fn write_single_row(
++     filename: String,
++     row: &Vec<serde_json::Value>,
++ ) -> Result<(), std::io::Error> {
+      let mut f = std::fs::File::create(filename)?;
+      let writer = csv::Writer::from_writer(f);
+      writer.writerow(row);
++     Ok(())
+  }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,17 @@
+  lists-arrays.toml :: array_multiplication_pattern
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn test_multiplication() -> ([i32; 10], [i32; 5], [i32; 8]) {
+−     let _cse_temp_0 = [0; 10];
+−     let zeros = _cse_temp_0;
+−     let _cse_temp_1 = [1; 5];
+−     let ones = _cse_temp_1;
+−     let _cse_temp_2 = [42; 8];
+−     let pattern = _cse_temp_2;
++     let zeros = [0; 10];
++     let ones = [1; 5];
++     let pattern = [42; 8];
+      return (zeros, ones, pattern);
+  }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,15 @@
+  deque.toml :: deque_iter
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // for x in d: ...
+−     use std::collections::VecDeque;
+− 
+−     let d = VecDeque::from(vec![1, 2, 3]);
+−     let mut sum_val = 0;
+−     for x in &d {
+−         sum_val += x;
+−     }
+−     let result = sum_val == 6;
++ use std::collections::VecDeque;
+────────────────────────────────────────────────────────────

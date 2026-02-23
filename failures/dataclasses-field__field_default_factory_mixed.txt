@@ -1,0 +1,50 @@
+  dataclasses-field.toml :: field_default_factory_mixed
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::collections::{HashMap, HashSet};
+−     #[derive(Debug)]
+−     struct ComplexState {
+−         events: HashSet<String>,
+−         items: Vec<i32>,
+−         metadata: HashMap<String, i32>,
+−         count: i32,
+−         name: String,
+−     }
+− 
+−     impl ComplexState {
+−         fn new() -> Self {
+−             ComplexState {
+−                 events: HashSet::new(),
+−                 items: Vec::new(),
+−                 metadata: HashMap::new(),
+−                 count: 0,
+−                 name: "unknown".to_string(),
+−             }
++ #[derive(Debug, Clone, PartialEq, Default)]
++ pub struct ComplexState {
++     pub events: HashSet<String>,
++     pub items: Vec<i32>,
++     pub metadata: HashMap<String, i32>,
++     pub count: i32,
++     pub name: String,
++ }
++ impl ComplexState {
++     pub fn new() -> Self {
++         Self {
++             events: HashSet::new(),
++             items: Vec::new(),
++             metadata: HashMap::new(),
++             count: 0,
++             name: "unknown".to_string(),
+          }
+      }
+− 
+−     let c = ComplexState::new();
+−     let result = c.events.len() == 0
+−         && c.items.len() == 0
+−         && c.metadata.len() == 0
+−         && c.count == 0
+−         && c.name == "unknown";
++ }
+────────────────────────────────────────────────────────────

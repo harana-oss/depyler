@@ -1,0 +1,11 @@
+  optional-types.toml :: optional_or_in_assignment
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn process(name: &Option<String>) -> String {
+−     let _cse_temp_0 = name.clone().unwrap_or_else(|| "fallback".to_string());
+−     let result = _cse_temp_0;
++     let result = name.clone().unwrap_or_else(|| "fallback".to_string());
+      return result;
+  }
+────────────────────────────────────────────────────────────

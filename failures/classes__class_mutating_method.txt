@@ -1,0 +1,20 @@
+  classes.toml :: class_mutating_method
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug, Copy, Clone]
++ #[derive(Debug, Copy, Clone)]
+  pub struct Counter {
+      pub count: i32,
+  }
+  impl Counter {
+      pub fn new() -> Self {
+          Self { count: 0 }
+      }
+      pub fn increment(&mut self) {
+−         self.count = self.count + 1;
++         self.count += 1;
+      }
+− }
++ }
+────────────────────────────────────────────────────────────

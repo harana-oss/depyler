@@ -1,0 +1,36 @@
+  dunder-reflected.toml :: dunder_rmatmul
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::fmt;
+− 
+− #[derive(Debug)]
+− struct Matrix {
+−     data: String,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Matrix {
++     pub data: serde_json::Value,
+  }
+− 
+− impl fmt::Display for Matrix {
+−     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+−         write!(f, "Matrix({})", self.data)
+−     }
+− }
+− 
+− fn matmul(left: &str, right: Matrix) -> Matrix {
+−     Matrix {
+−         data: format!("{} @ {}", left, right.data),
++ impl Matrix {
++     pub fn new(data: serde_json::Value) -> Self {
++         Self { data }
+      }
+  }
+− 
+− let m = Matrix {
+−     data: "B".to_string(),
+− };
+− let result = matmul("A", m);
+− log::info!("{}", result);
+────────────────────────────────────────────────────────────

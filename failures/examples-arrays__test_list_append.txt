@@ -1,0 +1,32 @@
+  examples-arrays.toml :: test_list_append
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use serde_json;
+  #[derive(Debug, Clone)]
+  pub struct Logger {
+      pub messages: Vec<serde_json::Value>,
+  }
+  impl Logger {
+      pub fn new() -> Self {
+−         Self {
+−             messages: Vec::new(),
+−         }
++         Self { messages: vec![] }
+      }
+−     pub fn log(&self, msg: String) -> i32 {
++     pub fn log(&mut self, msg: String) -> i32 {
+          self.messages.push(msg);
+          return self.messages.len();
+      }
+  }
+− pub fn test_logger() -> i32 {
+−     let logger = Logger::new();
+−     let count = logger.log("Hello".to_string());
+−     count
++ pub fn test_logger() {
++     let mut logger = Logger::new();
++     let count = logger.log("Hello");
++     return count;
+  }
+────────────────────────────────────────────────────────────

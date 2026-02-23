@@ -1,0 +1,11 @@
+  imports-basic.toml :: import_binding
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust: use brings name into scope
+−     use std::env;
+−     // env is now available in this scope
+−     let result = env::current_dir().is_ok();
+−     assert!(result);
++ use std as os;
+────────────────────────────────────────────────────────────

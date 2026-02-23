@@ -1,0 +1,20 @@
+  classes.toml :: property_with_computation
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug, Copy, Clone]
++ #[derive(Debug, Copy, Clone)]
+  pub struct Rectangle {
+      pub width: i32,
+      pub height: i32,
+  }
+  impl Rectangle {
+      pub fn new(width: i32, height: i32) -> Self {
+          Self { width, height }
+      }
+      pub fn area(&self) -> i32 {
+          return self.width * self.height;
+      }
+− }
++ }
+────────────────────────────────────────────────────────────

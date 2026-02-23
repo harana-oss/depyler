@@ -1,0 +1,16 @@
+  match-mapping-patterns.toml :: mapping_multiple_keys
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::collections::HashMap;
+− 
+−     let mut data = HashMap::new();
+−     data.insert("a", 10);
+−     data.insert("b", 20);
+  
+−     let result = match (data.get("a"), data.get("b")) {
+−         (Some(&x), Some(&y)) => x + y,
+−         (Some(&x), None) => x,
+−         _ => 0,
+−     };
+────────────────────────────────────────────────────────────

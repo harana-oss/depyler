@@ -1,0 +1,29 @@
+  dunder-callable.toml :: functor
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct Multiplier {
+−     factor: i32,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Multiplier {
++     pub factor: serde_json::Value,
+  }
+− 
+  impl Multiplier {
+−     fn new(factor: i32) -> Self {
+−         Multiplier { factor }
+−     }
+− 
+−     fn call(&self, x: i32) -> i32 {
+−         x * self.factor
++     pub fn new(factor: serde_json::Value) -> Self {
++         Self { factor }
+      }
+  }
+− 
+− let times_two = Multiplier::new(2);
+− let times_three = Multiplier::new(3);
+− log::info!("{}", times_two.call(5));
+− log::info!("{}", times_three.call(5));
+────────────────────────────────────────────────────────────

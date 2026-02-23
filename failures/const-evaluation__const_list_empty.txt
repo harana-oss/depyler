@@ -1,0 +1,10 @@
+  const-evaluation.toml :: const_list_empty
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− lazy_static! {
+−     pub static ref EMPTY: Vec<i32> = vec![];
+− }
+− use lazy_static::lazy_static;
++ pub const EMPTY: Vec<i32> = vec![];
+────────────────────────────────────────────────────────────

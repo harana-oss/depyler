@@ -1,0 +1,42 @@
+  conditional-imports.toml :: multiple_types_multiple_imports
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use std::collections::HashMap;
+  use std::collections::HashSet;
+− pub fn complex_function() -> i32 {
+−     let m: HashMap<String, i32> = [("key".to_string(), 1)].into_iter().collect();
+−     let s: HashSet<i32> = [1, 2].into_iter().collect();
+−     return m[&"key".to_string()].clone() + s.len() as i32;
++ #[derive(Debug, Clone)]
++ pub struct IndexError {
++     message: String,
++ }
++ impl std::fmt::Display for IndexError {
++     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
++         write!(f, "index out of range: {}", self.message)
++     }
++ }
++ impl std::error::Error for IndexError {}
++ impl IndexError {
++     pub fn new(message: impl Into<String>) -> Self {
++         Self {
++             message: message.into(),
++         }
++     }
++ }
++ pub fn complex_function() -> Result<i32, IndexError> {
++     let m = {
++         let mut map = HashMap::new();
++         map.insert("key".to_string(), 1);
++         map
++     };
++     let s = {
++         let mut set = HashSet::new();
++         set.insert(1);
++         set.insert(2);
++         set
++     };
++     return Ok(m.get("key").cloned().unwrap() + s.len() as i32 as i32);
+  }
+────────────────────────────────────────────────────────────

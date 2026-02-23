@@ -1,0 +1,41 @@
+  async-comprehensions.toml :: async_comp_filter
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use futures::stream::{self, StreamExt};
+− 
+− #[tokio::main]
+− async let evens: Vec<i32> = stream::iter(0..10)
+−     .filter(|x| futures::future::ready(*x % 2 == 0))
+−     .collect()
+−     .await;
+− log::info!("{:?}", evens);
++ use serde_json;
++ #[doc = " Generator state struct"] #[derive(Debug)] struct AsyncNumbersState {
++     state: usize ,
++ }
++ #[doc = " Generator function - returns Iterator"] pub fn async_numbers() -> impl Iterator<Item = i32>{
++     AsyncNumbersState {
++     state: 0 ,
++ }
++ } impl Iterator for AsyncNumbersState {
++     type Item = i32;
++     fn next(&mut self) -> Option<Self::Item>{
++     match self.state {
++     0 =>{
++     self.state = 1;
++     for _x in 0..10 {
++     return Some(x);
++    
++ }
++ None
++ }
++ _ =>None
++ }
++ }
++ }
++ pub async fn test() -> Vec<serde_json::Value>{
++     let evens = async_numbers().iter().cloned().filter(| x | * x % 2 == 0).collect::<Vec<_>>();
++     return evens;
++     }
+────────────────────────────────────────────────────────────

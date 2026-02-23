@@ -1,0 +1,7 @@
+  string-methods-all.toml :: str_startswith
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub const result: bool = "hello".starts_with("he");
++ 
+────────────────────────────────────────────────────────────

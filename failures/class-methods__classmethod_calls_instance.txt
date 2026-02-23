@@ -1,0 +1,20 @@
+  class-methods.toml :: classmethod_calls_instance
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  #[derive(Debug, Copy, Clone)]
+  pub struct MyClass {}
+  impl MyClass {
+      pub fn new() -> Self {
+          Self {}
+      }
+      pub fn instance_method(&self) -> String {
+          return "instance".to_string();
+      }
+      pub fn class_method() {
+          let mut obj = Self::new();
+          return obj.instance_method();
+      }
+  }
+− log::info!("{}", MyClass::class_method());
+────────────────────────────────────────────────────────────

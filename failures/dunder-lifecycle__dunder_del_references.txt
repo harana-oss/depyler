@@ -1,0 +1,48 @@
+  dunder-lifecycle.toml :: dunder_del_references
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust prevents circular references through its ownership model
+− // For cyclic structures, we use Rc<RefCell<T>> or Weak references
+− use std::cell::RefCell;
+− use std::rc::{Rc, Weak};
+− 
+− struct Node {
+−     value: i32,
+−     next: Option<Weak<RefCell<Node>>>,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Node {
++     pub value: serde_json::Value,
++     pub next: (),
+  }
+− 
++ impl Node {
++     pub fn new(value: serde_json::Value) -> Self {
++         Self { value, next: () }
++     }
++ }
+  impl Drop for Node {
+      fn drop(&mut self) {
+−         log::info!("Deleting Node {}", self.value);
++         log::info!("{}", format!("Deleting Node {}", self.value));
+      }
+  }
+− 
+− {
+−     let n1 = Rc::new(RefCell::new(Node {
+−         value: 1,
+−         next: None,
+−     }));
+−     let n2 = Rc::new(RefCell::new(Node {
+−         value: 2,
+−         next: None,
+−     }));
+− 
+−     // Use Weak to avoid circular reference
+−     n1.borrow_mut().next = Some(Rc::downgrade(&n2));
+−     n2.borrow_mut().next = Some(Rc::downgrade(&n1));
+− }
+− // Nodes are dropped when they go out of scope
+− log::info!("After scope ends");
+────────────────────────────────────────────────────────────

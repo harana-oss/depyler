@@ -1,0 +1,20 @@
+  new-vs-init.toml :: new_wrong_type
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug, Copy, Clone]
++ #[derive(Debug, Copy, Clone)]
+  pub struct WeirdClass {
+      pub value: i32,
+  }
+  impl WeirdClass {
+      pub fn new() -> Self {
+−         Self { value: 0 }
++         Self { value: 42 }
+      }
+  }
+  pub fn create() {
+      return WeirdClass::new();
+− }
++ }
+────────────────────────────────────────────────────────────

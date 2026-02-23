@@ -1,0 +1,10 @@
+  imports-dynamic.toml :: dynamic_reload
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // importlib.reload(mod)
+−     // Module reloading not supported in Rust
+−     let result = true;
++ use std as sys;
++ pub const result: bool = true;
+────────────────────────────────────────────────────────────

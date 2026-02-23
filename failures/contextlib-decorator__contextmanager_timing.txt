@@ -1,0 +1,61 @@
+  contextlib-decorator.toml :: contextmanager_timing
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::cell::RefCell;
+−     use std::rc::Rc;
+−     use std::time::Instant;
+− 
+−     let elapsed: Rc<RefCell<Vec<f64>>> = Rc::new(RefCell::new(Vec::new()));
+−     let elapsed_clone = elapsed.clone();
+− 
+−     fn timer<F, R>(elapsed: Rc<RefCell<Vec<f64>>>, f: F) -> R
+−     where
+−         F: FnOnce() -> R,
+−     {
+−         let start = Instant::now();
+−         let result = f();
+−         elapsed.borrow_mut().push(start.elapsed().as_secs_f64());
+−         result
++ use serde_json;
++ #[doc = " Generator state struct"]
++ #[derive(Debug)]
++ struct TimerState {
++     state: usize,
++     start: serde_json::Value,
++ }
++ #[doc = " Generator function - returns Iterator"]
++ pub fn timer() -> impl Iterator<Item = serde_json::Value> {
++     TimerState {
++         state: 0,
++         start: Default::default(),
+      }
+− 
+−     timer(elapsed_clone, || ());
+−     let result = elapsed.borrow().len() == 1;
++ }
++ impl Iterator for TimerState {
++     type Item = serde_json::Value;
++     fn next(&mut self) -> Option<Self::Item> {
++         match self.state {
++             0 => {
++                 self.state = 1;
++                 self.start = std::time::SystemTime::now()
++                     .duration_since(std::time::UNIX_EPOCH)
++                     .unwrap()
++                     .as_secs_f64();
++                 return None;
++                 elapsed.push(
++                     std::time::SystemTime::now()
++                         .duration_since(std::time::UNIX_EPOCH)
++                         .unwrap()
++                         .as_secs_f64()
++                         - self.start,
++                 );
++                 None
++             }
++             _ => None,
++         }
++     }
++ }
+────────────────────────────────────────────────────────────

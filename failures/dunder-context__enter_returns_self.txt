@@ -1,0 +1,31 @@
+  dunder-context.toml :: enter_returns_self
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct Manager {
+−     name: String,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Manager {
++     pub name: serde_json::Value,
+  }
+− 
+  impl Manager {
+−     fn new(name: &str) -> Self {
+−         Manager {
+−             name: name.to_string(),
+−         }
++     pub fn new(name: serde_json::Value) -> Self {
++         Self { name }
++     }
++     pub fn __enter__(&self) -> &Self {
++         return self;
+      }
++     pub fn __exit__(&self) -> bool {
++         return false;
++     }
+  }
+− 
+− let mgr = Manager::new("test");
+− log::info!("{}", mgr.name);
+────────────────────────────────────────────────────────────

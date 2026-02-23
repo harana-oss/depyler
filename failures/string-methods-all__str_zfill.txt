@@ -1,0 +1,21 @@
+  string-methods-all.toml :: str_zfill
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub const result: String = {
+−     let s = "42";
+−     let width = 5 as usize;
+−     if s.len() >= width {
+−         s.to_string()
+−     } else {
+−         let sign = if s.starts_with('-') || s.starts_with('+') {
+−             &s[0..1]
+−         } else {
+−             ""
+−         };
+−         let num = if !sign.is_empty() { &s[1..] } else { &s[..] };
+−         format!("{}{}{}", sign, "0".repeat(width - s.len()), num)
+−     }
+− };
++ 
+────────────────────────────────────────────────────────────

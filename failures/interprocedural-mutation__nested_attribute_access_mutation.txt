@@ -1,0 +1,43 @@
+  interprocedural-mutation.toml :: nested_attribute_access_mutation
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug, Clone, PartialEq, Default)]
++ #[derive(Debug, Copy, Clone, PartialEq, Default)]
+  pub struct Level3 {
+      pub value: i32,
+  }
+  impl Level3 {
+      pub fn new(value: i32) -> Self {
+          Self { value }
+      }
+  }
+  #[derive(Debug, Clone, PartialEq, Default)]
+  pub struct Level2 {
+      pub level3: Level3,
+  }
+  impl Level2 {
+      pub fn new(level3: Level3) -> Self {
+          Self { level3 }
+      }
+  }
+  #[derive(Debug, Clone, PartialEq, Default)]
+  pub struct Level1 {
+      pub level2: Level2,
+  }
+  impl Level1 {
+      pub fn new(level2: Level2) -> Self {
+          Self { level2 }
+      }
+  }
+− pub fn get_level2<'a>(l1: &'a mut Level1) -> &'a mut Level2 {
+−     return &mut l1.level2;
++ pub fn get_level2(l1: &Level1) -> Level2 {
++     return l1.level2;
+  }
+− pub fn deep_update(l1: &mut Level1) {
+−     get_level2(l1).level3.value = 100;
++ pub fn deep_update(l1: &Level1) {
++     get_level2(&l1).level3.value = 100;
+  }
+────────────────────────────────────────────────────────────

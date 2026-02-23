@@ -1,0 +1,13 @@
+  positional-only-args.toml :: posonly_mixed
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− fn mixed(a: i32, b: i32) -> String {
+−     format!("a={}, b={}", a, b)
++ pub fn mixed(b: String) -> String {
++     return format!("a={}, b={}", a, b);
+  }
+− 
+− log::info!("{}", mixed(1, 2));
+− log::info!("{}", mixed(1, 2));
+────────────────────────────────────────────────────────────

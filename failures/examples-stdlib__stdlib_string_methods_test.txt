@@ -1,0 +1,221 @@
+  examples-stdlib.toml :: stdlib_string_methods_test
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− const STR_HELLO_WORLD: &'static str = "hello world";
+− const STR_HELLO: &'static str = "hello";
+  #[doc = "Test str.upper() method"]
+  pub fn test_str_upper() -> String {
+−     let text = STR_HELLO_WORLD;
++     let text = "hello world".to_string();
+      let result = text.to_uppercase();
+−     result
++     return result;
+  }
+  #[doc = "Test str.lower() method"]
+  pub fn test_str_lower() -> String {
+−     let text = "HELLO WORLD";
++     let text = "HELLO WORLD".to_string();
+      let result = text.to_lowercase();
+−     result
++     return result;
+  }
+  #[doc = "Test str.strip() method"]
+  pub fn test_str_strip() -> String {
+−     let text = "  hello world  ";
+−     let result = text.trim().to_string();
+−     result
++     let text = "  hello world  ".to_string();
++     let result = text.trim();
++     return result;
+  }
+  #[doc = "Test str.startswith() method"]
+  pub fn test_str_startswith() -> bool {
+−     let text = STR_HELLO_WORLD;
++     let text = "hello world".to_string();
+      let result = text.starts_with("hello");
+−     result
++     return result;
+  }
+  #[doc = "Test str.startswith() returns False"]
+  pub fn test_str_startswith_false() -> bool {
+−     let text = STR_HELLO_WORLD;
++     let text = "hello world".to_string();
+      let result = text.starts_with("world");
+−     result
++     return result;
+  }
+  #[doc = "Test str.endswith() method"]
+  pub fn test_str_endswith() -> bool {
+−     let text = STR_HELLO_WORLD;
++     let text = "hello world".to_string();
+      let result = text.ends_with("world");
+−     result
++     return result;
+  }
+  #[doc = "Test str.endswith() returns False"]
+  pub fn test_str_endswith_false() -> bool {
+−     let text = STR_HELLO_WORLD;
++     let text = "hello world".to_string();
+      let result = text.ends_with("hello");
+−     result
++     return result;
+  }
+  #[doc = "Test str.split() with default whitespace"]
+  pub fn test_str_split_whitespace() -> i32 {
+−     let text = "hello world foo bar";
++     let text = "hello world foo bar".to_string();
+      let parts = text
+          .split_whitespace()
+          .map(|s| s.to_string())
+          .collect::<Vec<String>>();
+−     parts.len() as i32
++     return parts.len() as i32 as i32;
+  }
+  #[doc = "Test str.split(sep) with custom separator"]
+  pub fn test_str_split_separator() -> i32 {
+−     let text = "hello,world,foo,bar";
++     let text = "hello,world,foo,bar".to_string();
+      let parts = text
+          .split(",")
+          .map(|s| s.to_string())
+          .collect::<Vec<String>>();
+−     parts.len() as i32
++     return parts.len() as i32 as i32;
+  }
+  #[doc = "Test str.join () method"]
+  pub fn test_str_join() -> String {
+−     let parts = vec![STR_HELLO.to_string(), "world".to_string()];
++     let parts = vec!["hello".to_string(), "world".to_string()];
+      let result = parts.join(",");
+−     result
++     return result;
+  }
+  #[doc = "Test str.join () with space separator"]
+  pub fn test_str_join_space() -> String {
+−     let parts = vec![
+−         STR_HELLO.to_string(),
+−         "world".to_string(),
+−         "foo".to_string(),
+−     ];
++     let parts = vec!["hello".to_string(), "world".to_string(), "foo".to_string()];
+      let result = parts.join(" ");
+−     result
++     return result;
+  }
+  #[doc = "Test str.find() when substring exists"]
+  pub fn test_str_find_found() -> i32 {
+−     let text = STR_HELLO_WORLD;
++     let text = "hello world".to_string();
+      let pos = text.find("world").map(|i| i as i32).unwrap_or(-1);
+−     pos
++     return pos.unwrap();
+  }
+  #[doc = "Test str.find() when substring doesn't exist"]
+  pub fn test_str_find_not_found() -> i32 {
+−     let text = STR_HELLO_WORLD;
++     let text = "hello world".to_string();
+      let pos = text.find("xyz").map(|i| i as i32).unwrap_or(-1);
+−     pos
++     return pos.unwrap();
+  }
+  #[doc = "Test str.replace() method"]
+  pub fn test_str_replace() -> String {
+−     let text = STR_HELLO_WORLD;
++     let text = "hello world".to_string();
+      let result = text.replace("world", "rust");
+−     result
++     return result;
+  }
+  #[doc = "Test str.replace() with multiple occurrences"]
+  pub fn test_str_replace_multiple() -> String {
+−     let text = "hello hello hello";
++     let text = "hello hello hello".to_string();
+      let result = text.replace("hello", "hi");
+−     result
++     return result;
+  }
+  #[doc = "Test str.count() method"]
+  pub fn test_str_count() -> i32 {
+−     let text = "hello hello world";
++     let text = "hello hello world".to_string();
+      let count = text.matches("hello").count() as i32;
+−     count
++     return count;
+  }
+  #[doc = "Test str.count() with single occurrence"]
+  pub fn test_str_count_single() -> i32 {
+−     let text = STR_HELLO_WORLD;
++     let text = "hello world".to_string();
+      let count = text.matches("world").count() as i32;
+−     count
++     return count;
+  }
+  #[doc = "Test str.count() with no occurrences"]
+  pub fn test_str_count_none() -> i32 {
+−     let text = STR_HELLO_WORLD;
++     let text = "hello world".to_string();
+      let count = text.matches("xyz").count() as i32;
+−     count
++     return count;
+  }
+  #[doc = "Test str.isdigit() returns True for digits"]
+  pub fn test_str_isdigit_true() -> bool {
+−     let text = "12345";
++     let text = "12345".to_string();
+      let result = text.chars().all(|c| c.is_numeric());
+−     result
++     return result;
+  }
+  #[doc = "Test str.isdigit() returns False for non-digits"]
+  pub fn test_str_isdigit_false() -> bool {
+−     let text = STR_HELLO;
++     let text = "hello".to_string();
+      let result = text.chars().all(|c| c.is_numeric());
+−     result
++     return result;
+  }
+  #[doc = "Test str.isalpha() returns True for letters"]
+  pub fn test_str_isalpha_true() -> bool {
+−     let text = STR_HELLO;
++     let text = "hello".to_string();
+      let result = text.chars().all(|c| c.is_alphabetic());
+−     result
++     return result;
+  }
+  #[doc = "Test str.isalpha() returns False for non-letters"]
+  pub fn test_str_isalpha_false() -> bool {
+−     let text = "hello123";
++     let text = "hello123".to_string();
+      let result = text.chars().all(|c| c.is_alphabetic());
+−     result
++     return result;
+  }
+  #[doc = "Test split on empty string"]
+  pub fn test_str_empty_split() -> i32 {
+−     let text = "";
++     let text = "".to_string();
+      let parts = text
+          .split_whitespace()
+          .map(|s| s.to_string())
+          .collect::<Vec<String>>();
+−     parts.len() as i32
++     return parts.len() as i32 as i32;
+  }
+  #[doc = "Test string methods on single character"]
+  pub fn test_str_single_char() -> String {
+−     let text = "a";
++     let text = "a".to_string();
+      let result = text.to_uppercase();
+−     result
++     return result;
+  }
+  #[doc = "Test string methods with special characters"]
+  pub fn test_str_special_chars() -> bool {
+−     let text = "hello-world_123";
++     let text = "hello-world_123".to_string();
+      let result = text.starts_with("hello");
+−     result
++     return result;
+  }
+────────────────────────────────────────────────────────────

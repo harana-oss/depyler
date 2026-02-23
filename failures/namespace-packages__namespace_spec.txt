@@ -1,0 +1,8 @@
+  namespace-packages.toml :: namespace_spec
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // ModuleSpec for namespace
+−     let result = true; // Placeholder
++ pub const result: bool = true;
+────────────────────────────────────────────────────────────

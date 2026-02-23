@@ -1,0 +1,35 @@
+  modules-collections.toml :: heapq_heapify
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use serde_json;
+− pub fn create_heap(items: &Vec<i32>) {
++ pub fn create_heap(items: &Vec<serde_json::Value>) {
+      {
+          let heap = &mut (items);
+          let len = heap.len();
+          if len > 1 {
+              for i in (0..len / 2).rev() {
+                  let mut pos = i;
+                  loop {
+                      let left = 2 * pos + 1;
+                      let right = 2 * pos + 2;
+                      let mut smallest = pos;
+                      if left < len && heap[left] < heap[smallest] {
+                          smallest = left;
+                      }
+                      if right < len && heap[right] < heap[smallest] {
+                          smallest = right;
+                      }
+                      if smallest == pos {
+                          break;
+                      }
+                      heap.swap(pos, smallest);
+                      pos = smallest;
+                  }
+              }
+          }
+−     }
++     };
++ }
+────────────────────────────────────────────────────────────

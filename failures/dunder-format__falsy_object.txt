@@ -1,0 +1,33 @@
+  dunder-format.toml :: falsy_object
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct Result {
+−     success: bool,
+−     value: Option<i32>,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Result {
++     pub success: serde_json::Value,
++     pub value: serde_json::Value,
+  }
+− 
+  impl Result {
+−     fn new(success: bool, value: Option<i32>) -> Self {
+−         Result { success, value }
++     pub fn new(success: serde_json::Value, value: serde_json::Value) -> Self {
++         Self { success, value }
+      }
+− }
+− 
+− let result_ok = Result::new(true, Some(42));
+− let result_fail = Result::new(false, None);
+− 
+− if result_ok.success {
+−     log::info!("Success!");
+  }
+− 
+− if !result_fail.success {
+−     log::info!("Failed!");
+− }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,26 @@
+  abc.toml :: abc_subclasshook
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− trait MyABC {}
+  #[derive(Debug, Copy, Clone)]
++ pub struct MyABC {}
++ impl MyABC {
++     pub fn new() -> Self {
++         Self {}
++     }
++ }
++ #[derive(Debug, Copy, Clone)]
+  pub struct HasMethod {}
+  impl HasMethod {
+      pub fn new() -> Self {
+          Self {}
+      }
+      pub fn special_method(&self) {
+          {}
+      }
+  }
+  pub fn test_abc_subclasshook() -> bool {
+      return issubclass(HasMethod, MyABC);
+  }
+────────────────────────────────────────────────────────────

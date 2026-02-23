@@ -1,0 +1,21 @@
+  ast-hir-codegen.toml :: codegen_impl_block
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug, Copy, Clone]
++ #[derive(Debug, Copy, Clone)]
+  pub struct Counter {
+      pub value: i32,
+  }
+  impl Counter {
+      pub fn new() -> Self {
+          Self { value: 0 }
+      }
+      pub fn increment(&mut self) -> i32 {
+−         self.value = format!("{}{}", self.value, 1);
++         self.value += 1;
+          return self.value.clone();
+      }
+− }
++ }
+────────────────────────────────────────────────────────────

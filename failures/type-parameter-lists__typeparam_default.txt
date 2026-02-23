@@ -1,0 +1,9 @@
+  type-parameter-lists.toml :: typeparam_default
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Type parameter defaults in Rust use default generic parameters
+−     // fn f<T = i32>(x: T) -> T { x }
+−     let result = true;
++ pub const result: bool = true;
+────────────────────────────────────────────────────────────

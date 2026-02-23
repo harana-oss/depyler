@@ -1,0 +1,15 @@
+  crypto.toml :: hashlib_blake2b
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use sha2 as hashlib;
+  pub fn hash_blake2b(data: &bytes) -> String {
+      return {
+          use blake2::Digest;
+          let mut hasher = blake2::Blake2b512::new();
+          hasher.update(data);
+          hex::encode(hasher.finalize())
+−     }
++     };
++ }
+────────────────────────────────────────────────────────────

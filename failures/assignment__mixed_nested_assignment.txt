@@ -1,0 +1,17 @@
+  assignment.toml :: mixed_nested_assignment
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use std::collections::HashMap;
+  pub fn update_dict_of_lists(
+−     mut data: HashMap<String, Vec<i32>>,
++     data: HashMap<String, Vec<i32>>,
+      key: String,
+  ) -> HashMap<String, Vec<i32>> {
+−     data.get_mut(key as usize)
+−         .unwrap()
+−         .insert((0) as usize, 100);
++     data.get_mut(key as usize).unwrap()[0 as usize] = 100;
+      return data;
+  }
+────────────────────────────────────────────────────────────

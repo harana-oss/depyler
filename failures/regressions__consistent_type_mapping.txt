@@ -1,0 +1,11 @@
+  regressions.toml :: consistent_type_mapping
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use serde_json;
+− pub fn create_list() -> Vec<i32> {
++ pub fn create_list() -> Vec<serde_json::Value> {
+      let items = vec![];
+      return items;
+  }
+────────────────────────────────────────────────────────────

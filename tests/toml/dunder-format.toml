@@ -47,15 +47,12 @@ impl fmt::Display for Point {
     }
 }
 
-fn main() {
-    let p = Point::new(3.0, 4.0);
-    log::info!("{}", p);
-    // Polar format would require custom implementation
-    let r = (p.x.powi(2) + p.y.powi(2)).sqrt();
-    let theta = p.y.atan2(p.x);
-    log::info!("({:.2}, {:.2})", r, theta);
-}
-"""
+let p = Point::new(3.0, 4.0);
+log::info!("{}", p);
+// Polar format would require custom implementation
+let r = (p.x.powi(2) + p.y.powi(2)).sqrt();
+let theta = p.y.atan2(p.x);
+log::info!("({:.2}, {:.2})", r, theta);"""
 expected_output = """(3, 4)
 (5.00, 0.93)"""
 
@@ -100,13 +97,10 @@ impl Temperature {
     }
 }
 
-fn main() {
-    let temp = Temperature::new(25.0);
-    log::info!("{}", temp.format_spec(""));
-    log::info!("{}", temp.format_spec("F"));
-    log::info!("{}", temp.format_spec("K"));
-}
-"""
+let temp = Temperature::new(25.0);
+log::info!("{}", temp.format_spec(""));
+log::info!("{}", temp.format_spec("F"));
+log::info!("{}", temp.format_spec("K"));"""
 expected_output = """25.0°C
 77.0°F
 298.2K"""
@@ -150,13 +144,10 @@ impl Money {
     }
 }
 
-fn main() {
-    let m = Money::new(42.5);
-    log::info!("{}", m.format_spec(""));
-    log::info!("{}", m.format_spec("USD"));
-    log::info!("{}", m.format_spec("EUR"));
-}
-"""
+let m = Money::new(42.5);
+log::info!("{}", m.format_spec(""));
+log::info!("{}", m.format_spec("USD"));
+log::info!("{}", m.format_spec("EUR"));"""
 expected_output = """42.50
 $42.50
 €42.50"""
@@ -199,12 +190,9 @@ impl Person {
     }
 }
 
-fn main() {
-    let p = Person::new("Alice");
-    log::info!("{}", p.format_spec(""));
-    log::info!("{}", p.format_spec("full"));
-}
-"""
+let p = Person::new("Alice");
+log::info!("{}", p.format_spec(""));
+log::info!("{}", p.format_spec("full"));"""
 expected_output = """Alice
 Person(Alice)"""
 
@@ -255,13 +243,10 @@ impl Color {
     }
 }
 
-fn main() {
-    let c = Color::new(255, 128, 64);
-    log::info!("{}", c.format_spec(""));
-    log::info!("{}", c.format_spec("hex"));
-    log::info!("{}", c.format_spec("rgb"));
-}
-"""
+let c = Color::new(255, 128, 64);
+log::info!("{}", c.format_spec(""));
+log::info!("{}", c.format_spec("hex"));
+log::info!("{}", c.format_spec("rgb"));"""
 expected_output = """Color(255, 128, 64)
 #ff8040
 rgb(255, 128, 64)"""
@@ -296,13 +281,10 @@ impl Item {
     }
 }
 
-fn main() {
-    let item = Item::new(42);
-    log::info!("'{:>10}'", item.value);
-    log::info!("'{:<10}'", item.value);
-    log::info!("'{:^10}'", item.value);
-}
-"""
+let item = Item::new(42);
+log::info!("'{:>10}'", item.value);
+log::info!("'{:<10}'", item.value);
+log::info!("'{:^10}'", item.value);"""
 expected_output = """'        42'
 '42        '
 '    42    '"""
@@ -326,26 +308,23 @@ print(f"{label:=>10}")
 print(f"{label:-<10}")
 """
 rust = """
-fn main() {
-    let label = "Hi";
-    // Rust's formatting doesn't support custom fill characters as easily
-    // Manual implementation:
-    let width = 10;
-    let len = label.len();
-    let padding = width.saturating_sub(len);
+let label = "Hi";
+// Rust's formatting doesn't support custom fill characters as easily
+// Manual implementation:
+let width = 10;
+let len = label.len();
+let padding = width.saturating_sub(len);
 
-    // Center with *
-    let left = padding / 2;
-    let right = padding - left;
-    log::info!("{}{}{}", "*".repeat(left), label, "*".repeat(right));
+// Center with *
+let left = padding / 2;
+let right = padding - left;
+log::info!("{}{}{}", "*".repeat(left), label, "*".repeat(right));
 
-    // Right align with =
-    log::info!("{}{}", "=".repeat(padding), label);
+// Right align with =
+log::info!("{}{}", "=".repeat(padding), label);
 
-    // Left align with -
-    log::info!("{}{}", label, "-".repeat(padding));
-}
-"""
+// Left align with -
+log::info!("{}{}", label, "-".repeat(padding));"""
 expected_output = """****Hi****
 ========Hi
 Hi--------"""
@@ -387,13 +366,10 @@ impl Message {
     }
 }
 
-fn main() {
-    let msg = Message::new("Hello");
-    let b = msg.to_bytes();
-    log::info!("{:?}", b);
-    log::info!("Vec");
-}
-"""
+let msg = Message::new("Hello");
+let b = msg.to_bytes();
+log::info!("{:?}", b);
+log::info!("Vec");"""
 expected_output = """b'Hello'
 bytes"""
 
@@ -427,13 +403,10 @@ impl Data {
     }
 }
 
-fn main() {
-    let data = Data::new(vec![72, 101, 108, 108, 111]);
-    let b = data.to_bytes();
-    log::info!("{:?}", b);
-    log::info!("{}", String::from_utf8(b.clone()).unwrap());
-}
-"""
+let data = Data::new(vec![72, 101, 108, 108, 111]);
+let b = data.to_bytes();
+log::info!("{:?}", b);
+log::info!("{}", String::from_utf8(b.clone()).unwrap());"""
 expected_output = """b'Hello'
 Hello"""
 
@@ -481,13 +454,10 @@ impl Packet {
     }
 }
 
-fn main() {
-    let packet = Packet::new(1, "test");
-    let b = packet.to_bytes();
-    log::info!("{:?}", b);
-    log::info!("{}", b.len());
-}
-"""
+let packet = Packet::new(1, "test");
+let b = packet.to_bytes();
+log::info!("{:?}", b);
+log::info!("{}", b.len());"""
 expected_output = """b'\\x01\\x00\\x04test'
 7"""
 
@@ -526,13 +496,10 @@ impl Container {
     }
 }
 
-fn main() {
-    let c1 = Container::new(vec![1, 2, 3]);
-    let c2 = Container::new(vec![]);
-    log::info!("{}", c1.to_bool());
-    log::info!("{}", c2.to_bool());
-}
-"""
+let c1 = Container::new(vec![1, 2, 3]);
+let c2 = Container::new(vec![]);
+log::info!("{}", c1.to_bool());
+log::info!("{}", c2.to_bool());"""
 expected_output = """True
 False"""
 
@@ -567,13 +534,10 @@ impl Status {
     }
 }
 
-fn main() {
-    let active = Status::new(true);
-    let inactive = Status::new(false);
-    log::info!("{}", active.to_bool());
-    log::info!("{}", inactive.to_bool());
-}
-"""
+let active = Status::new(true);
+let inactive = Status::new(false);
+log::info!("{}", active.to_bool());
+log::info!("{}", inactive.to_bool());"""
 expected_output = """True
 False"""
 
@@ -611,22 +575,19 @@ impl Gate {
     }
 }
 
-fn main() {
-    let gate = Gate::new(true);
-    if gate.is_open {
-        log::info!("Gate is open");
-    } else {
-        log::info!("Gate is closed");
-    }
-
-    let gate2 = Gate::new(false);
-    if gate2.is_open {
-        log::info!("Gate is open");
-    } else {
-        log::info!("Gate is closed");
-    }
+let gate = Gate::new(true);
+if gate.is_open {
+    log::info!("Gate is open");
+} else {
+    log::info!("Gate is closed");
 }
-"""
+
+let gate2 = Gate::new(false);
+if gate2.is_open {
+    log::info!("Gate is open");
+} else {
+    log::info!("Gate is closed");
+}"""
 expected_output = """Gate is open
 Gate is closed"""
 
@@ -666,13 +627,10 @@ impl Queue {
     }
 }
 
-fn main() {
-    let q1 = Queue::new(vec![1, 2, 3]);
-    let q2 = Queue::new(vec![]);
-    log::info!("{}", q1.to_bool());
-    log::info!("{}", q2.to_bool());
-}
-"""
+let q1 = Queue::new(vec![1, 2, 3]);
+let q2 = Queue::new(vec![]);
+log::info!("{}", q1.to_bool());
+log::info!("{}", q2.to_bool());"""
 expected_output = """True
 False"""
 
@@ -702,16 +660,13 @@ impl Thing {
     }
 }
 
-fn main() {
-    let thing = Thing::new(42);
-    // In Rust, we need to explicitly define what "truthy" means
-    // Python objects without __bool__ or __len__ are always True
-    log::info!("True");
+let thing = Thing::new(42);
+// In Rust, we need to explicitly define what "truthy" means
+// Python objects without __bool__ or __len__ are always True
+log::info!("True");
 
-    let thing2 = Thing::new(0);
-    log::info!("True");
-}
-"""
+let thing2 = Thing::new(0);
+log::info!("True");"""
 expected_output = """True
 True"""
 
@@ -751,11 +706,8 @@ impl CustomObject {
     }
 }
 
-fn main() {
-    let obj = CustomObject::new(vec![1, 2, 3, 4, 5]);
-    log::info!("Size: {} bytes", obj.sizeof());
-}
-"""
+let obj = CustomObject::new(vec![1, 2, 3, 4, 5]);
+log::info!("Size: {} bytes", obj.sizeof());"""
 expected_output = "Size: 44 bytes"
 
 [[test]]
@@ -792,11 +744,8 @@ impl Buffer {
     }
 }
 
-fn main() {
-    let buf = Buffer::new(1024);
-    log::info!("Buffer size: {} bytes", buf.sizeof());
-}
-"""
+let buf = Buffer::new(1024);
+log::info!("Buffer size: {} bytes", buf.sizeof());"""
 expected_output = "Buffer size: 1048 bytes"
 
 # =============================================================================
@@ -844,13 +793,10 @@ impl Fraction {
     }
 }
 
-fn main() {
-    let f = Fraction::new(3, 4);
-    log::info!("{}", f.format_spec(""));
-    log::info!("{}", f.format_spec("dec"));
-    log::info!("{}", f.format_spec("perc"));
-}
-"""
+let f = Fraction::new(3, 4);
+log::info!("{}", f.format_spec(""));
+log::info!("{}", f.format_spec("dec"));
+log::info!("{}", f.format_spec("perc"));"""
 expected_output = """3/4
 0.75
 75.0%"""
@@ -897,12 +843,9 @@ impl CustomDate {
     }
 }
 
-fn main() {
-    let d = CustomDate::new(2025, 12, 10);
-    log::info!("{}", d.format_spec("%Y-%m-%d"));
-    log::info!("{}", d.format_spec("%B %d, %Y"));
-}
-"""
+let d = CustomDate::new(2025, 12, 10);
+log::info!("{}", d.format_spec("%Y-%m-%d"));
+log::info!("{}", d.format_spec("%B %d, %Y"));"""
 expected_output = """2025-12-10
 December 10, 2025"""
 
@@ -939,19 +882,16 @@ impl Result {
     }
 }
 
-fn main() {
-    let result_ok = Result::new(true, Some(42));
-    let result_fail = Result::new(false, None);
+let result_ok = Result::new(true, Some(42));
+let result_fail = Result::new(false, None);
 
-    if result_ok.success {
-        log::info!("Success!");
-    }
-
-    if !result_fail.success {
-        log::info!("Failed!");
-    }
+if result_ok.success {
+    log::info!("Success!");
 }
-"""
+
+if !result_fail.success {
+    log::info!("Failed!");
+}"""
 expected_output = """Success!
 Failed!"""
 
@@ -976,10 +916,7 @@ rust = """
 // In Rust, the Display trait's fmt method must return fmt::Result
 // Returning wrong type is a compile-time error, not runtime
 // We simulate the error message for compatibility
-fn main() {
-    log::info!("TypeError: __format__ must return a str, not int");
-}
-"""
+log::info!("TypeError: __format__ must return a str, not int");"""
 expected_output = "TypeError: __format__ must return a str, not int"
 
 [[test]]
@@ -998,10 +935,7 @@ except TypeError as e:
 rust = """
 // In Rust, a method returning bool cannot return anything else
 // This would be caught at compile time
-fn main() {
-    log::info!("TypeError: __bool__ should return bool, returned str");
-}
-"""
+log::info!("TypeError: __bool__ should return bool, returned str");"""
 expected_output = "TypeError: __bool__ should return bool, returned str"
 
 [[test]]
@@ -1064,14 +998,11 @@ impl Styled {
     }
 }
 
-fn main() {
-    let s = Styled::new("hello world");
-    log::info!("{}", s.format_spec(""));
-    log::info!("{}", s.format_spec("u"));
-    log::info!("{}", s.format_spec("l"));
-    log::info!("{}", s.format_spec("t"));
-}
-"""
+let s = Styled::new("hello world");
+log::info!("{}", s.format_spec(""));
+log::info!("{}", s.format_spec("u"));
+log::info!("{}", s.format_spec("l"));
+log::info!("{}", s.format_spec("t"));"""
 expected_output = """hello world
 HELLO WORLD
 hello world

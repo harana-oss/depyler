@@ -1,0 +1,44 @@
+  examples-stdlib.toml :: imports
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use regex as re;
+  use serde_json;
+  use serde_json::from_str;
+  use serde_json::to_string;
+  use std as os;
+  use std as sys;
+  use std::collections::HashMap;
+  use std::path::Path::join as path_join;
+  pub fn get_current_dir() -> String {
+−     std::env::current_dir()
++     return std::env::current_dir()
+          .unwrap()
+          .to_string_lossy()
+−         .to_string()
++         .to_string();
+  }
+  pub fn parse_json(data: String) -> HashMap<String, serde_json::Value> {
+−     serde_json::from_str(data)
++     return serde_json::from_str(data);
+  }
+− pub fn join_paths(base: &str) -> String {
++ pub fn join_paths(base: String) -> String {
+      let mut result = base;
+      for p in paths.iter().cloned() {
+          result = std::path::Path::join(result, p);
+      }
+−     result
++     return result;
+  }
+− pub fn find_pattern<'b, 'a>(text: &'a str, pattern: &'b str) -> Vec<String> {
++ pub fn find_pattern(text: String, pattern: String) -> Vec<String> {
+      let regex = regex::Regex::new(pattern).unwrap();
+−     regex
++     return regex
+          .find_iter(text)
+          .map(|m| m.as_str().to_string())
+−         .collect::<Vec<String>>()
++         .collect::<Vec<String>>();
+  }
+────────────────────────────────────────────────────────────

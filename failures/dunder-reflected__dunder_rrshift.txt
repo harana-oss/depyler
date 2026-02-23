@@ -1,0 +1,29 @@
+  dunder-reflected.toml :: dunder_rrshift
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::ops::Shr;
+− 
+− struct Shift {
+−     amount: u32,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Shift {
++     pub amount: serde_json::Value,
+  }
+− 
+− impl Shr<Shift> for i32 {
+−     type Output = i32;
+− 
+−     fn shr(self, other: Shift) -> i32 {
+−         self >> other.amount
++ impl Shift {
++     pub fn new(amount: serde_json::Value) -> Self {
++         Self { amount }
+      }
+  }
+− 
+− let s = Shift { amount: 2 };
+− let result = 20 >> s;
+− log::info!("{}", result);
+────────────────────────────────────────────────────────────

@@ -1,0 +1,11 @@
+  collections.toml :: itertools_chain
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use itertools::chain;
+  use serde_json;
+− pub fn chain_lists(a: Vec<serde_json::Value>, b: Vec<serde_json::Value>) -> Vec<i32> {
++ pub fn chain_lists(a: Vec<serde_json::Value>, b: Vec<serde_json::Value>) -> Vec<serde_json::Value> {
+      return itertools::chain(a, b).into_iter().collect::<Vec<_>>();
+  }
+────────────────────────────────────────────────────────────

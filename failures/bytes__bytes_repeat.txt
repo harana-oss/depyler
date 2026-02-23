@@ -1,0 +1,8 @@
+  bytes.toml :: bytes_repeat
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− let result = b"ab".repeat(3);
++ pub const result: serde_json::Value = b"ab" * 3;
++ use serde_json;
+────────────────────────────────────────────────────────────

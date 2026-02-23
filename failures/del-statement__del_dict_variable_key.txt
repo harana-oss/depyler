@@ -1,0 +1,15 @@
+  del-statement.toml :: del_dict_variable_key
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::collections::HashMap;
+  
+−     let mut d = HashMap::new();
+−     d.insert("x", 10);
+−     d.insert("y", 20);
+−     d.insert("z", 30);
+−     let key_var = "y";
+−     d.remove(key_var);
+−     assert_eq!(d.len(), 2);
+−     assert!(!d.contains_key("y"));
+────────────────────────────────────────────────────────────

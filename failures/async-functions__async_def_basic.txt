@@ -1,0 +1,11 @@
+  async-functions.toml :: async_def_basic
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub const result: i32 = {
+−     f() };
+−     pub async fn f() -> i32 {
++ pub async fn f() -> i32 {
+      return 42;
+      }
+────────────────────────────────────────────────────────────

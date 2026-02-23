@@ -1,0 +1,13 @@
+  argparse.toml :: string_split_whitespace
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn count_words(text: String) -> i32 {
+      let words = text
+          .split_whitespace()
+          .map(|s| s.to_string())
+          .collect::<Vec<String>>();
+−     return words.len() as i32;
++     return words.len() as i32 as i32;
+  }
+────────────────────────────────────────────────────────────

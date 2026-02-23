@@ -1,0 +1,67 @@
+  resource-management.toml :: nested_resource_cleanup
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug, Copy, Clone]
+− pub struct Inner {
+−     pub closed: bool,
+− }
+− impl Inner {
+−     pub fn new() -> Self {
+−         Self { closed: false }
+−     }
+−     pub fn close(&mut self) {
+−         self.closed = true;
+−     }
+− }
+− impl Drop for Inner {
+−     fn drop(&mut self) {
+−         self.close();
+−     }
+− }
+  #[derive(Debug, Clone)]
+  pub struct Outer {
+      pub inner: Option<Inner>,
+      pub closed: bool,
+  }
+  impl Outer {
+      pub fn new() -> Self {
+          Self {
+              inner: None,
+              closed: false,
+          }
+      }
+      pub fn set_inner(&mut self, inner: Inner) {
+          self.inner = Some(inner);
+      }
+      pub fn close(&mut self) {
+          if let Some(ref mut inner) = self.inner {
+              inner.close();
+          }
+          self.closed = true;
+      }
+  }
+  impl Drop for Outer {
+      fn drop(&mut self) {
+          self.close();
+      }
+− }
++ }
++ #[derive(Debug, Clone)]
++ pub struct Inner {
++     pub closed: bool,
++ }
++ impl Inner {
++     pub fn new() -> Self {
++         Self { closed: false }
++     }
++     pub fn close(&mut self) {
++         self.closed = true;
++     }
++ }
++ impl Drop for Inner {
++     fn drop(&mut self) {
++         self.close();
++     }
++ }
+────────────────────────────────────────────────────────────

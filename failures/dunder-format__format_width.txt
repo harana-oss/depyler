@@ -1,0 +1,25 @@
+  dunder-format.toml :: format_width
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct Item {
+−     value: i32,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Item {
++     pub value: serde_json::Value,
+  }
+− 
+  impl Item {
+−     fn new(value: i32) -> Self {
+−         Item { value }
++     pub fn new(value: serde_json::Value) -> Self {
++         Self { value }
+      }
+  }
+− 
+− let item = Item::new(42);
+− log::info!("'{:>10}'", item.value);
+− log::info!("'{:<10}'", item.value);
+− log::info!("'{:^10}'", item.value);
+────────────────────────────────────────────────────────────

@@ -1,0 +1,22 @@
+  asyncio-tasks.toml :: shield
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use tokio::time::{Duration, sleep};
+− 
+− async fn my_coro() -> i32 {
+−     sleep(Duration::from_millis(100)).await;
+−     42
++ pub async fn my_coro() -> i32 {
++     asyncio.sleep(0.1).await;
++     return 42;
++    
+  }
+− 
+  pub async fn test_shield() -> i32 {
+−     my_coro().await
+− }
++     let shielded = asyncio.shield(my_coro());
++     return shielded.await;
++     }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,33 @@
+  abc.toml :: abstractclassmethod
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− trait Base {
+−     fn create() -> i32;
++ #[derive(Debug, Copy, Clone)]
++ pub struct Base {}
++ impl Base {
++     pub fn new() -> Self {
++         Self {}
++     }
++     pub fn create() -> i32 {
++         {}
++     }
+  }
+  #[derive(Debug, Copy, Clone)]
+  pub struct Concrete {}
+  impl Concrete {
+      pub fn new() -> Self {
+          Self {}
+      }
+−     pub fn create() -> i32 {
++ }
++ impl Base for Concrete {
++     fn create() -> i32 {
+          return 42;
+      }
+  }
+  pub fn test_abstractclassmethod() -> i32 {
+      return Concrete::create();
+  }
+────────────────────────────────────────────────────────────

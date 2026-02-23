@@ -1,0 +1,12 @@
+  async-functions.toml :: async_return_none
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub const result: serde_json::Value = {
+−     f() };
+−     use serde_json;
+−     pub async fn f() -> i32 {
++ pub async fn f() -> i32 {
+      return 42;
+      }
+────────────────────────────────────────────────────────────

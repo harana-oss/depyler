@@ -1,0 +1,9 @@
+  imports-dynamic.toml :: dynamic_import_relative
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // import_module('.sub', 'pkg')
+−     // Relative imports resolved at compile time in Rust
+−     let result = true;
++ pub const result: bool = true;
+────────────────────────────────────────────────────────────

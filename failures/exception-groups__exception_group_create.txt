@@ -1,0 +1,27 @@
+  exception-groups.toml :: exception_group_create
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust uses Result and custom error types
+− // This demonstrates error aggregation pattern
+  
+− #[derive(Debug)]
+− struct MultiError {
+−     message: String,
+−     errors: Vec<String>,
+− }
+− 
+− impl MultiError {
+−     fn new(message: &str, errors: Vec<String>) -> Self {
+−         MultiError {
+−             message: message.to_string(),
+−             errors,
+−         }
+−     }
+− }
+− 
+− let errors = vec!["val error".to_string(), "type error".to_string()];
+− let eg = MultiError::new("Multiple errors", errors);
+− log::info!("Message: {}", eg.message);
+− log::info!("Count: {}", eg.errors.len());
+────────────────────────────────────────────────────────────

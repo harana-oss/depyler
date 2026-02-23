@@ -1,0 +1,37 @@
+  class-getitem.toml :: class_getitem_override
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // In Rust, we can achieve similar behavior with trait methods
+− trait ClassGetItem {
+−     fn class_getitem(type_name: &str) -> String;
+− }
+− 
+− struct Base;
+− struct Derived;
+− 
+− impl ClassGetItem for Base {
+−     fn class_getitem(type_name: &str) -> String {
+−         format!("Base[{}]", type_name)
++ #[derive(Debug, Copy, Clone)]
++ pub struct Base {}
++ impl Base {
++     pub fn new() -> Self {
++         Self {}
+      }
+  }
+− 
+− impl ClassGetItem for Derived {
+−     fn class_getitem(type_name: &str) -> String {
+−         format!("Derived[{}]", type_name)
++ #[derive(Debug, Copy, Clone)]
++ pub struct Derived {}
++ impl Derived {
++     pub fn new() -> Self {
++         Self {}
+      }
+  }
+− 
+− log::info!("{}", Base::class_getitem("int"));
+− log::info!("{}", Derived::class_getitem("int"));
+────────────────────────────────────────────────────────────

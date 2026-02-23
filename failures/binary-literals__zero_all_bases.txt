@@ -1,0 +1,8 @@
+  binary-literals.toml :: zero_all_bases
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− let result = (0b0 == 0) && (0o0 == 0) && (0x0 == 0);
++ pub const result: serde_json::Value = ((0 == 0) && (0 == 0)) && (0 == 0);
++ use serde_json;
+────────────────────────────────────────────────────────────

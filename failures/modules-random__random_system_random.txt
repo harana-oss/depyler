@@ -1,0 +1,14 @@
+  modules-random.toml :: random_system_random
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use rand as random;
+− use rand::prelude::*;
+− use rand::rngs::SmallRng;
+− use rand::Rng;
+− use rand::SeedableRng;
+  pub fn create_secure_rng() -> i32 {
+      let secure_rng = rand::rngs::OsRng;
+      return 0;
+  }
+────────────────────────────────────────────────────────────

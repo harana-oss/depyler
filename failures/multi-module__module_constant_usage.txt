@@ -1,0 +1,17 @@
+  multi-module.toml :: module_constant_usage
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub const MAX_SIZE: i32 = 100;
+  pub const MIN_SIZE: i32 = 0;
+− 
+  pub fn clamp_size(size: i32) -> i32 {
+      if size > MAX_SIZE {
+          return MAX_SIZE;
+      }
+      if size < MIN_SIZE {
+          return MIN_SIZE;
+      }
+      return size;
+  }
+────────────────────────────────────────────────────────────

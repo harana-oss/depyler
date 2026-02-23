@@ -1,0 +1,12 @@
+  imports-basic.toml :: import_collections
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust: std::collections
+−     use std::collections::HashMap;
+−     let mut map = HashMap::new();
+−     map.insert("key", 42);
+−     let result = map.get("key") == Some(&42);
+−     assert!(result);
++ use std::collections;
+────────────────────────────────────────────────────────────

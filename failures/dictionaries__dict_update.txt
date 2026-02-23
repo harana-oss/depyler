@@ -1,0 +1,16 @@
+  dictionaries.toml :: dict_update
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use serde_json;
+  use std::collections::HashMap;
+− pub fn update_dict(d: &mut HashMap<String, i32>, other: &HashMap<String, i32>) {
++ pub fn update_dict(
++     d: &mut HashMap<serde_json::Value, serde_json::Value>,
++     other: &HashMap<serde_json::Value, serde_json::Value>,
++ ) {
+      for (k, v) in other {
+          d.insert(k, v);
+      }
+  }
+────────────────────────────────────────────────────────────

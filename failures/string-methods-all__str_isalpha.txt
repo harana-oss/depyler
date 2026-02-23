@@ -1,0 +1,7 @@
+  string-methods-all.toml :: str_isalpha
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub const result: bool = "abc".chars().all(|c| c.is_alphabetic());
++ 
+────────────────────────────────────────────────────────────

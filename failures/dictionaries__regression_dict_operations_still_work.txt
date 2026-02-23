@@ -1,0 +1,34 @@
+  dictionaries.toml :: regression_dict_operations_still_work
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use std::collections::HashMap;
+− pub fn dict_ops(d: &mut HashMap<String, i32>) {
+−     d.clone().insert("new_key".to_string(), 42);
++ #[derive(Debug, Clone)]
++ pub struct IndexError {
++     message: String,
++ }
++ impl std::fmt::Display for IndexError {
++     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
++         write!(f, "index out of range: {}", self.message)
++     }
++ }
++ impl std::error::Error for IndexError {}
++ impl IndexError {
++     pub fn new(message: impl Into<String>) -> Self {
++         Self {
++             message: message.into(),
++         }
++     }
++ }
++ pub fn dict_ops(d: &mut HashMap<String, i32>) -> Result<(), IndexError> {
++     d.insert("new_key".to_string(), 42);
+      d.remove("old_key").unwrap_or(None);
+−     if d.get("check_key").is_some() {
++     if d.get(&"check_key").is_some() {
+          log::info!("{}", d.get("check_key").cloned().unwrap());
+      }
++     Ok(())
+  }
+────────────────────────────────────────────────────────────

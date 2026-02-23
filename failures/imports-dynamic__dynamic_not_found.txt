@@ -1,0 +1,9 @@
+  imports-dynamic.toml :: dynamic_not_found
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // ModuleNotFoundError
+−     // Compile-time error for missing modules
+−     let result = true;
++ 
+────────────────────────────────────────────────────────────

@@ -1,0 +1,20 @@
+  file.toml :: file_readlines_text_mode
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::io::BufRead;
+− pub fn read_lines(path: String) -> Vec<String> {
++ use serde_json;
++ pub fn read_lines(path: String) -> Result<Vec<serde_json::Value>, std::io::Error> {
+      let mut f = std::fs::File::open(path)?;
+−     let lines = std::io::BufReader::new(&f)
+−         .lines()
+−         .collect::<Vec<_>>()?
+−         .iter()
+−         .map(|s| s.to_string())
+−         .collect();
+−     return lines;
++     let lines = f.readlines();
++     return Ok(lines);
+  }
+────────────────────────────────────────────────────────────

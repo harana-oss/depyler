@@ -1,0 +1,23 @@
+  dataclasses-basic.toml :: dataclass_field_default
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub const p: Point = Point::new();
+− pub const result: (i32, i32) = (p.x, p.y);
+− use serde_json;
+− #[derive(Debug, Clone, PartialEq, Default)]
+− pub struct Point {}
++ #[derive(Debug, Copy, Clone, PartialEq, Default)]
++ pub struct Point {
++     pub x: i32,
++     pub y: i32,
++ }
+  impl Point {
+−     pub const x: i32 = field();
+−     pub const y: i32 = field();
+      pub fn new() -> Self {
+−         Self {}
++         Self { x: 0, y: 0 }
+      }
+  }
+────────────────────────────────────────────────────────────

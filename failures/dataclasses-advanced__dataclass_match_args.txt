@@ -1,0 +1,11 @@
+  dataclasses-advanced.toml :: dataclass_match_args
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− let value = 2;
+−     let result = match value {
+−         1 | 2 | 3 => "small",
+−         _ => "other",
+−     };
++ 
+────────────────────────────────────────────────────────────

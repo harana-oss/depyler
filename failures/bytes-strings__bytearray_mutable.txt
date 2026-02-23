@@ -1,0 +1,13 @@
+  bytes-strings.toml :: bytearray_mutable
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn test_bytearray_mutable() -> Vec<u8> {
+−     let mut ba = b"hello".to_vec();
+−     ba[0] = 65;
++ pub fn test_bytearray_mutable() -> bytearray {
++     let mut ba = bytearray(b"hello");
++     ba[0 as usize] = 65;
+      return ba;
+  }
+────────────────────────────────────────────────────────────

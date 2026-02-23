@@ -296,7 +296,7 @@ def make_dict_comp():
 rust = '''
 use serde_json;
 use std::collections::HashMap;
-pub fn make_dict_comp() -> HashMap<serde_json::Value, i32> {
+pub fn make_dict_comp() -> HashMap<String, i32> {
     return (0..5).map(|x| (x, x * 2)).collect::<HashMap<_, _>>();
 }
 '''

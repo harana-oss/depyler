@@ -1,0 +1,43 @@
+  contextlib-decorator.toml :: contextmanager_setup
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::cell::RefCell;
+−     use std::rc::Rc;
+− 
+−     let setup_done: Rc<RefCell<Vec<bool>>> = Rc::new(RefCell::new(Vec::new()));
+−     let setup_clone = setup_done.clone();
+− 
+−     fn with_setup<F, R>(setup: Rc<RefCell<Vec<bool>>>, f: F) -> R
+−     where
+−         F: FnOnce() -> R,
+−     {
+−         setup.borrow_mut().push(true);
+−         f()
++ use serde_json;
++ #[doc = " Generator state struct"]
++ #[derive(Debug)]
++ struct WithSetupState {
++     state: usize,
++ }
++ #[doc = " Generator function - returns Iterator"]
++ pub fn with_setup() -> impl Iterator<Item = serde_json::Value> {
++     WithSetupState { state: 0 }
++ }
++ impl Iterator for WithSetupState {
++     type Item = serde_json::Value;
++     fn next(&mut self) -> Option<Self::Item> {
++         match self.state {
++             0 => {
++                 self.state = 1;
++                 setup_done.push(true);
++                 return None;
++                 None
++             }
++             _ => None,
++         }
+      }
+− 
+−     let result = with_setup(setup_clone, || setup_done.borrow().len());
++ }
+────────────────────────────────────────────────────────────

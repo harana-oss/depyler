@@ -1,0 +1,14 @@
+  borrow-checker-violations.toml :: dangling_reference_nested
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn outer() -> Vec<i32> {
+−     fn inner() -> Vec<i32> {
++ pub fn outer() {
++     fn inner() -> Vec<i64> {
+          let local = vec![1, 2, 3];
+          return local;
+      }
+      return inner();
+  }
+────────────────────────────────────────────────────────────

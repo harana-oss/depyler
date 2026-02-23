@@ -1,0 +1,20 @@
+  field-alias-mutation.toml :: field_alias_method_mutation
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  #[derive(Debug, Clone, PartialEq, Default)]
+  pub struct State {
+      pub items: Vec<i32>,
+  }
+  impl State {
+      pub fn new(items: Vec<i32>) -> Self {
+          Self { items }
+      }
+  }
+− pub fn add_to_list(state: &mut State) {
+−     let mut items = state.items.clone();
++ pub fn add_to_list(state: &State) {
++     let mut items = state.items;
+      items.push(1);
+  }
+────────────────────────────────────────────────────────────

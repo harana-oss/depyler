@@ -1,0 +1,15 @@
+  dictionaries.toml :: dict_get_default
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use serde_json;
+  use std::collections::HashMap;
+− pub fn get_or_default(d: &HashMap<String, i32>, key: String, default: String) -> String {
++ pub fn get_or_default(
++     d: &HashMap<serde_json::Value, serde_json::Value>,
++     key: String,
++     default: String,
++ ) -> String {
+      return *d.get(&key).unwrap_or(&default);
+  }
+────────────────────────────────────────────────────────────

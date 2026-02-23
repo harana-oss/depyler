@@ -1,0 +1,9 @@
+  type-inference.toml :: type_mapper_reference_with_lifetime
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn borrow_str(s: String) -> String {
+      return s;
+− };
++ }
+────────────────────────────────────────────────────────────

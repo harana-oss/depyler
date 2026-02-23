@@ -1,0 +1,8 @@
+  const-evaluation.toml :: const_arithmetic
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub const RESULT: i32 = 2 + 3 * 4;
++ pub const RESULT: serde_json::Value = 2 + 3 * 4;
++ use serde_json;
+────────────────────────────────────────────────────────────

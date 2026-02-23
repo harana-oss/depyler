@@ -1,0 +1,16 @@
+  io-streams.toml :: file_read_text
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn read_file(filepath: String) -> String {
++ pub fn read_file(filepath: String) -> Result<String, std::io::Error> {
+      let mut f = std::fs::File::open(filepath)?;
+      let content = {
+          let mut content = String::new();
+          f.read_to_string(&mut content)?;
+          content
+      };
+−     return content;
++     return Ok(content);
+  }
+────────────────────────────────────────────────────────────

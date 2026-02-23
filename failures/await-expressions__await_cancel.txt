@@ -1,0 +1,28 @@
+  await-expressions.toml :: await_cancel
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use tokio::time::{Duration, sleep};
+− 
+− async fn long_running() {
+−     sleep(Duration::from_secs(10)).await;
++ pub async fn long_running() {
++     asyncio.sleep(10).await;
++    
+  }
+− 
+− async fn test_await_cancel() -> bool {
+−     let handle = tokio::spawn(long_running());
+−     handle.abort();
+−     handle.await.is_err()
++ pub async fn test_await_cancel() -> bool {
++     let task = asyncio.create_task(long_running());
++     task.cancel();
++     {
++     task.await;
++     return false;
++     return true;
++    
++ }
+  }
+────────────────────────────────────────────────────────────

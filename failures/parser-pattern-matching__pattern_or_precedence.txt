@@ -1,0 +1,30 @@
+  parser-pattern-matching.toml :: pattern_or_precedence
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− fn classify_num(x: i64) -> String {
+−     match x {
+−         1 | 2 | 3 => "low".to_string(),
+−         4 | 5 | 6 => "mid".to_string(),
+−         _ => "high".to_string(),
++ pub fn classify_num(x: i32) -> String {
++     let _cse_temp_0 = (x == 1) || (x == 2);
++     let _cse_temp_1 = (_cse_temp_0) || (x == 3);
++     if _cse_temp_1 {
++         return "low".to_string();
++     } else {
++         let _cse_temp_2 = (x == 4) || (x == 5);
++         let _cse_temp_3 = (_cse_temp_2) || (x == 6);
++         if _cse_temp_3 {
++             return "mid".to_string();
++         } else {
++             return "high".to_string();
++         }
+      }
+− }
+− 
+− fn main() {
+−     let result = classify_num(5);
+−     println!("{}", result);
+  }
+────────────────────────────────────────────────────────────

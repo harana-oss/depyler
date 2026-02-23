@@ -1,0 +1,26 @@
+  dunder-attribute.toml :: getattr_raise
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct StrictAttrs;
+− 
++ #[derive(Debug, Copy, Clone)]
++ pub struct StrictAttrs {}
+  impl StrictAttrs {
+−     fn get_attr(&self, name: &str) -> Result<&str, String> {
+−         match name {
+−             "allowed" => Ok("ok"),
+−             _ => Err(format!("'StrictAttrs' has no attribute '{}'", name)),
+−         }
++     pub fn new() -> Self {
++         Self {}
+      }
+  }
+− 
+− let obj = StrictAttrs;
+− log::info!("{}", obj.get_attr("allowed").unwrap());
+− match obj.get_attr("forbidden") {
+−     Err(e) => log::info!("Error: {}", e),
+−     Ok(_) => {}
+− }
+────────────────────────────────────────────────────────────

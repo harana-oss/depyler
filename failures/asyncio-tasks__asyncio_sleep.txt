@@ -1,0 +1,14 @@
+  asyncio-tasks.toml :: asyncio_sleep
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use tokio::time::{Duration, sleep};
+− 
+  pub async fn test_asyncio_sleep() -> bool {
+−     sleep(Duration::from_millis(10)).await;
+−     true
+− }
++     asyncio.sleep(0.01).await;
++     return true;
++     }
+────────────────────────────────────────────────────────────

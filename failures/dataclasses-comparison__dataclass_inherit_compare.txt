@@ -1,0 +1,37 @@
+  dataclasses-comparison.toml :: dataclass_inherit_compare
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust doesn't have inheritance, but we can show trait-based comparison
+−     #[derive(Debug, PartialEq)]
+−     struct Parent {
+−         x: i32,
++ #[derive(Debug, Copy, Clone, PartialEq, Default)]
++ pub struct Parent {
++     pub x: i32,
++ }
++ impl Parent {
++     pub fn new(x: i32) -> Self {
++         Self { x }
+      }
+− 
+−     #[derive(Debug, PartialEq)]
+−     struct Child {
+−         x: i32,
+−         y: i32,
++ }
++ #[derive(Debug, Copy, Clone, PartialEq, Default)]
++ pub struct Child {
++     pub y: i32,
++ }
++ impl Child {
++     pub fn new() -> Self {
++         Self { y: 0 }
+      }
+− 
+−     let p = Parent { x: 1 };
+−     let c = Child { x: 1, y: 2 };
+−     // Different types can't be compared directly
+−     let result = true;
++ }
+────────────────────────────────────────────────────────────

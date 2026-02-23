@@ -1,0 +1,32 @@
+  ownership.toml :: borrow_conflict_mut_state_and_nested_field
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug, Clone, PartialEq, Default)]
++ #[derive(Debug, Copy, Clone, PartialEq, Default)]
+  pub struct Inner {
+      pub value: i32,
+  }
+  impl Inner {
+      pub fn new(value: i32) -> Self {
+          Self { value }
+      }
+  }
+  #[derive(Debug, Clone, PartialEq, Default)]
+  pub struct Outer {
+      pub inner: Inner,
+  }
+  impl Outer {
+      pub fn new(inner: Inner) -> Self {
+          Self { inner }
+      }
+  }
+  pub fn use_both(outer: &mut Outer, val: i32) {
+      outer.inner.value = val;
+  }
+  pub fn caller(outer: &mut Outer) {
+−     let val = outer.inner.value;
+−     use_both(outer, val);
++     use_both(&outer, outer.inner.value);
+  }
+────────────────────────────────────────────────────────────

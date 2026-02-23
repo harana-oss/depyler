@@ -1,0 +1,30 @@
+  enum-methods.toml :: enum_computed
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Copy, Clone)]
+− enum Temperature {
+−     Cold = 0,
+−     Warm = 20,
+−     Hot = 35,
+− }
+− 
++ #[derive(Debug, Copy, Clone)]
++ pub struct Temperature {}
+  impl Temperature {
+−     fn fahrenheit(&self) -> f64 {
+−         (*self as i32 as f64) * 9.0 / 5.0 + 32.0
++     pub const COLD: i32 = 0;
++     pub const WARM: i32 = 20;
++     pub const HOT: i32 = 35;
++     pub fn new() -> Self {
++         Self {}
+      }
++     pub fn fahrenheit(&self) -> i32 {
++         return self.value * 9 / 5 + 32;
++     }
+  }
+− 
+− log::info!("{}", Temperature::Cold.fahrenheit());
+− log::info!("{}", Temperature::Hot.fahrenheit());
+────────────────────────────────────────────────────────────

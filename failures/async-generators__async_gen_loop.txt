@@ -1,0 +1,47 @@
+  async-generators.toml :: async_gen_loop
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use async_stream::stream;
+− use tokio_stream::StreamExt;
+− 
+− async fn test_async_gen_loop() -> usize {
+−     let g = stream! {
+−         for i in 0..5 {
+−             yield i;
+−         }
+−     };
+−     g.count().await
+− }
++ #[doc = " Generator state struct"] #[derive(Debug)] struct GenState {
++     state: usize, n: i32
++ }
++ #[doc = " Generator function - returns Iterator"] pub fn gen(n: i32) -> impl Iterator<Item = i32>{
++     GenState {
++     state: 0, n: n
++ }
++ } impl Iterator for GenState {
++     type Item = i32;
++     fn next(&mut self) -> Option<Self::Item>{
++     match self.state {
++     0 =>{
++     self.state = 1;
++     for _i in 0..self.n {
++     return Some(i);
++    
++ }
++ None
++ }
++ _ =>None
++ }
++ }
++ }
++ pub async fn test_async_gen_loop() -> i32 {
++     let count = 0;
++     while let Some(val) = gen(5).next().await {
++     count += 1;
++    
++ }
++ return count;
++     }
+────────────────────────────────────────────────────────────

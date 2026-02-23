@@ -1,0 +1,9 @@
+  string-operations.toml :: string_len
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn string_length(s: String) -> i32 {
+−     return s.len() as i32;
++     return s.len() as i32 as i32;
+  }
+────────────────────────────────────────────────────────────

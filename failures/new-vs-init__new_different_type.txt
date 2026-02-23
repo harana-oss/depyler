@@ -1,0 +1,16 @@
+  new-vs-init.toml :: new_different_type
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug, Clone)]
++ #[derive(Debug, Copy, Clone)]
+  pub struct Factory {}
+  impl Factory {
+      pub fn new() -> Self {
+          Self {}
+      }
+  }
+  pub fn create_object() -> object {
+      return Factory::new("int".to_string());
+  }
+────────────────────────────────────────────────────────────

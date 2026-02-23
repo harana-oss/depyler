@@ -1,0 +1,27 @@
+  enum-basic.toml :: enum_auto_increment
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust discriminants start at 0 by default, but can be set
+−     #[derive(Debug, PartialEq)]
+−     enum Priority {
+−         LOW = 1,
+−         MEDIUM, // 2
+−         HIGH,   // 3
++ pub const result: serde_json::Value =
++     ((Priority.LOW.value == 1) && (Priority.MEDIUM.value == 2)) && (Priority.HIGH.value == 3);
++ use serde_json;
++ #[derive(Debug, Copy, Clone)]
++ pub struct Priority {}
++ impl Priority {
++     pub const LOW: i32 = auto();
++     pub const MEDIUM: i32 = auto();
++     pub const HIGH: i32 = auto();
++     pub fn new() -> Self {
++         Self {}
+      }
+− 
+−     let result =
+−         Priority::LOW as i32 == 1 && Priority::MEDIUM as i32 == 2 && Priority::HIGH as i32 == 3;
++ }
+────────────────────────────────────────────────────────────

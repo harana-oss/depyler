@@ -1,0 +1,10 @@
+  string-methods-all.toml :: str_splitlines
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub const result: Vec<String> = "a\nb\nc"
+−     .lines()
+−     .map(|s| s.to_string())
+−     .collect::<Vec<String>>();
++ 
+────────────────────────────────────────────────────────────

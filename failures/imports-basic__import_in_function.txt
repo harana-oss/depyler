@@ -1,0 +1,16 @@
+  imports-basic.toml :: import_in_function
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust: use statements typically at module level
+−     // But can access std functions anywhere
+−     fn f() -> bool {
+−         use std::env;
+−         env::current_dir().is_ok()
+−     }
+−     let result = f();
+−     assert!(result);
++ pub fn f() {
++     return hasattr(os, "getcwd".to_string());
++ }
+────────────────────────────────────────────────────────────

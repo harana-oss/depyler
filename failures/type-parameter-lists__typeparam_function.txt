@@ -1,0 +1,8 @@
+  type-parameter-lists.toml :: typeparam_function
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // def f[T](x: T) -> T: return x
+−     let result = true; // Placeholder
++ pub const result: bool = true;
+────────────────────────────────────────────────────────────

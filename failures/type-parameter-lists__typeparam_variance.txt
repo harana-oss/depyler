@@ -1,0 +1,8 @@
+  type-parameter-lists.toml :: typeparam_variance
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // class C[T: covariant]: ...
+−     let result = true; // Placeholder
++ pub const result: bool = true;
+────────────────────────────────────────────────────────────

@@ -1,0 +1,27 @@
+  enum-advanced.toml :: enum_pickle
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use serde::{Deserialize, Serialize};
+− 
+− #[derive(Debug, Serialize, Deserialize)]
+− enum Color {
+−     Red = 1,
+−     Green = 2,
++ #[derive(Debug, Copy, Clone)]
++ pub struct Color {}
++ impl Color {
++     pub const RED: i32 = 1;
++     pub const GREEN: i32 = 2;
++     pub fn new() -> Self {
++         Self {}
++     }
+  }
+− 
+  pub fn test_enum_pickle() -> i32 {
+−     1
++     let data = { format!("{:?}", Color::RED).into_bytes() };
++     let restored = { String::from_utf8_lossy(data).to_string() };
++     return restored.value;
+  }
+────────────────────────────────────────────────────────────

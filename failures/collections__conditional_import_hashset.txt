@@ -1,0 +1,17 @@
+  collections.toml :: conditional_import_hashset
+    Output mismatch
+
+────────────────────────────────────────────────────────────
++ use serde_json;
+  use std::collections::HashSet;
+− pub fn use_set() -> HashSet<i32> {
++ pub fn use_set() -> HashSet<serde_json::Value> {
+      return {
+          let mut set = HashSet::new();
+          set.insert(1);
+          set.insert(2);
+          set.insert(3);
+          set
+      };
+  }
+────────────────────────────────────────────────────────────

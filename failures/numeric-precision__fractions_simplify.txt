@@ -1,0 +1,53 @@
+  numeric-precision.toml :: fractions_simplify
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn gcd(mut a: i32, mut b: i32) -> i32 {
+      while b != 0 {
+−         let temp = b;
+−         b = a % b;
+−         a = temp;
++         (a, b) = (b, a % b);
+      }
+      return a;
+  }
+− 
+  pub fn simplify(num: i32, den: i32) -> (i32, i32) {
+      let g = gcd(num.abs(), den.abs());
+−     return (num / g, den / g);
++     return (
++         {
++             let a = num;
++             let b = g;
++             let q = a / b;
++             let r = a % b;
++             let r_negative = r < 0;
++             let b_negative = b < 0;
++             let r_nonzero = r != 0;
++             let signs_differ = r_negative != b_negative;
++             let needs_adjustment = r_nonzero && signs_differ;
++             if needs_adjustment {
++                 q - 1
++             } else {
++                 q
++             }
++         },
++         {
++             let a = den;
++             let b = g;
++             let q = a / b;
++             let r = a % b;
++             let r_negative = r < 0;
++             let b_negative = b < 0;
++             let r_nonzero = r != 0;
++             let signs_differ = r_negative != b_negative;
++             let needs_adjustment = r_nonzero && signs_differ;
++             if needs_adjustment {
++                 q - 1
++             } else {
++                 q
++             }
++         },
++     );
+  }
+────────────────────────────────────────────────────────────

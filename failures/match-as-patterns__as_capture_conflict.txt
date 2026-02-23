@@ -1,0 +1,11 @@
+  match-as-patterns.toml :: as_capture_conflict
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Simple capture pattern
+−     let value = 42;
+−     let result = match value {
+−         x => x == 42,
+−     };
++ 
+────────────────────────────────────────────────────────────

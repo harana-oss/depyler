@@ -1,0 +1,12 @@
+  nested-context-managers.toml :: multi_with_comma
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn process_files() {
++ pub fn process_files() -> Result<(), std::io::Error> {
+      let _context = std::fs::File::open("a.txt")?;
+      let _context = std::fs::File::open("b.txt")?;
+      let _context = std::fs::File::open("c.txt")?;
++     Ok(())
+  }
+────────────────────────────────────────────────────────────

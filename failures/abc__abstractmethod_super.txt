@@ -1,0 +1,34 @@
+  abc.toml :: abstractmethod_super
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− trait Base {
+−     fn compute(&self) -> i32 {
++ #[derive(Debug, Copy, Clone)]
++ pub struct Base {}
++ impl Base {
++     pub fn new() -> Self {
++         Self {}
++     }
++     pub fn compute(&self) -> i32 {
+          return 5;
+      }
+  }
+  #[derive(Debug, Copy, Clone)]
+  pub struct Derived {}
+  impl Derived {
+      pub fn new() -> Self {
+          Self {}
+      }
+  }
+  impl Base for Derived {
+      fn compute(&self) -> i32 {
+−         return <Self as Base>::compute(self) + 10;
++         return { self.compute() } + 10;
+      }
+  }
+  pub fn test_abstractmethod_super() -> i32 {
+      let obj = Derived::new();
+      return obj.compute();
+  }
+────────────────────────────────────────────────────────────

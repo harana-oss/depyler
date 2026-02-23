@@ -62,7 +62,7 @@ def mixed_inference(data, multiplier):
     total = 0
     for value in data:
         # 'multiplier' used in numeric context -> numeric type
-        total = total + value * multiplier
+        total += value * multiplier
     
     # len() also suggests container for 'data'
     average = total / len(data)
@@ -154,8 +154,7 @@ pub fn numeric_operations(x: i32, y: i32) -> Result<i32, ZeroDivisionError> {
     let product = _cse_temp_0;
     let _cse_temp_1 = x / y;
     let quotient = _cse_temp_1;
-    let _cse_temp_2 = x > y;
-    if _cse_temp_2 {
+        if x > y {
         Ok(sum_val)
     } else {
         Ok(product)
@@ -171,7 +170,7 @@ pub fn string_manipulation(text: &str) -> String {
     text.trim().to_string()
 }
 #[doc = "Infers list type from list operations."]
-pub fn list_processing(items: &mut serde_json::Value) -> Vec<serde_json::Value> {
+pub fn list_processing(items: &mut serde_json::Value) -> Vec<i32> {
     items.push("new item".to_string());
     items.extend(
         vec![
@@ -194,7 +193,7 @@ pub fn mixed_inference<'b, 'a>(
 ) -> Result<i32, ZeroDivisionError> {
     let mut total = 0;
     for value in data.iter().cloned() {
-        total = total + value * multiplier;
+        total += value * multiplier;
     }
     let _cse_temp_0 = data.len() as i32;
     let _cse_temp_1 = total / _cse_temp_0;
@@ -239,7 +238,7 @@ pub fn dictionary_operations(mapping: &serde_json::Value) {
 pub fn function_composition(
     transform: serde_json::Value,
     data: &serde_json::Value,
-) -> Vec<serde_json::Value> {
+) -> Vec<i32> {
     let mut result = vec![];
     for item in data.iter().cloned() {
         let transformed = transform(item);
@@ -405,12 +404,12 @@ impl IndexError {
 #[doc = "Process a list of numbers."] pub fn process_numbers(data: & serde_json::Value) -> Result<i32, ZeroDivisionError>{
     let mut total = 0;
     for num in data.iter().cloned() {
-    total = total + num;
+    total += num;
    
 }
 Ok(total / data.len() as i32)
 }
-#[doc = "Various string operations."] #[doc = " Depyler: verified panic-free"] #[doc = " Depyler: proven to terminate"] pub fn manipulate_text(text: & str) -> String {
+#[doc = "Various string operations."]#[doc = " Depyler: proven to terminate"] pub fn manipulate_text(text: & str) -> String {
     let mut result = text.to_uppercase();
     if result.starts_with("HELLO") {
     result = result.replace("HELLO", "HI");
@@ -418,12 +417,11 @@ Ok(total / data.len() as i32)
 }
 result.trim().to_string()
 }
-#[doc = "Mixed numeric operations."] #[doc = " Depyler: verified panic-free"] #[doc = " Depyler: proven to terminate"] pub fn mixed_operations<'a, 'b>(x: & 'a serde_json::Value, y: & 'b serde_json::Value) -> i32 {
+#[doc = "Mixed numeric operations."]#[doc = " Depyler: proven to terminate"] pub fn mixed_operations<'a, 'b>(x: & 'a serde_json::Value, y: & 'b serde_json::Value) -> i32 {
     let sum_val = x + y;
     let _cse_temp_0 = x * y;
     let product = _cse_temp_0;
-    let _cse_temp_1 = x>y;
-    if _cse_temp_1 {
+        if x>y {
     sum_val
 }
 else {
@@ -431,8 +429,7 @@ else {
 }
 } #[doc = "Operations on containers."] #[doc = " Depyler: proven to terminate"] pub fn container_operations(items: &mut serde_json::Value) -> Result <(), IndexError>{
     let _cse_temp_0 = items.len() as i32;
-    let _cse_temp_1 = _cse_temp_0>0;
-    if _cse_temp_1 {
+        if _cse_temp_0>0 {
     let first = items.get(0usize).cloned().unwrap_or_default();
     items.push(42);
     return;
@@ -440,17 +437,17 @@ else {
 }
 () Ok(())
 }
-#[doc = "Function with inferable return type."] #[doc = " Depyler: verified panic-free"] #[doc = " Depyler: proven to terminate"] pub fn inferred_return_types() -> i32 {
+#[doc = "Function with inferable return type."]#[doc = " Depyler: proven to terminate"] pub fn inferred_return_types() -> i32 {
     let x = 10;
     let y = 20;
     x + y
 }
-#[doc = "String formatting with mixed types."] #[doc = " Depyler: verified panic-free"] #[doc = " Depyler: proven to terminate"] pub fn string_formatting<'b, 'a>(name: & 'a str, age: & 'b serde_json::Value) -> String {
+#[doc = "String formatting with mixed types."]#[doc = " Depyler: proven to terminate"] pub fn string_formatting<'b, 'a>(name: & 'a str, age: & 'b serde_json::Value) -> String {
     let formatted_name = name.to_uppercase();
     let next_age = age + 1;
     format!("{:?} will be {:?} next year", formatted_name, next_age)
 }
-#[doc = "Using variables as iterators."] #[doc = " Depyler: verified panic-free"] pub fn iterator_usage(collection: & serde_json::Value, predicate: serde_json::Value) -> Vec<serde_json::Value>{
+#[doc = "Using variables as iterators."]pub fn iterator_usage(collection: & serde_json::Value, predicate: serde_json::Value) -> Vec<i32>{
     let mut results = vec! [];
     for item in collection.iter().cloned() {
     if predicate(item) {
@@ -459,7 +456,7 @@ else {
 }
 } results
 }
-#[doc = "Type conversion hints."] #[doc = " Depyler: verified panic-free"] #[doc = " Depyler: proven to terminate"] pub fn type_conversions(value: serde_json::Value) -> (String, i32, f64) {
+#[doc = "Type conversion hints."]#[doc = " Depyler: proven to terminate"] pub fn type_conversions(value: serde_json::Value) -> (String, i32, f64) {
     let _cse_temp_0 = value.to_string();
     let text = _cse_temp_0;
     let _cse_temp_1 = (value) as i32;
@@ -468,7 +465,7 @@ else {
     let decimal = _cse_temp_2;
   (text, number, decimal)
 }
-#[doc = "Only some parameters have annotations."] #[doc = " Depyler: verified panic-free"] pub fn partial_annotations<'b, 'a>(data: & 'a Vec<serde_json::Value>, multiplier: & 'b serde_json::Value) -> Vec<serde_json::Value>{
+#[doc = "Only some parameters have annotations."]pub fn partial_annotations<'b, 'a>(data: & 'a Vec<serde_json::Value>, multiplier: & 'b serde_json::Value) -> Vec<i32>{
     let mut result = vec! [];
     for item in data.iter().cloned() {
     result.push(item * multiplier);
@@ -502,8 +499,8 @@ def calculate_average(numbers):
     total = 0
     count = 0
     for num in numbers:
-        total = total + num
-        count = count + 1
+        total += num
+        count += 1
     
     if count > 0:
         return total / count
@@ -556,11 +553,10 @@ pub fn calculate_average(numbers: &serde_json::Value) -> Result<i32, ZeroDivisio
     let mut total = 0;
     let mut count = 0;
     for num in numbers.iter().cloned() {
-        total = total + num;
-        count = count + 1;
+        total += num;
+        count += 1;
     }
-    let _cse_temp_0 = count > 0;
-    if _cse_temp_0 {
+        if count > 0 {
         return Ok(total / count);
     }
     Ok(0)
@@ -761,7 +757,7 @@ Demonstration of Depyler's type inference capabilities.
 def process_numbers(a, b):
     """Numeric operations suggest int/float types."""
     result = a + b
-    result = result * 2
+    result *= 2
     return result
 
 
@@ -776,7 +772,7 @@ def work_with_list(data):
     data.append(100)
     total = 0
     for item in data:
-        total = total + item
+        total += item
     return total
 
 
@@ -807,7 +803,7 @@ pub fn work_with_list(data: &mut serde_json::Value) -> i32 {
     data.push(100);
     let mut total = 0;
     for item in data.iter().cloned() {
-        total = total + item;
+        total += item;
     }
     total
 }

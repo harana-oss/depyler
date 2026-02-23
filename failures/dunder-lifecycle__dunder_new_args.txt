@@ -1,0 +1,27 @@
+  dunder-lifecycle.toml :: dunder_new_args
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct Validated {
+−     value: i32,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Validated {
++     pub value: serde_json::Value,
+  }
+− 
+  impl Validated {
+−     fn new(value: i32) -> Result<Self, String> {
+−         if value < 0 {
+−             Err("Value must be non-negative".to_string())
+−         } else {
+−             Ok(Validated { value })
+−         }
++     pub fn new(value: serde_json::Value) -> Self {
++         Self { value }
+      }
+  }
+− 
+− let v = Validated::new(10).unwrap();
+− log::info!("{}", v.value);
+────────────────────────────────────────────────────────────

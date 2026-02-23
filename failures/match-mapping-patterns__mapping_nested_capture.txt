@@ -1,0 +1,20 @@
+  match-mapping-patterns.toml :: mapping_nested_capture
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::collections::HashMap;
+− 
+−     let mut inner = HashMap::new();
+−     inner.insert("id", 456);
+− 
+−     let mut data = HashMap::new();
+−     data.insert("data", inner);
+  
+−     let result = match data.get("data") {
+−         Some(inner_map) => match inner_map.get("id") {
+−             Some(&id) => format!("ID: {}", id),
+−             None => "Unknown".to_string(),
+−         },
+−         None => "Unknown".to_string(),
+−     };
+────────────────────────────────────────────────────────────

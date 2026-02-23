@@ -1,0 +1,14 @@
+  performance-patterns.toml :: loop_invariant_hoisting
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn sum_with_factor(items: Vec<i32>, factor: i32) -> i32 {
++ pub fn sum_with_factor(items: &Vec<i32>, factor: i32) -> i32 {
+      let mut total = 0;
+−     for item in items {
++     for item in items.iter().cloned() {
+          total += item * factor;
+      }
+      return total;
+  }
+────────────────────────────────────────────────────────────

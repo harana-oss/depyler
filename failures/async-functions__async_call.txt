@@ -1,0 +1,15 @@
+  async-functions.toml :: async_call
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub async fn f() -> i32 {
+      return 42;
+−    
+− }
+− fn main () {
+−     let coro = f();
+−     let result = {
+−     coro };
+−     log::info!("{}", format!("Result: {}", result));
+      }
+────────────────────────────────────────────────────────────

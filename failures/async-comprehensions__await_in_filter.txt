@@ -1,0 +1,43 @@
+  async-comprehensions.toml :: await_in_filter
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− async fn is_valid(x: i32) -> bool {
+−     x % 2 == 0
++ use serde_json;
++ #[derive(Debug, Clone)] pub struct ZeroDivisionError {
++     message: String ,
++ }
++ impl std::fmt::Display for ZeroDivisionError {
++     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
++     write!(f, "division by zero: {}", self.message)
++ }
++ } impl std::error::Error for ZeroDivisionError {
++    
++ }
++ impl ZeroDivisionError {
++     pub fn new(message: impl Into<String>) -> Self {
++     Self {
++     message: message.into()
++ }
++ }
+  }
+− 
+− #[tokio::main]
+− async let items = vec![1, 2, 3, 4, 5];
+− let mut result = Vec::new();
+− for x in items {
+−     if is_valid(x).await {
+−         result.push(x);
+−     }
++ pub async fn is_valid(x: & serde_json::Value) -> Result<bool, ZeroDivisionError>{
++     return Ok(x % 2 == 0);
++    
+  }
+− log::info!("{:?}", result);
++ pub async fn test() -> Vec<serde_json::Value>{
++     let items = vec! [1, 2, 3, 4, 5];
++     let result = items.iter().cloned().filter(| x | is_valid(& x).await).collect::<Vec<_>>();
++     return result;
++     }
+────────────────────────────────────────────────────────────

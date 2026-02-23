@@ -1,0 +1,27 @@
+  dunder-comparison.toml :: unhashable
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust doesn't have __hash__ = None equivalent
+− // Types simply don't implement Hash trait
+− struct Unhashable {
+−     x: i32,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Unhashable {
++     pub x: serde_json::Value,
+  }
+− 
+  impl Unhashable {
+−     fn new(x: i32) -> Self {
+−         Unhashable { x }
++     pub const __hash__: () = ();
++     pub fn new(x: serde_json::Value) -> Self {
++         Self { x }
+      }
+  }
+− 
+− let _obj = Unhashable::new(5);
+− // In Rust, trying to hash would be a compile-time error
+− log::info!("TypeError: unhashable type");
+────────────────────────────────────────────────────────────

@@ -1,0 +1,36 @@
+  descriptors.toml :: descriptor_class_level
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct Descriptor;
+− 
++ use serde_json;
++ #[derive(Debug, Copy, Clone)]
++ pub struct Descriptor {}
+  impl Descriptor {
+−     fn class_access() -> &'static str {
+−         "Class level access"
++     pub fn new() -> Self {
++         Self {}
+      }
+− 
+−     fn instance_access(&self) -> &'static str {
+−         "Instance level access"
+−     }
+  }
+− 
+− struct MyClass {
+−     x: Descriptor,
++ #[derive(Debug, Copy, Clone)]
++ pub struct MyClass {}
++ impl MyClass {
++     pub const x: serde_json::Value = Descriptor::new();
++     pub fn new() -> Self {
++         Self {}
++     }
+  }
+− 
+− log::info!("{}", Descriptor::class_access());
+− let instance = MyClass { x: Descriptor };
+− log::info!("{}", instance.x.instance_access());
+────────────────────────────────────────────────────────────

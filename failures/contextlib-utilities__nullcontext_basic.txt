@@ -1,0 +1,12 @@
+  contextlib-utilities.toml :: nullcontext_basic
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn test_nullcontext_basic() -> bool {
+−     {
+−         true
+−     }
++     let _context = nullcontext();
++     return true;
+  }
+────────────────────────────────────────────────────────────

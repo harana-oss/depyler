@@ -1,0 +1,12 @@
+  bytes-strings.toml :: bytes_encode_errors
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn test_bytes_encode_errors() -> Vec<u8> {
+−     let text = "helloworld";
+−     return text.as_bytes().to_vec();
++ pub fn test_bytes_encode_errors() -> bytes {
++     let text = "hello�world".to_string();
++     return text.encode("utf-8");
+  }
+────────────────────────────────────────────────────────────

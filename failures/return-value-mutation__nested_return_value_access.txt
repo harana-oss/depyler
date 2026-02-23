@@ -1,0 +1,33 @@
+  return-value-mutation.toml :: nested_return_value_access
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug, Clone, PartialEq, Default)]
++ #[derive(Debug, Copy, Clone, PartialEq, Default)]
+  pub struct Inner {
+      pub value: i32,
+  }
+  impl Inner {
+      pub fn new(value: i32) -> Self {
+          Self { value }
+      }
+  }
+  #[derive(Debug, Clone, PartialEq, Default)]
+  pub struct Outer {
+      pub inner: Inner,
+  }
+  impl Outer {
+      pub fn new(inner: Inner) -> Self {
+          Self { inner }
+      }
+  }
+  pub fn get_inner(o: &Outer) -> Inner {
+−     return o.inner.clone();
++     return o.inner;
+  }
+  pub fn read_inner_value(o: &Outer) -> i32 {
+−     let inner = get_inner(o);
++     let inner = get_inner(&o);
+      return inner.value;
+  }
+────────────────────────────────────────────────────────────

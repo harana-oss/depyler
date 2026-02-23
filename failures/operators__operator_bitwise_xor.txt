@@ -1,0 +1,14 @@
+  operators.toml :: operator_bitwise_xor
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn bitwise_xor(a: i32, b: i32) -> i32 {
+      return a ^ b;
+− };
+−             let result1 = bitwise_xor(a.clone(), b.clone());
+−             let result2 = bitwise_xor(b.clone(), a.clone());
+−             if result1 != result2 {
+−                 return TestResult::failed();
+−             }
++ }
+────────────────────────────────────────────────────────────

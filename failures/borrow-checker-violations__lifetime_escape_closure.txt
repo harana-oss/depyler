@@ -1,0 +1,13 @@
+  borrow-checker-violations.toml :: lifetime_escape_closure
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn make_adder(n: i32) -> impl Fn(i32) -> i32 {
+−     move |x: i32| -> i32 {
++ pub fn make_adder(n: i32) {
++     fn adder(x: i64) -> i64 {
+          return x + n;
+      }
++     return adder;
+  }
+────────────────────────────────────────────────────────────

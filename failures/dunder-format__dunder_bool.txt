@@ -1,0 +1,29 @@
+  dunder-format.toml :: dunder_bool
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct Container {
+−     items: Vec<i32>,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Container {
++     pub items: serde_json::Value,
+  }
+− 
+  impl Container {
+−     fn new(items: Vec<i32>) -> Self {
+−         Container { items }
+−     }
+− 
+−     fn to_bool(&self) -> bool {
+−         !self.items.is_empty()
++     pub fn new(items: serde_json::Value) -> Self {
++         Self { items }
+      }
+  }
+− 
+− let c1 = Container::new(vec![1, 2, 3]);
+− let c2 = Container::new(vec![]);
+− log::info!("{}", c1.to_bool());
+− log::info!("{}", c2.to_bool());
+────────────────────────────────────────────────────────────

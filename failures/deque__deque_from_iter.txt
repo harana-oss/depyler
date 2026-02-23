@@ -1,0 +1,11 @@
+  deque.toml :: deque_from_iter
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // deque([1, 2, 3])
+−     use std::collections::VecDeque;
+− 
+−     let d: VecDeque<i32> = VecDeque::from(vec![1, 2, 3]);
+−     let result = d.iter().cloned().collect::<Vec<_>>() == vec![1, 2, 3];
++ use std::collections::VecDeque;
+────────────────────────────────────────────────────────────

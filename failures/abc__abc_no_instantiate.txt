@@ -1,0 +1,24 @@
+  abc.toml :: abc_no_instantiate
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− trait MyABC {
+−     fn method(&self) -> ();
++ #[derive(Debug, Copy, Clone)]
++ pub struct MyABC {}
++ impl MyABC {
++     pub fn new() -> Self {
++         Self {}
++     }
++     pub fn method(&self) {
++         {}
++     }
+  }
+  pub fn test_abc_no_instantiate() -> bool {
+      {
+          MyABC::new();
+          return false;
+          return true;
+      }
+  }
+────────────────────────────────────────────────────────────

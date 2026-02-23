@@ -1,0 +1,44 @@
+  async-for.toml :: custom_async_iterator
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use futures::stream::{self, StreamExt};
+− 
+− #[tokio::main]
+− async let result: Vec<i32> = stream::iter(0..5).map(|i| i * i).collect().await;
+− log::info!("{:?}", result);
++ use serde_json;
++ #[derive(Debug, Clone)] pub struct AsyncSquares {
++     pub n: serde_json::Value, pub i: i32
++ }
++ impl AsyncSquares {
++     pub fn new(n: serde_json::Value) -> Self {
++     Self {
++     n, i: 0
++ }
++ } pub async fn __anext__(&mut self) {
++     if self.i>= self.n {
++     panic!("Exception: {}", StopAsyncIteration);
++    
++ }
++ let mut value = {
++     if 2>= 0 &&(2 as i64) <=(u32::MAX as i64) {
++   (self.i as i32).checked_pow(2 as u32).expect("Power operation overflowed")
++ }
++ else {
++   (self.i as f64).powf(2 as f64) as i32
++ }
++ };
++     self.i += 1;
++     return value;
++    
++ }
++ } pub async fn test() -> Vec<serde_json::Value>{
++     let result = vec! [];
++     while let Some(square) = AsyncSquares::new(5).next().await {
++     result.push(square);
++    
++ }
++ return result;
++     }
+────────────────────────────────────────────────────────────

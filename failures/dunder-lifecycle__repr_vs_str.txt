@@ -1,0 +1,43 @@
+  dunder-lifecycle.toml :: repr_vs_str
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::fmt;
+− 
+− struct Product {
+−     name: String,
+−     price: f64,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Product {
++     pub name: serde_json::Value,
++     pub price: serde_json::Value,
+  }
+− 
+  impl Product {
+−     fn new(name: &str, price: f64) -> Self {
+−         Product {
+−             name: name.to_string(),
+−             price,
+−         }
++     pub fn new(name: serde_json::Value, price: serde_json::Value) -> Self {
++         Self { name, price }
+      }
+  }
+− 
+− impl fmt::Display for Product {
+−     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+−         write!(f, "{} - ${:.2}", self.name, self.price)
+−     }
+− }
+− 
+− impl fmt::Debug for Product {
+−     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+−         write!(f, "Product(name='{}', price={})", self.name, self.price)
+−     }
+− }
+− 
+− let p = Product::new("Laptop", 999.99);
+− log::info!("For users: {}", p);
+− log::info!("For developers: {:?}", p);
+────────────────────────────────────────────────────────────

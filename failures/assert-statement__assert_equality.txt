@@ -1,0 +1,12 @@
+  assert-statement.toml :: assert_equality
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− fn main() {
+−     let result = 42;
+−     let expected = 42;
+−     assert!(result == expected);
+−     let value = result == expected;
+− }
++ 
+────────────────────────────────────────────────────────────

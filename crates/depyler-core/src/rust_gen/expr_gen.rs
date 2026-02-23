@@ -3463,6 +3463,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                                         .get(func)
                                         .and_then(|borrows| borrows.get(param_idx))
                                         .copied()
+                                        .map(|info| info.should_borrow)
                                         .unwrap_or(true) // Default to borrow if unknown
                                 } else if matches!(var_type, Type::String) {
                                     // If function param expects &str (borrowed=true), add &
@@ -3472,6 +3473,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                                         .get(func)
                                         .and_then(|borrows| borrows.get(param_idx))
                                         .copied()
+                                        .map(|info| info.should_borrow)
                                         .unwrap_or(true) // Default to borrow (&str) if unknown
                                 } else {
                                     // For user-defined types passed to functions,
@@ -3483,6 +3485,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                                             .get(func)
                                             .and_then(|borrows| borrows.get(param_idx))
                                             .copied()
+                                            .map(|info| info.should_borrow)
                                             .unwrap_or(false)
                                 }
                             } else {
@@ -3493,7 +3496,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                                         .function_param_borrows
                                         .get(func)
                                         .and_then(|borrows| borrows.get(param_idx))
-                                        .copied()
+                                        .map(|info| info.should_borrow)
                                         .unwrap_or(false)
                             }
                         }
@@ -3512,7 +3515,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                                 .function_param_borrows
                                 .get(func)
                                 .and_then(|borrows| borrows.get(param_idx))
-                                .copied()
+                                .map(|info| info.should_borrow)
                                 .unwrap_or(false); // Default to owned (String) if unknown
 
                             // If param is borrowed (&str), we DON'T need .to_string()
@@ -3550,7 +3553,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                                     .function_param_borrows
                                     .get(func)
                                     .and_then(|borrows| borrows.get(param_idx))
-                                    .copied()
+                                    .map(|info| info.should_borrow)
                                     .unwrap_or(true) // Default to borrow (&str) if unknown
                             } else {
                                 false
@@ -3565,7 +3568,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                                     .function_param_borrows
                                     .get(func)
                                     .and_then(|borrows| borrows.get(param_idx))
-                                    .copied()
+                                    .map(|info| info.should_borrow)
                                     .unwrap_or(false)
                         }
                         // Handle function calls that return owned values (Vec, HashMap, etc.)
@@ -3583,7 +3586,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                                 .function_param_borrows
                                 .get(func)
                                 .and_then(|borrows| borrows.get(param_idx))
-                                .copied()
+                                .map(|info| info.should_borrow)
                                 .unwrap_or(false);
 
                             // If function returns Vec/HashMap/HashSet and param expects borrow, add &

@@ -1,0 +1,27 @@
+  operators.toml :: expression_division_returns_float
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn average(a: i32, b: i32) -> f64 {
+−     return ((a + b) as f64) / (2 as f64);
++ #[derive(Debug, Clone)]
++ pub struct ZeroDivisionError {
++     message: String,
++ }
++ impl std::fmt::Display for ZeroDivisionError {
++     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
++         write!(f, "division by zero: {}", self.message)
++     }
++ }
++ impl std::error::Error for ZeroDivisionError {}
++ impl ZeroDivisionError {
++     pub fn new(message: impl Into<String>) -> Self {
++         Self {
++             message: message.into(),
++         }
++     }
++ }
++ pub fn average(a: i32, b: i32) -> Result<f64, ZeroDivisionError> {
++     return Ok((a + b as f64) / (2 as f64));
+  }
+────────────────────────────────────────────────────────────

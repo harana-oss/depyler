@@ -56,8 +56,7 @@ def set_x(point: Point, value: int) -> None:
 '''
 
 rust = '''
-use serde_json;
-#[derive(Debug, Clone, PartialEq, Default)]
+#[derive(Debug, Copy, Clone, PartialEq, Default)]
 pub struct Point {
     pub x: i32,
     pub y: i32,
@@ -92,7 +91,6 @@ def set_inner_value(outer: Outer, value: int) -> None:
 '''
 
 rust = '''
-use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Inner {
     pub value: i32,
@@ -132,7 +130,6 @@ def read_value(data: Data) -> int:
 '''
 
 rust = '''
-use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Data {
     pub value: i32,
@@ -163,7 +160,6 @@ def add_to_container(c: Container, value: int) -> None:
 '''
 
 rust = '''
-use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Container {
     pub items: Vec<i32>,

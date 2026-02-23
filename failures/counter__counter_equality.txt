@@ -1,0 +1,9 @@
+  counter.toml :: counter_equality
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use std::collections::HashMap;
+− let c1: HashMap<char, i32> = [('a', 1), ('b', 2)].iter().cloned().collect();
+− let c2: HashMap<char, i32> = [('b', 2), ('a', 1)].iter().cloned().collect();
+− log::info!("{}", c1 == c2);
+────────────────────────────────────────────────────────────

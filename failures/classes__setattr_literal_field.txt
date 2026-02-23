@@ -1,0 +1,22 @@
+  classes.toml :: setattr_literal_field
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug, Copy, Clone]
++ #[derive(Debug, Copy, Clone)]
+  pub struct Config {
+      pub value: i32,
+  }
+  impl Config {
+      pub fn new(value: i32) -> Self {
+          Self { value }
+      }
+  }
+− pub fn set_config_value(c: &mut Config) {
++ pub fn set_config_value(c: &Config) {
+      {
+          c.value = 42;
+−     }
++     };
++ }
+────────────────────────────────────────────────────────────

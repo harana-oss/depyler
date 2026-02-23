@@ -1,0 +1,12 @@
+  imports-basic.toml :: import_json
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust: JSON with serde (conceptual)
+−     use std::collections::HashMap;
+−     let mut data = HashMap::new();
+−     data.insert("key", "value");
+−     let result = data.get("key") == Some(&"value");
+−     assert!(result);
++ use serde_json as json;
+────────────────────────────────────────────────────────────

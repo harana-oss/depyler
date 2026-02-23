@@ -1,0 +1,26 @@
+  parser-pattern-matching.toml :: pattern_guard_with_capture
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− fn describe(x: i64) -> String {
+−     match x {
+−         n if n > 100 => format!("big: {}", n),
+−         n if n > 10 => format!("medium: {}", n),
+−         n => format!("small: {}", n),
++ pub fn describe(x: i32) -> String {
++     if x > 100 {
++         return format!("big: {}", x);
++     } else {
++         if x > 10 {
++             return format!("medium: {}", x);
++         } else {
++             return format!("small: {}", x);
++         }
+      }
+− }
+− 
+− fn main() {
+−     let result = describe(50);
+−     println!("{}", result);
+  }
+────────────────────────────────────────────────────────────

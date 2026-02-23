@@ -1,0 +1,19 @@
+  modules-random.toml :: random_randrange_start_stop
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use rand as random;
+− use rand::Rng;
+− use rand::prelude::*;
+− use rand::rngs::SmallRng;
+− use rand::SeedableRng;
+  pub fn get_random_range(start: i32, stop: i32) -> i32 {
+−     return {
+−         thread_local! {
+−             static RNG: std::cell::RefCell<SmallRng> = std::cell::RefCell::new(SmallRng::from_os_rng());
+−         }
+−         RNG.with(|rng| rng.borrow_mut().gen_range(start..stop))
+−     }
++     return DEPYLER_RNG.with(|rng| rng.borrow_mut().gen_range(start..stop));
++ }
+────────────────────────────────────────────────────────────

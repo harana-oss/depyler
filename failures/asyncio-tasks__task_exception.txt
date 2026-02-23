@@ -1,0 +1,43 @@
+  asyncio-tasks.toml :: task_exception
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use tokio::task;
+− 
+− async fn failing_coro() -> Result<i32, String> {
+−     Err("Task failed".to_string())
++ #[derive(Debug, Clone)] pub struct ValueError {
++     message: String ,
++ }
++ impl std::fmt::Display for ValueError {
++     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
++     write!(f, "value error: {}", self.message)
++ }
++ } impl std::error::Error for ValueError {
++    
++ }
++ impl ValueError {
++     pub fn new(message: impl Into<String>) -> Self {
++     Self {
++     message: message.into()
++ }
++ }
++ }
++ pub async fn failing_coro() -> Result<i32, ValueError>{
++     return Err(ValueError::new("Task failed"));
++    
++ }
++ pub async fn test_task_exception() -> Result<bool, ValueError>{
++     let task = asyncio.create_task(failing_coro());
++     {
++     task.await;
++     return Ok(false);
++     return Ok(task.exception().is_some());
++    
+  }
+− 
+− pub async fn test_task_exception() -> bool {
+−     let task = task::spawn(failing_coro());
+−     task.await.unwrap().is_err()
+  }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,11 @@
+  error-handling.toml :: finally_block_empty
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn empty_finally() {
+−     {
+−         let x = 42;
+−     }
++     let x = 42;
+  }
+────────────────────────────────────────────────────────────

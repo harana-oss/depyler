@@ -1,0 +1,2 @@
+  parser-fstrings.toml :: fstring_lambda
+    Transpilation failed: Unsupported function call type: Lambda(ExprLambda { range: 11..26, args: Arguments { range: (), posonlyargs: [], args: [ArgWithDefault { range: (), def: Arg { range: 18..19, arg: Identifier("x"), annotation: None, type_comment: None }, default: None }], vararg: None, kwonlyargs: [], kwarg: None }, body: BinOp(ExprBinOp { range: 21..26, left: Name(ExprName { range: 21..22, id: Identifier("x"), ctx: Load }), op: Mult, right: Constant(ExprConstant { range: 25..26, value: Int(2), kind: None }) }) })

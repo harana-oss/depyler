@@ -266,7 +266,7 @@ def nested_transform(matrix: list) -> list:
 
 rust = '''
 use serde_json;
-pub fn nested_transform(matrix: Vec<serde_json::Value>) -> Vec<serde_json::Value> {
+pub fn nested_transform(matrix: Vec<serde_json::Value>) -> Vec<i32> {
     return matrix
         .iter()
         .map(|row| row.iter().map(|x| x * 2).collect::<Vec<_>>())
@@ -286,7 +286,7 @@ def process_items(items: list) -> list:
 
 rust = '''
 use serde_json;
-pub fn process_items(items: &Vec<serde_json::Value>) -> Vec<serde_json::Value> {
+pub fn process_items(items: &Vec<i32>) -> Vec<i32> {
     let transform = |x| x * 2;
     return items
         .clone()
@@ -307,7 +307,7 @@ def calculate_distances(points: list) -> list:
 
 rust = '''
 use serde_json;
-pub fn calculate_distances(points: Vec<serde_json::Value>) -> Vec<serde_json::Value> {
+pub fn calculate_distances(points: Vec<serde_json::Value>) -> Vec<i32> {
     return points
         .iter()
         .map(|p| {
@@ -340,9 +340,9 @@ use serde_json;
 use std::collections::HashMap;
 #[doc = "Process Lambda events and return status."]
 pub fn lambda_handler(
-    event: HashMap<serde_json::Value, serde_json::Value>,
-    context: HashMap<serde_json::Value, serde_json::Value>,
-) -> HashMap<serde_json::Value, serde_json::Value> {
+    event: HashMap<String, i32>,
+    context: HashMap<String, i32>,
+) -> HashMap<String, i32> {
     let status = 200;
     let message = "OK";
     {
@@ -403,7 +403,7 @@ def reduce_sum(data: List[int]) -> int:
     total: int = 0
 
     for item in data:
-        total = total + item
+        total += item
 
     return total
 
@@ -415,7 +415,7 @@ def reduce_product(data: List[int]) -> int:
 
     product: int = 1
     for item in data:
-        product = product * item
+        product *= item
 
     return product
 
@@ -493,7 +493,7 @@ def accumulate_running_sum(data: List[int]) -> List[int]:
     total: int = 0
 
     for item in data:
-        total = total + item
+        total += item
         result.append(total)
 
     return result
@@ -841,20 +841,19 @@ pub fn filter_predicate(data: &Vec<i32>, threshold: i32) -> Vec<i32> {
 pub fn reduce_sum(data: &Vec<i32>) -> i32 {
     let mut total: i32 = 0;
     for item in data.iter().cloned() {
-        total = total + item;
+        total += item;
     }
     total
 }
 #[doc = "Reduce list to product"]
 pub fn reduce_product(data: &Vec<i32>) -> i32 {
     let _cse_temp_0 = data.len() as i32;
-    let _cse_temp_1 = _cse_temp_0 == 0;
-    if _cse_temp_1 {
+        if _cse_temp_0 == 0 {
         return 0;
     }
     let mut product: i32 = 1;
     for item in data.iter().cloned() {
-        product = product * item;
+        product *= item;
     }
     product
 }
@@ -926,7 +925,7 @@ pub fn accumulate_running_sum(data: &Vec<i32>) -> Vec<i32> {
     let mut result: Vec<i32> = vec![];
     let mut total: i32 = 0;
     for item in data.iter().cloned() {
-        total = total + item;
+        total += item;
         result.push(total);
     }
     result
@@ -1487,7 +1486,7 @@ pub fn lambda_handler(
                 map.insert("processed".to_string().to_string(), true);
                 map
             });
-            total_size = total_size + size;
+            total_size += size;
         }
     }
     let result = {
@@ -1607,7 +1606,7 @@ def test_lambda_with_closure():
 
 rust = '''
 use serde_json;
-pub fn test_simple_lambdas() -> (serde_json::Value, serde_json::Value, serde_json::Value) {
+pub fn test_simple_lambdas() -> (i32, i32, i32) {
     let add = |x, y| x + y;
     let square = |x| x * x;
     let constant = || 42;
@@ -1627,11 +1626,11 @@ pub fn test_lambda_with_list_operations() -> (
         .into_iter()
         .filter(|x| x % 2 == 0)
         .collect::<Vec<_>>();
-    let double = |lst| lst.clone().into_iter().map(|x| x * 2).collect::<Vec<_>>();
+    let double = |lst: &Vec<i32>| lst.iter().cloned().map(|x| x * 2).collect::<Vec<_>>();
     let doubled = double(&numbers);
     (squares, evens, doubled)
 }
-pub fn test_lambda_in_expressions() -> (serde_json::Value, serde_json::Value) {
+pub fn test_lambda_in_expressions() -> (i32, i32) {
     let get_operation = |is_add| if is_add { |x, y| x + y } else { |x, y| x - y };
     let add_op = get_operation(true);
     let sub_op = get_operation(false);
@@ -1854,7 +1853,7 @@ impl MyObject {
     }
 }
 #[doc = "Test function calls with keyword arguments"]
-pub fn demo_function_kwargs() -> (serde_json::Value, serde_json::Value, serde_json::Value) {
+pub fn demo_function_kwargs() -> (i32, i32, i32) {
     let result1 = greet();
     let result2 = calculate(10, 20);
     let result3 = configure();
@@ -1869,7 +1868,7 @@ pub fn demo_method_kwargs() -> String {
     formatted
 }
 #[doc = "Test builtin functions with keyword arguments"]
-pub fn demo_builtin_kwargs() -> HashMap<serde_json::Value, serde_json::Value> {
+pub fn demo_builtin_kwargs() -> HashMap<String, i32> {
     let f = std::fs::File::open("data.txt")?;
     let numbers = vec![3, 1, 4, 1, 5, 9, 2, 6];
     let sorted_desc = {
@@ -1911,7 +1910,7 @@ pub fn configure(
     width: i32,
     height: i32,
     title: &str,
-) -> HashMap<serde_json::Value, serde_json::Value> {
+) -> HashMap<String, i32> {
     {
         let mut map = HashMap::new();
         map.insert("width".to_string(), width);

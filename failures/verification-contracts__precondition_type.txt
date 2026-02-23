@@ -1,0 +1,10 @@
+  verification-contracts.toml :: precondition_type
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn process_positive(n: i32) -> i32 {
+−     assert!(n > 0, "n must be positive");
++     assert!(n > 0, "{}", "n must be positive");
+      return n * 2;
+  }
+────────────────────────────────────────────────────────────

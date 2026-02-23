@@ -1,0 +1,24 @@
+  slots.toml :: slots_no_dict
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust structs never have dynamic attributes
+− struct Point {
+−     x: i32,
+−     y: i32,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Point {
++     pub x: serde_json::Value,
++     pub y: serde_json::Value,
++ }
++ impl Point {
++     pub const __slots__: Vec<String> = vec!["x".to_string(), "y".to_string()];
++     pub fn new(x: serde_json::Value, y: serde_json::Value) -> Self {
++         Self { x, y }
++     }
+  }
+− 
+− let _p = Point { x: 1, y: 2 };
+− log::info!("no __dict__");
+────────────────────────────────────────────────────────────

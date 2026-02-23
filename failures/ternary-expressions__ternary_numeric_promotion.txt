@@ -1,0 +1,8 @@
+  ternary-expressions.toml :: ternary_numeric_promotion
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub const cond: bool = false;
+− pub const result: f64 = if cond { 1.0 } else { 1.0 };
++ 
+────────────────────────────────────────────────────────────

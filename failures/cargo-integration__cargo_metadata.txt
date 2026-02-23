@@ -1,0 +1,26 @@
+  cargo-integration.toml :: cargo_metadata
+    Output mismatch
+
+────────────────────────────────────────────────────────────
++ #[derive(Debug, Clone)]
+  pub struct PackageInfo {
+      pub name: String,
+      pub version: String,
+      pub authors: Vec<String>,
+  }
+− 
+  impl PackageInfo {
+      pub fn new(name: String, version: String, authors: Vec<String>) -> Self {
+          Self {
+              name,
+              version,
+              authors,
+          }
+      }
+− 
+      pub fn author_string(&self) -> String {
+−         return self.authors.join(", ");
++         return self.authors.join(&", ".to_string());
+      }
+  }
+────────────────────────────────────────────────────────────

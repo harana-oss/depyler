@@ -1,0 +1,32 @@
+  dunder-attribute.toml :: getattr_slots
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust doesn't have __slots__ but structs are fixed-size by default
+− struct Slotted {
+−     x: i32,
++ #[derive(Debug, Copy, Clone)]
++ pub struct Slotted {
++     pub x: i32,
+  }
+− 
+  impl Slotted {
+−     fn new() -> Self {
+−         Slotted { x: 10 }
+−     }
+− 
+−     fn get_attr(&self, name: &str) -> String {
+−         match name {
+−             "x" => self.x.to_string(),
+−             _ => format!("fallback: {}", name),
+−         }
++     pub const __slots__: Vec<String> = vec!["x".to_string()];
++     pub fn new() -> Self {
++         Self { x: 10 }
+      }
+  }
+− 
+− let obj = Slotted::new();
+− log::info!("{}", obj.x);
+− log::info!("{}", obj.get_attr("missing"));
+────────────────────────────────────────────────────────────

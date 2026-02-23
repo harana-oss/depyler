@@ -1,0 +1,22 @@
+  contextlib-utilities.toml :: exitstack_callback
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn test_exitstack_callback() -> usize {
+−     let mut called = Vec::new();
+−     {
+−         // callbacks would be registered here
+−     }
+−     // callbacks would be called in LIFO order
+−     called.push(2);
+−     called.push(1);
+−     called.len()
++ pub fn test_exitstack_callback() -> i32 {
++     let called = vec![];
++     let _context = ExitStack::new();
++     let mut stack = _context.__enter__();
++     stack.callback(called.append, 1);
++     stack.callback(called.append, 2);
++     return called.len() as i32 as i32;
+  }
+────────────────────────────────────────────────────────────

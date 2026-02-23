@@ -1,0 +1,12 @@
+  raw-strings.toml :: raw_bytes
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− let b1 = br"\x00";
+−     let b2 = br"\x00";
+−     let result = (b1 == b"\\x00" && b2 == b"\\x00");
++ pub const b1: serde_json::Value = b"\\x00";
++ pub const b2: serde_json::Value = b"\\x00";
++ pub const result: serde_json::Value = (b1 == b"\\x00") && (b2 == b"\\x00");
++ use serde_json;
+────────────────────────────────────────────────────────────

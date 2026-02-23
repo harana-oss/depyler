@@ -1,0 +1,12 @@
+  modules-random.toml :: random_random
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use rand as random;
+− use rand::prelude::*;
+− use rand::Rng;
+  pub fn get_random_float() -> f64 {
+−     return rand::random::<f64>();
++     return DEPYLER_RNG.with(|rng| rng.borrow_mut().gen::<f64>());
+  }
+────────────────────────────────────────────────────────────

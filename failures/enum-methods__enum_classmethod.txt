@@ -1,0 +1,52 @@
+  enum-methods.toml :: enum_classmethod
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug)]
+− enum Day {
+−     Monday = 1,
+−     Tuesday = 2,
+−     Wednesday = 3,
+− }
+− 
++ #[derive(Debug, Copy, Clone)]
++ pub struct Day {}
+  impl Day {
+−     fn from_string(s: &str) -> Option<Self> {
+−         match s.to_uppercase().as_str() {
+−             "MONDAY" => Some(Day::Monday),
+−             "TUESDAY" => Some(Day::Tuesday),
+−             "WEDNESDAY" => Some(Day::Wednesday),
+−             _ => None,
++     pub const MONDAY: i32 = 1;
++     pub const TUESDAY: i32 = 2;
++     pub const WEDNESDAY: i32 = 3;
++     pub fn new() -> Self {
++         Self {}
++     }
++     pub fn from_string(s: String) {
++         {
++             let _result = (|| -> Result<(), Box<dyn std::error::Error>> {
++                 {
++                     return cls[s.to_uppercase() as usize];
++                 }
++                 Ok(())
++             })();
++             if let Err(_e) = _result {
++                 {
++                     return ();
++                 }
++             }
+          }
+      }
+  }
+− 
+− let d = Day::from_string("monday");
+− match d {
+−     Some(day) => {
+−         log::info!("{:?}", format!("{:?}", day).to_uppercase());
+−         log::info!("{}", day as i32);
+−     }
+−     None => log::info!("None"),
+− }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,12 @@
+  deque.toml :: deque_append
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // d.append(x)
+−     use std::collections::VecDeque;
+− 
+−     let mut d = VecDeque::from(vec![1, 2]);
+−     d.push_back(3);
+−     let result = d.iter().cloned().collect::<Vec<_>>() == vec![1, 2, 3];
++ use std::collections::VecDeque;
+────────────────────────────────────────────────────────────

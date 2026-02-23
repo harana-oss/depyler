@@ -300,7 +300,7 @@ pub fn count_positive(items: &Vec<i32>) -> i32 {
         .filter(|x| *x > 0)
         .map(|x| x)
         .collect::<Vec<_>>()
-        .len() as i32 as i32;
+        .len() as i32;
 }
 '''
 
@@ -315,7 +315,7 @@ def length(items: list[int]) -> int:
 
 rust = '''
 pub fn length(items: &Vec<i32>) -> i32 {
-    return items.len() as i32 as i32;
+    return items.len() as i32;
 }
 '''
 
@@ -416,8 +416,7 @@ def count_by_fives():
 '''
 
 rust = '''
-use serde_json;
-pub fn count_by_fives() -> Vec<serde_json::Value> {
+pub fn count_by_fives() -> Vec<i32> {
     let mut result = vec![];
     for i in {
         let step = 5 as usize;
@@ -463,8 +462,7 @@ def dynamic_range(start: int, end: int, step: int):
 '''
 
 rust = '''
-use serde_json;
-pub fn dynamic_range(start: i32, end: i32, step: i32) -> Vec<serde_json::Value> {
+pub fn dynamic_range(start: i32, end: i32, step: i32) -> Vec<i32> {
     let mut result = vec![];
     for i in {
         let step = step as usize;
@@ -565,9 +563,8 @@ impl ZeroDivisionError {
     }
 }
 pub fn average_values(d: &HashMap<String, i32>) -> f64 {
-    let _cse_temp_0 = d.clone().len() as i32;
-    let _cse_temp_1 = _cse_temp_0 == 0;
-    if _cse_temp_1 {
+    let _cse_temp_0 = d.len() as i32;
+        if _cse_temp_0 == 0 {
         return 0.0;
     }
     return (d.values().cloned().sum::<i32>() as f64) / (d.len() as i32 as f64);
@@ -601,7 +598,7 @@ python = '''
 def process_items(items: list[int]) -> int:
     total = 0
     for x in items:
-        total = total + x
+        total += x
     return total
 '''
 
@@ -609,7 +606,7 @@ rust = '''
 pub fn process_items(items: Vec<i32>) -> i32 {
     let mut total = 0;
     for x in items {
-        total = total + x;
+        total += x;
     }
     return total;
 }
@@ -623,7 +620,7 @@ python = '''
 def indexed_sum(items: list[int]) -> int:
     total = 0
     for i, x in enumerate(items):
-        total = total + i + x
+        total += i + x
     return total
 '''
 
@@ -631,7 +628,7 @@ rust = '''
 pub fn indexed_sum(items: Vec<i32>) -> i32 {
     let mut total = 0;
     for (i, x) in items.iter().enumerate().map(|(i, x)| (i as i32, x.clone())) {
-        total = total + i + x;
+        total += i + x;
     }
     return total;
 }
@@ -645,7 +642,7 @@ python = '''
 def sum_values(d: dict[str, int]) -> int:
     total = 0
     for v in d.values():
-        total = total + v
+        total += v
     return total
 '''
 
@@ -654,7 +651,7 @@ use std::collections::HashMap;
 pub fn sum_values(d: &HashMap<String, i32>) -> i32 {
     let mut total = 0;
     for v in d.values() {
-        total = total + v;
+        total += v;
     }
     return total;
 }

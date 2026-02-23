@@ -1,0 +1,9 @@
+  template-strings.toml :: template_no_placeholders
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust: plain string
+−     let result = String::from("plain text");
+−     assert_eq!(result, "plain text");
++ 
+────────────────────────────────────────────────────────────

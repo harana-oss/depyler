@@ -1,0 +1,14 @@
+  contextlib-utilities.toml :: exitstack_basic
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn test_exitstack_basic() -> bool {
+−     let mut _cleanups: Vec<Box<dyn FnOnce()>> = Vec::new();
+−     {
+−         true
+−     }
++     let _context = ExitStack::new();
++     let mut stack = _context.__enter__();
++     return true;
+  }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,14 @@
+  string-operations.toml :: string_concat_in_function_arg
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn greet(message: String) -> String {
+      return message;
+  }
+  pub fn use_concat() -> String {
+      let first = "Hello".to_string();
+      let second = "World".to_string();
+−     return greet(format!("{} {}", first, second));
++     return greet(format!("{}{}", format!("{}{}", first, " "), second));
+  }
+────────────────────────────────────────────────────────────

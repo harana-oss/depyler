@@ -1,0 +1,38 @@
+  dunder-lifecycle.toml :: dunder_del_timing
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct Temp {
+−     id: i32,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Temp {
++     pub id: serde_json::Value,
+  }
+− 
+  impl Temp {
+−     fn new(id: i32) -> Self {
+−         Temp { id }
++     pub fn new(id: serde_json::Value) -> Self {
++         Self { id }
+      }
+  }
+− 
+  impl Drop for Temp {
+      fn drop(&mut self) {
+−         log::info!("Deleting Temp {}", self.id);
++         log::info!("{}", format!("Deleting Temp {}", self.id));
+      }
+  }
+− 
+− fn create_temp() {
++ pub fn create_temp() {
+      let t = Temp::new(1);
+−     log::info!("Inside function");
+−     // t goes out of scope here
++     log::info!("{}", "Inside function");
+  }
+− 
+− create_temp();
+− log::info!("After function");
+────────────────────────────────────────────────────────────

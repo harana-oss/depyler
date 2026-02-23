@@ -1,0 +1,30 @@
+  ownership.toml :: nested_field_passed_to_fn_borrows
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  #[derive(Debug, Clone)]
+  pub struct Inner {
+      pub value: String,
+  }
+  impl Inner {
+      pub fn new(value: String) -> Self {
+          Self { value }
+      }
+  }
+  #[derive(Debug, Clone)]
+  pub struct Outer {
+      pub inner: Inner,
+  }
+  impl Outer {
+      pub fn new(inner: Inner) -> Self {
+          Self { inner }
+      }
+  }
+  pub fn take_str(s: String) {}
+  pub fn main() {
+      let inner = Inner::new("hello".to_string());
+      let outer = Outer::new(inner);
+−     take_str(outer.inner.value.clone());
++     take_str(outer.inner.value);
+  }
+────────────────────────────────────────────────────────────

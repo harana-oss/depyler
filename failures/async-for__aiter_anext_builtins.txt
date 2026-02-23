@@ -1,0 +1,56 @@
+  async-for.toml :: aiter_anext_builtins
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use futures::stream::{self, StreamExt};
+− 
+− #[tokio::main]
+− async let mut stream = stream::iter(0..3);
+− let mut result = Vec::new();
+− if let Some(val) = stream.next().await {
+−     result.push(val.to_string());
++ use serde_json;
++ #[doc = " Generator state struct"] #[derive(Debug)] struct AsyncRangeState {
++     state: usize, n: serde_json::Value
+  }
+− if let Some(val) = stream.next().await {
+−     result.push(val.to_string());
++ #[doc = " Generator function - returns Iterator"] pub fn async_range(n: & serde_json::Value) -> impl Iterator<Item = i32>{
++     AsyncRangeState {
++     state: 0, n: n
++ }
++ } impl Iterator for AsyncRangeState {
++     type Item = i32;
++     fn next(&mut self) -> Option<Self::Item>{
++     match self.state {
++     0 =>{
++     self.state = 1;
++     for _i in 0..self.n {
++     return Some(i);
++    
++ }
++ None
++ }
++ _ =>None
+  }
+− if let Some(val) = stream.next().await {
+−     result.push(val.to_string());
+  }
+− if stream.next().await.is_none() {
+−     result.push("done".to_string());
+  }
+− log::info!("{:?}", result);
++ pub async fn test() -> Vec<serde_json::Value>{
++     let it = aiter(async_range(3));
++     let mut result = vec! [];
++     result.push(anext(it).await);
++     result.push(anext(it).await);
++     result.push(anext(it).await);
++     {
++     anext(it).await;
++     result.push("done");
++    
++ }
++ return result;
++     }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,35 @@
+  return-value-mutation.toml :: return_value_mutated_at_call_site
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug, Clone, PartialEq, Default)]
++ #[derive(Debug, Copy, Clone, PartialEq, Default)]
+  pub struct Stats {
+      pub value: i32,
+  }
+  impl Stats {
+      pub fn new(value: i32) -> Self {
+          Self { value }
+      }
+  }
+  #[derive(Debug, Clone, PartialEq, Default)]
+  pub struct State {
+      pub statistics: Stats,
+  }
+  impl State {
+      pub fn new(statistics: Stats) -> Self {
+          Self { statistics }
+      }
+  }
+− pub fn get_stats<'a>(state: &'a mut State) -> &'a mut Stats {
+−     return &mut state.statistics;
++ pub fn get_stats(state: &State) -> Stats {
++     return state.statistics;
+  }
+− pub fn caller(s: &mut State) {
+−     let mut stats = get_stats(s).clone();
++ pub fn caller(s: &State) {
++     let mut stats = get_stats(&s);
+      stats.value = 10;
+  }
+────────────────────────────────────────────────────────────

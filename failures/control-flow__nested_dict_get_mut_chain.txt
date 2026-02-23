@@ -1,0 +1,57 @@
+  control-flow.toml :: nested_dict_get_mut_chain
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use std::collections::HashMap;
+− pub fn test() -> i32 {
+−     let mut d = {
++ #[derive(Debug, Clone)]
++ pub struct IndexError {
++     message: String,
++ }
++ impl std::fmt::Display for IndexError {
++     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
++         write!(f, "index out of range: {}", self.message)
++     }
++ }
++ impl std::error::Error for IndexError {}
++ impl IndexError {
++     pub fn new(message: impl Into<String>) -> Self {
++         Self {
++             message: message.into(),
++         }
++     }
++ }
++ pub fn test() -> Result<i32, IndexError> {
++     let d = {
+          let mut map = HashMap::new();
+          map.insert("a".to_string(), {
+              let mut map = HashMap::new();
+              map.insert("b".to_string(), {
+                  let mut map = HashMap::new();
+                  map.insert("c".to_string(), 1);
+                  map
+              });
+              map
+          });
+          map
+      };
+      d.get_mut(&"a")
+          .unwrap()
+          .get_mut(&"b")
+          .unwrap()
+          .insert("c".to_string(), 2);
+−     return d
++     return Ok(d
+          .get("a")
+          .cloned()
+          .unwrap()
+          .get("b")
+          .cloned()
+          .unwrap()
+          .get("c")
+          .cloned()
+−         .unwrap();
++         .unwrap());
+  }
+────────────────────────────────────────────────────────────

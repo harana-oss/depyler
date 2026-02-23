@@ -1,0 +1,23 @@
+  modules-collections.toml :: heapq_heappush
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use serde_json;
+  pub fn push_item(heap: &Vec<serde_json::Value>, item: i32) {
+      {
+          let heap = &mut (heap);
+          let item = item;
+          heap.push(item);
+          let mut pos = heap.len() - 1;
+          while pos > 0 {
+              let parent = (pos - 1) / 2;
+              if heap[pos] >= heap[parent] {
+                  break;
+              }
+              heap.swap(pos, parent);
+              pos = parent;
+          }
+−     }
++     };
++ }
+────────────────────────────────────────────────────────────

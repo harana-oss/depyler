@@ -1,0 +1,28 @@
+  dataclasses-comparison.toml :: dataclass_minmax
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone)]
+−     struct Point {
+−         x: i32,
+−         y: i32,
++ #[derive(Debug, Copy, Clone)]
++ pub struct Point {
++     pub x: i32,
++     pub y: i32,
++ }
++ impl Point {
++     pub fn new(x: i32, y: i32) -> Self {
++         Self { x, y }
+      }
+− 
+−     let points = vec![
+−         Point { x: 2, y: 1 },
+−         Point { x: 1, y: 3 },
+−         Point { x: 3, y: 0 },
+−     ];
+−     let min_point = points.iter().min().unwrap();
+−     let max_point = points.iter().max().unwrap();
+−     let result = min_point.x == 1 && max_point.x == 3;
++ }
+────────────────────────────────────────────────────────────

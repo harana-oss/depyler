@@ -1,0 +1,14 @@
+  lifetimes.toml :: nested_scope_lifetimes
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn process_in_scope(data: String) -> String {
+−     let _cse_temp_0 = data.len() as i32;
+−     if _cse_temp_0 > 0 {
++     if data.len() as i32 > 0 {
+          let temp = format!("{}{}", data, "!");
+          return temp;
+      }
+      return "".to_string();
+  }
+────────────────────────────────────────────────────────────

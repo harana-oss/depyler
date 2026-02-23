@@ -1,0 +1,25 @@
+  lambdas.toml :: lambda_sorted_reverse
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn sort_descending(numbers: &Vec<i32>) -> Vec<i32> {
+      return {
+          let mut __sorted_result = numbers.clone();
+          __sorted_result.sort_by_key(|x| (-x));
+          __sorted_result
+      };
+−             let result = sort_descending(&numbers);
+−             for i in 1..result.len() {
+−                 if result[i - 1] > result[i] {
+−                     return TestResult::failed();
+−                 }
+−             }
+−             let mut input_sorted = numbers.clone();
+−             input_sorted.sort();
+−             let mut result = sort_descending(&numbers);
+−             result.sort();
+−             if input_sorted != result {
+−                 return TestResult::failed();
+−             }
++ }
+────────────────────────────────────────────────────────────

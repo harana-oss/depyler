@@ -1,0 +1,34 @@
+  decorator-expansion.toml :: decorator_factory_multiple_params
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn bounds<F>(min_val: i32, max_val: i32) -> impl Fn(F) -> Box<dyn Fn(i32) -> i32>
+− where
+−     F: Fn(i32) -> i32 + 'static,
+− {
+−     move |f: F| -> Box<dyn Fn(i32) -> i32> {
+−         let min_val = min_val;
+−         let max_val = max_val;
+−         Box::new(move |x: i32| -> i32 {
++ pub fn bounds(min_val: i32, max_val: i32) {
++     fn decorator(f: ()) -> () {
++         fn wrapper(x: i64) -> i64 {
+              let result = f(x);
+              if result < min_val {
+                  return min_val;
+              }
+              if result > max_val {
+                  return max_val;
+              }
+              return result;
+−         })
++         }
++         return wrapper;
+      }
++     return decorator;
+  }
+− 
+  pub fn compute_value(x: i32) -> i32 {
+      return x * 2;
+  }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,24 @@
+  set-operations.toml :: set_mixed
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− lazy_static! {
+−     pub static ref result: HashSet<i32> = {
+−         let mut set = HashSet::new();
+−         set.insert(1);
+−         set.insert("a");
+−         set.insert((1, 2));
+−         set
+−     };
+− }
+− use lazy_static::lazy_static;
++ pub const result: serde_json::Value = {
++     let mut set = HashSet::new();
++     set.insert(1);
++     set.insert("a");
++     set.insert((1, 2));
++     set
++ };
++ use serde_json;
+  use std::collections::HashSet;
+────────────────────────────────────────────────────────────

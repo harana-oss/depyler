@@ -1,0 +1,10 @@
+  async-functions.toml :: async_varargs
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub const result: serde_json::Value = f();
+−     use serde_json;
+−     pub async fn f() {
++ pub async fn f() {
+      }
+────────────────────────────────────────────────────────────

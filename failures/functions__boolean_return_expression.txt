@@ -1,0 +1,9 @@
+  functions.toml :: boolean_return_expression
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn check_positive(x: i32) -> bool {
+−     x > 0
++     return x > 0;
+  }
+────────────────────────────────────────────────────────────

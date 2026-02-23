@@ -1,0 +1,8 @@
+  namespace-packages.toml :: namespace_split
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Package split across directories
+−     let result = true; // Placeholder
++ pub const result: bool = true;
+────────────────────────────────────────────────────────────

@@ -1,0 +1,63 @@
+  type-inference.toml :: type_mapper_all_type_features
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use std::collections::HashMap;
+  use std::collections::HashSet;
+  #[derive(Debug, Clone, PartialEq)]
+  pub enum IntOrStringUnion {
+      Integer(i32),
+      Text(String),
+  }
+  impl From<i32> for IntOrStringUnion {
+      fn from(value: i32) -> Self {
+          IntOrStringUnion::Integer(value)
+      }
+  }
+  impl From<String> for IntOrStringUnion {
+      fn from(value: String) -> Self {
+          IntOrStringUnion::Text(value)
+      }
+  }
+  impl IntOrStringUnion {
+      pub fn is_integer(&self) -> bool {
+          matches!(self, IntOrStringUnion::Integer(_))
+      }
+      pub fn is_text(&self) -> bool {
+          matches!(self, IntOrStringUnion::Text(_))
+      }
+      pub fn as_integer(&self) -> Option<&i32> {
+          match self {
+              IntOrStringUnion::Integer(value) => Some(value),
+              _ => None,
+          }
+      }
+      pub fn as_text(&self) -> Option<&String> {
+          match self {
+              IntOrStringUnion::Text(value) => Some(value),
+              _ => None,
+          }
+      }
+  }
+  pub fn complex_function(
+      items: &Vec<i32>,
+      mapping: HashMap<String, Option<f64>>,
+      flags: HashSet<bool>,
+      value: IntOrStringUnion,
+  ) -> Option<HashMap<String, i32>> {
+−     let _cse_temp_0 = items.len() as i32;
+−     if _cse_temp_0 == 0 {
++     if items.len() as i32 == 0 {
+          return None;
+      }
+      let mut result = {
+          let map = HashMap::new();
+          map
+      };
+      for item in items.iter().cloned() {
+−         result.insert(item.to_string(), item * 2);
++         result.insert((item).to_string(), item * 2);
+      }
+      return Some(result);
+  }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,38 @@
+  interprocedural-mutation.toml :: multiple_callers_inherit_mut
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug, Clone, PartialEq, Default)]
++ #[derive(Debug, Copy, Clone, PartialEq, Default)]
+  pub struct Settings {
+      pub volume: i32,
+      pub brightness: i32,
+  }
+  impl Settings {
+      pub fn new(volume: i32, brightness: i32) -> Self {
+          Self { volume, brightness }
+      }
+  }
+  pub fn get_volume(settings: &Settings) -> i32 {
+      return settings.volume;
+  }
+  pub fn set_volume(settings: &mut Settings, v: i32) {
+      settings.volume = v;
+  }
+  pub fn increase_volume(settings: &mut Settings) {
+−     let current = get_volume(settings);
+−     set_volume(settings, current + 10);
++     let current = get_volume(&settings);
++     set_volume(&settings, current + 10);
+  }
+  pub fn decrease_volume(settings: &mut Settings) {
+−     let current = get_volume(settings);
+−     set_volume(settings, current - 10);
++     let current = get_volume(&settings);
++     set_volume(&settings, current - 10);
+  }
+  pub fn mute(settings: &mut Settings) {
+−     set_volume(settings, 0);
++     set_volume(&settings, 0);
+  }
+────────────────────────────────────────────────────────────

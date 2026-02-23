@@ -1,0 +1,38 @@
+  dunder-unary.toml :: neg_vector
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::ops::Neg;
+− 
+− #[derive(Debug)]
+− struct Vector {
+−     x: i32,
+−     y: i32,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Vector {
++     pub x: serde_json::Value,
++     pub y: serde_json::Value,
+  }
+− 
+− impl Neg for Vector {
+−     type Output = Vector;
+− 
+−     fn neg(self) -> Vector {
+−         Vector {
+−             x: -self.x,
+−             y: -self.y,
+−         }
++ impl Vector {
++     pub fn new(x: serde_json::Value, y: serde_json::Value) -> Self {
++         Self { x, y }
+      }
+− }
+− 
+− fn main() {
+−     let v = Vector { x: 3, y: 4 };
+−     let neg_v = -v;
+−     let result = neg_v.x == -3 && neg_v.y == -4;
+−     log::info!("Negated vector: {:?}, result: {}", neg_v, result);
+  }
+────────────────────────────────────────────────────────────

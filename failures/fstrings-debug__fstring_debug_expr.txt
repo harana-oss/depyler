@@ -1,0 +1,10 @@
+  fstrings-debug.toml :: fstring_debug_expr
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− let x = 42;
+−     let result = format!("Value: {}", x);
++ pub const x: i32 = 42;
++ pub const result: serde_json::Value = format!("Value: {}", x);
++ use serde_json;
+────────────────────────────────────────────────────────────

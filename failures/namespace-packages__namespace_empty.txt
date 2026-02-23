@@ -1,0 +1,8 @@
+  namespace-packages.toml :: namespace_empty
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Namespace with no submodules
+−     let result = true; // Placeholder
++ pub const result: bool = true;
+────────────────────────────────────────────────────────────

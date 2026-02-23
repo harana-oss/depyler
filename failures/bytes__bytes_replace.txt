@@ -1,0 +1,10 @@
+  bytes.toml :: bytes_replace
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− let result = b"hello"
+−         .iter()
+−         .map(|&b| if b == b'l' { b'L' } else { b })
+−         .collect::<Vec<u8>>();
++ 
+────────────────────────────────────────────────────────────

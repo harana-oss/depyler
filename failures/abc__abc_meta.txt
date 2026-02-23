@@ -1,0 +1,16 @@
+  abc.toml :: abc_meta
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− trait MyABC {}
++ #[derive(Debug, Copy, Clone)]
++ pub struct MyABC {}
++ impl MyABC {
++     pub fn new() -> Self {
++         Self {}
++     }
++ }
+  pub fn test_abc_meta() -> bool {
+      return true;
+  }
+────────────────────────────────────────────────────────────

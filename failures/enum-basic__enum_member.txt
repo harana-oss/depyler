@@ -1,0 +1,24 @@
+  enum-basic.toml :: enum_member
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug, PartialEq)]
+−     enum Color {
+−         RED = 1,
+−         GREEN = 2,
++ pub const red: serde_json::Value = Color::RED;
++ pub const result: serde_json::Value = red == Color::RED;
++ use serde_json;
++ #[derive(Debug, Copy, Clone)]
++ pub struct Color {}
++ impl Color {
++     pub const RED: i32 = 1;
++     pub const GREEN: i32 = 2;
++     pub fn new() -> Self {
++         Self {}
+      }
+− 
+−     let red = Color::RED;
+−     let result = red == Color::RED;
++ }
+────────────────────────────────────────────────────────────

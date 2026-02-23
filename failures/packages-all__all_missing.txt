@@ -1,0 +1,11 @@
+  packages-all.toml :: all_missing
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // In Rust, all items must be explicitly exported with pub
+−     // There's no equivalent to Python's star import
+−     // All exports are explicit via pub keyword
+−     let result = true;
+−     log::info!("Rust requires explicit pub exports");
++ 
+────────────────────────────────────────────────────────────

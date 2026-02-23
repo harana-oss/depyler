@@ -1,0 +1,10 @@
+  type-inference.toml :: type_mapper_generic_dict_type
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use std::collections::HashMap;
+  pub fn get_value(data: &HashMap<String, i32>, key: String) -> i32 {
+−     return data.get(&key).cloned().unwrap_or(0).unwrap();
++     return *data.get(&key).unwrap_or(&0);
+  }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,8 @@
+  type-parameter-lists.toml :: typeparam_class
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // class Box[T]: ...
+−     let result = true; // Placeholder
++ pub const result: bool = true;
+────────────────────────────────────────────────────────────

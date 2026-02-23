@@ -1,0 +1,7 @@
+  string-methods-all.toml :: str_rstrip
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub const result: String = "hello  ".trim_end().to_string();
++ 
+────────────────────────────────────────────────────────────

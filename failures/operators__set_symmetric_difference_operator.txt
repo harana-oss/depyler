@@ -1,0 +1,20 @@
+  operators.toml :: set_symmetric_difference_operator
+    Output mismatch
+
+────────────────────────────────────────────────────────────
++ use serde_json;
+  use std::collections::HashSet;
+  pub fn test_symmetric_diff(
+−     a: &HashSet<Point>,
+−     b: &HashSet<Point>,
+− ) -> HashSet<Point> {
++     a: &HashSet<serde_json::Value>,
++     b: &HashSet<serde_json::Value>,
++ ) -> HashSet<serde_json::Value> {
+      return a
+          .symmetric_difference(&b)
+          .cloned()
+          .collect::<std::collections::HashSet<_>>();
+− };
++ }
+────────────────────────────────────────────────────────────

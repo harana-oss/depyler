@@ -1,0 +1,250 @@
+  examples-game-development.toml :: tic_tac_toe
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− Error: Expression type not yet supported
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct IndexError {
++     message: String,
++ }
++ impl std::fmt::Display for IndexError {
++     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
++         write!(f, "index out of range: {}", self.message)
++     }
++ }
++ impl std::error::Error for IndexError {}
++ impl IndexError {
++     pub fn new(message: impl Into<String>) -> Self {
++         Self {
++             message: message.into(),
++         }
++     }
++ }
++ #[derive(Debug, Clone)]
++ pub struct TicTacToe {
++     pub current_player: String,
++ }
++ impl TicTacToe {
++     pub fn new() -> Self {
++         Self {
++             current_player: "X".to_string(),
++         }
++     }
++     pub fn make_move(&mut self, row: i32, col: i32) -> bool {
++         if !self.is_valid_move(row, col) {
++             return false;
++         }
++         self.board.get_mut(&row).unwrap()[col as usize] = self.current_player;
++         self.current_player = if self.current_player == "X".to_string() {
++             "O".to_string()
++         } else {
++             "X".to_string()
++         };
++         return true;
++     }
++     pub fn is_valid_move(&self, row: i32, col: i32) -> bool {
++         if row < 0 || row >= 3 || col < 0 || col >= 3 {
++             return false;
++         }
++         return self.board[row as usize][col as usize] == " ".to_string();
++     }
++     pub fn check_winner(&self) -> Option<String> {
++         for row in self.board {
++             if row[0 as usize] == row[1 as usize]
++                 && row[1 as usize] == row[2 as usize]
++                 && row[2 as usize] != " ".to_string()
++             {
++                 return row[0 as usize];
++             }
++         }
++         for col in 0..3 {
++             if self.board[0 as usize][col as usize] == self.board[1 as usize][col as usize]
++                 && self.board[1 as usize][col as usize] == self.board[2 as usize][col as usize]
++                 && self.board[2 as usize][col as usize] != " ".to_string()
++             {
++                 return self.board[0 as usize][col as usize];
++             }
++         }
++         if self.board[0 as usize][0 as usize] == self.board[1 as usize][1 as usize]
++             && self.board[1 as usize][1 as usize] == self.board[2 as usize][2 as usize]
++             && self.board[2 as usize][2 as usize] != " ".to_string()
++         {
++             return self.board[0 as usize][0 as usize];
++         }
++         if self.board[0 as usize][2 as usize] == self.board[1 as usize][1 as usize]
++             && self.board[1 as usize][1 as usize] == self.board[2 as usize][0 as usize]
++             && self.board[2 as usize][0 as usize] != " ".to_string()
++         {
++             return self.board[0 as usize][2 as usize];
++         }
++         return ();
++     }
++     pub fn is_board_full(&self) -> bool {
++         for row in self.board {
++             for cell in row {
++                 if cell == " ".to_string() {
++                     return false;
++                 }
++             }
++         }
++         return true;
++     }
++     pub fn is_game_over(&self) -> bool {
++         return self.check_winner().is_some() || self.is_board_full();
++     }
++     pub fn get_empty_positions(&self) -> Vec<(i32, i32)> {
++         let mut positions = vec![];
++         for row in 0..3 {
++             for col in 0..3 {
++                 if self.board[row as usize][col as usize] == " ".to_string() {
++                     positions.push((row, col));
++                 }
++             }
++         }
++         return positions;
++     }
++     pub fn board_to_string(&self) -> String {
++         let mut lines = vec![];
++         for (i, row) in enumerate(self.board) {
++             let mut line = format!(
++                 " {} | {} | {} ",
++                 row[0 as usize], row[1 as usize], row[2 as usize]
++             );
++             lines.push(line);
++             if i < 2 {
++                 lines.push("-----------".to_string());
++             }
++         }
++         return lines.join(&"\n".to_string());
++     }
++ }
++ #[derive(Debug, Clone)]
++ pub struct AIPlayer {
++     pub symbol: String,
++     pub opponent: serde_json::Value,
++ }
++ impl AIPlayer {
++     pub fn new(symbol: String) -> Self {
++         Self {
++             symbol,
++             opponent: if symbol == "X".to_string() {
++                 "O".to_string()
++             } else {
++                 "X".to_string()
++             },
++         }
++     }
++     pub fn get_best_move(&self, game: TicTacToe) -> (i32, i32) {
++         let mut best_score = -1000;
++         let mut best_move = (0, 0);
++         for (row, col) in game.get_empty_positions() {
++             game.board.get_mut(&row).unwrap()[col as usize] = self.symbol;
++             let mut score = self.minimax(game, 0, false);
++             game.board.get_mut(&row).unwrap()[col as usize] = " ".to_string();
++             if score > best_score {
++                 let mut best_score = score;
++                 let mut best_move = (row, col);
++             }
++         }
++         return best_move;
++     }
++     pub fn minimax(&self, game: TicTacToe, depth: i32, is_maximizing: bool) -> i32 {
++         let mut winner = game.check_winner();
++         if winner == self.symbol {
++             return 10 - depth;
++         } else {
++             if winner == self.opponent {
++                 return depth - 10;
++             } else {
++                 if game.is_board_full() {
++                     return 0;
++                 }
++             }
++         }
++         if is_maximizing {
++             let mut best_score = -1000;
++             for (row, col) in game.get_empty_positions() {
++                 game.board.get_mut(&row).unwrap()[col as usize] = self.symbol;
++                 let mut score = self.minimax(game, depth + 1, false);
++                 game.board.get_mut(&row).unwrap()[col as usize] = " ".to_string();
++                 let mut best_score = max(best_score, score);
++             }
++             return best_score;
++         } else {
++             let mut best_score = 1000;
++             for (row, col) in game.get_empty_positions() {
++                 game.board.get_mut(&row).unwrap()[col as usize] = self.opponent;
++                 let mut score = self.minimax(game, depth + 1, true);
++                 game.board.get_mut(&row).unwrap()[col as usize] = " ".to_string();
++                 let mut best_score = min(best_score, score);
++             }
++             return best_score;
++         }
++     }
++ }
++ #[doc = "Play a complete game against computer"]
++ pub fn play_computer_game() -> Result<String, IndexError> {
++     let mut game = TicTacToe::new();
++     let ai = AIPlayer::new("O".to_string());
++     let mut moves_log: Vec<String> = vec![];
++     while !game.is_game_over() {
++         if game.current_player == "X" {
++             let empty_positions = game.get_empty_positions();
++             if empty_positions {
++                 let (mut row, mut col) = empty_positions.get(0usize).cloned().unwrap();
++                 game.make_move(row, col);
++                 moves_log.push(format!("Human plays at({}, {})", row, col));
++             }
++         } else {
++             let (mut row, mut col) = ai.get_best_move(game);
++             game.make_move(row, col);
++             moves_log.push(format!("AI plays at({}, {})", row, col));
++         }
++     }
++     let winner = game.check_winner();
++     if winner {
++         moves_log.push(format!("Winner: {}", winner));
++     } else {
++         moves_log.push("Game ended in a tie".to_string());
++     }
++     return Ok(moves_log.join("\n"));
++ }
++ #[doc = "Count how many ways a player can win from current state"]
++ pub fn count_winning_positions(
++     board_state: &Vec<Vec<String>>,
++     player: String,
++ ) -> Result<i32, IndexError> {
++     let winning_positions = vec![
++         vec![(0, 0), (0, 1), (0, 2)],
++         vec![(1, 0), (1, 1), (1, 2)],
++         vec![(2, 0), (2, 1), (2, 2)],
++         vec![(0, 0), (1, 0), (2, 0)],
++         vec![(0, 1), (1, 1), (2, 1)],
++         vec![(0, 2), (1, 2), (2, 2)],
++         vec![(0, 0), (1, 1), (2, 2)],
++         vec![(0, 2), (1, 1), (2, 0)],
++     ];
++     let mut count = 0;
++     for positions in winning_positions.iter().cloned() {
++         let mut can_win = true;
++         for (row, col) in positions.iter().cloned() {
++             let cell = board_state
++                 .get(row as usize)
++                 .cloned()
++                 .unwrap()
++                 .get(col as usize)
++                 .cloned()
++                 .unwrap();
++             if (cell != " ") && (cell != player) {
++                 can_win = false;
++                 break;
++             }
++         }
++         if can_win {
++             count += 1;
++         }
++     }
++     return Ok(count);
++ }
+────────────────────────────────────────────────────────────

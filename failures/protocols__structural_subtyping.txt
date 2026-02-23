@@ -1,0 +1,52 @@
+  protocols.toml :: structural_subtyping
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub trait Speaker {
+−     fn speak(&self) -> String;
+− }
+− 
+− pub fn quack(duck: &impl Speaker) -> String {
+−     return duck.speak();
+− }
+− 
+− pub struct Duck;
+− 
++ use serde_json;
++ #[derive(Debug, Copy, Clone)]
++ pub struct Duck {}
+  impl Duck {
+      pub fn new() -> Self {
+−         Self
++         Self {}
+      }
+− }
+− 
+− impl Speaker for Duck {
+−     fn speak(&self) -> String {
++     pub fn speak(&self) -> String {
+          return "Quack!".to_string();
+      }
+  }
+− 
+− pub struct Dog;
+− 
++ #[derive(Debug, Copy, Clone)]
++ pub struct Dog {}
+  impl Dog {
+      pub fn new() -> Self {
+−         Self
++         Self {}
+      }
+− }
+− 
+− impl Speaker for Dog {
+−     fn speak(&self) -> String {
++     pub fn speak(&self) -> String {
+          return "Woof!".to_string();
+      }
+  }
++ pub fn quack(duck: &serde_json::Value) -> String {
++     return duck.speak();
++ }
+────────────────────────────────────────────────────────────

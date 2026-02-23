@@ -1,0 +1,54 @@
+  error-recovery.toml :: ambiguous_type_union
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub enum IntOrStr {
+−     Int(i32),
+−     Str(String),
++ #[derive(Debug, Clone, PartialEq)]
++ pub enum IntOrStringUnion {
++     Integer(i32),
++     Text(String),
++ }
++ impl From<i32> for IntOrStringUnion {
++     fn from(value: i32) -> Self {
++         IntOrStringUnion::Integer(value)
++     }
++ }
++ impl From<String> for IntOrStringUnion {
++     fn from(value: String) -> Self {
++         IntOrStringUnion::Text(value)
++     }
++ }
++ impl IntOrStringUnion {
++     pub fn is_integer(&self) -> bool {
++         matches!(self, IntOrStringUnion::Integer(_))
++     }
++     pub fn is_text(&self) -> bool {
++         matches!(self, IntOrStringUnion::Text(_))
++     }
++     pub fn as_integer(&self) -> Option<&i32> {
++         match self {
++             IntOrStringUnion::Integer(value) => Some(value),
++             _ => None,
++         }
++     }
++     pub fn as_text(&self) -> Option<&String> {
++         match self {
++             IntOrStringUnion::Text(value) => Some(value),
++             _ => None,
++         }
++     }
+  }
+− 
+− pub fn process_value(x: IntOrStr) -> String {
+−     match x {
+−         IntOrStr::Int(i) => return i.to_string(),
+−         IntOrStr::Str(s) => return s,
++ pub fn process_value(x: &IntOrStringUnion) -> String {
++     if true {
++         return (x).to_string();
+      }
++     return x;
+  }
+────────────────────────────────────────────────────────────

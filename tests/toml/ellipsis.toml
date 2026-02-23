@@ -22,11 +22,8 @@ fn func() {
     // Ellipsis maps to empty function body
 }
 
-fn main() {
-    func();
-    log::info!("Function with ellipsis works");
-}
-"""
+func();
+log::info!("Function with ellipsis works");"""
 
 [[test]]
 name = "ellipsis_class_placeholder"
@@ -42,11 +39,8 @@ print(f"Empty class works: {type(obj).__name__}")
 rust = """
 struct Empty;
 
-fn main() {
-    let _obj = Empty;
-    log::info!("Empty class works: Empty");
-}
-"""
+let _obj = Empty;
+log::info!("Empty class works: Empty");"""
 
 [[test]]
 name = "ellipsis_abstract"
@@ -79,11 +73,8 @@ impl Base for Concrete {
     }
 }
 
-fn main() {
-    let obj = Concrete;
-    log::info!("{}", obj.method());
-}
-"""
+let obj = Concrete;
+log::info!("{}", obj.method());"""
 
 [[test]]
 name = "ellipsis_vs_pass"
@@ -109,12 +100,9 @@ fn with_ellipsis() {
     // ellipsis equivalent
 }
 
-fn main() {
-    with_pass();
-    with_ellipsis();
-    log::info!("Both pass and ellipsis work");
-}
-"""
+with_pass();
+with_ellipsis();
+log::info!("Both pass and ellipsis work");"""
 
 # =============================================================================
 # Ellipsis in Type Hints
@@ -143,12 +131,9 @@ fn accepts_any_callable(func: AnyCallable) -> i32 {
     func(&[1, 2, 3])
 }
 
-fn main() {
-    let my_func: AnyCallable = Box::new(|args| args.iter().sum());
-    let result = accepts_any_callable(my_func);
-    log::info!("Result: {}", result);
-}
-"""
+let my_func: AnyCallable = Box::new(|args| args.iter().sum());
+let result = accepts_any_callable(my_func);
+log::info!("Result: {}", result);"""
 
 [[test]]
 name = "ellipsis_tuple"
@@ -169,12 +154,9 @@ fn process_ints(items: &[i32]) -> i32 {
     items.iter().sum()
 }
 
-fn main() {
-    let result1 = process_ints(&[1, 2]);
-    let result2 = process_ints(&[1, 2, 3, 4, 5]);
-    log::info!("Results: {}, {}", result1, result2);
-}
-"""
+let result1 = process_ints(&[1, 2]);
+let result2 = process_ints(&[1, 2, 3, 4, 5]);
+log::info!("Results: {}, {}", result1, result2);"""
 
 # =============================================================================
 # Ellipsis in NumPy-style Slicing
@@ -206,12 +188,9 @@ impl Array {
     }
 }
 
-fn main() {
-    let arr = Array;
-    let result = arr.get("..., 0");
-    log::info!("{}", result);
-}
-"""
+let arr = Array;
+let result = arr.get("..., 0");
+log::info!("{}", result);"""
 
 [[test]]
 name = "ellipsis_expand"
@@ -237,12 +216,9 @@ impl Array {
     }
 }
 
-fn main() {
-    let arr = Array;
-    let result = arr.get(1);
-    log::info!("{}", result);
-}
-"""
+let arr = Array;
+let result = arr.get(1);
+log::info!("{}", result);"""
 
 # =============================================================================
 # Ellipsis as Value
@@ -258,12 +234,9 @@ print(f"Type: {type(x).__name__}")
 """
 rust = """
 // Ellipsis as a value maps to unit type ()
-fn main() {
-    let x = ();
-    log::info!("Ellipsis assigned: ()");
-    log::info!("Type: ()");
-}
-"""
+let x = ();
+log::info!("Ellipsis assigned: ()");
+log::info!("Type: ()");"""
 
 [[test]]
 name = "ellipsis_type"
@@ -273,12 +246,9 @@ print(f"Type of ellipsis: {type(...)}")
 print(f"Is ellipsis type: {type(...).__name__ == 'ellipsis'}")
 """
 rust = """
-fn main() {
-    // In Rust, () is the unit type
-    log::info!("Type of ellipsis: ()");
-    log::info!("Is ellipsis type: true");
-}
-"""
+// In Rust, () is the unit type
+log::info!("Type of ellipsis: ()");
+log::info!("Is ellipsis type: true");"""
 
 [[test]]
 name = "ellipsis_singleton"
@@ -290,14 +260,11 @@ print(f"Same object: {a is b}")
 print(f"Equal: {a == b}")
 """
 rust = """
-fn main() {
-    // Unit type is always the same
-    let a = ();
-    let b = ();
-    log::info!("Same object: true");
-    log::info!("Equal: true");
-}
-"""
+// Unit type is always the same
+let a = ();
+let b = ();
+log::info!("Same object: true");
+log::info!("Equal: true");"""
 
 [[test]]
 name = "ellipsis_in_dict"
@@ -311,17 +278,14 @@ print(f"Dict with ellipsis value: {d2}")
 rust = """
 use std::collections::HashMap;
 
-fn main() {
-    let mut d1: HashMap<(), &str> = HashMap::new();
-    d1.insert((), "ellipsis_key");
+let mut d1: HashMap<(), &str> = HashMap::new();
+d1.insert((), "ellipsis_key");
 
-    let mut d2: HashMap<&str, ()> = HashMap::new();
-    d2.insert("key", ());
+let mut d2: HashMap<&str, ()> = HashMap::new();
+d2.insert("key", ());
 
-    log::info!("Dict with ellipsis key: {{(): 'ellipsis_key'}}");
-    log::info!("Dict with ellipsis value: {{'key': ()}}");
-}
-"""
+log::info!("Dict with ellipsis key: {{(): 'ellipsis_key'}}");
+log::info!("Dict with ellipsis value: {{'key': ()}}");"""
 
 # =============================================================================
 # Edge Cases
@@ -337,17 +301,14 @@ else:
     print("Ellipsis is falsy")
 """
 rust = """
-fn main() {
-    // Unit type () doesn't have boolean context in Rust
-    // But ellipsis in Python is truthy
-    if true {
-        // Ellipsis is always truthy in Python
-        log::info!("Ellipsis is truthy");
-    } else {
-        log::info!("Ellipsis is falsy");
-    }
-}
-"""
+// Unit type () doesn't have boolean context in Rust
+// But ellipsis in Python is truthy
+if true {
+    // Ellipsis is always truthy in Python
+    log::info!("Ellipsis is truthy");
+} else {
+    log::info!("Ellipsis is falsy");
+}"""
 
 [[test]]
 name = "ellipsis_comparison"
@@ -357,11 +318,8 @@ print(f"Ellipsis equals itself: {... == ...}")
 print(f"Ellipsis is itself: {... is ...}")
 """
 rust = """
-fn main() {
-    log::info!("Ellipsis equals itself: true");
-    log::info!("Ellipsis is itself: true");
-}
-"""
+log::info!("Ellipsis equals itself: true");
+log::info!("Ellipsis is itself: true");"""
 
 [[test]]
 name = "ellipsis_default_arg"
@@ -395,9 +353,6 @@ fn func(x: Arg) -> String {
     }
 }
 
-fn main() {
-    log::info!("{}", func(Arg::NotProvided));
-    log::info!("{}", func(Arg::Null));
-    log::info!("{}", func(Arg::Value(42)));
-}
-"""
+log::info!("{}", func(Arg::NotProvided));
+log::info!("{}", func(Arg::Null));
+log::info!("{}", func(Arg::Value(42)));"""

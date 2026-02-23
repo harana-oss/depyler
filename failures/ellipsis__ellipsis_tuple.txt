@@ -1,0 +1,16 @@
+  ellipsis.toml :: ellipsis_tuple
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Tuple[int, ...] maps to Vec<i32> or slice
+− fn process_ints(items: &[i32]) -> i32 {
+−     items.iter().sum()
++ use serde_json;
++ pub fn process_ints(items: (i32, serde_json::Value)) -> i32 {
++     return items.iter().sum::<i32>();
+  }
+− 
+− let result1 = process_ints(&[1, 2]);
+− let result2 = process_ints(&[1, 2, 3, 4, 5]);
+− log::info!("Results: {}, {}", result1, result2);
+────────────────────────────────────────────────────────────

@@ -1,0 +1,10 @@
+  unpacking.toml :: starred_at_beginning
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− let _data = vec![1, 2, 3, 4];
+− let rest: Vec<_> = _data[.._data.len() - 1usize].to_vec();
+− let last = _data[_data.len() - 0usize - 1];
+− log::info!("{}", format!("rest={}, last={}", rest, last));
++ 
+────────────────────────────────────────────────────────────

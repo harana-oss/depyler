@@ -1,0 +1,36 @@
+  dunder-callable.toml :: callable_decorator
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust doesn't have decorators, but we can wrap functions
+− struct TimesTwo<F> {
+−     func: F,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct TimesTwo {
++     pub func: serde_json::Value,
+  }
+− 
+− impl<F> TimesTwo<F>
+− where
+−     F: Fn(i32) -> i32,
+− {
+−     fn new(func: F) -> Self {
+−         TimesTwo { func }
++ impl TimesTwo {
++     pub fn new(func: serde_json::Value) -> Self {
++         Self { func }
+      }
+− 
+−     fn call(&self, x: i32) -> i32 {
+−         (self.func)(x) * 2
+−     }
+  }
+− 
+− let add_five = |x: i32| x + 5;
+− let decorated = TimesTwo::new(add_five);
+− log::info!("{}", decorated.call(3));
++ pub fn add_five(x: i32) -> i32 {
++     return x + 5;
++ }
+────────────────────────────────────────────────────────────

@@ -310,13 +310,13 @@ def process_items(items: list[int]) -> int:
         return 0
     total = 0
     for item in items:
-        total = total + item
+        total += item
     return total
 '''
 
 rust = '''
 pub fn process_items(items: &Vec<i32>) -> i32 {
-    if items.clone().is_empty() {
+    if items.is_empty() {
         return 0;
     }
     let mut total = 0;
@@ -356,14 +356,14 @@ def sum_list(numbers: list) -> int:
     """Sum all numbers in a list."""
     total = 0
     for num in numbers:
-        total = total + num
+        total += num
     return total
 '''
 
 rust = '''
 use serde_json;
 #[doc = "Sum all numbers in a list."]
-pub fn sum_list(numbers: &Vec<serde_json::Value>) -> i32 {
+pub fn sum_list(numbers: &Vec<i32>) -> i32 {
     let mut total = 0;
     for num in numbers.iter().cloned() {
         total += num;
@@ -405,7 +405,7 @@ impl IndexError {
     }
 }
 #[doc = "Get a value from dictionary."]
-pub fn get_value(data: &HashMap<serde_json::Value, serde_json::Value>, key: String) -> i32 {
+pub fn get_value(data: &HashMap<String, i32>, key: String) -> i32 {
     if data.clone().get(&key.clone()).is_some() {
         return data.get(&key).cloned().unwrap();
     }
@@ -427,8 +427,8 @@ rust = '''
 use serde_json;
 use std::collections::HashSet;
 #[doc = "Count unique items in a set."]
-pub fn count_unique(items: &HashSet<serde_json::Value>) -> i32 {
-    return items.len() as i32 as i32;
+pub fn count_unique(items: &HashSet<Point>) -> i32 {
+    return items.len() as i32;
 }
 '''
 
@@ -483,25 +483,6 @@ pub struct State {
 impl State {
     pub fn new(item: String) -> Self {
         Self { item }
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "item" => Some(Box::new(self.item.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "item" => {
-                if let Some(v) = value.downcast_ref::<String>() {
-                    self.item = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 pub fn check_location(state: &State) -> bool {
@@ -699,8 +680,8 @@ def safe_access(items: list) -> int:
 
 rust = '''
 use serde_json;
-pub fn safe_access(items: &Vec<serde_json::Value>) -> i32 {
-    return items.len() as i32 as i32;
+pub fn safe_access(items: &Vec<i32>) -> i32 {
+    return items.len() as i32;
 }
 '''
 

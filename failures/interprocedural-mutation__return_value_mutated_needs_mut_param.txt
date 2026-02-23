@@ -1,0 +1,35 @@
+  interprocedural-mutation.toml :: return_value_mutated_needs_mut_param
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug, Clone, PartialEq, Default)]
++ #[derive(Debug, Copy, Clone, PartialEq, Default)]
+  pub struct Inner {
+      pub value: i32,
+  }
+  impl Inner {
+      pub fn new(value: i32) -> Self {
+          Self { value }
+      }
+  }
+  #[derive(Debug, Clone, PartialEq, Default)]
+  pub struct Outer {
+      pub inner: Inner,
+  }
+  impl Outer {
+      pub fn new(inner: Inner) -> Self {
+          Self { inner }
+      }
+  }
+− pub fn get_inner<'a>(outer: &'a mut Outer) -> &'a mut Inner {
+−     return &mut outer.inner;
++ pub fn get_inner(outer: &Outer) -> Inner {
++     return outer.inner;
+  }
+− pub fn modify_inner(outer: &mut Outer) {
+−     let inner = get_inner(outer);
++ pub fn modify_inner(outer: &Outer) {
++     let mut inner = get_inner(&outer);
+      inner.value = 42;
+  }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,16 @@
+  async-functions.toml :: coroutine_type
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub async fn f() -> i32 {
+      return 42;
+−    
+− }
+− fn main () {
+−     let coro = f();
+−     let result = true;
+−     log::info!("{}", format!("Is coroutine: {}", result));
+−     {
+−     coro };
+      }
+────────────────────────────────────────────────────────────

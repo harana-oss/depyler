@@ -1,0 +1,25 @@
+  functions.toml :: normalize_path_function
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn normalize_path(mut path: String) -> String {
+−     while path.clone().contains(&"//") {
+−         path = path.clone().replace("//", "/");
++     while path.contains(&"//") {
++         path = path.replace("//", "/");
+      }
+−     let _cse_temp_0 = path.len() as i32;
+−     let _cse_temp_1 = _cse_temp_0 > 1;
+−     let _cse_temp_2 = (_cse_temp_1) && (path.ends_with("/"));
+−     if _cse_temp_2 {
++     let _cse_temp_0 = (path.len() as i32 > 1) && (path.ends_with("/"));
++     if _cse_temp_0 {
+          path = {
+              let base = &path;
+              let stop = (-1).max(0) as usize;
+              base[..stop.min(base.len())].to_vec()
+          };
+      }
+      return path;
+  }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,71 @@
+  exceptions.toml :: complex_exception_pattern
+    Output mismatch
+
+────────────────────────────────────────────────────────────
++ #[derive(Debug, Clone)]
++ pub struct ZeroDivisionError {
++     message: String,
++ }
++ impl std::fmt::Display for ZeroDivisionError {
++     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
++         write!(f, "division by zero: {}", self.message)
++     }
++ }
++ impl std::error::Error for ZeroDivisionError {}
++ impl ZeroDivisionError {
++     pub fn new(message: impl Into<String>) -> Self {
++         Self {
++             message: message.into(),
++         }
++     }
++ }
++ #[derive(Debug, Clone)]
++ pub struct ValueError {
++     message: String,
++ }
++ impl std::fmt::Display for ValueError {
++     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
++         write!(f, "value error: {}", self.message)
++     }
++ }
++ impl std::error::Error for ValueError {}
++ impl ValueError {
++     pub fn new(message: impl Into<String>) -> Self {
++         Self {
++             message: message.into(),
++         }
++     }
++ }
+  pub fn complex_handling(a: i32, b: i32, c: i32) -> i32 {
+−     let mut result = 0;
++     let result = 0;
+      {
+          let temp = {
+              let a = a;
+              let b = b;
+              let q = a / b;
+              let r = a % b;
+              let r_negative = r < 0;
+              let b_negative = b < 0;
+              let r_nonzero = r != 0;
+              let signs_differ = r_negative != b_negative;
+              let needs_adjustment = r_nonzero && signs_differ;
+              if needs_adjustment {
+                  q - 1
+              } else {
+                  q
+              }
+          };
+          result = temp * c;
+          return result;
+          result = a * c;
+          return result;
+          result = b * c;
+          return result;
+          result = -1;
+          return result;
+          result = -2;
+          return result;
+      }
+  }
+────────────────────────────────────────────────────────────

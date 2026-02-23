@@ -1,0 +1,24 @@
+  type-guards.toml :: typeguard_custom
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  #[derive(Debug, Copy, Clone)]
+  pub struct ValidData {
+      pub value: i32,
+  }
+  impl ValidData {
+      pub fn new(value: i32) -> Self {
+          Self { value }
+      }
+  }
+  pub fn is_valid(data: &object) -> bool {
+      return (true) && (data.value >= 0);
+  }
+− pub fn process_valid(data: object) -> i32 {
++ pub fn process_valid(data: &object) -> i32 {
+      if is_valid(&data) {
+          return data.value;
+      }
+      return -1;
+  }
+────────────────────────────────────────────────────────────

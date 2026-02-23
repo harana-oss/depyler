@@ -1,0 +1,26 @@
+  slots.toml :: slots_with_weakref
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::rc::{Rc, Weak};
+− 
+− struct Referable {
+−     x: i32,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Referable {
++     pub x: serde_json::Value,
++ }
++ impl Referable {
++     pub const __slots__: Vec<String> = vec!["x".to_string(), "__weakref__".to_string()];
++     pub fn new(x: serde_json::Value) -> Self {
++         Self { x }
++     }
+  }
+− 
+− let obj = Rc::new(Referable { x: 42 });
+− let weak: Weak<Referable> = Rc::downgrade(&obj);
+− if let Some(r) = weak.upgrade() {
+−     log::info!("{}", r.x);
+− }
+────────────────────────────────────────────────────────────

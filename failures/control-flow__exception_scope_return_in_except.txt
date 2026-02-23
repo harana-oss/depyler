@@ -1,0 +1,30 @@
+  control-flow.toml :: exception_scope_return_in_except
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  #[derive(Debug, Clone)]
+  pub struct ZeroDivisionError {
+      message: String,
+  }
+  impl std::fmt::Display for ZeroDivisionError {
+      fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+          write!(f, "division by zero: {}", self.message)
+      }
+  }
+  impl std::error::Error for ZeroDivisionError {}
+  impl ZeroDivisionError {
+      pub fn new(message: impl Into<String>) -> Self {
+          Self {
+              message: message.into(),
+          }
+      }
+  }
+  pub fn return_in_except(x: i32) -> i32 {
+      {
+−         let result = 10 / x;
++         let result = (10 as f64) / (x as f64);
+          return 0;
+      }
+      return result;
+  }
+────────────────────────────────────────────────────────────

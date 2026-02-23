@@ -1,0 +1,15 @@
+  crypto.toml :: hashlib_sha512
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use sha2 as hashlib;
+  pub fn hash_sha512(data: &bytes) -> String {
+      return {
+          use sha2::Digest;
+          let mut hasher = sha2::Sha512::new();
+          hasher.update(data);
+          hex::encode(hasher.finalize())
+−     }
++     };
++ }
+────────────────────────────────────────────────────────────

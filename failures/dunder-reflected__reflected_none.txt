@@ -1,0 +1,13 @@
+  dunder-reflected.toml :: reflected_none
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // N/A - skip test
++ #[derive(Debug, Copy, Clone)]
++ pub struct Custom {}
++ impl Custom {
++     pub fn new() -> Self {
++         Self {}
++     }
++ }
+────────────────────────────────────────────────────────────

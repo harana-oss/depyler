@@ -1,0 +1,14 @@
+  imports-from.toml :: from_import_multi_as
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust: multiple imports with aliases
+−     use std::env::current_dir as cwd;
+−     use std::fs::read_dir as ls;
+−     let current = cwd().is_ok();
+−     let files = ls(".").is_ok();
+−     let result = current && files;
+−     assert!(result);
++ use std::env::current_dir as cwd;
++ use std::listdir as ls;
+────────────────────────────────────────────────────────────

@@ -1,0 +1,26 @@
+  dataclasses-frozen.toml :: frozen_deep
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub const o: Outer = Outer::new(Inner::new(42));
+− pub const result: i32 = o.inner.value;
+− #[derive(Debug, Copy, Clone]
++ #[derive(Debug, Copy, Clone)]
+  pub struct Inner {
+      pub value: i32,
+  }
+  impl Inner {
+      pub fn new(value: i32) -> Self {
+          Self { value }
+      }
+  }
+  #[derive(Debug, Clone)]
+  pub struct Outer {
+      pub inner: Inner,
+  }
+− impl Outer {
+−     pub fn new(inner: Inner) -> Self {
+−         Self { inner }
+−     }
+− }
+────────────────────────────────────────────────────────────

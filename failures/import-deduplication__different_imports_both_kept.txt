@@ -1,0 +1,25 @@
+  import-deduplication.toml :: different_imports_both_kept
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use std::collections::HashMap;
+  use std::collections::HashSet;
+  pub fn use_set_and_map() -> i32 {
+−     let s: HashSet<i32> = [1, 2, 3].into_iter().collect();
+−     let d: HashMap<String, i32> = [("a".to_string(), 1)].into_iter().collect();
+−     return s.len() as i32 + d.len() as i32;
++     let s = {
++         let mut set = HashSet::new();
++         set.insert(1);
++         set.insert(2);
++         set.insert(3);
++         set
++     };
++     let d = {
++         let mut map = HashMap::new();
++         map.insert("a".to_string(), 1);
++         map
++     };
++     return s.len() as i32 + d.len() as i32 as i32;
+  }
+────────────────────────────────────────────────────────────

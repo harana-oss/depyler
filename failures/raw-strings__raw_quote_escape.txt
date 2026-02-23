@@ -1,0 +1,8 @@
+  raw-strings.toml :: raw_quote_escape
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Cannot escape quotes in raw strings
+−     let result = true;
++ pub const result: bool = true;
+────────────────────────────────────────────────────────────

@@ -1,0 +1,18 @@
+  optional-types.toml :: len_on_optional_list
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  #[derive(Debug, Clone, PartialEq, Default)]
+  pub struct Container {
+      pub items: Option<Vec<i32>>,
+  }
+  impl Container {
+      pub fn new(items: Option<Vec<i32>>) -> Self {
+          Self { items }
+      }
+  }
+  pub fn count_items(c: &Container) -> i32 {
+−     return c.items.clone().as_ref().unwrap().len() as i32;
++     return c.items.len() as i32 as i32;
+  }
+────────────────────────────────────────────────────────────

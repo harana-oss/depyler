@@ -1,0 +1,46 @@
+  descriptors.toml :: descriptor_set_name
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // In Rust, this is typically handled at compile time with macros
+− // or by explicitly naming descriptors
+− 
+− struct Descriptor {
+−     name: &'static str,
+− }
+− 
++ use serde_json;
++ #[derive(Debug, Copy, Clone)]
++ pub struct Descriptor {}
+  impl Descriptor {
+−     fn new(name: &'static str) -> Self {
+−         Descriptor { name }
+−     }
+− 
+−     fn get(&self) -> String {
+−         format!("Descriptor named '{}'", self.name)
++     pub fn new() -> Self {
++         Self {}
+      }
+  }
+− 
+− struct MyClass {
+−     x: Descriptor,
+−     y: Descriptor,
++ #[derive(Debug, Copy, Clone)]
++ pub struct MyClass {}
++ impl MyClass {
++     pub const x: serde_json::Value = Descriptor::new();
++     pub const y: serde_json::Value = Descriptor::new();
++     pub fn new() -> Self {
++         Self {}
++     }
+  }
+− 
+− let instance = MyClass {
+−     x: Descriptor::new("x"),
+−     y: Descriptor::new("y"),
+− };
+− log::info!("{}", instance.x.get());
+− log::info!("{}", instance.y.get());
+────────────────────────────────────────────────────────────

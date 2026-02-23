@@ -1,0 +1,25 @@
+  copy-type-semantics.toml :: tuple_of_copy_types
+    Output mismatch
+
+────────────────────────────────────────────────────────────
++ #[derive(Debug, Clone)]
++ pub struct IndexError {
++     message: String,
++ }
++ impl std::fmt::Display for IndexError {
++     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
++         write!(f, "index out of range: {}", self.message)
++     }
++ }
++ impl std::error::Error for IndexError {}
++ impl IndexError {
++     pub fn new(message: impl Into<String>) -> Self {
++         Self {
++             message: message.into(),
++         }
++     }
++ }
+  pub fn swap_tuple(pair: (i32, i32)) -> (i32, i32) {
+      return (pair.1, pair.0);
+  }
+────────────────────────────────────────────────────────────

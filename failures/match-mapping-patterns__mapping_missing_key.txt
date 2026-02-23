@@ -1,0 +1,14 @@
+  match-mapping-patterns.toml :: mapping_missing_key
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::collections::HashMap;
+− 
+−     let mut data = HashMap::new();
+−     data.insert("other", 1);
+  
+−     let result = match data.get("required") {
+−         Some(&v) => v,
+−         None => 0,
+−     };
+────────────────────────────────────────────────────────────

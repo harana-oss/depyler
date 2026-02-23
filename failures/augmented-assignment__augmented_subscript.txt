@@ -1,0 +1,9 @@
+  augmented-assignment.toml :: augmented_subscript
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− let lst = vec![10, 20, 30];
+− lst[0 as usize] = lst.get(0usize).cloned().unwrap() + 5;
+− log::info!("{:?}", lst);
++ 
+────────────────────────────────────────────────────────────

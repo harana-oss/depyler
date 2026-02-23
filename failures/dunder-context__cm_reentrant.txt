@@ -1,0 +1,42 @@
+  dunder-context.toml :: cm_reentrant
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust can't have multiple mutable borrows
+− // Need different approach
+− struct Counter {
+−     level: i32,
++ #[derive(Debug, Copy, Clone)]
++ pub struct Counter {
++     pub level: i32,
+  }
+− 
+  impl Counter {
+−     fn new() -> Self {
+−         Counter { level: 0 }
++     pub fn new() -> Self {
++         Self { level: 0 }
+      }
+− 
+−     fn enter(&mut self) {
++     pub fn __enter__(&mut self) -> &Self {
+          self.level += 1;
+−         log::info!("Level: {}", self.level);
++         log::info!("{}", format!("Level: {}", self.level));
++         return self;
+      }
+− 
+−     fn exit(&mut self) {
++     pub fn __exit__(&mut self) -> bool {
+          self.level -= 1;
++         return false;
+      }
+  }
+− 
+− let mut cm = Counter::new();
+− cm.enter();
+− cm.enter();
+− log::info!("Nested");
+− cm.exit();
+− cm.exit();
+────────────────────────────────────────────────────────────

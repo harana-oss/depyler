@@ -1,0 +1,11 @@
+  const-evaluation.toml :: const_list_literals
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− lazy_static! {
+−     pub static ref NUMBERS: Vec<i32> = vec![1, 2, 3, 4, 5];
+− }
+− use lazy_static::lazy_static;
++ pub const NUMBERS: serde_json::Value = vec![1, 2, 3, 4, 5];
++ use serde_json;
+────────────────────────────────────────────────────────────

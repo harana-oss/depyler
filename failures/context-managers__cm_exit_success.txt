@@ -1,0 +1,44 @@
+  context-managers.toml :: cm_exit_success
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct Observer {
+−         success: bool,
++ use serde_json;
++ #[derive(Debug, Copy, Clone)]
++ pub struct Observer {
++     pub exc_info: (),
++ }
++ impl Observer {
++     pub fn new() -> Self {
++         Self { exc_info: () }
+      }
+− 
+−     impl Observer {
+−         fn new() -> Self {
+−             Observer { success: false }
+−         }
++     pub fn __enter__(&self) -> &Self {
++         return self;
+      }
+− 
+−     impl Drop for Observer {
+−         fn drop(&mut self) {
+−             self.success = true;
+−         }
++     pub fn __exit__(
++         &mut self,
++         exc_type: serde_json::Value,
++         exc_val: serde_json::Value,
++         exc_tb: serde_json::Value,
++     ) -> bool {
++         self.exc_info = (exc_type, exc_val, exc_tb);
++         return false;
+      }
+− 
+−     {
+−         let mut obs = Observer::new();
+−         let x = 1 + 1;
+−     } // Drop called on success
++ }
+────────────────────────────────────────────────────────────

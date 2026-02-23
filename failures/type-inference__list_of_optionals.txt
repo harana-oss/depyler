@@ -1,0 +1,9 @@
+  type-inference.toml :: list_of_optionals
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn nullable_items(items: &Vec<Option<i32>>) -> i32 {
+−     return items.len() as i32;
++     return items.len() as i32 as i32;
+  }
+────────────────────────────────────────────────────────────

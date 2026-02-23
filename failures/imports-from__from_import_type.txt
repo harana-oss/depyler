@@ -1,0 +1,20 @@
+  imports-from.toml :: from_import_type
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust: types are imported from std
+−     use std::collections::HashMap;
+−     fn func(items: Vec<i32>) -> HashMap<String, i32> {
++ use std::collections::HashMap;
++ pub fn func(items: &Vec<i32>) -> HashMap<String, i32> {
++     return {
+          let mut map = HashMap::new();
+−         map.insert(String::from("count"), items.len() as i32);
++         map.insert("count".to_string(), items.len() as i32);
+          map
+−     }
+−     let result = func(vec![1, 2, 3]);
+−     assert_eq!(result.get("count"), Some(&3));
++     };
++ }
+────────────────────────────────────────────────────────────

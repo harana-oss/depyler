@@ -99,7 +99,7 @@ def count_up(n: int):
     i = 0
     while i < n:
         yield i
-        i = i + 1
+        i += 1
 '''
 
 rust = '''
@@ -503,7 +503,7 @@ rust = '''
 pub fn sum_generated(n: i32) -> i32 {
     let mut total = 0;
     for x in 0..n {
-        total = total + x;
+        total += x;
     }
     return total;
 }
@@ -677,7 +677,7 @@ def range_from(n: int):
     i = n
     while i > 0:
         yield i
-        i = i - 1
+        i -= 1
 '''
 
 rust = '''

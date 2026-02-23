@@ -1,0 +1,27 @@
+  chainmap.toml :: chainmap_new_child
+    Output mismatch
+
+────────────────────────────────────────────────────────────
++ use std::collections::ChainMap;
+  use std::collections::HashMap;
+− 
+− pub fn test_chainmap_new_child() -> usize {
+−     let mut dict1 = HashMap::new();
+−     dict1.insert("a".to_string(), 1);
+− 
+−     let mut maps = vec![dict1];
+−     let new_map = HashMap::new();
+−     maps.insert(0, new_map);
+− 
+−     return maps.len();
++ pub fn test_chainmap_new_child() -> i32 {
++     let dict1 = {
++         let mut map = HashMap::new();
++         map.insert("a".to_string(), 1);
++         map
++     };
++     let c = ChainMap::new(dict1);
++     let c2 = c.new_child();
++     return c2.maps.len() as i32 as i32;
+  }
+────────────────────────────────────────────────────────────

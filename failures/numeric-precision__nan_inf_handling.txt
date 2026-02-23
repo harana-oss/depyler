@@ -1,0 +1,9 @@
+  numeric-precision.toml :: nan_inf_handling
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn is_finite(value: f64) -> bool {
+−     return !value.is_infinite() && !value.is_nan();
++     return (!(value as f64).is_infinite()) && (!(value as f64).is_nan());
+  }
+────────────────────────────────────────────────────────────

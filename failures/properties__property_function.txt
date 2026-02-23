@@ -1,0 +1,45 @@
+  properties.toml :: property_function
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust doesn't have property() function, use regular methods
+− struct Person {
+−     name: String,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Person {
++     pub _name: serde_json::Value,
+  }
+− 
+  impl Person {
+−     fn new(name: &str) -> Self {
+−         Person {
+−             name: name.to_string(),
+−         }
++     pub const name: serde_json::Value =
++         property(get_name, set_name, del_name, "Person's name".to_string());
++     pub fn new(name: serde_json::Value) -> Self {
++         Self { _name: name }
++     }
++     pub fn get_name(&self) {
++         return self._name.clone();
+      }
+− 
+−     fn name(&self) -> &str {
+−         &self.name
++     pub fn set_name(&mut self, value: serde_json::Value) {
++         self._name = value;
+      }
+− 
+−     fn set_name(&mut self, value: &str) {
+−         self.name = value.to_string();
++     pub fn del_name(&self) {
++         {}
+      }
+  }
+− 
+− let mut p = Person::new("Alice");
+− log::info!("Name: {}", p.name());
+− p.set_name("Bob");
+− log::info!("Changed: {}", p.name());
+────────────────────────────────────────────────────────────

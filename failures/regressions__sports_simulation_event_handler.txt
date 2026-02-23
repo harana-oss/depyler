@@ -1,0 +1,112 @@
+  regressions.toml :: sports_simulation_event_handler
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub const FIRST_HALF_INDEX: i32 = 0;
+  pub const SECOND_HALF_INDEX: i32 = 1;
+  #[derive(Debug, Clone)]
+  pub struct IndexError {
+      message: String,
+  }
+  impl std::fmt::Display for IndexError {
+      fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+          write!(f, "index out of range: {}", self.message)
+      }
+  }
+  impl std::error::Error for IndexError {}
+  impl IndexError {
+      pub fn new(message: impl Into<String>) -> Self {
+          Self {
+              message: message.into(),
+          }
+      }
+  }
+  #[derive(Debug, Copy, Clone, PartialEq, Default)]
+  pub struct Scores {
+      pub total: i32,
+      pub tries: i32,
+  }
+  impl Scores {
+      pub fn new(total: i32, tries: i32) -> Self {
+          Self { total, tries }
+      }
+  }
+  #[derive(Debug, Clone, PartialEq, Default)]
+  pub struct PeriodStatistic {
+      pub scores: Scores,
+  }
+  impl PeriodStatistic {
+      pub fn new(scores: Scores) -> Self {
+          Self { scores }
+      }
+  }
+  #[derive(Debug, Clone, PartialEq, Default)]
+  pub struct TeamStatistics {
+      pub period_statistics: Vec<PeriodStatistic>,
+      pub match_scores: Scores,
+  }
+  impl TeamStatistics {
+      pub fn new(period_statistics: Vec<PeriodStatistic>, match_scores: Scores) -> Self {
+          Self {
+              period_statistics,
+              match_scores,
+          }
+      }
+  }
+  #[derive(Debug, Clone, PartialEq, Default)]
+  pub struct State {
+      pub game_status: String,
+      pub is_over: bool,
+      pub home_statistics: TeamStatistics,
+      pub away_statistics: TeamStatistics,
+      pub home_match_score: i32,
+      pub away_match_score: i32,
+  }
+  impl State {
+      pub fn new(
+          game_status: String,
+          is_over: bool,
+          home_statistics: TeamStatistics,
+          away_statistics: TeamStatistics,
+          home_match_score: i32,
+          away_match_score: i32,
+      ) -> Self {
+          Self {
+              game_status,
+              is_over,
+              home_statistics,
+              away_statistics,
+              home_match_score,
+              away_match_score,
+          }
+      }
+  }
+− pub fn end_of_game_output_event(state: &State) {
++ pub fn end_of_game_output_event(state: &State) -> Result<(), IndexError> {
+      let mut away_second_half_stats: Option<PeriodStatistic> = None;
+      let mut home_second_half_stats: Option<PeriodStatistic> = None;
+      let mut team_a_won_match: bool = false;
+      let mut draw_match: bool = false;
+      if state.game_status == "ENDED" {
+          home_second_half_stats = Some(
+              state
+                  .home_statistics
+                  .period_statistics
+                  .get(SECOND_HALF_INDEX as usize)
+                  .cloned()
+                  .unwrap(),
+          );
+          away_second_half_stats = Some(
+              state
+                  .away_statistics
+                  .period_statistics
+                  .get(SECOND_HALF_INDEX as usize)
+                  .cloned()
+                  .unwrap(),
+          );
+          team_a_won_match = state.home_match_score > state.away_match_score;
+          draw_match = state.home_match_score == state.away_match_score;
+      }
++     Ok(())
+  }
+────────────────────────────────────────────────────────────

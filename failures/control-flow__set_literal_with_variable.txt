@@ -1,0 +1,16 @@
+  control-flow.toml :: set_literal_with_variable
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use std::collections::HashSet;
+  pub fn create_set(x: i32) -> HashSet<i32> {
+      return {
+          let mut set = HashSet::new();
+          set.insert(x);
+          set.insert(x + 1);
+          set.insert(x + 2);
+          set
+−     }
++     };
++ }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,32 @@
+  metaclasses.toml :: metaclass_init
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // In Rust, initialization happens at compile time
+− struct MyClass;
+− 
++ use serde_json;
++ #[derive(Debug, Copy, Clone)]
++ pub struct InitMeta {}
++ impl InitMeta {
++     pub fn new(
++         cls: serde_json::Value,
++         name: String,
++         bases: serde_json::Value,
++         namespace: serde_json::Value,
++     ) -> Self {
++         Self {}
++     }
++ }
++ #[derive(Debug, Copy, Clone)]
++ pub struct MyClass {}
+  impl MyClass {
+−     const INITIALIZED: bool = true;
++     pub fn new() -> Self {
++         Self {}
++     }
+  }
+− 
+− log::info!("Initialized MyClass");
+− log::info!("{}", MyClass::INITIALIZED);
+────────────────────────────────────────────────────────────

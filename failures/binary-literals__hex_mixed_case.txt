@@ -1,0 +1,10 @@
+  binary-literals.toml :: hex_mixed_case
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− let x = 0xDeAdBeEf;
+−     let result = x == 3735928559;
++ pub const x: i32 = 3735928559;
++ pub const result: serde_json::Value = x == 3735928559;
++ use serde_json;
+────────────────────────────────────────────────────────────

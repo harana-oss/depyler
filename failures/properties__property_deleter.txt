@@ -1,0 +1,39 @@
+  properties.toml :: property_deleter
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct Person {
+−     name: Option<String>,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Person {
++     pub _name: serde_json::Value,
+  }
+− 
+  impl Person {
+−     fn new(name: &str) -> Self {
+−         Person {
+−             name: Some(name.to_string()),
+−         }
++     pub fn new(name: serde_json::Value) -> Self {
++         Self { _name: name }
+      }
+− 
+−     fn has_name(&self) -> bool {
+−         self.name.is_some()
++     pub fn name(&self) {
++         return self._name.clone();
+      }
+− 
+−     fn delete_name(&mut self) {
+−         self.name = None;
++     pub fn name(&self) {
++         {}
+      }
+  }
+− 
+− let mut p = Person::new("Alice");
+− log::info!("Has name: {}", p.has_name());
+− p.delete_name();
+− log::info!("Has name after delete: {}", p.has_name());
+────────────────────────────────────────────────────────────

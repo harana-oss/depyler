@@ -1,0 +1,12 @@
+  template-strings.toml :: template_dict
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust: using HashMap for substitution
+−     use std::collections::HashMap;
+−     let mut values = HashMap::new();
+−     values.insert("name", "World");
+−     let result = format!("Hello {}", values["name"]);
+−     assert_eq!(result, "Hello World");
++ 
+────────────────────────────────────────────────────────────

@@ -37,7 +37,7 @@ result = set([1, 2, 3])
 '''
 
 rust = '''
-pub const result: serde_json::Value = vec![1, 2, 3].into_iter().collect::<HashSet<_>>();
+pub const result: HashSet<i32> = vec![1, 2, 3].into_iter().collect::<HashSet<_>>();
 use serde_json;
 use std::collections::HashSet;
 '''
@@ -55,19 +55,18 @@ result = (is_set, is_dict)
 '''
 
 rust = '''
-pub const result: serde_json::Value = HashSet::<i32>::new();
-pub const is_set: serde_json::Value = std::any::type_name_of_val(&result).__name__ == "set";
-pub const is_dict: serde_json::Value =
+pub const result: HashSet<i32> = HashSet::<i32>::new();
+pub const is_set: bool = std::any::type_name_of_val(&result).__name__ == "set";
+pub const is_dict: bool =
     std::any::type_name_of_val(&empty_dict.clone()).__name__ == "dict";
-pub const result: (serde_json::Value, serde_json::Value) = (is_set, is_dict);
+pub const result: (bool, bool) = (is_set, is_dict);
 lazy_static! {
-    pub static ref empty_dict: HashMap<serde_json::Value, serde_json::Value> = {
+    pub static ref empty_dict: HashMap<String, i32> = {
         let map = HashMap::new();
         map
     };
 }
 use lazy_static::lazy_static;
-use serde_json;
 use std::collections::HashMap;
 use std::collections::HashSet;
 '''
@@ -81,7 +80,7 @@ result = set('hello')
 '''
 
 rust = '''
-pub const result: serde_json::Value = "hello".into_iter().collect::<HashSet<_>>();
+pub const result: HashSet<char> = "hello".chars().collect::<HashSet<_>>();
 use serde_json;
 use std::collections::HashSet;
 '''
@@ -101,7 +100,7 @@ result = a.union(b)
 '''
 
 rust = '''
-pub const result: serde_json::Value = a
+pub const result: HashSet<i32> = a
     .clone()
     .union(&b.clone())
     .cloned()
@@ -138,7 +137,7 @@ result = a.intersection(b)
 '''
 
 rust = '''
-pub const result: serde_json::Value = a
+pub const result: HashSet<i32> = a
     .clone()
     .intersection(&b.clone())
     .cloned()
@@ -175,7 +174,7 @@ result = a.difference(b)
 '''
 
 rust = '''
-pub const result: serde_json::Value = a
+pub const result: HashSet<i32> = a
     .clone()
     .difference(&b.clone())
     .cloned()
@@ -212,7 +211,7 @@ result = a.symmetric_difference(b)
 '''
 
 rust = '''
-pub const result: serde_json::Value = a
+pub const result: HashSet<i32> = a
     .clone()
     .symmetric_difference(&b.clone())
     .cloned()
@@ -253,7 +252,7 @@ result = a | b
 '''
 
 rust = '''
-pub const result: serde_json::Value = a
+pub const result: HashSet<i32> = a
     .clone()
     .union(&b.clone())
     .cloned()
@@ -290,7 +289,7 @@ result = a & b
 '''
 
 rust = '''
-pub const result: serde_json::Value = a
+pub const result: HashSet<i32> = a
     .clone()
     .intersection(&b.clone())
     .cloned()
@@ -327,7 +326,7 @@ result = a - b
 '''
 
 rust = '''
-pub const result: serde_json::Value = a
+pub const result: HashSet<i32> = a
     .clone()
     .difference(&b.clone())
     .cloned()
@@ -364,7 +363,7 @@ result = a ^ b
 '''
 
 rust = '''
-pub const result: serde_json::Value = a
+pub const result: HashSet<i32> = a
     .clone()
     .symmetric_difference(&b.clone())
     .cloned()
@@ -405,7 +404,7 @@ result = a.issubset(b)
 '''
 
 rust = '''
-pub const result: serde_json::Value = a.clone().is_subset(&b.clone());
+pub const result: bool = a.clone().is_subset(&b.clone());
 lazy_static! {
     pub static ref a: HashSet<i32> = {
         let mut set = HashSet::new();
@@ -437,7 +436,7 @@ result = a < b
 '''
 
 rust = '''
-pub const result: serde_json::Value = a.clone() < b.clone();
+pub const result: bool = a.clone() < b.clone();
 lazy_static! {
     pub static ref a: HashSet<i32> = {
         let mut set = HashSet::new();
@@ -469,7 +468,7 @@ result = a.issuperset(b)
 '''
 
 rust = '''
-pub const result: serde_json::Value = a.clone().is_superset(&b.clone());
+pub const result: bool = a.clone().is_superset(&b.clone());
 lazy_static! {
     pub static ref a: HashSet<i32> = {
         let mut set = HashSet::new();
@@ -501,7 +500,7 @@ result = a.isdisjoint(b)
 '''
 
 rust = '''
-pub const result: serde_json::Value = a.clone().is_disjoint(&b.clone());
+pub const result: bool = a.clone().is_disjoint(&b.clone());
 lazy_static! {
     pub static ref a: HashSet<i32> = {
         let mut set = HashSet::new();
@@ -536,7 +535,7 @@ result = len(s)
 '''
 
 rust = '''
-pub const result: serde_json::Value = s.clone().len() as i32;
+pub const result: i32 = s.len() as i32;
 lazy_static! {
     pub static ref s: HashSet<i32> = {
         let mut set = HashSet::new();
@@ -561,7 +560,7 @@ result = len(s)
 '''
 
 rust = '''
-pub const result: serde_json::Value = s.clone().len() as i32;
+pub const result: i32 = s.len() as i32;
 lazy_static! {
     pub static ref s: HashSet<i32> = {
         let mut set = HashSet::new();
@@ -588,7 +587,7 @@ result = len(s)
 '''
 
 rust = '''
-pub const result: serde_json::Value = s.clone().len() as i32;
+pub const result: i32 = s.len() as i32;
 lazy_static! {
     pub static ref s: HashSet<i32> = {
         let mut set = HashSet::new();
@@ -614,7 +613,7 @@ result = (elem, len(s))
 '''
 
 rust = '''
-pub const elem: serde_json::Value = s
+pub const elem: i32 = s
     .clone()
     .iter()
     .next()
@@ -624,7 +623,7 @@ pub const elem: serde_json::Value = s
         x
     })
     .expect("pop from empty set");
-pub const result: (serde_json::Value, serde_json::Value) = (elem, s.clone().len() as i32);
+pub const result: (i32, i32) = (elem, s.len() as i32);
 lazy_static! {
     pub static ref s: HashSet<i32> = {
         let mut set = HashSet::new();
@@ -648,7 +647,7 @@ result = len(s)
 '''
 
 rust = '''
-pub const result: serde_json::Value = s.clone().len() as i32;
+pub const result: i32 = s.len() as i32;
 lazy_static! {
     pub static ref s: HashSet<i32> = {
         let mut set = HashSet::new();
@@ -678,7 +677,7 @@ result = a
 '''
 
 rust = '''
-pub const result: serde_json::Value = a.clone();
+pub const result: HashSet<i32> = a.clone();
 lazy_static! {
     pub static ref a: HashSet<i32> = {
         let mut set = HashSet::new();
@@ -688,7 +687,6 @@ lazy_static! {
     };
 }
 use lazy_static::lazy_static;
-use serde_json;
 use std::collections::HashSet;
 '''
 
@@ -703,7 +701,7 @@ result = a
 '''
 
 rust = '''
-pub const result: serde_json::Value = a.clone();
+pub const result: HashSet<i32> = a.clone();
 lazy_static! {
     pub static ref a: HashSet<i32> = {
         let mut set = HashSet::new();
@@ -714,7 +712,6 @@ lazy_static! {
     };
 }
 use lazy_static::lazy_static;
-use serde_json;
 use std::collections::HashSet;
 '''
 
@@ -729,7 +726,7 @@ result = a
 '''
 
 rust = '''
-pub const result: serde_json::Value = a.clone();
+pub const result: HashSet<i32> = a.clone();
 lazy_static! {
     pub static ref a: HashSet<i32> = {
         let mut set = HashSet::new();
@@ -740,7 +737,6 @@ lazy_static! {
     };
 }
 use lazy_static::lazy_static;
-use serde_json;
 use std::collections::HashSet;
 '''
 
@@ -755,7 +751,7 @@ result = a
 '''
 
 rust = '''
-pub const result: serde_json::Value = a.clone();
+pub const result: HashSet<i32> = a.clone();
 lazy_static! {
     pub static ref a: HashSet<i32> = {
         let mut set = HashSet::new();
@@ -766,7 +762,6 @@ lazy_static! {
     };
 }
 use lazy_static::lazy_static;
-use serde_json;
 use std::collections::HashSet;
 '''
 
@@ -783,9 +778,8 @@ result = frozenset([1, 2, 3])
 '''
 
 rust = '''
-pub const result: serde_json::Value =
+pub const result: std::sync::Arc<HashSet<i32>> =
     std::sync::Arc::new(vec![1, 2, 3].into_iter().collect::<HashSet<_>>());
-use serde_json;
 use std::collections::HashSet;
 '''
 
@@ -819,17 +813,17 @@ result = (d[fs], len(s))
 '''
 
 rust = '''
-pub const fs: serde_json::Value =
+pub const fs: std::sync::Arc<HashSet<i32>> =
     std::sync::Arc::new(vec![1, 2, 3].into_iter().collect::<HashSet<_>>());
-pub const result: (serde_json::Value, serde_json::Value) =
-    (d.clone().get(&fs).cloned().unwrap(), s.clone().len() as i32);
+pub const result: (String, i32) =
+    (d.clone().get(&fs).cloned().unwrap(), s.len() as i32);
 lazy_static! {
-    pub static ref d: HashMap<serde_json::Value, String> = {
+    pub static ref d: HashMap<Point, String> = {
         let mut map = HashMap::new();
         map.insert(fs, "value".to_string());
         map
     };
-    pub static ref s: HashSet<serde_json::Value> = {
+    pub static ref s: HashSet<Point> = {
         let mut set = HashSet::new();
         set.insert(fs);
         set.insert(std::sync::Arc::new(
@@ -900,7 +894,7 @@ result = {x*2 for x in range(5)}
 '''
 
 rust = '''
-pub const result: serde_json::Value = (0..5).map(|x| x * 2).collect::<HashSet<_>>();
+pub const result: HashSet<i32> = (0..5).map(|x| x * 2).collect::<HashSet<_>>();
 use serde_json;
 use std::collections::HashSet;
 '''
@@ -1106,7 +1100,7 @@ rust = '''
 use serde_json;
 use std::collections::HashSet;
 #[doc = "Test frozenset functionality"]
-pub fn test_frozenset() -> (serde_json::Value, serde_json::Value, serde_json::Value) {
+pub fn test_frozenset() -> (i32, i32, i32) {
     let fs1 = std::sync::Arc::new(HashSet::<i32>::new());
     let fs2 = std::sync::Arc::new(vec![1, 2, 3].into_iter().collect::<HashSet<_>>());
     let fs3 = std::sync::Arc::new((4, 5, 6).into_iter().collect::<HashSet<_>>());

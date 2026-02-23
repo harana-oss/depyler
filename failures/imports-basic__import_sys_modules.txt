@@ -1,0 +1,11 @@
+  imports-basic.toml :: import_sys_modules
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust: no runtime module registry
+−     // Modules are resolved at compile time
+−     let result = true;
+−     assert!(result);
++ use std as sys;
++ use std as os;
+────────────────────────────────────────────────────────────

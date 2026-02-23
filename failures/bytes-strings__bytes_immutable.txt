@@ -1,0 +1,15 @@
+  bytes-strings.toml :: bytes_immutable
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn test_bytes_immutable() -> bool {
+−     // Bytes are immutable in Rust by default
+−     return true;
++     {
++         let b = b"x";
++         b[0 as usize] = 1;
++         return false;
++         return true;
++     }
+  }
+────────────────────────────────────────────────────────────

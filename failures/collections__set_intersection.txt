@@ -1,0 +1,17 @@
+  collections.toml :: set_intersection
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use serde_json;
+  use std::collections::HashSet;
+− pub fn intersect_sets(s1: &HashSet<Point>, s2: &HashSet<Point>) -> HashSet<Point> {
++ pub fn intersect_sets(
++     s1: &HashSet<serde_json::Value>,
++     s2: &HashSet<serde_json::Value>,
++ ) -> HashSet<serde_json::Value> {
+      return s1
+          .intersection(&s2)
+          .cloned()
+          .collect::<std::collections::HashSet<_>>();
+  }
+────────────────────────────────────────────────────────────

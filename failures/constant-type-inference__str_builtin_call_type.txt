@@ -1,0 +1,9 @@
+  constant-type-inference.toml :: str_builtin_call_type
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn int_to_str(x: i32) -> String {
+−     return x.to_string();
++     return (x).to_string();
+  }
+────────────────────────────────────────────────────────────

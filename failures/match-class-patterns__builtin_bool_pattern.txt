@@ -1,0 +1,15 @@
+  match-class-patterns.toml :: builtin_bool_pattern
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::any::Any;
+  
+−     let value: Box<dyn Any> = Box::new(true);
+−     let result = if value.is::<bool>() {
+−         "boolean"
+−     } else if value.is::<i32>() {
+−         "integer"
+−     } else {
+−         "other"
+−     };
+────────────────────────────────────────────────────────────

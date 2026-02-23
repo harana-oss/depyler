@@ -1,0 +1,15 @@
+  performance-patterns.toml :: loop_invariant_expression
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn compute_with_constant(items: Vec<i32>, a: i32, b: i32) -> i32 {
++ pub fn compute_with_constant(items: &Vec<i32>, a: i32, b: i32) -> i32 {
+      let multiplier = a + b;
+      let mut total = 0;
+−     for item in items {
++     for item in items.iter().cloned() {
+          total += item * multiplier;
+      }
+      return total;
+  }
+────────────────────────────────────────────────────────────

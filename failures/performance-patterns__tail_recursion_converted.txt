@@ -1,0 +1,13 @@
+  performance-patterns.toml :: tail_recursion_converted
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn sum_to_iter(n: i32) -> i32 {
+      let mut total = 0;
+−     for i in 1..=n {
++     for i in 1..n + 1 {
+          total += i;
+      }
+      return total;
+  }
+────────────────────────────────────────────────────────────

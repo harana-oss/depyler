@@ -1,0 +1,25 @@
+  ternary-expressions.toml :: ternary_float_cast_no_reference
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct State {
+−     x: i32,
+−     y: i32,
++ #[derive(Debug, Copy, Clone)]
++ pub struct State {
++     pub x: i32,
++     pub y: i32,
+  }
+− 
+  impl State {
+−     fn new() -> Self {
++     pub fn new() -> Self {
+          Self { x: 10, y: 20 }
+      }
+  }
+− 
+− let state = State::new();
+− let cond = true;
+− let result = (if cond { state.x } else { state.y }) as f64;
+− log::info!("{}", result);
+────────────────────────────────────────────────────────────

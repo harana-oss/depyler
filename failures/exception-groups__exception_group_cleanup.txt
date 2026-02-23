@@ -1,0 +1,61 @@
+  exception-groups.toml :: exception_group_cleanup
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug)]
+− struct CloseError(String);
+− 
+− struct Resource {
+−     name: String,
+−     should_fail: bool,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Resource {
++     pub name: serde_json::Value,
++     pub should_fail: serde_json::Value,
+  }
+− 
+  impl Resource {
+−     fn new(name: &str, should_fail: bool) -> Self {
+−         Resource {
+−             name: name.to_string(),
+−             should_fail,
+−         }
++     pub fn new(name: serde_json::Value, should_fail: serde_json::Value) -> Self {
++         Self { name, should_fail }
+      }
+− 
+−     fn close(&self) -> Result<(), CloseError> {
++     pub fn close(&self) {
+          if self.should_fail {
+−             Err(CloseError(format!("Failed to close {}", self.name)))
+−         } else {
+−             Ok(())
++             panic!(
++                 "Exception: {}",
++                 RuntimeError::new(format!("Failed to close {}", self.name))
++             );
+          }
+      }
+  }
+− 
+− let resources = vec![
+−     Resource::new("db", true),
+−     Resource::new("file", false),
+−     Resource::new("socket", true),
+− ];
+− 
+− let mut errors = Vec::new();
+− for res in &resources {
+−     if let Err(e) = res.close() {
+−         errors.push(e);
++ impl Drop for Resource {
++     fn drop(&mut self) {
++         self.close();
+      }
+  }
+− 
+− if !errors.is_empty() {
+−     log::info!("Cleanup errors: {}", errors.len());
+− }
+────────────────────────────────────────────────────────────

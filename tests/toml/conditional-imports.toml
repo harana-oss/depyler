@@ -90,7 +90,6 @@ def parse_json(s: str) -> dict[str, int]:
 '''
 
 rust = '''
-use serde_json;
 use std::collections::HashMap;
 pub fn parse_json(s: String) -> HashMap<String, i32> {
     return serde_json::from_str(&s).unwrap();

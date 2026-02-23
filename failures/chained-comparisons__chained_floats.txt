@@ -1,0 +1,11 @@
+  chained-comparisons.toml :: chained_floats
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // 0.0 < x < 1.0
+−     let x = 0.5;
+−     let result = 0.0 < x && x < 1.0;
++ pub const x: f64 = 0.5;
++ pub const result: serde_json::Value = (0.0 < x) && (x < 1.0);
++ use serde_json;
+────────────────────────────────────────────────────────────

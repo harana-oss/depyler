@@ -1,0 +1,14 @@
+  verification-contracts.toml :: precondition_multiple
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn bounded_add(a: i32, b: i32) -> i32 {
+−     assert!(a >= 0, "a must be non-negative");
+−     assert!(b >= 0, "b must be non-negative");
+−     assert!(a + b < 1000, "sum must be less than 1000");
++     assert!(a >= 0, "{}", "a must be non-negative");
++     assert!(b >= 0, "{}", "b must be non-negative");
++     assert!(a + b < 1000, "{}", "sum must be less than 1000");
+      return a + b;
+  }
+────────────────────────────────────────────────────────────

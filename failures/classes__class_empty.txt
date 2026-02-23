@@ -1,0 +1,13 @@
+  classes.toml :: class_empty
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug, Clone)]
++ #[derive(Debug, Copy, Clone)]
+  pub struct Empty {}
+  impl Empty {
+      pub fn new() -> Self {
+          Self {}
+      }
+  }
+────────────────────────────────────────────────────────────

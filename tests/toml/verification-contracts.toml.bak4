@@ -1,0 +1,549 @@
+[metadata]
+name = "Verification and Contracts Tests"
+category = "verification"
+
+# =============================================================================
+# Precondition Assertions
+# =============================================================================
+
+[[test]]
+name = "precondition_assert"
+description = "Function preconditions"
+
+python = '''
+def divide(a: int, b: int) -> int:
+    assert b != 0, "divisor cannot be zero"
+    return a // b
+'''
+
+rust = '''
+pub fn divide(a: i32, b: i32) -> i32 {
+    assert!(b != 0, "{}", "divisor cannot be zero");
+    return {
+        let a = a;
+        let b = b;
+        let q = a / b;
+        let r = a % b;
+        let r_negative = r < 0;
+        let b_negative = b < 0;
+        let r_nonzero = r != 0;
+        let signs_differ = r_negative != b_negative;
+        let needs_adjustment = r_nonzero && signs_differ;
+        if needs_adjustment {
+            q - 1
+        } else {
+            q
+        }
+    };
+}
+'''
+
+[[test]]
+name = "precondition_range"
+description = "Range precondition assertion"
+
+python = '''
+def index_array(items: list[int], idx: int) -> int:
+    assert 0 <= idx < len(items), "index out of bounds"
+    return items[idx]
+'''
+
+rust = '''
+pub fn index_array(items: &Vec<i32>, idx: i32) -> i32 {
+    assert!(
+        (0 <= idx) && (idx < items.len() as i32),
+        "{}",
+        "index out of bounds"
+    );
+    return items.get(idx as usize).cloned().unwrap();
+}
+'''
+
+[[test]]
+name = "precondition_type"
+description = "Type precondition assertion"
+
+python = '''
+def process_positive(n: int) -> int:
+    assert n > 0, "n must be positive"
+    return n * 2
+'''
+
+rust = '''
+pub fn process_positive(n: i32) -> i32 {
+    assert!(n > 0, "{}", "n must be positive");
+    return n * 2;
+}
+'''
+
+[[test]]
+name = "precondition_multiple"
+description = "Multiple preconditions"
+
+python = '''
+def bounded_add(a: int, b: int) -> int:
+    assert a >= 0, "a must be non-negative"
+    assert b >= 0, "b must be non-negative"
+    assert a + b < 1000, "sum must be less than 1000"
+    return a + b
+'''
+
+rust = '''
+pub fn bounded_add(a: i32, b: i32) -> i32 {
+    assert!(a >= 0, "{}", "a must be non-negative");
+    assert!(b >= 0, "{}", "b must be non-negative");
+    assert!(a + b < 1000, "{}", "sum must be less than 1000");
+    return a + b;
+}
+'''
+
+# =============================================================================
+# Postcondition Assertions
+# =============================================================================
+
+[[test]]
+name = "postcondition_assert"
+description = "Function postconditions"
+
+python = '''
+def absolute(n: int) -> int:
+    if n < 0:
+        result = -n
+    else:
+        result = n
+    assert result >= 0, "result must be non-negative"
+    return result
+'''
+
+rust = '''
+pub fn absolute(n: i32) -> i32 {
+    let result;
+    if n < 0 {
+        result = (-n);
+    } else {
+        result = n;
+    }
+    assert!(result >= 0, "{}", "result must be non-negative");
+    return result;
+}
+'''
+
+[[test]]
+name = "postcondition_bounds"
+description = "Bounds postcondition assertion"
+
+python = '''
+def clamp(value: int, min_val: int, max_val: int) -> int:
+    if value < min_val:
+        result = min_val
+    elif value > max_val:
+        result = max_val
+    else:
+        result = value
+    assert min_val <= result <= max_val
+    return result
+'''
+
+rust = '''
+pub fn clamp(value: i32, min_val: i32, max_val: i32) -> i32 {
+    let mut result;
+    if value < min_val {
+        result = min_val;
+    } else {
+        if value > max_val {
+            result = max_val;
+        } else {
+            result = value;
+        }
+    }
+    assert!((min_val <= result) && (result <= max_val));
+    return result;
+}
+'''
+
+[[test]]
+name = "postcondition_sorted"
+description = "Sorted postcondition assertion"
+
+python = '''
+def sort_pair(a: int, b: int) -> tuple[int, int]:
+    if a <= b:
+        result = (a, b)
+    else:
+        result = (b, a)
+    assert result[0] <= result[1]
+    return result
+'''
+
+rust = '''
+pub fn sort_pair(a: i32, b: i32) -> (i32, i32) {
+    let result;
+    if a <= b {
+        result = (a, b);
+    } else {
+        result = (b, a);
+    }
+    assert!(result.get(0usize).cloned().unwrap() <= result.get(1usize).cloned().unwrap());
+    return result;
+}
+'''
+
+# =============================================================================
+# Invariant Assertions
+# =============================================================================
+
+[[test]]
+name = "invariant_assertion"
+description = "Loop/class invariants"
+
+python = '''
+def sum_positive(items: list[int]) -> int:
+    total = 0
+    for item in items:
+        if item > 0:
+            total += item
+        assert total >= 0, "running total must be non-negative"
+    return total
+'''
+
+rust = '''
+pub fn sum_positive(items: &Vec<i32>) -> i32 {
+    let mut total = 0;
+    for item in items.iter().cloned() {
+        if item > 0 {
+            total += item;
+        }
+        assert!(total >= 0, "{}", "running total must be non-negative");
+    }
+    return total;
+}
+'''
+
+[[test]]
+name = "invariant_class"
+description = "Class invariant assertion"
+
+python = '''
+class NonNegativeCounter:
+    def __init__(self):
+        self.count = 0
+    
+    def increment(self) -> None:
+        self.count += 1
+        assert self.count >= 0
+    
+    def decrement(self) -> None:
+        if self.count > 0:
+            self.count -= 1
+        assert self.count >= 0
+'''
+
+rust = '''
+#[derive(Debug, Copy, Clone)]
+pub struct NonNegativeCounter {
+    pub count: i32,
+}
+impl NonNegativeCounter {
+    pub fn new() -> Self {
+        Self { count: 0 }
+    }
+    pub fn increment(&mut self) {
+        self.count += 1;
+        assert!(self.count >= 0);
+    }
+    pub fn decrement(&mut self) {
+        if self.count > 0 {
+            self.count -= 1;
+        }
+        assert!(self.count >= 0);
+    }
+}
+'''
+
+[[test]]
+name = "invariant_loop"
+description = "Loop invariant assertion"
+
+python = '''
+def binary_search(items: list[int], target: int) -> int:
+    low = 0
+    high = len(items) - 1
+    while low <= high:
+        assert low >= 0 and high < len(items), "bounds invariant"
+        mid = (low + high) // 2
+        if items[mid] == target:
+            return mid
+        elif items[mid] < target:
+            low = mid + 1
+        else:
+            high = mid - 1
+    return -1
+'''
+
+rust = '''
+pub fn binary_search(items: &Vec<i32>, target: i32) -> i32 {
+    let mut low = 0;
+    let _cse_temp_0 = (items.len() as i32).saturating_sub(1);
+    let mut high = _cse_temp_0;
+    while low <= high {
+        assert!(
+            (low >= 0) && (high < items.len() as i32),
+            "{}",
+            "bounds invariant"
+        );
+        let mid = {
+            let a = low + high;
+            let b = 2;
+            let q = a / b;
+            let r = a % b;
+            let r_negative = r < 0;
+            let b_negative = b < 0;
+            let r_nonzero = r != 0;
+            let signs_differ = r_negative != b_negative;
+            let needs_adjustment = r_nonzero && signs_differ;
+            if needs_adjustment {
+                q - 1
+            } else {
+                q
+            }
+        };
+        if items.get(mid as usize).cloned().unwrap() == target {
+            return mid;
+        } else {
+            if items.get(mid as usize).cloned().unwrap() < target {
+                low = mid + 1;
+            } else {
+                high = mid - 1;
+            }
+        }
+    }
+    return -1;
+}
+'''
+
+# =============================================================================
+# Type Contract Enforcement
+# =============================================================================
+
+[[test]]
+name = "type_contract_enforcement"
+description = "Runtime type checking"
+
+python = '''
+def typed_add(a: int, b: int) -> int:
+    return a + b
+'''
+
+rust = '''
+pub fn typed_add(a: i32, b: i32) -> i32 {
+    return a + b;
+}
+'''
+
+[[test]]
+name = "type_contract_list"
+description = "List type contract"
+
+python = '''
+def sum_list(items: list[int]) -> int:
+    total = 0
+    for item in items:
+        total += item
+    return total
+'''
+
+rust = '''
+pub fn sum_list(items: &Vec<i32>) -> i32 {
+    let mut total = 0;
+    for item in items.iter().cloned() {
+        total += item;
+    }
+    return total;
+}
+'''
+
+[[test]]
+name = "type_contract_optional"
+description = "Optional type contract"
+
+python = '''
+from typing import Optional
+
+def safe_divide(a: int, b: int) -> Optional[int]:
+    if b == 0:
+        return None
+    return a // b
+'''
+
+rust = '''
+pub fn safe_divide(a: i32, b: i32) -> Option<i32> {
+    if b == 0 {
+        return None;
+    }
+    return Some({
+        let a = a;
+        let b = b;
+        let q = a / b;
+        let r = a % b;
+        let r_negative = r < 0;
+        let b_negative = b < 0;
+        let r_nonzero = r != 0;
+        let signs_differ = r_negative != b_negative;
+        let needs_adjustment = r_nonzero && signs_differ;
+        if needs_adjustment { q - 1 } else { q }
+    });
+}
+'''
+
+# =============================================================================
+# Panic vs Result Decision
+# =============================================================================
+
+[[test]]
+name = "panic_vs_result"
+description = "Panic vs Result decision"
+
+python = '''
+def must_succeed(n: int) -> int:
+    if n < 0:
+        raise ValueError("n must be non-negative")
+    return n * 2
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ValueError {
+    message: String,
+}
+impl std::fmt::Display for ValueError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "value error: {}", self.message)
+    }
+}
+impl std::error::Error for ValueError {}
+impl ValueError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+pub fn must_succeed(n: i32) -> i32 {
+    if n < 0 {
+        panic!("{}", "n must be non-negative");
+    }
+    return n * 2;
+}
+'''
+
+[[test]]
+name = "panic_programmer_error"
+description = "Panic for programmer errors"
+
+python = '''
+def unreachable_branch(value: int) -> str:
+    if value > 0:
+        return "positive"
+    elif value < 0:
+        return "negative"
+    elif value == 0:
+        return "zero"
+    else:
+        raise AssertionError("unreachable")
+'''
+
+rust = '''
+pub fn unreachable_branch(value: i32) -> String {
+    if value > 0 {
+        return "positive".to_string();
+    } else {
+        if value < 0 {
+            return "negative".to_string();
+        } else {
+            if value == 0 {
+                return "zero".to_string();
+            } else {
+                panic!("{}", AssertionError::new("unreachable"));
+            }
+        }
+    }
+}
+'''
+
+[[test]]
+name = "result_recoverable"
+description = "Result for recoverable errors"
+
+python = '''
+from typing import Optional
+
+def parse_int(s: str) -> Optional[int]:
+    try:
+        return int(s)
+    except ValueError:
+        return None
+'''
+
+rust = '''
+pub fn parse_int(s: String) -> Option<i32> {
+    match s.parse::<i32>() {
+        Ok(__parsed_value) => Some(__parsed_value),
+        Err(_) => None,
+    }
+}
+'''
+
+[[test]]
+name = "result_propagation"
+description = "Result error propagation"
+
+python = '''
+from typing import Optional
+
+def double_parse(s: str) -> Optional[int]:
+    parsed = parse_safe(s)
+    if parsed is None:
+        return None
+    return parsed * 2
+
+def parse_safe(s: str) -> Optional[int]:
+    try:
+        return int(s)
+    except ValueError:
+        return None
+'''
+
+rust = '''
+pub fn double_parse(s: String) -> Option<i32> {
+    let parsed = parse_safe(s);
+    if parsed.is_none() {
+        return None;
+    }
+    return Some(parsed.unwrap() * 2);
+}
+pub fn parse_safe(s: String) -> Option<i32> {
+    match s.parse::<i32>() {
+        Ok(__parsed_value) => Some(__parsed_value),
+        Err(_) => None,
+    }
+}
+'''
+
+[[test]]
+name = "debug_assert_only"
+description = "Debug-only assertions"
+
+python = '''
+def debug_checked_add(a: int, b: int) -> int:
+    result = a + b
+    assert result >= a or result >= b, "overflow check"
+    return result
+'''
+
+rust = '''
+pub fn debug_checked_add(a: i32, b: i32) -> i32 {
+    let result = a + b;
+    assert!((result >= a) || (result >= b), "{}", "overflow check");
+    return result;
+}
+'''

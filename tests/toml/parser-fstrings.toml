@@ -67,10 +67,6 @@ assert f"{obj!s}" == "[1, 2]"
 assert f"{65!a}" == "65"
 '''
 
-# =============================================================================
-# Debug Feature (=)
-# =============================================================================
-
 [[test]]
 name = "fstring_debug_equals"
 description = "Debug = shows expression and value"

@@ -34,11 +34,8 @@ impl<T> MyClass<T> {
     }
 }
 
-fn main() {
-    let result = MyClass::<i32>::type_name();
-    log::info!("{}", result);
-}
-"""
+let result = MyClass::<i32>::type_name();
+log::info!("{}", result);"""
 expected_output = "MyClass[i32]"
 
 [[test]]
@@ -65,11 +62,8 @@ impl<T: 'static> Container<T> {
     }
 }
 
-fn main() {
-    log::info!("{}", Container::<i32>::describe());
-    log::info!("{}", Container::<String>::describe());
-}
-"""
+log::info!("{}", Container::<i32>::describe());
+log::info!("{}", Container::<String>::describe());"""
 expected_output = """Container of i32
 Container of alloc::string::String"""
 
@@ -98,11 +92,8 @@ struct Box<T> {
 // Type alias for Box<i32>
 type IntBox = Box<i32>;
 
-fn main() {
-    // Type information is compile-time; for runtime we use type_name
-    log::info!("{}", std::any::type_name::<i32>());
-}
-"""
+// Type information is compile-time; for runtime we use type_name
+log::info!("{}", std::any::type_name::<i32>());"""
 expected_output = "i32"
 
 # =============================================================================
@@ -152,13 +143,10 @@ impl<T> Stack<T> {
     }
 }
 
-fn main() {
-    let mut int_stack: Stack<i32> = Stack::new();
-    int_stack.push(1);
-    int_stack.push(2);
-    log::info!("{}", int_stack.pop().unwrap());
-}
-"""
+let mut int_stack: Stack<i32> = Stack::new();
+int_stack.push(1);
+int_stack.push(2);
+log::info!("{}", int_stack.pop().unwrap());"""
 expected_output = "2"
 
 [[test]]
@@ -205,12 +193,9 @@ impl<K, V> Pair<K, V> {
     }
 }
 
-fn main() {
-    let p = Pair::new("name", 42);
-    log::info!("{}", p.get_key());
-    log::info!("{}", p.get_value());
-}
-"""
+let p = Pair::new("name", 42);
+log::info!("{}", p.get_key());
+log::info!("{}", p.get_value());"""
 expected_output = """name
 42"""
 
@@ -260,13 +245,10 @@ impl Container {
     }
 }
 
-fn main() {
-    let c1 = Container::new(IntOrStr::Int(42));
-    let c2 = Container::new(IntOrStr::Str("hello".to_string()));
-    log::info!("{}", c1.value);
-    log::info!("{}", c2.value);
-}
-"""
+let c1 = Container::new(IntOrStr::Int(42));
+let c2 = Container::new(IntOrStr::Str("hello".to_string()));
+log::info!("{}", c1.value);
+log::info!("{}", c2.value);"""
 expected_output = """42
 hello"""
 
@@ -321,14 +303,11 @@ impl<T> Queue<T> {
     }
 }
 
-fn main() {
-    let mut q: Queue<i32> = Queue::new();
-    q.enqueue(1);
-    q.enqueue(2);
-    log::info!("{}", q.dequeue().unwrap());
-    log::info!("{}", q.dequeue().unwrap());
-}
-"""
+let mut q: Queue<i32> = Queue::new();
+q.enqueue(1);
+q.enqueue(2);
+log::info!("{}", q.dequeue().unwrap());
+log::info!("{}", q.dequeue().unwrap());"""
 expected_output = """1
 2"""
 
@@ -368,13 +347,10 @@ impl<T> Box<T> {
 type IntBox = Box<i32>;
 type StrBox = Box<String>;
 
-fn main() {
-    let b1: IntBox = Box::new(42);
-    let b2: StrBox = Box::new("hello".to_string());
-    log::info!("{}", b1.value);
-    log::info!("{}", b2.value);
-}
-"""
+let b1: IntBox = Box::new(42);
+let b2: StrBox = Box::new("hello".to_string());
+log::info!("{}", b1.value);
+log::info!("{}", b2.value);"""
 expected_output = """42
 hello"""
 
@@ -406,12 +382,9 @@ impl<T> Container<T> {
     }
 }
 
-fn main() {
-    let c = Container::new(42);
-    log::info!("{}", c.value);
-    log::info!("i32"); // Type is known at compile time
-}
-"""
+let c = Container::new(42);
+log::info!("{}", c.value);
+log::info!("i32"); // Type is known at compile time"""
 expected_output = """42
 int"""
 
@@ -447,12 +420,9 @@ struct Derived<T> {
     _marker: std::marker::PhantomData<T>,
 }
 
-fn main() {
-    // Type names are compile-time only; we print equivalent representations
-    log::info!("Base[int]");
-    log::info!("Derived[str]");
-}
-"""
+// Type names are compile-time only; we print equivalent representations
+log::info!("Base[int]");
+log::info!("Derived[str]");"""
 expected_output = """Base[int]
 Derived[str]"""
 
@@ -494,11 +464,8 @@ impl ClassGetItem for Derived {
     }
 }
 
-fn main() {
-    log::info!("{}", Base::class_getitem("int"));
-    log::info!("{}", Derived::class_getitem("int"));
-}
-"""
+log::info!("{}", Base::class_getitem("int"));
+log::info!("{}", Derived::class_getitem("int"));"""
 expected_output = """Base[int]
 Derived[int]"""
 
@@ -535,11 +502,8 @@ fn get_item(subscript: Subscript) -> String {
     }
 }
 
-fn main() {
-    log::info!("{}", get_item(Subscript::Slice { start: 1, stop: 10 }));
-    log::info!("{}", get_item(Subscript::Item(5)));
-}
-"""
+log::info!("{}", get_item(Subscript::Slice { start: 1, stop: 10 }));
+log::info!("{}", get_item(Subscript::Item(5)));"""
 expected_output = """Slice from 1 to 10
 Item: 5"""
 
@@ -577,11 +541,8 @@ impl<T: 'static, U: 'static> MyClass<T, U> {
     }
 }
 
-fn main() {
-    log::info!("{}", MyClass::<i32, String>::describe());
-    log::info!("{}", MyClass::<i32>::describe());
-}
-"""
+log::info!("{}", MyClass::<i32, String>::describe());
+log::info!("{}", MyClass::<i32>::describe());"""
 expected_output = """Multiple params: (i32, alloc::string::String)
 Single param: i32"""
 
@@ -610,12 +571,9 @@ struct MyClass<T> {
     _marker: std::marker::PhantomData<T>,
 }
 
-fn main() {
-    let type1 = TypeId::of::<MyClass<i32>>();
-    let type2 = TypeId::of::<MyClass<i32>>();
-    log::info!("{}", type1 == type2);
-}
-"""
+let type1 = TypeId::of::<MyClass<i32>>();
+let type2 = TypeId::of::<MyClass<i32>>();
+log::info!("{}", type1 == type2);"""
 expected_output = "true"
 
 [[test]]
@@ -642,10 +600,7 @@ impl<T: 'static> CustomDict<T> {
     }
 }
 
-fn main() {
-    log::info!("{}", CustomDict::<String>::describe());
-    log::info!("{}", CustomDict::<i32>::describe());
-}
-"""
+log::info!("{}", CustomDict::<String>::describe());
+log::info!("{}", CustomDict::<i32>::describe());"""
 expected_output = """CustomDict specialized for alloc::string::String
 CustomDict specialized for i32"""

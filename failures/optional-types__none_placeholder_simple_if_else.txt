@@ -1,0 +1,20 @@
+  optional-types.toml :: none_placeholder_simple_if_else
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn test_func() -> String {
++ pub fn test_func() {
+      let flag = true;
+−     let mut result: Option<String> = None;
++     let mut result = None;
+      if flag {
+−         result = Some("yes".to_string());
++         result = "yes".to_string();
+      } else {
+−         result = Some("no".to_string());
++         result = "no".to_string();
+      }
+−     result.unwrap()
++     return;
+  }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,21 @@
+  functools-wraps.toml :: wraps_doc
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Docstring preserved
+−     /// This is the docstring
+−     fn func() {}
+− 
+−     let result = true;
++ use std;
++ pub const result: serde_json::Value = func.__doc__ == "This is the docstring";
++ use serde_json;
++ pub fn my_decorator(f: &serde_json::Value) {
++     fn wrapper() -> () {
++         return f(args);
++     }
++     return wrapper;
++ }
++ #[doc = "This is the docstring"]
++ pub fn func() {}
+────────────────────────────────────────────────────────────

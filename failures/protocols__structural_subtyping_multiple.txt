@@ -1,0 +1,41 @@
+  protocols.toml :: structural_subtyping_multiple
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub trait Readable {
+−     fn read(&self) -> String;
+− }
+− 
+− pub trait Writable {
+−     fn write(&mut self, data: String);
+− }
+− 
++ #[derive(Debug, Clone)]
+  pub struct ReadWriteBuffer {
+      pub buffer: String,
+  }
+− 
+  impl ReadWriteBuffer {
+      pub fn new() -> Self {
+          Self {
+−             buffer: String::new(),
++             buffer: "".to_string(),
+          }
+      }
+− }
+− 
+− impl Readable for ReadWriteBuffer {
+−     fn read(&self) -> String {
+−         return self.buffer.clone();
++     pub fn read(&self) -> String {
++         return self.buffer;
+      }
+− }
+− 
+− impl Writable for ReadWriteBuffer {
+−     fn write(&mut self, data: String) {
++     pub fn write(&mut self, data: String) {
+          self.buffer = data;
+      }
+  }
+────────────────────────────────────────────────────────────

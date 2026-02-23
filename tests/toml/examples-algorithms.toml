@@ -205,8 +205,7 @@ impl IndexError {
 }
 #[doc = "Classic recursive fibonacci - demonstrates recursion"]
 pub fn fibonacci_recursive(n: i32) -> i32 {
-    let _cse_temp_0 = n <= 1;
-    if _cse_temp_0 {
+        if n <= 1 {
         return n;
     }
     fibonacci_recursive(n - 1) + fibonacci_recursive(n - 2)
@@ -236,8 +235,7 @@ pub fn fibonacci_memoized(n: i32, mut memo: HashMap<i32, i32>) -> Result<i32, In
 }
 #[doc = "Iterative fibonacci - demonstrates loops and efficiency"]
 pub fn fibonacci_iterative(n: i32) -> i32 {
-    let _cse_temp_0 = n <= 1;
-    if _cse_temp_0 {
+        if n <= 1 {
         return n;
     }
     let (mut a, mut b) = (0, 1);

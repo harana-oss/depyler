@@ -1,0 +1,19 @@
+  async-functions.toml :: async_closure
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub const result: serde_json::Value = {
+−     outer() };
+−     use serde_json;
+−     pub async fn outer() -> String {
++ pub async fn outer() -> String {
+      let x = 10;
+      async fn inner() -> () {
+      return format!("{}{}", x, 20);
+     
+  }
+  let result = inner().await;
+      log::info!("{}", format!("Closure result: {}", result));
+      return result;
+      }
+────────────────────────────────────────────────────────────

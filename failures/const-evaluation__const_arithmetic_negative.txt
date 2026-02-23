@@ -1,0 +1,11 @@
+  const-evaluation.toml :: const_arithmetic_negative
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub const NEG: i32 = -10;
++ pub const NEG: serde_json::Value = -10;
+  pub const POS: i32 = 5;
+− pub const SUM: i32 = NEG + POS;
++ pub const SUM: serde_json::Value = NEG + POS;
++ use serde_json;
+────────────────────────────────────────────────────────────

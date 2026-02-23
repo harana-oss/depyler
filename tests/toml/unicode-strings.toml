@@ -286,7 +286,7 @@ def string_length(s: str) -> int:
 
 rust = '''
 pub fn string_length(s: String) -> i32 {
-    return s.len() as i32 as i32;
+    return s.len() as i32;
 }
 '''
 
@@ -301,7 +301,7 @@ def emoji_length() -> int:
 
 rust = '''
 pub fn emoji_length() -> i32 {
-    return "😀".len() as i32 as i32;
+    return "😀".len() as i32;
 }
 '''
 

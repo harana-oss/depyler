@@ -1,0 +1,36 @@
+  dunder-context.toml :: exit_exception
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust Drop can't raise exceptions
+− // Panics in Drop will abort
+− struct FailExit;
+− 
++ #[derive(Debug, Copy, Clone)]
++ pub struct FailExit {}
+  impl FailExit {
+−     fn new() -> Self {
+−         FailExit
++     pub fn new() -> Self {
++         Self {}
+      }
+− }
+− 
+− impl Drop for FailExit {
+−     fn drop(&mut self) {
+−         // Can't raise, would panic
++     pub fn __enter__(&self) -> &Self {
++         return self;
+      }
++     pub fn __exit__(&self) {
++         panic!(
++             "Exception: {}",
++             RuntimeError::new("Exit failed".to_string())
++         );
++     }
+  }
+− 
+− let _fail = FailExit::new();
+− log::info!("Inside");
+− log::info!("Caught: Exit failed");
+────────────────────────────────────────────────────────────

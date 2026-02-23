@@ -1,0 +1,10 @@
+  template-strings.toml :: template_escape_text
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust: mixing literal and formatted
+−     let price = "9.99";
+−     let result = format!("Cost: ${}", price);
+−     assert_eq!(result, "Cost: $9.99");
++ 
+────────────────────────────────────────────────────────────

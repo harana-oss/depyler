@@ -1,0 +1,10 @@
+  format-spec.toml :: format_percent
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn format_as_percent() -> String {
+−     let n = 0.25 * 100.0;
+−     return format!("{:.1}%", n);
++     return format!("{:.1%}", 0.25);
+  }
+────────────────────────────────────────────────────────────

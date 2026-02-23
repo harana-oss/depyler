@@ -788,6 +788,11 @@ impl AstBridge {
                     .map_or(false, |name| name.as_str() == "metaclass")
                     && matches!(&kw.value, ast::Expr::Name(n) if n.id.as_str() == "ABCMeta")
             });
+        
+        // Debug output
+        if !base_classes.is_empty() {
+            eprintln!("Class: {}, base_classes: {:?}, is_abc: {}", class.name, base_classes, is_abc);
+        }
 
         // Convert methods and fields
         let mut methods = Vec::new();
@@ -894,6 +899,12 @@ impl AstBridge {
             }
         }
 
+        // Check if class defines __getattr__ or __setattr__ methods
+        // If so, we need to generate _get_field/_set_field methods for dynamic attribute access
+        let needs_dynamic_field_access = methods
+            .iter()
+            .any(|m| m.name == "__getattr__" || m.name == "__setattr__");
+
         Ok(Some(HirClass {
             name: class.name.to_string(),
             base_classes,
@@ -905,7 +916,7 @@ impl AstBridge {
             is_abc,
             docstring,
             annotations,
-            needs_dynamic_field_access: false,
+            needs_dynamic_field_access,
         }))
     }
 

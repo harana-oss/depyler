@@ -24,7 +24,6 @@ def update_stats(state: State) -> None:
 '''
 
 rust = '''
-use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Stats {
     pub score: i32,
@@ -66,7 +65,6 @@ def update_list(state: State) -> None:
 '''
 
 rust = '''
-use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct State {
     pub data: Vec<i32>,
@@ -99,7 +97,6 @@ def add_to_list(state: State) -> None:
 '''
 
 rust = '''
-use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct State {
     pub items: Vec<i32>,
@@ -133,7 +130,6 @@ def copy_value(state: State) -> int:
 '''
 
 rust = '''
-use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct State {
     pub count: i32,
@@ -167,7 +163,6 @@ def toggle_config(config: Config) -> None:
 '''
 
 rust = '''
-use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Config {
     pub enabled: bool,

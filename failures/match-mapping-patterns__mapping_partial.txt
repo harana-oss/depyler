@@ -1,0 +1,16 @@
+  match-mapping-patterns.toml :: mapping_partial
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::collections::HashMap;
+− 
+−     let mut data = HashMap::new();
+−     data.insert("required", 1);
+−     data.insert("extra", 2);
+−     data.insert("other", 3);
+  
+−     let result = match data.get("required") {
+−         Some(&v) => v,
+−         None => 0,
+−     };
+────────────────────────────────────────────────────────────

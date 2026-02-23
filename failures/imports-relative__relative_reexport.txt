@@ -1,0 +1,9 @@
+  imports-relative.toml :: relative_reexport
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // from .mod import func to re-export
+−     // In Rust: pub use super::mod::func;
+−     let result = true;
++ pub const result: bool = true;
+────────────────────────────────────────────────────────────

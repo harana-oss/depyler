@@ -1,0 +1,10 @@
+  modules-math.toml :: math_fabs
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use std::f64 as math;
+  pub fn absolute_float(x: f64) -> f64 {
+      return (x as f64).abs();
+− };
++ }
+────────────────────────────────────────────────────────────

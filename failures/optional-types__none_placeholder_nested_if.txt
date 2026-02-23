@@ -1,0 +1,30 @@
+  optional-types.toml :: none_placeholder_nested_if
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn test_func() -> String {
++ pub fn test_func() {
+      let x = true;
+      let y = false;
+−     let mut outer: Option<String> = None;
++     let mut outer = None;
+      if x {
+−         outer = Some("x".to_string());
+−         let mut inner: Option<String> = None;
++         outer = "x".to_string();
++         let mut inner = None;
+          if y {
+−             inner = Some("y".to_string());
++             inner = "y".to_string();
+          } else {
+−             inner = Some("z".to_string());
++             inner = "z".to_string();
+          }
+      } else {
+−         outer = Some("not-x".to_string());
++         outer = "not-x".to_string();
+      }
+−     outer.unwrap()
++     return;
+  }
+────────────────────────────────────────────────────────────

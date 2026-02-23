@@ -22,7 +22,6 @@ def process_color(c: Color) -> int:
 '''
 
 rust = '''
-use serde_json;
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Color {
     RED = 1,
@@ -55,7 +54,6 @@ def check_status(s: Status) -> bool:
 '''
 
 rust = '''
-use serde_json;
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Status {
     ACTIVE = 1,
@@ -87,7 +85,6 @@ def use_point_twice(p: Point) -> int:
 '''
 
 rust = '''
-use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Point {
     pub x: i32,
@@ -130,7 +127,6 @@ def get_delta(d: Direction) -> tuple[int, int]:
 '''
 
 rust = '''
-use serde_json;
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Direction {
     UP = 1,

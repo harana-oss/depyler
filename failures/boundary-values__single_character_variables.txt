@@ -1,0 +1,40 @@
+  boundary-values.toml :: single_character_variables
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug, Clone)]
+− pub struct ZeroDivisionError {
+−     message: String,
+− }
+− impl std::fmt::Display for ZeroDivisionError {
+−     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+−         write!(f, "division by zero: {}", self.message)
+−     }
+− }
+− impl std::error::Error for ZeroDivisionError {}
+− impl ZeroDivisionError {
+−     pub fn new(message: impl Into<String>) -> Self {
+−         Self {
+−             message: message.into(),
+−         }
+−     }
+− }
+− pub fn nested_control(n: i32) -> i32 {
+−     let mut result = 0;
+−     for i in 0..n {
+−         if i % 2 == 0 {
+−             for j in 0..i {
+−                 if j % 3 == 0 {
+−                     result += j;
+−                 }
+−             }
+−         }
+−     }
+−     return result;
++ pub fn single_chars(a: i32, b: i32, c: i32) -> i32 {
++     let x = a;
++     let y = b;
++     let z = c;
++     return x + y + z;
+  }
+────────────────────────────────────────────────────────────

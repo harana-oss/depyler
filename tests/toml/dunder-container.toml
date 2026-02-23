@@ -309,18 +309,16 @@ impl Container {
     }
 }
 
-fn main() {
-    let container = Container {
-        items: vec![1, 2, 3, 4, 5],
-    };
-    let result = container.contains(3) && !container.contains(6);
-    log::info!(
-        "3 in container: {}, 6 not in container: {}",
-        container.contains(3),
-        !container.contains(6)
-    );
-    log::info!("result: {}", result);
-}
+let container = Container {
+    items: vec![1, 2, 3, 4, 5],
+};
+let result = container.contains(3) && !container.contains(6);
+log::info!(
+    "3 in container: {}, 6 not in container: {}",
+    container.contains(3),
+    !container.contains(6)
+);
+log::info!("result: {}", result);
 '''
 
 

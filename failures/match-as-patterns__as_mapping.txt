@@ -1,0 +1,18 @@
+  match-as-patterns.toml :: as_mapping
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::collections::HashMap;
+− 
+−     let mut value = HashMap::new();
+−     value.insert("key", 42);
+−     value.insert("extra", 10);
+  
+−     let result = match value.get("key") {
+−         Some(&val) => {
+−             let d = &value;
+−             (val, d.len())
+−         }
+−         None => (0, 0),
+−     };
+────────────────────────────────────────────────────────────

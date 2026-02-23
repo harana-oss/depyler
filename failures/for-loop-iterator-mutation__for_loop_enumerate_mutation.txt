@@ -1,0 +1,13 @@
+  for-loop-iterator-mutation.toml :: for_loop_enumerate_mutation
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn double_items(items: &mut Vec<i32>) {
+−     for (i, value) in items.clone().iter().enumerate() {
+−         items[i] = value * 2;
++     for (i, value) in items.iter().enumerate().map(|(i, x)| (i as i32, x.clone())) {
++         let i = i as i32;
++         items[i as usize] = value * 2;
+      }
+  }
+────────────────────────────────────────────────────────────

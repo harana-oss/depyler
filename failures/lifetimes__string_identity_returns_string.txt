@@ -1,0 +1,9 @@
+  lifetimes.toml :: string_identity_returns_string
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn identity(s: String) -> String {
+      return s;
+− };
++ }
+────────────────────────────────────────────────────────────

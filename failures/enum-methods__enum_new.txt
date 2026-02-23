@@ -1,0 +1,25 @@
+  enum-methods.toml :: enum_new
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // In Rust, we use a struct-like enum or associated constants
+− struct Planet {
+−     mass: f64,
+−     radius: i32,
+− }
+− 
++ #[derive(Debug, Copy, Clone)]
++ pub struct Planet {}
+  impl Planet {
+−     const EARTH: Planet = Planet { mass: 5.97e24, radius: 6371 };
+−     const MARS: Planet = Planet { mass: 6.39e23, radius: 3390 }
+− 
+− log::info!("{}", Planet::EARTH.mass);
+− log::info!("{}", Planet::EARTH.radius);
++     pub const EARTH: i32 = (5970000000000000000000000, 6371);
++     pub const MARS: i32 = (639000000000000000000000, 3390);
++     pub fn new() -> Self {
++         Self {}
++     }
++ }
+────────────────────────────────────────────────────────────

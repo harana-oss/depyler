@@ -1,0 +1,17 @@
+  dunder-callable.toml :: callable_false
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct NotCallable;
+− 
+− let _obj = NotCallable;
+− log::info!("false"); // No __call__ method
+− log::info!("false"); // Integers aren't callable
++ #[derive(Debug, Copy, Clone)]
++ pub struct NotCallable {}
++ impl NotCallable {
++     pub fn new() -> Self {
++         Self {}
++     }
++ }
+────────────────────────────────────────────────────────────

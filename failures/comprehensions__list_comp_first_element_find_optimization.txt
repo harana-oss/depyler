@@ -1,0 +1,27 @@
+  comprehensions.toml :: list_comp_first_element_find_optimization
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn first_even(numbers: &Vec<i32>) -> i32 {
+−     return numbers.iter().find(|x| **x % 2 == 0).cloned().unwrap();
++ #[derive(Debug, Clone)]
++ pub struct IndexError {
++     message: String,
++ }
++ impl std::fmt::Display for IndexError {
++     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
++         write!(f, "index out of range: {}", self.message)
++     }
++ }
++ impl std::error::Error for IndexError {}
++ impl IndexError {
++     pub fn new(message: impl Into<String>) -> Self {
++         Self {
++             message: message.into(),
++         }
++     }
++ }
++ pub fn first_even(numbers: &Vec<i32>) -> Result<i32, IndexError> {
++     return Ok(numbers.iter().find(|x| *x % 2 == 0).cloned().unwrap());
+  }
+────────────────────────────────────────────────────────────

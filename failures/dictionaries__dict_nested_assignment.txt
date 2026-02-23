@@ -1,0 +1,22 @@
+  dictionaries.toml :: dict_nested_assignment
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use serde_json;
+  use std::collections::HashMap;
+− pub fn test_nested() -> HashMap<String, i32> {
++ pub fn test_nested() -> HashMap<serde_json::Value, serde_json::Value> {
+      let mut d = {
+          let map = HashMap::new();
+          map
+      };
+      d.insert("outer".to_string(), {
+          let map = HashMap::new();
+          map
+      });
+      d.get_mut(&"outer")
+          .unwrap()
+          .insert("inner".to_string(), "value".to_string());
+      return d;
+  }
+────────────────────────────────────────────────────────────

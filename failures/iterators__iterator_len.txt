@@ -1,0 +1,9 @@
+  iterators.toml :: iterator_len
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn length(items: &Vec<i32>) -> i32 {
+−     return items.len() as i32;
++     return items.len() as i32 as i32;
+  }
+────────────────────────────────────────────────────────────

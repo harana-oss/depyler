@@ -1,0 +1,39 @@
+  dunder-arithmetic.toml :: arithmetic_mixed
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust: operator precedence
+−     struct Number {
+−         value: i32,
+−     }
+−     impl std::ops::Add for Number {
+−         type Output = Number;
+−         fn add(self, other: Number) -> Number {
+−             Number {
+−                 value: self.value + other.value,
+−             }
+−         }
+−     }
+−     impl std::ops::Mul for Number {
+−         type Output = Number;
+−         fn mul(self, other: Number) -> Number {
+−             Number {
+−                 value: self.value * other.value,
+−             }
+−         }
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Number {
++     pub value: serde_json::Value,
++ }
++ impl Number {
++     pub fn new(value: serde_json::Value) -> Self {
++         Self { value }
+      }
+−     let a = Number { value: 2 };
+−     let b = Number { value: 3 };
+−     let c = Number { value: 4 };
+−     let result = a + b * c;
+−     assert_eq!(result.value, 14);
++ }
+────────────────────────────────────────────────────────────

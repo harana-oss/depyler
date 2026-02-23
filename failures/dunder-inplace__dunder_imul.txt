@@ -1,0 +1,28 @@
+  dunder-inplace.toml :: dunder_imul
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::ops::MulAssign;
+− 
+− #[derive(Debug)]
+− struct Counter {
+−     x: i32,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Counter {
++     pub x: serde_json::Value,
+  }
+− 
+− impl MulAssign for Counter {
+−     fn mul_assign(&mut self, other: Counter) {
+−         self.x *= other.x;
++ impl Counter {
++     pub fn new(x: serde_json::Value) -> Self {
++         Self { x }
+      }
+  }
+− 
+− let mut a = Counter { x: 5 };
+− a *= Counter { x: 3 };
+− log::info!("Counter({})", a.x);
+────────────────────────────────────────────────────────────

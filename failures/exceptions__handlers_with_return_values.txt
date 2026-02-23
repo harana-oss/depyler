@@ -1,0 +1,32 @@
+  exceptions.toml :: handlers_with_return_values
+    Output mismatch
+
+────────────────────────────────────────────────────────────
++ use serde_json;
+  use std::collections::HashMap;
+− pub fn get_value(data: &HashMap<String, i32>, key: String) -> String {
++ #[derive(Debug, Clone)]
++ pub struct IndexError {
++     message: String,
++ }
++ impl std::fmt::Display for IndexError {
++     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
++         write!(f, "index out of range: {}", self.message)
++     }
++ }
++ impl std::error::Error for IndexError {}
++ impl IndexError {
++     pub fn new(message: impl Into<String>) -> Self {
++         Self {
++             message: message.into(),
++         }
++     }
++ }
++ pub fn get_value(data: &HashMap<serde_json::Value, serde_json::Value>, key: String) -> String {
+      {
+          return data.get(&key).cloned().unwrap();
+          return "default_key".to_string();
+          return "default_type".to_string();
+      }
+  }
+────────────────────────────────────────────────────────────

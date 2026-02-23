@@ -1,0 +1,14 @@
+  global-nonlocal.toml :: global_no_assignment
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− static X: i32 = 42;
+− 
+− fn read_only() {
+−     log::info!("Value: {}", X);
++ pub fn read_only() {
++     log::info!("{}", format!("Value: {}", x));
+  }
+− 
+− read_only();
+────────────────────────────────────────────────────────────

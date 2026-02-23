@@ -1,0 +1,12 @@
+  match-as-patterns.toml :: as_with_or
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // case (1 | 2 | 3) as num: capture which matched
+−     let value = 2;
+−     let result = match value {
+−         num @ (1 | 2 | 3) => num == 2,
+−         _ => false,
+−     };
++ 
+────────────────────────────────────────────────────────────

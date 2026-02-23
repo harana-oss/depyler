@@ -27,7 +27,6 @@ def caller(s: State) -> None:
 '''
 
 rust = '''
-use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Stats {
     pub value: i32,
@@ -126,7 +125,6 @@ def add_item(c: Container, value: int) -> None:
 '''
 
 rust = '''
-use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Container {
     pub items: Vec<i32>,
@@ -169,7 +167,6 @@ def read_inner_value(o: Outer) -> int:
 '''
 
 rust = '''
-use serde_json;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Inner {
     pub value: i32,

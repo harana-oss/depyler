@@ -1,0 +1,11 @@
+  packages-all.toml :: all_reexport
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // In Rust, use pub use for re-exports
+−     // Example: pub use internal_module::Item;
+−     // This makes Item available at current module level
+−     let result = true;
+−     log::info!("Rust uses 'pub use' for re-exports");
++ 
+────────────────────────────────────────────────────────────

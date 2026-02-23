@@ -1,0 +1,47 @@
+  async-for.toml :: async_for_file
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use futures::stream::{self, StreamExt};
+− 
+− #[tokio::main]
+− async let lines = vec!["line1", "line2", "line3"];
+− let result: Vec<String> = stream::iter(lines)
+−     .map(|line| line.trim().to_string())
+−     .collect()
+−     .await;
+− log::info!("{:?}", result);
++ use serde_json;
++ #[doc = " Generator state struct"] #[derive(Debug)] struct AsyncLinesState {
++     state: usize, lines: Vec<String>
++ }
++ #[doc = " Generator function - returns Iterator"] pub fn async_lines() -> impl Iterator<Item = i32>{
++     AsyncLinesState {
++     state: 0, lines: Default::default()
++ }
++ } impl Iterator for AsyncLinesState {
++     type Item = i32;
++     fn next(&mut self) -> Option<Self::Item>{
++     match self.state {
++     0 =>{
++     self.state = 1;
++     self.lines = vec! ["line1".to_string(), "line2".to_string(), "line3".to_string()];
++     for _line in self.lines.iter().cloned() {
++     return Some(line);
++    
++ }
++ None
++ }
++ _ =>None
++ }
++ }
++ }
++ pub async fn test() -> Vec<serde_json::Value>{
++     let result = vec! [];
++     while let Some(line) = async_lines().next().await {
++     result.push(line.trim());
++    
++ }
++ return result;
++     }
+────────────────────────────────────────────────────────────

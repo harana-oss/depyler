@@ -1,0 +1,29 @@
+  enum-methods.toml :: enum_custom_repr
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::fmt;
+− 
+− #[derive(Debug)]
+− enum State {
+−     Init = 0,
+−     Running = 1,
+−     Stopped = 2,
+− }
+− 
+− impl fmt::Display for State {
+−     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+−         write!(f, "<State.{:?}>", self)
++ #[derive(Debug, Copy, Clone)]
++ pub struct State {}
++ impl State {
++     pub const INIT: i32 = 0;
++     pub const RUNNING: i32 = 1;
++     pub const STOPPED: i32 = 2;
++     pub fn new() -> Self {
++         Self {}
+      }
+  }
+− 
+− log::info!("{}", State::Running);
+────────────────────────────────────────────────────────────

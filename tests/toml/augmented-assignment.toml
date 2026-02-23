@@ -15,12 +15,9 @@ x += 5
 print(x)
 """
 rust = """
-fn main() {
-    let x = 10;
-    x += 5;
-    log::info!("{}", x);
-}
-"""
+let x = 10;
+x += 5;
+log::info!("{}", x);"""
 
 [[test]]
 name = "augmented_sub"
@@ -31,12 +28,9 @@ x -= 3
 print(x)
 """
 rust = """
-fn main() {
-    let x = 10;
-    x -= 3;
-    log::info!("{}", x);
-}
-"""
+let x = 10;
+x -= 3;
+log::info!("{}", x);"""
 
 [[test]]
 name = "augmented_mul"
@@ -47,12 +41,9 @@ x *= 4
 print(x)
 """
 rust = """
-fn main() {
-    let x = 5;
-    x *= 4;
-    log::info!("{}", x);
-}
-"""
+let x = 5;
+x *= 4;
+log::info!("{}", x);"""
 
 [[test]]
 name = "augmented_div"
@@ -63,12 +54,9 @@ x /= 4
 print(x)
 """
 rust = """
-fn main() {
-    let x = 10;
-    x /= 4;
-    log::info!("{}", x);
-}
-"""
+let x = 10;
+x /= 4;
+log::info!("{}", x);"""
 
 [[test]]
 name = "augmented_floor_div"
@@ -79,12 +67,9 @@ x //= 3
 print(x)
 """
 rust = """
-fn main() {
-    let x = 10;
-    x /= 3;
-    log::info!("{}", x);
-}
-"""
+let x = 10;
+x /= 3;
+log::info!("{}", x);"""
 
 [[test]]
 name = "augmented_mod"
@@ -95,12 +80,9 @@ x %= 3
 print(x)
 """
 rust = """
-fn main() {
-    let x = 10;
-    x %= 3;
-    log::info!("{}", x);
-}
-"""
+let x = 10;
+x %= 3;
+log::info!("{}", x);"""
 
 [[test]]
 name = "augmented_pow"
@@ -111,11 +93,8 @@ x **= 3
 print(x)
 """
 rust = """
-fn main() {
-    let x = 2;
-    log::info!("{}", x);
-}
-"""
+let x = 2;
+log::info!("{}", x);"""
 
 # =============================================================================
 # Bitwise Augmented Assignment
@@ -130,12 +109,9 @@ x &= 10  # 1010
 print(x)  # 1000 = 8
 """
 rust = """
-fn main() {
-    let x = 12;
-    x &= 10;
-    log::info!("{}", x);
-}
-"""
+let x = 12;
+x &= 10;
+log::info!("{}", x);"""
 
 [[test]]
 name = "augmented_or"
@@ -146,12 +122,9 @@ x |= 10  # 1010
 print(x)  # 1110 = 14
 """
 rust = """
-fn main() {
-    let x = 12;
-    x |= 10;
-    log::info!("{}", x);
-}
-"""
+let x = 12;
+x |= 10;
+log::info!("{}", x);"""
 
 [[test]]
 name = "augmented_xor"
@@ -162,12 +135,9 @@ x ^= 10  # 1010
 print(x)  # 0110 = 6
 """
 rust = """
-fn main() {
-    let x = 12;
-    x ^= 10;
-    log::info!("{}", x);
-}
-"""
+let x = 12;
+x ^= 10;
+log::info!("{}", x);"""
 
 [[test]]
 name = "augmented_rshift"
@@ -178,12 +148,9 @@ x >>= 2
 print(x)
 """
 rust = """
-fn main() {
-    let x = 16;
-    x >>= 2;
-    log::info!("{}", x);
-}
-"""
+let x = 16;
+x >>= 2;
+log::info!("{}", x);"""
 
 [[test]]
 name = "augmented_lshift"
@@ -194,12 +161,9 @@ x <<= 2
 print(x)
 """
 rust = """
-fn main() {
-    let x = 4;
-    x <<= 2;
-    log::info!("{}", x);
-}
-"""
+let x = 4;
+x <<= 2;
+log::info!("{}", x);"""
 
 # =============================================================================
 # Augmented Assignment with Collections
@@ -214,12 +178,9 @@ lst += [4, 5]
 print(lst)
 """
 rust = """
-fn main() {
-    let lst = vec![1, 2, 3];
-    lst += vec![4, 5];
-    log::info!("{:?}", lst);
-}
-"""
+let lst = vec![1, 2, 3];
+lst += vec![4, 5];
+log::info!("{:?}", lst);"""
 
 [[test]]
 name = "augmented_add_string"
@@ -230,12 +191,9 @@ s += " world"
 print(s)
 """
 rust = """
-fn main() {
-    let s = "hello".to_string();
-    s += " world";
-    log::info!("{}", s);
-}
-"""
+let s = "hello".to_string();
+s += " world";
+log::info!("{}", s);"""
 
 [[test]]
 name = "augmented_mul_list"
@@ -246,12 +204,9 @@ lst *= 3
 print(lst)
 """
 rust = """
-fn main() {
-    let lst = vec![1, 2];
-    lst *= 3;
-    log::info!("{:?}", lst);
-}
-"""
+let lst = vec![1, 2];
+lst *= 3;
+log::info!("{:?}", lst);"""
 
 # =============================================================================
 # Augmented Assignment with Subscripts
@@ -266,12 +221,9 @@ lst[0] += 5
 print(lst)
 """
 rust = """
-fn main() {
-    let lst = vec![10, 20, 30];
-    lst[0 as usize] = lst.get(0usize).cloned().unwrap() + 5;
-    log::info!("{:?}", lst);
-}
-"""
+let lst = vec![10, 20, 30];
+lst[0 as usize] = lst.get(0usize).cloned().unwrap() + 5;
+log::info!("{:?}", lst);"""
 
 [[test]]
 name = "augmented_dict_value"
@@ -282,17 +234,14 @@ d['a'] += 5
 print(d['a'])
 """
 rust = """
-fn main() {
-    let d = {
-        let mut map = HashMap::new();
-        map.insert("a".to_string(), 10);
-        map.insert("b".to_string(), 20);
-        map
-    };
-    d.insert("a".to_string(), d.get("a").cloned().unwrap() + 5);
-    log::info!("{}", d.get("a").cloned().unwrap());
-}
-"""
+let d = {
+    let mut map = HashMap::new();
+    map.insert("a".to_string(), 10);
+    map.insert("b".to_string(), 20);
+    map
+};
+d.insert("a".to_string(), d.get("a").cloned().unwrap() + 5);
+log::info!("{}", d.get("a").cloned().unwrap());"""
 
 # =============================================================================
 # Augmented Assignment with Attributes
@@ -319,32 +268,10 @@ impl Counter {
     pub fn new() -> Self {
         Self { count: 0 }
     }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "count" => Some(Box::new(self.count.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "count" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.count = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
-    }
 }
-fn main() {
-    let obj = Counter::new();
-    obj.count += 5;
-    log::info!("{}", obj.count);
-}
-"""
+let obj = Counter::new();
+obj.count += 5;
+log::info!("{}", obj.count);"""
 
 # =============================================================================
 # Edge Cases
@@ -360,13 +287,10 @@ same_list += [4]
 print(original_list is same_list, original_list)
 """
 rust = """
-fn main() {
-    let original_list = vec![1, 2, 3];
-    let same_list = original_list;
-    same_list += vec![4];
-    log::info!("{} {:?}", original_list == same_list, original_list);
-}
-"""
+let original_list = vec![1, 2, 3];
+let same_list = original_list;
+same_list += vec![4];
+log::info!("{} {:?}", original_list == same_list, original_list);"""
 
 [[test]]
 name = "augmented_custom_iadd"
@@ -397,32 +321,10 @@ impl Counter {
     pub fn new(value: serde_json::Value) -> Self {
         Self { value }
     }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "value" => Some(Box::new(self.value.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "value" => {
-                if let Some(v) = value.downcast_ref::<serde_json::Value>() {
-                    self.value = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
-    }
 }
-fn main() {
-    let c = Counter::new(10);
-    c += 5;
-    log::info!("{:?}", c);
-}
-"""
+let c = Counter::new(10);
+c += 5;
+log::info!("{:?}", c);"""
 expected_output = "Counter(15)"
 
 [[test]]
@@ -478,34 +380,6 @@ impl Counter {
         self.values
             .insert(index, format!("{}{}", self.values[index as usize], value));
     }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "count" => Some(Box::new(self.count.clone()) as Box<dyn std::any::Any>),
-            "values" => Some(Box::new(self.values.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "count" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.count = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "values" => {
-                if let Some(v) = value.downcast_ref::<Vec<serde_json::Value>>() {
-                    self.values = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
-    }
 }
 pub fn test_compound_ops() -> (serde_json::Value, serde_json::Value, i32) {
     let mut c = Counter::new();
@@ -524,13 +398,10 @@ pub fn test_compound_ops() -> (serde_json::Value, serde_json::Value, i32) {
         d.get("score").cloned().unwrap(),
     );
 }
-fn main() {
-    let result = test_compound_ops();
-    log::info!("{}", result.get(0usize).cloned().unwrap());
-    log::info!("{}", result.get(1usize).cloned().unwrap());
-    log::info!("{}", result.get(2usize).cloned().unwrap());
-}
-"""
+let result = test_compound_ops();
+log::info!("{}", result.get(0usize).cloned().unwrap());
+log::info!("{}", result.get(1usize).cloned().unwrap());
+log::info!("{}", result.get(2usize).cloned().unwrap());"""
 expected_output = """1
 11
 150"""

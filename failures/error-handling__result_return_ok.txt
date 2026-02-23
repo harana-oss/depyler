@@ -1,0 +1,9 @@
+  error-handling.toml :: result_return_ok
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn success(value: i32) -> i32 {
+      return value;
+− };
++ }
+────────────────────────────────────────────────────────────

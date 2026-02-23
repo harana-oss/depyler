@@ -1,0 +1,31 @@
+  concurrency.toml :: atomic_operations
+    Output mismatch
+
+────────────────────────────────────────────────────────────
++ #[derive(Debug, Copy, Clone)]
+  pub struct AtomicCounter {
+      pub value: i32,
+  }
+− 
+  impl AtomicCounter {
+      pub fn new(initial: i32) -> Self {
+          Self { value: initial }
+      }
+− 
+      pub fn load(&self) -> i32 {
+−         return self.value;
++         return self.value.clone();
+      }
+− 
+      pub fn store(&mut self, val: i32) {
+          self.value = val;
+      }
+− 
+      pub fn fetch_add(&mut self, delta: i32) -> i32 {
+−         let old = self.value;
++         let mut old = self.value;
+          self.value += delta;
+          return old;
+      }
+  }
+────────────────────────────────────────────────────────────

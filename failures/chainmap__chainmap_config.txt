@@ -1,0 +1,65 @@
+  chainmap.toml :: chainmap_config
+    Output mismatch
+
+────────────────────────────────────────────────────────────
++ use serde_json;
++ use std::collections::ChainMap;
+  use std::collections::HashMap;
+− 
+− pub fn test_chainmap_config() -> String {
+−     let mut default_config = HashMap::new();
+−     default_config.insert("host".to_string(), "localhost".to_string());
+−     default_config.insert("port".to_string(), "8080".to_string());
+− 
+−     let mut user_config = HashMap::new();
+−     user_config.insert("port".to_string(), "3000".to_string());
+− 
+−     let maps = vec![user_config, default_config];
+− 
+−     let mut host = String::new();
+−     let mut port = String::new();
+− 
+−     for map in &maps {
+−         if host.is_empty() {
+−             if let Some(h) = map.get("host") {
+−                 host = h.clone();
+−             }
++ #[derive(Debug, Clone)]
++ pub struct IndexError {
++     message: String,
++ }
++ impl std::fmt::Display for IndexError {
++     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
++         write!(f, "index out of range: {}", self.message)
++     }
++ }
++ impl std::error::Error for IndexError {}
++ impl IndexError {
++     pub fn new(message: impl Into<String>) -> Self {
++         Self {
++             message: message.into(),
+          }
+−         if port.is_empty() {
+−             if let Some(p) = map.get("port") {
+−                 port = p.clone();
+−             }
+−         }
+      }
+− 
+−     return format!("{}:{}", host, port);
+  }
++ pub fn test_chainmap_config() -> String {
++     let default_config = serde_json::json!({ "host": "localhost", "port": 8080 });
++     let user_config = {
++         let mut map = HashMap::new();
++         map.insert("port".to_string(), 3000);
++         map
++     };
++     let config = ChainMap::new(user_config, default_config);
++     return format!(
++         "{}:{}",
++         config.get("host").cloned().unwrap(),
++         config.get("port").cloned().unwrap()
++     );
++ }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,27 @@
+  dunder-attribute.toml :: dynamic_attrs
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct Computed;
+− 
++ #[derive(Debug, Copy, Clone)]
++ pub struct Computed {}
+  impl Computed {
+−     fn get_attr(&self, name: &str) -> Result<i32, String> {
+−         if name.starts_with("double_") {
+−             let n: i32 = name[7..]
+−                 .parse()
+−                 .map_err(|_| "Invalid number".to_string())?;
+−             Ok(n * 2)
+−         } else {
+−             Err(name.to_string())
+−         }
++     pub fn new() -> Self {
++         Self {}
+      }
+  }
+− 
+− let obj = Computed;
+− log::info!("{}", obj.get_attr("double_5").unwrap());
+− log::info!("{}", obj.get_attr("double_10").unwrap());
+────────────────────────────────────────────────────────────

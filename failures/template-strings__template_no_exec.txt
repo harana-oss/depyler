@@ -1,0 +1,10 @@
+  template-strings.toml :: template_no_exec
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust: format is also just substitution
+−     let x = "object";
+−     let result = format!("Value: {}", x);
+−     assert_eq!(result, "Value: object");
++ 
+────────────────────────────────────────────────────────────

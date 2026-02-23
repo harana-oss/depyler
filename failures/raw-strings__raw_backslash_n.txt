@@ -1,0 +1,12 @@
+  raw-strings.toml :: raw_backslash_n
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− let raw = r"\n";
+−     let normal = "\n";
+−     let result = (raw.len() == 2 && normal.len() == 1);
++ pub const raw: &str = "\\n";
++ pub const normal: &str = "\n";
++ pub const result: serde_json::Value = (raw.len() as i32 == 2) && (normal.len() as i32 == 1);
++ use serde_json;
+────────────────────────────────────────────────────────────

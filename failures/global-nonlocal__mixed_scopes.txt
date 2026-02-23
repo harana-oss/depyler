@@ -1,0 +1,56 @@
+  global-nonlocal.toml :: mixed_scopes
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::cell::Cell;
+− use std::sync::atomic::{AtomicI32, Ordering};
+− 
+− static GLOBAL_COUNT: AtomicI32 = AtomicI32::new(0);
+− 
+− fn level1() {
+−     let local1 = Cell::new(10);
+− 
+−     let level2 = || {
+−         let local2 = Cell::new(20);
+− 
+−         let level3 = || {
+−             GLOBAL_COUNT.fetch_add(1, Ordering::SeqCst);
+−             local1.set(local1.get() + 1);
+−             local2.set(local2.get() + 1);
+− 
++ pub fn level1() {
++     let local1 = 10;
++     fn level2() -> () {
++         let local2 = 20;
++         fn level3() -> () {
++             global_count += 1;
++             local1 += 1;
++             local2 += 1;
+              log::info!(
+−                 "Level 3 - Global: {}, L1: {}, L2: {}",
+−                 GLOBAL_COUNT.load(Ordering::SeqCst),
+−                 local1.get(),
+−                 local2.get()
++                 "{}",
++                 format!(
++                     "Level 3 - Global: {}, L1: {}, L2: {}",
++                     global_count, local1, local2
++                 )
+              );
+−         };
+− 
++         }
+          level3();
+−         log::info!("Level 2 - L1: {}, L2: {}", local1.get(), local2.get());
+−     };
+− 
++         log::info!("{}", format!("Level 2 - L1: {}, L2: {}", local1, local2));
++     }
+      level2();
+−     log::info!("Level 1 - L1: {}", local1.get());
++     log::info!("{}", format!("Level 1 - L1: {}", local1));
+  }
+− 
+− level1();
+− log::info!("Global count: {}", GLOBAL_COUNT.load(Ordering::SeqCst));
+────────────────────────────────────────────────────────────

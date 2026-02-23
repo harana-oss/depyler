@@ -1,0 +1,9 @@
+  counter.toml :: counter_clear
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use std::collections::HashMap;
+− let mut c: HashMap<char, i32> = [('a', 2), ('b', 1)].iter().cloned().collect();
+− c.clear();
+− log::info!("{}", c.len());
+────────────────────────────────────────────────────────────

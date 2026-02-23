@@ -1,0 +1,9 @@
+  type-inference.toml :: named_import_item_any
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn accepts_any(value: Any) -> Any {
+      return value;
+− };
++ }
+────────────────────────────────────────────────────────────

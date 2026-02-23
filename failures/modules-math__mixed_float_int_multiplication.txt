@@ -1,0 +1,9 @@
+  modules-math.toml :: mixed_float_int_multiplication
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn multiply(x: f64) -> f64 {
+−     return x * (3 as f64);
++     return x * ((3) as f64);
+  }
+────────────────────────────────────────────────────────────

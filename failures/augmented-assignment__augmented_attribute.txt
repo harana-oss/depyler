@@ -1,0 +1,17 @@
+  augmented-assignment.toml :: augmented_attribute
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  #[derive(Debug, Copy, Clone)]
+  pub struct Counter {
+      pub count: i32,
+  }
+  impl Counter {
+      pub fn new() -> Self {
+          Self { count: 0 }
+      }
+  }
+− let obj = Counter::new();
+− obj.count += 5;
+− log::info!("{}", obj.count);
+────────────────────────────────────────────────────────────

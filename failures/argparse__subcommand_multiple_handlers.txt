@@ -1,0 +1,42 @@
+  argparse.toml :: subcommand_multiple_handlers
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use clap::Parser;
+  #[derive(clap::Subcommand)]
+  enum Commands {
+      Clone { url: String },
+      Push { remote: String },
+  }
+  #[derive(Debug, clap::Parser)]
+  struct Args {
+      #[command(subcommand)]
+      command: Commands,
+  }
+  pub fn main() {
+      let args = Args::parse();
+      match args.command {
+          Commands::Clone { url } => {
+              handle_clone(&args);
+          }
+          Commands::Push { remote } => {
+              handle_push(&args);
+          }
+      }
+  }
+  pub fn handle_clone(args: &Args) {
+      if let Commands::Clone { url } = &args.command {
+          log::info!("{}", format!("Clone: {}", url));
+      }
+  }
+  pub fn handle_push(args: &Args) {
+      if let Commands::Push { remote } = &args.command {
+          log::info!("{}", format!("Push to: {}", remote));
+      }
+  }
+− fn main() {
+−     if __name__ == "__main__" {
+−         main();
+−     }
+− }
+────────────────────────────────────────────────────────────

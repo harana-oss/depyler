@@ -1,0 +1,18 @@
+  parser-pattern-matching.toml :: pattern_capture
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− fn extract(x: i64) -> i64 {
+−     match x {
+−         n => n * 2,
+−     }
+− }
+− 
+− fn main() {
+−     let result = extract(5);
+−     println!("{}", result);
++ pub fn extract(x: i32) -> i32 {
++     let n = x;
++     return n * 2;
+  }
+────────────────────────────────────────────────────────────

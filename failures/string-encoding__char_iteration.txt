@@ -1,0 +1,10 @@
+  string-encoding.toml :: char_iteration
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn list_chars(s: &str) -> Vec<String> {
+−     return s.chars().map(|c| c.to_string()).collect();
++ pub fn list_chars(s: String) -> Vec<String> {
++     return s.into_iter().collect::<Vec<_>>();
+  }
+────────────────────────────────────────────────────────────

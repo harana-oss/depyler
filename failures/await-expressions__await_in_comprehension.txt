@@ -1,0 +1,10 @@
+  await-expressions.toml :: await_in_comprehension
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− async fn f() {
+−     // Async function
+− }
++ pub async fn f() {
++     }
+────────────────────────────────────────────────────────────

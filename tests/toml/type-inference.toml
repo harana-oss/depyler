@@ -162,7 +162,7 @@ def count(items: list[int]) -> int:
 
 rust = '''
 pub fn count(items: &Vec<i32>) -> i32 {
-    return items.len() as i32 as i32;
+    return items.len() as i32;
 }
 '''
 
@@ -177,7 +177,7 @@ def to_string(x: int) -> str:
 
 rust = '''
 pub fn to_string(x: i32) -> String {
-    return (x).to_string();
+    return x.to_string();
 }
 '''
 
@@ -193,12 +193,7 @@ def add(a: int, b: int) -> int:
 rust = '''
 pub fn add(a: i32, b: i32) -> i32 {
     return a + b;
-};
-            let result1 = add(a.clone(), b.clone());
-            let result2 = add(b.clone(), a.clone());
-            if result1 != result2 {
-                return TestResult::failed();
-            }
+}
 '''
 
 [[test]]
@@ -370,8 +365,7 @@ def maybe_value(x: int) -> Optional[int]:
 
 rust = '''
 pub fn maybe_value(x: i32) -> Option<i32> {
-    let _cse_temp_0 = x > 0;
-    if _cse_temp_0 {
+    if x > 0 {
         return Some(x);
     }
     return None;
@@ -619,7 +613,7 @@ def get_length(text: str) -> int:
 
 rust = '''
 pub fn get_length(text: String) -> i32 {
-    return text.len() as i32 as i32;
+    return text.len() as i32;
 }
 '''
 
@@ -772,13 +766,13 @@ python = '''
 def sum_list(numbers: list) -> int:
     total = 0
     for num in numbers:
-        total = total + num
+        total += num
     return total
 '''
 
 rust = '''
 use serde_json;
-pub fn sum_list(numbers: &Vec<serde_json::Value>) -> i32 {
+pub fn sum_list(numbers: &Vec<i32>) -> i32 {
     let mut total = 0;
     for num in numbers.iter().cloned() {
         total += num;
@@ -818,7 +812,7 @@ impl IndexError {
         }
     }
 }
-pub fn get_value(data: &HashMap<serde_json::Value, serde_json::Value>, key: String) -> i32 {
+pub fn get_value(data: &HashMap<String, i32>, key: String) -> i32 {
     let _cse_temp_0 = data.clone().get(&key.clone()).is_some();
     if _cse_temp_0 {
         return data.get(&key).cloned().unwrap();
@@ -839,8 +833,8 @@ def count_unique(items: set) -> int:
 rust = '''
 use serde_json;
 use std::collections::HashSet;
-pub fn count_unique(items: &HashSet<serde_json::Value>) -> i32 {
-    return items.len() as i32 as i32;
+pub fn count_unique(items: &HashSet<Point>) -> i32 {
+    return items.len() as i32;
 }
 '''
 
@@ -1244,7 +1238,6 @@ def wrapper(value: T) -> T:
 '''
 
 rust = '''
-pub const T: serde_json::Value = TypeVar::new("T");
 use serde_json;
 pub fn wrapper<T: Clone>(value: T) -> T {
     let result = identity::<T>(value);
@@ -1395,7 +1388,7 @@ def process_list(items: List[str]) -> int:
 
 rust = '''
 pub fn process_list(items: &Vec<String>) -> i32 {
-    return items.len() as i32 as i32;
+    return items.len() as i32;
 }
 '''
 
@@ -1431,7 +1424,6 @@ def identity(value: T) -> T:
 '''
 
 rust = '''
-pub const T: serde_json::Value = TypeVar::new("T");
 use serde_json;
 pub fn identity<T: Clone>(value: T) -> T {
     return value;
@@ -1560,8 +1552,7 @@ impl ValueError {
     }
 }
 pub fn may_fail(x: i32) -> i32 {
-    let _cse_temp_0 = x < 0;
-    if _cse_temp_0 {
+        if x < 0 {
         panic!("{}", "negative value");
     }
     return x * 2;
@@ -1615,8 +1606,6 @@ def swap(a: T, b: U) -> tuple[U, T]:
 '''
 
 rust = '''
-pub const T: serde_json::Value = TypeVar::new("T");
-pub const U: serde_json::Value = TypeVar::new("U");
 use serde_json;
 pub fn swap<T: Clone, U: Clone>(a: &T, b: &U) -> (U, T) {
     return (b, a);
@@ -1726,9 +1715,8 @@ pub fn complex_function(
     flags: HashSet<bool>,
     value: IntOrStringUnion,
 ) -> Option<HashMap<String, i32>> {
-    let _cse_temp_0 = items.clone().len() as i32;
-    let _cse_temp_1 = _cse_temp_0 == 0;
-    if _cse_temp_1 {
+    let _cse_temp_0 = items.len() as i32;
+        if _cse_temp_0 == 0 {
         return None;
     }
     let mut result = {
@@ -1849,7 +1837,7 @@ python = '''
 def sum_list(numbers: list[int]) -> int:
     total = 0
     for n in numbers:
-        total = total + n
+        total += n
     return total
 '''
 
@@ -1930,7 +1918,6 @@ def identity(value: T) -> T:
 '''
 
 rust = '''
-pub const T: serde_json::Value = TypeVar::new("T");
 use serde_json;
 pub fn identity<T: Clone>(value: T) -> T {
     return value;
@@ -1971,7 +1958,7 @@ def process_list() -> List:
 
 rust = '''
 use serde_json;
-pub fn process_list() -> Vec<serde_json::Value> {
+pub fn process_list() -> Vec<i32> {
     return vec![];
 }
 '''
@@ -2008,7 +1995,6 @@ def wrap(value: T) -> T:
 '''
 
 rust = '''
-pub const T: serde_json::Value = TypeVar::new("T");
 use serde_json;
 pub fn wrap<T: Clone>(value: T) -> T {
     return value;
@@ -2026,7 +2012,7 @@ def process_matrix(matrix: list[list[int]]) -> int:
 
 rust = '''
 pub fn process_matrix(matrix: &Vec<Vec<i32>>) -> i32 {
-    return matrix.len() as i32 as i32;
+    return matrix.len() as i32;
 }
 '''
 
@@ -2167,7 +2153,7 @@ def nullable_items(items: list[Optional[int]]) -> int:
 
 rust = '''
 pub fn nullable_items(items: &Vec<Option<i32>>) -> i32 {
-    return items.len() as i32 as i32;
+    return items.len() as i32;
 }
 '''
 
@@ -2772,7 +2758,6 @@ def generic_func(value: T) -> T:
 '''
 
 rust = '''
-pub const T: serde_json::Value = TypeVar::new("T");
 use serde_json;
 pub fn generic_func<T: Clone>(value: T) -> T {
     return value;

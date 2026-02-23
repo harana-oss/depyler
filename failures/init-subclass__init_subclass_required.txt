@@ -1,0 +1,33 @@
+  init-subclass.toml :: init_subclass_required
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust: enforce with trait bounds
+− trait Base {
+−     fn required_param() -> &'static str;
++ #[derive(Debug, Copy, Clone)]
++ pub struct Base {}
++ impl Base {
++     pub fn new() -> Self {
++         Self {}
++     }
+  }
+− 
+− // Won't compile without required_param:
+− // struct BadSub;
+− // impl Base for BadSub {}  // ERROR
+− 
+− struct GoodSub;
+− impl Base for GoodSub {
+−     fn required_param() -> &'static str {
+−         "value"
++ #[derive(Debug, Copy, Clone)]
++ pub struct GoodSub {}
++ impl GoodSub {
++     pub fn new() -> Self {
++         Self {}
+      }
+  }
+− 
+− assert_eq!(GoodSub::required_param(), "value");
+────────────────────────────────────────────────────────────

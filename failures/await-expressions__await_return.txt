@@ -1,0 +1,18 @@
+  await-expressions.toml :: await_return
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− async fn f() -> i32 {
+−     99
++ pub async fn f() -> i32 {
++     return 99;
++    
+  }
+− 
+− async fn test_await_return() -> i32 {
+−     f().await
+− }
++ pub async fn test_await_return() -> i32 {
++     return f().await;
++     }
+────────────────────────────────────────────────────────────

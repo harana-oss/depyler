@@ -1,0 +1,12 @@
+  collection-edge-cases.toml :: empty_set_membership
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use std::collections::HashSet;
+− 
+  pub fn in_empty_set(item: i32) -> bool {
+−     let s: HashSet<i32> = HashSet::new();
++     let s: HashSet<i32> = HashSet::<i32>::new();
+      return s.contains(&item);
+  }
+────────────────────────────────────────────────────────────

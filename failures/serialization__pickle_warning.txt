@@ -1,0 +1,33 @@
+  serialization.toml :: pickle_warning
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::collections::HashMap;
+− 
++ #[derive(Debug, Copy, Clone)]
+  pub struct Data {
+      pub value: i32,
+  }
+− 
+  impl Data {
+      pub fn new(value: i32) -> Self {
+          Self { value }
+      }
+− 
+      pub fn to_dict(&self) -> HashMap<String, i32> {
+−         let mut m = HashMap::new();
+−         m.insert("value".to_string(), self.value);
+−         return m;
++         return {
++             let mut map = HashMap::new();
++             map.insert("value".to_string(), self.value);
++             map
++         };
+      }
+− 
+−     pub fn from_dict(d: &HashMap<String, i32>) -> Data {
++     pub fn from_dict(d: HashMap<String, i32>) -> Data {
+          return Data::new(*d.get("value").unwrap_or(&0));
+      }
+  }
+────────────────────────────────────────────────────────────

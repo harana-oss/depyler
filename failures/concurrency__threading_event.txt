@@ -1,0 +1,23 @@
+  concurrency.toml :: threading_event
+    Output mismatch
+
+────────────────────────────────────────────────────────────
++ #[derive(Debug, Copy, Clone)]
+  pub struct Signal {
+      pub ready: bool,
+  }
+− 
+  impl Signal {
+      pub fn new() -> Self {
+          Self { ready: false }
+      }
+− 
+      pub fn set_ready(&mut self) {
+          self.ready = true;
+      }
+− 
+      pub fn is_ready(&self) -> bool {
+          return self.ready;
+      }
+  }
+────────────────────────────────────────────────────────────

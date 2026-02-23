@@ -1,0 +1,19 @@
+  optional-types.toml :: type_narrowing_with_else
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use std::collections::HashMap;
+  pub fn find_value(data: &HashMap<String, i32>, key: String) -> Option<i32> {
+      return data.get(&key).cloned();
+  }
+− pub fn process(data: HashMap<String, i32>, key: String) -> i32 {
++ pub fn process(data: &HashMap<String, i32>, key: &str) -> i32 {
+      let value = find_value(&data, key);
+      if value.is_some() {
+−         return value.clone().unwrap() * 2;
++         return value.unwrap() * 2;
+      } else {
+          return -1;
+      }
+  }
+────────────────────────────────────────────────────────────

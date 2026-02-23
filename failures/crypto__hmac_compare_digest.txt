@@ -1,0 +1,12 @@
+  crypto.toml :: hmac_compare_digest
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn safe_compare(a: &bytes, b: &bytes) -> bool {
+      return {
+          use subtle::ConstantTimeEq;
+          a.ct_eq(b).into()
+−     }
++     };
++ }
+────────────────────────────────────────────────────────────

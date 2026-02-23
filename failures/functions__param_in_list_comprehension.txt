@@ -1,0 +1,14 @@
+  functions.toml :: param_in_list_comprehension
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn with_comprehension(items: &Vec<i32>, multiplier: i32) -> Vec<i32> {
+      return items
+−         .clone()
+−         .into_iter()
++         .iter()
++         .cloned()
+          .map(|x| x * multiplier)
+          .collect::<Vec<_>>();
+  }
+────────────────────────────────────────────────────────────

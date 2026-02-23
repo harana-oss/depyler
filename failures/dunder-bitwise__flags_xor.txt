@@ -1,0 +1,16 @@
+  dunder-bitwise.toml :: flags_xor
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− const READ: i32 = 1;
+− const WRITE: i32 = 2;
+− 
+− let mut flags = READ;
+− log::info!("Initial: {}", flags);
+  
+− flags = flags ^ WRITE; // Add WRITE
+− log::info!("After adding WRITE: {}", flags);
+− 
+− flags = flags ^ WRITE; // Remove WRITE
+− log::info!("After removing WRITE: {}", flags);
+────────────────────────────────────────────────────────────

@@ -1,0 +1,23 @@
+  parser-pattern-matching.toml :: pattern_value_vs_capture
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− const SPECIAL: i64 = 42;
+− 
+− fn check_special(x: i64) -> String {
+−     match x {
+−         SPECIAL => "special".to_string(),
+−         _ => "normal".to_string(),
++ pub fn check_special(x: i32) -> String {
++     if x == 42 {
++         return "special".to_string();
++     } else {
++         return "normal".to_string();
+      }
+− }
+− 
+− fn main() {
+−     let result = check_special(42);
+−     println!("{}", result);
+  }
+────────────────────────────────────────────────────────────

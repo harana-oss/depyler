@@ -1,0 +1,27 @@
+  parenthesized-context.toml :: exitstack_alternative
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust: Vec of resources
+−     {
+−         let items: Vec<i32> = vec![1, 2, 3];
+−         let result: i32 = items.iter().sum();
+−         assert_eq!(result, 6);
+−     }
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct CM {
++     pub value: serde_json::Value,
++ }
++ impl CM {
++     pub fn new(value: serde_json::Value) -> Self {
++         Self { value }
++     }
++     pub fn __enter__(&self) {
++         return self.value.clone();
++     }
++     pub fn __exit__(&self) {
++         {}
++     }
++ }
+────────────────────────────────────────────────────────────

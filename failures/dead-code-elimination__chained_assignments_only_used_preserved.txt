@@ -1,0 +1,12 @@
+  dead-code-elimination.toml :: chained_assignments_only_used_preserved
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn compute_final(x: i32) -> i32 {
+      let a = x + 1;
+      let b = a * 2;
++     let c = 999;
+      let d = b + 10;
+      return d;
+  }
+────────────────────────────────────────────────────────────

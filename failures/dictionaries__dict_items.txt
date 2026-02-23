@@ -1,0 +1,14 @@
+  dictionaries.toml :: dict_items
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use serde_json;
+  use std::collections::HashMap;
+− pub fn get_items(d: &HashMap<String, i32>) -> Vec<i32> {
++ pub fn get_items(d: &HashMap<serde_json::Value, serde_json::Value>) -> Vec<serde_json::Value> {
+      return d
+          .iter()
+          .map(|(k, v)| (k.clone(), v.clone()))
+          .collect::<Vec<_>>();
+  }
+────────────────────────────────────────────────────────────

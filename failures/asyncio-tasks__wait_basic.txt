@@ -1,0 +1,31 @@
+  asyncio-tasks.toml :: wait_basic
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use tokio::task::{self, JoinSet};
+− 
+− async fn my_coro(n: i32) -> i32 {
+−     n
++ pub async fn my_coro(n: i32) -> i32 {
++     return n;
++    
+  }
+− 
+− pub async fn test_wait_basic() -> usize {
+−     let mut set = JoinSet::new();
+−     set.spawn(my_coro(1));
+−     set.spawn(my_coro(2));
+− 
+−     let mut count = 0;
+−     while let Some(_) = set.join_next().await {
+−         count += 1;
+−     }
+−     count
+− }
++ pub async fn test_wait_basic() -> i32 {
++     let task1 = asyncio.create_task(my_coro(1));
++     let task2 = asyncio.create_task(my_coro(2));
++     let(done, pending) = asyncio.wait(vec! [task1, task2]).await;
++     return done.len() as i32 as i32;
++     }
+────────────────────────────────────────────────────────────

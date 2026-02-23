@@ -37,11 +37,8 @@ impl Status {
     }
 }
 
-fn main() {
-    log::info!("{}", Status::Pending.describe());
-    log::info!("{}", Status::Active.describe());
-}
-"""
+log::info!("{}", Status::Pending.describe());
+log::info!("{}", Status::Active.describe());"""
 expected_output = """PENDING: 1
 ACTIVE: 2"""
 
@@ -76,11 +73,8 @@ impl Priority {
     }
 }
 
-fn main() {
-    log::info!("{}", Priority::Low.is_high());
-    log::info!("{}", Priority::High.is_high());
-}
-"""
+log::info!("{}", Priority::Low.is_high());
+log::info!("{}", Priority::High.is_high());"""
 expected_output = """False
 True"""
 
@@ -115,11 +109,8 @@ impl Color {
     }
 }
 
-fn main() {
-    log::info!("{}", Color::Red.display_name());
-    log::info!("{}", Color::Blue.display_name());
-}
-"""
+log::info!("{}", Color::Red.display_name());
+log::info!("{}", Color::Blue.display_name());"""
 expected_output = """Red
 Blue"""
 
@@ -167,11 +158,8 @@ impl HttpMethod {
     }
 }
 
-fn main() {
-    log::info!("{:?}", HttpMethod::all_methods());
-    log::info!("{}", HttpMethod::Get.value());
-}
-"""
+log::info!("{:?}", HttpMethod::all_methods());
+log::info!("{}", HttpMethod::Get.value());"""
 expected_output = """['GET', 'POST', 'PUT', 'DELETE']
 GET"""
 
@@ -216,17 +204,14 @@ impl Day {
     }
 }
 
-fn main() {
-    let d = Day::from_string("monday");
-    match d {
-        Some(day) => {
-            log::info!("{:?}", format!("{:?}", day).to_uppercase());
-            log::info!("{}", day as i32);
-        }
-        None => log::info!("None"),
+let d = Day::from_string("monday");
+match d {
+    Some(day) => {
+        log::info!("{:?}", format!("{:?}", day).to_uppercase());
+        log::info!("{}", day as i32);
     }
-}
-"""
+    None => log::info!("None"),
+}"""
 expected_output = """MONDAY
 1"""
 
@@ -266,10 +251,7 @@ impl Suit {
     }
 }
 
-fn main() {
-    log::info!("{}", Suit::count());
-}
-"""
+log::info!("{}", Suit::count());"""
 expected_output = "4"
 
 # =============================================================================
@@ -312,11 +294,8 @@ impl fmt::Display for Currency {
     }
 }
 
-fn main() {
-    log::info!("{}", Currency::Usd);
-    log::info!("Price: {}100", Currency::Eur);
-}
-"""
+log::info!("{}", Currency::Usd);
+log::info!("Price: {}100", Currency::Eur);"""
 expected_output = """$
 Price: €100"""
 
@@ -352,10 +331,7 @@ impl fmt::Display for State {
     }
 }
 
-fn main() {
-    log::info!("{}", State::Running);
-}
-"""
+log::info!("{}", State::Running);"""
 expected_output = "<State.Running>"
 
 [[test]]
@@ -400,12 +376,9 @@ impl Size {
     }
 }
 
-fn main() {
-    let s = Size::Medium;
-    log::info!("{}", s.format_spec(""));
-    log::info!("{}", s.format_spec("short"));
-}
-"""
+let s = Size::Medium;
+log::info!("{}", s.format_spec(""));
+log::info!("{}", s.format_spec("short"));"""
 expected_output = """MEDIUM
 M"""
 
@@ -441,16 +414,13 @@ impl Toggle {
     }
 }
 
-fn main() {
-    if Toggle::On.to_bool() {
-        log::info!("Toggle is ON");
-    }
-
-    if !Toggle::Off.to_bool() {
-        log::info!("Toggle is OFF");
-    }
+if Toggle::On.to_bool() {
+    log::info!("Toggle is ON");
 }
-"""
+
+if !Toggle::Off.to_bool() {
+    log::info!("Toggle is OFF");
+}"""
 expected_output = """Toggle is ON
 Toggle is OFF"""
 
@@ -492,11 +462,8 @@ impl Level {
     }
 }
 
-fn main() {
-    log::info!("{}", Level::Info.label());
-    log::info!("{}", Level::Error.label());
-}
-"""
+log::info!("{}", Level::Info.label());
+log::info!("{}", Level::Error.label());"""
 expected_output = """[INFO]
 [ERROR]"""
 
@@ -532,11 +499,8 @@ impl Temperature {
     }
 }
 
-fn main() {
-    log::info!("{}", Temperature::Cold.fahrenheit());
-    log::info!("{}", Temperature::Hot.fahrenheit());
-}
-"""
+log::info!("{}", Temperature::Cold.fahrenheit());
+log::info!("{}", Temperature::Hot.fahrenheit());"""
 expected_output = """32.0
 95.0"""
 
@@ -572,12 +536,9 @@ enum Power {
     Third = 4,  // 2^2
 }
 
-fn main() {
-    log::info!("{}", Power::First as i32);
-    log::info!("{}", Power::Second as i32);
-    log::info!("{}", Power::Third as i32);
-}
-"""
+log::info!("{}", Power::First as i32);
+log::info!("{}", Power::Second as i32);
+log::info!("{}", Power::Third as i32);"""
 expected_output = """1
 2
 4"""
@@ -615,11 +576,8 @@ impl Id {
     }
 }
 
-fn main() {
-    log::info!("{}", Id::First.value());
-    log::info!("{}", Id::Second.value());
-}
-"""
+log::info!("{}", Id::First.value());
+log::info!("{}", Id::Second.value());"""
 expected_output = """ID_000
 ID_001"""
 
@@ -664,11 +622,8 @@ impl ErrorCode {
     }
 }
 
-fn main() {
-    log::info!("{:?}", ErrorCode::from_value(0));
-    log::info!("{:?}", ErrorCode::from_value(100));
-}
-"""
+log::info!("{:?}", ErrorCode::from_value(0));
+log::info!("{:?}", ErrorCode::from_value(100));"""
 expected_output = """Success
 Unknown"""
 
@@ -721,11 +676,8 @@ impl Grade {
     }
 }
 
-fn main() {
-    log::info!("{:?}", Grade::from_score(95));
-    log::info!("{:?}", Grade::from_score(85));
-}
-"""
+log::info!("{:?}", Grade::from_score(95));
+log::info!("{:?}", Grade::from_score(85));"""
 expected_output = """A
 B"""
 
@@ -768,11 +720,8 @@ impl Animal {
     }
 }
 
-fn main() {
-    log::info!("{:?}", Animal::MEMBERS.to_vec());
-    log::info!("{}", Animal::helper());
-}
-"""
+log::info!("{:?}", Animal::MEMBERS.to_vec());
+log::info!("{}", Animal::helper());"""
 expected_output = """["Cat", "Dog"]
 Helper method"""
 
@@ -819,17 +768,14 @@ impl ToJson for Status {
     }
 }
 
-fn main() {
-    let json = Status::Pending.to_json();
-    log::info!(
-        "{{{}: {}, {}: {}}}",
-        "'name'",
-        format!("'{}'", json.get("name").unwrap()),
-        "'value'",
-        json.get("value").unwrap()
-    );
-}
-"""
+let json = Status::Pending.to_json();
+log::info!(
+    "{{{}: {}, {}: {}}}",
+    "'name'",
+    format!("'{}'", json.get("name").unwrap()),
+    "'value'",
+    json.get("value").unwrap()
+);"""
 expected_output = "{'name': 'Pending', 'value': 1}"
 
 [[test]]
@@ -861,13 +807,10 @@ enum Priority {
     High = 3,
 }
 
-fn main() {
-    log::info!("{}", Priority::Low < Priority::High);
-    let mut priorities = vec![Priority::High, Priority::Low, Priority::Medium];
-    priorities.sort();
-    log::info!("{:?}", priorities);
-}
-"""
+log::info!("{}", Priority::Low < Priority::High);
+let mut priorities = vec![Priority::High, Priority::Low, Priority::Medium];
+priorities.sort();
+log::info!("{:?}", priorities);"""
 expected_output = """true
 [Low, Medium, High]"""
 
@@ -906,11 +849,8 @@ impl Planet {
     const EARTH: Planet = Planet { mass: 5.97e24, radius: 6371 };
     const MARS: Planet = Planet { mass: 6.39e23, radius: 3390 }
 
-fn main() {
-    log::info!("{}", Planet::EARTH.mass);
-    log::info!("{}", Planet::EARTH.radius);
-}
-"""
+log::info!("{}", Planet::EARTH.mass);
+log::info!("{}", Planet::EARTH.radius);"""
 expected_output = """5970000000000000000000000
 6371"""
 
@@ -945,11 +885,8 @@ impl Month {
     const FEBRUARY: Month = Month { number: 2, days: 28 };
     const MARCH: Month = Month { number: 3, days: 31 }
 
-fn main() {
-    log::info!("{}", Month::JANUARY.number);
-    log::info!("{}", Month::JANUARY.days);
-}
-"""
+log::info!("{}", Month::JANUARY.number);
+log::info!("{}", Month::JANUARY.days);"""
 expected_output = """1
 31"""
 
@@ -981,10 +918,7 @@ impl HttpStatus {
     const OK: HttpStatus = HttpStatus { code: 200, description: "Request succeeded" };
     const NOT_FOUND: HttpStatus = HttpStatus { code: 404, description: "Resource not found" }
 
-fn main() {
-    log::info!("{}", HttpStatus::OK.code);
-    log::info!("{}", HttpStatus::OK.description);
-}
-"""
+log::info!("{}", HttpStatus::OK.code);
+log::info!("{}", HttpStatus::OK.description);"""
 expected_output = """200
 Request succeeded"""

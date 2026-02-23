@@ -1,0 +1,38 @@
+  class-methods.toml :: staticmethod_utility
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use serde_json;
+  #[derive(Debug, Copy, Clone)]
+  pub struct StringUtils {}
+  impl StringUtils {
+      pub fn new() -> Self {
+          Self {}
+      }
+      pub fn is_palindrome(s: serde_json::Value) -> bool {
+          return s == {
+              let base = &s;
+              let step: i64 = -1;
+              if step == 1 {
+                  base.clone()
+              } else if step > 0 {
+                  base.iter()
+                      .step_by(step as usize)
+                      .cloned()
+                      .collect::<Vec<_>>()
+              } else if step == -1 {
+                  base.iter().rev().cloned().collect::<Vec<_>>()
+              } else {
+                  let abs_step = (-step) as usize;
+                  base.iter()
+                      .rev()
+                      .step_by(abs_step)
+                      .cloned()
+                      .collect::<Vec<_>>()
+              }
+          };
+      }
+  }
+− log::info!("{}", StringUtils::is_palindrome("racecar"));
+− log::info!("{}", StringUtils::is_palindrome("hello"));
+────────────────────────────────────────────────────────────

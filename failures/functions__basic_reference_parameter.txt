@@ -1,0 +1,16 @@
+  functions.toml :: basic_reference_parameter
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  #[doc = "Function that expects a reference to a list."]
+  pub fn process(data: &Vec<i32>) -> i32 {
+−     return data.len() as i32;
++     return data.len() as i32 as i32;
+  }
+  #[doc = "Caller passes owned list."]
+  pub fn main() {
+      let nums = vec![1, 2, 3];
+      let result = process(&nums);
+      log::info!("{}", result);
+  }
+────────────────────────────────────────────────────────────

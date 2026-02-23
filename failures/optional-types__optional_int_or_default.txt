@@ -1,0 +1,19 @@
+  optional-types.toml :: optional_int_or_default
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug, Clone, PartialEq, Default)]
++ #[derive(Debug, Copy, Clone, PartialEq, Default)]
+  pub struct Counter {
+      pub value: Option<i32>,
+  }
+  impl Counter {
+      pub fn new(value: Option<i32>) -> Self {
+          Self { value }
+      }
+  }
+  pub fn get_value(c: &Counter) -> i32 {
+−     return c.value.clone().unwrap_or_else(|| 0);
++     return (c.value) || (0);
+  }
+────────────────────────────────────────────────────────────

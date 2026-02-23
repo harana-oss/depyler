@@ -1,0 +1,9 @@
+  type-inference.toml :: infer_string_from_str_call
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn to_string(x: i32) -> String {
+−     return x.to_string();
++     return (x).to_string();
+  }
+────────────────────────────────────────────────────────────

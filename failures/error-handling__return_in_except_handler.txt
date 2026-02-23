@@ -1,0 +1,33 @@
+  error-handling.toml :: return_in_except_handler
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  #[derive(Debug, Clone)]
+  pub struct ValueError {
+      message: String,
+  }
+  impl std::fmt::Display for ValueError {
+      fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+          write!(f, "value error: {}", self.message)
+      }
+  }
+  impl std::error::Error for ValueError {}
+  impl ValueError {
+      pub fn new(message: impl Into<String>) -> Self {
+          Self {
+              message: message.into(),
+          }
+      }
+  }
+  pub fn return_in_handler(x: i32) -> i32 {
+−     {
+−         if x == 0 {
+−             panic!("{}", "zero");
+−         }
+−         return x * 2;
++     if x == 0 {
+          return -1;
+      }
++     return x * 2;
+  }
+────────────────────────────────────────────────────────────

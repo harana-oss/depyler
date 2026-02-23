@@ -1,0 +1,31 @@
+  dunder-format.toml :: dunder_bytes
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct Message {
+−     text: String,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Message {
++     pub text: serde_json::Value,
+  }
+− 
+  impl Message {
+−     fn new(text: &str) -> Self {
+−         Message {
+−             text: text.to_string(),
+−         }
+−     }
+− 
+−     fn to_bytes(&self) -> Vec<u8> {
+−         self.text.as_bytes().to_vec()
++     pub fn new(text: serde_json::Value) -> Self {
++         Self { text }
+      }
+  }
+− 
+− let msg = Message::new("Hello");
+− let b = msg.to_bytes();
+− log::info!("{:?}", b);
+− log::info!("Vec");
+────────────────────────────────────────────────────────────

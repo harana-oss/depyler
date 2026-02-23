@@ -1,0 +1,12 @@
+  stdlib-misc.toml :: uuid_uuid4
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn generate_uuid4() -> String {
+      return {
+          use uuid::Uuid;
+          Uuid::new_v4().to_string()
+−     }
++     };
++ }
+────────────────────────────────────────────────────────────

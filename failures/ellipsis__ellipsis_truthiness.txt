@@ -1,0 +1,14 @@
+  ellipsis.toml :: ellipsis_truthiness
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Unit type () doesn't have boolean context in Rust
+− // But ellipsis in Python is truthy
+− if true {
+−     // Ellipsis is always truthy in Python
+−     log::info!("Ellipsis is truthy");
+− } else {
+−     log::info!("Ellipsis is falsy");
+− }
++ 
+────────────────────────────────────────────────────────────

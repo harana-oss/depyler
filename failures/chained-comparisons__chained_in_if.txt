@@ -1,0 +1,9 @@
+  chained-comparisons.toml :: chained_in_if
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // if 0 <= x < 10:
+−     let x = 5;
+−     let result = if 0 <= x && x < 10 { true } else { false };
++ 
+────────────────────────────────────────────────────────────

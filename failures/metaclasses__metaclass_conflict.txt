@@ -1,0 +1,50 @@
+  metaclasses.toml :: metaclass_conflict
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // In Rust, there's no metaclass concept
+− // Traits provide clean composition without conflicts
+− trait TraitA {}
+− trait TraitB {}
+− 
+− struct A;
+− impl TraitA for A {}
+− 
+− struct B;
+− impl TraitB for B {}
+− 
+− // C can implement both traits without conflict
+− struct C;
+− impl TraitA for C {}
+− impl TraitB for C {}
+− 
+− log::info!("Metaclass conflict handled");
++ #[derive(Debug, Copy, Clone)]
++ pub struct Meta1 {}
++ impl Meta1 {
++     pub fn new() -> Self {
++         Self {}
++     }
++ }
++ #[derive(Debug, Copy, Clone)]
++ pub struct Meta2 {}
++ impl Meta2 {
++     pub fn new() -> Self {
++         Self {}
++     }
++ }
++ #[derive(Debug, Copy, Clone)]
++ pub struct A {}
++ impl A {
++     pub fn new() -> Self {
++         Self {}
++     }
++ }
++ #[derive(Debug, Copy, Clone)]
++ pub struct B {}
++ impl B {
++     pub fn new() -> Self {
++         Self {}
++     }
++ }
+────────────────────────────────────────────────────────────

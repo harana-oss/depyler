@@ -1,0 +1,18 @@
+  functions.toml :: reordered_arguments
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn format_message(name: String, age: i32, city: String, country: String) -> String {
+      return format!("{} is {} years old from {}, {}", name, age, city, country);
+  }
+  pub fn test() -> String {
+      return format_message(
++         "USA".to_string(),
+          "Alice".to_string(),
++         "New York".to_string(),
+          30,
+−         "New York".to_string(),
+−         "USA".to_string(),
+      );
+  }
+────────────────────────────────────────────────────────────

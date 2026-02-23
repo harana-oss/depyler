@@ -1,0 +1,39 @@
+  dunder-reflected.toml :: dunder_ror
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::fmt;
+− use std::ops::BitOr;
+− 
+− #[derive(Debug)]
+− struct Bits {
+−     value: i32,
+− }
+− 
+− impl BitOr<Bits> for i32 {
+−     type Output = Bits;
+− 
+−     fn bitor(self, other: Bits) -> Bits {
+−         Bits {
+−             value: self | other.value,
+−         }
+−     }
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Bits {
++     pub value: serde_json::Value,
+  }
+− 
+− impl fmt::Display for Bits {
+−     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+−         write!(f, "Bits({})", self.value)
++ impl Bits {
++     pub fn new(value: serde_json::Value) -> Self {
++         Self { value }
+      }
+  }
+− 
+− let b = Bits { value: 0b1100 };
+− let result = 0b1010 | b;
+− log::info!("{}", result);
+────────────────────────────────────────────────────────────

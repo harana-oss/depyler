@@ -1,0 +1,20 @@
+  ellipsis.toml :: ellipsis_expand
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct Array;
+− 
++ #[derive(Debug, Copy, Clone)]
++ pub struct Array {}
+  impl Array {
+−     fn get(&self, pos: usize) -> String {
+−         format!("Ellipsis at position {}", pos)
++     pub fn new() -> Self {
++         Self {}
+      }
+  }
+− 
+− let arr = Array;
+− let result = arr.get(1);
+− log::info!("{}", result);
+────────────────────────────────────────────────────────────

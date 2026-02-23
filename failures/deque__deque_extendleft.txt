@@ -1,0 +1,14 @@
+  deque.toml :: deque_extendleft
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // d.extendleft([1, 2, 3]) # reversed
+−     use std::collections::VecDeque;
+− 
+−     let mut d = VecDeque::from(vec![4]);
+−     for x in vec![1, 2, 3] {
+−         d.push_front(x);
+−     }
+−     let result = d.iter().cloned().collect::<Vec<_>>() == vec![3, 2, 1, 4];
++ use std::collections::VecDeque;
+────────────────────────────────────────────────────────────

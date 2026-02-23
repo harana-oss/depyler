@@ -32,11 +32,8 @@ impl Point {
     }
 }
 
-fn main() {
-    let p = Point::new(1, 2);
-    log::info!("{} {}", p.x, p.y);
-}
-"""
+let p = Point::new(1, 2);
+log::info!("{} {}", p.x, p.y);"""
 
 [[test]]
 name = "slots_tuple"
@@ -64,11 +61,8 @@ impl Point {
     }
 }
 
-fn main() {
-    let p = Point::new(3, 4);
-    log::info!("{} {}", p.x, p.y);
-}
-"""
+let p = Point::new(3, 4);
+log::info!("{} {}", p.x, p.y);"""
 
 [[test]]
 name = "slots_empty"
@@ -83,11 +77,8 @@ print("created")
 rust = """
 struct NoAttributes;
 
-fn main() {
-    let _obj = NoAttributes;
-    log::info!("created");
-}
-"""
+let _obj = NoAttributes;
+log::info!("created");"""
 
 [[test]]
 name = "slots_single"
@@ -113,11 +104,8 @@ impl Single {
     }
 }
 
-fn main() {
-    let s = Single::new(42);
-    log::info!("{}", s.x);
-}
-"""
+let s = Single::new(42);
+log::info!("{}", s.x);"""
 
 # =============================================================================
 # __slots__ Behavior
@@ -148,11 +136,8 @@ struct Point {
     y: i32,
 }
 
-fn main() {
-    let _p = Point { x: 1, y: 2 };
-    log::info!("no __dict__");
-}
-"""
+let _p = Point { x: 1, y: 2 };
+log::info!("no __dict__");"""
 
 [[test]]
 name = "slots_attribute_access"
@@ -177,14 +162,11 @@ struct Point {
     y: i32,
 }
 
-fn main() {
-    let mut p = Point { x: 1, y: 2 };
-    log::info!("{} {}", p.x, p.y);
-    p.x = 10;
-    p.y = 20;
-    log::info!("{} {}", p.x, p.y);
-}
-"""
+let mut p = Point { x: 1, y: 2 };
+log::info!("{} {}", p.x, p.y);
+p.x = 10;
+p.y = 20;
+log::info!("{} {}", p.x, p.y);"""
 
 [[test]]
 name = "slots_undefined"
@@ -211,12 +193,9 @@ struct Point {
     y: i32,
 }
 
-fn main() {
-    let _p = Point { x: 1, y: 2 };
-    // p.z = 3;  // Would not compile
-    log::info!("AttributeError");
-}
-"""
+let _p = Point { x: 1, y: 2 };
+// p.z = 3;  // Would not compile
+log::info!("AttributeError");"""
 
 [[test]]
 name = "slots_memory"
@@ -249,13 +228,10 @@ struct WithSlots {
     y: i32,
 }
 
-fn main() {
-    let s = WithSlots { x: 1, y: 2 };
-    log::info!("With slots: {}", size_of_val(&s));
-    log::info!("Without slots: {}", size_of_val(&s));
-    log::info!("Slots saves memory: true");
-}
-"""
+let s = WithSlots { x: 1, y: 2 };
+log::info!("With slots: {}", size_of_val(&s));
+log::info!("Without slots: {}", size_of_val(&s));
+log::info!("Slots saves memory: true");"""
 
 # =============================================================================
 # __slots__ with Inheritance
@@ -289,14 +265,11 @@ struct Derived {
     y: i32,
 }
 
-fn main() {
-    let d = Derived {
-        base: Base { x: 1 },
-        y: 2,
-    };
-    log::info!("{} {}", d.base.x, d.y);
-}
-"""
+let d = Derived {
+    base: Base { x: 1 },
+    y: 2,
+};
+log::info!("{} {}", d.base.x, d.y);"""
 
 [[test]]
 name = "slots_subclass_extend"
@@ -328,14 +301,11 @@ struct Point3D {
     z: i32,
 }
 
-fn main() {
-    let p = Point3D {
-        point2d: Point2D { x: 1, y: 2 },
-        z: 3,
-    };
-    log::info!("{} {} {}", p.point2d.x, p.point2d.y, p.z);
-}
-"""
+let p = Point3D {
+    point2d: Point2D { x: 1, y: 2 },
+    z: 3,
+};
+log::info!("{} {} {}", p.point2d.x, p.point2d.y, p.z);"""
 
 [[test]]
 name = "slots_subclass_empty"
@@ -361,13 +331,10 @@ struct Derived {
     base: Base,
 }
 
-fn main() {
-    let d = Derived {
-        base: Base { x: 10 },
-    };
-    log::info!("{}", d.base.x);
-}
-"""
+let d = Derived {
+    base: Base { x: 10 },
+};
+log::info!("{}", d.base.x);"""
 
 [[test]]
 name = "slots_mixed_inheritance"
@@ -396,14 +363,11 @@ struct Slotted {
     b: i32,
 }
 
-fn main() {
-    let s = Slotted {
-        regular: Regular { a: 1 },
-        b: 2,
-    };
-    log::info!("{} {}", s.regular.a, s.b);
-}
-"""
+let s = Slotted {
+    regular: Regular { a: 1 },
+    b: 2,
+};
+log::info!("{} {}", s.regular.a, s.b);"""
 
 # =============================================================================
 # __slots__ with __dict__
@@ -431,15 +395,12 @@ struct Hybrid {
     dict: HashMap<String, i32>,
 }
 
-fn main() {
-    let mut h = Hybrid {
-        x: 10,
-        dict: HashMap::new(),
-    };
-    h.dict.insert("y".to_string(), 20);
-    log::info!("{} {}", h.x, h.dict.get("y").unwrap());
-}
-"""
+let mut h = Hybrid {
+    x: 10,
+    dict: HashMap::new(),
+};
+h.dict.insert("y".to_string(), 20);
+log::info!("{} {}", h.x, h.dict.get("y").unwrap());"""
 
 [[test]]
 name = "slots_with_weakref"
@@ -464,14 +425,11 @@ struct Referable {
     x: i32,
 }
 
-fn main() {
-    let obj = Rc::new(Referable { x: 42 });
-    let weak: Weak<Referable> = Rc::downgrade(&obj);
-    if let Some(r) = weak.upgrade() {
-        log::info!("{}", r.x);
-    }
-}
-"""
+let obj = Rc::new(Referable { x: 42 });
+let weak: Weak<Referable> = Rc::downgrade(&obj);
+if let Some(r) = weak.upgrade() {
+    log::info!("{}", r.x);
+}"""
 
 # =============================================================================
 # __slots__ Edge Cases
@@ -515,12 +473,9 @@ impl Conflict {
     }
 }
 
-fn main() {
-    let c = Conflict::new(20);
-    log::info!("{}", c.x);
-    log::info!("{}", Conflict::CLASS_X);
-}
-"""
+let c = Conflict::new(20);
+log::info!("{}", c.x);
+log::info!("{}", Conflict::CLASS_X);"""
 
 [[test]]
 name = "slots_property"
@@ -569,11 +524,8 @@ impl Validated {
     }
 }
 
-fn main() {
-    let v = Validated::new(10);
-    log::info!("{}", v.get_x());
-}
-"""
+let v = Validated::new(10);
+log::info!("{}", v.get_x());"""
 
 [[test]]
 name = "slots_defaults"
@@ -604,8 +556,5 @@ impl NoDefaults {
     }
 }
 
-fn main() {
-    let n = NoDefaults::new(None, None);
-    log::info!("{} {}", n.x, n.y);
-}
-"""
+let n = NoDefaults::new(None, None);
+log::info!("{} {}", n.x, n.y);"""

@@ -1,0 +1,12 @@
+  imports-basic.toml :: import_multi_alias
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust: multiple use statements with aliases
+−     use std::env as e;
+−     use std::path::Path as P;
+−     let result = e::current_dir().is_ok();
+−     assert!(result);
++ use std as os;
++ use std as sys;
+────────────────────────────────────────────────────────────

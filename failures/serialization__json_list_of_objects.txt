@@ -1,0 +1,42 @@
+  serialization.toml :: json_list_of_objects
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use std::collections::HashMap;
+− 
+  pub fn create_list_objects() -> Vec<HashMap<String, i32>> {
+−     let mut item1 = HashMap::new();
+−     item1.insert("id".to_string(), 1);
+−     item1.insert("value".to_string(), 10);
+− 
+−     let mut item2 = HashMap::new();
+−     item2.insert("id".to_string(), 2);
+−     item2.insert("value".to_string(), 20);
+− 
+−     return vec![item1, item2];
++     return vec![
++         {
++             let mut map = HashMap::new();
++             map.insert("id".to_string(), 1);
++             map.insert("value".to_string(), 10);
++             map
++         },
++         {
++             let mut map = HashMap::new();
++             map.insert("id".to_string(), 2);
++             map.insert("value".to_string(), 20);
++             map
++         },
++     ];
+  }
+− 
+  pub fn sum_values(items: &Vec<HashMap<String, i32>>) -> i32 {
+      let mut total = 0;
+−     for item in items {
+−         total += item.get("value").unwrap_or(&0);
++     for item in items.iter().cloned() {
++         total += *item.get("value").unwrap_or(&0);
+      }
+      return total;
+  }
+────────────────────────────────────────────────────────────

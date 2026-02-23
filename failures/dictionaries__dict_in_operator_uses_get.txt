@@ -1,0 +1,16 @@
+  dictionaries.toml :: dict_in_operator_uses_get
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− lazy_static! {
+−     pub static ref config: HashMap<String, String> =
+−         serde_json::json!({ "host": "localhost", "port": 5432 });
+− }
+− use lazy_static::lazy_static;
++ pub const config: serde_json::Value = serde_json::json!({ "host": "localhost", "port": 5432 });
+  use serde_json;
+  pub fn has_host(config: &serde_json::Value) -> bool {
+−     return config.clone().contains(&"host");
++     return config.contains(&"host");
+  }
+────────────────────────────────────────────────────────────

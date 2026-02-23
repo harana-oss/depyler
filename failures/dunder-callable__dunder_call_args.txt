@@ -1,0 +1,20 @@
+  dunder-callable.toml :: dunder_call_args
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct Adder;
+− 
++ #[derive(Debug, Copy, Clone)]
++ pub struct Adder {}
+  impl Adder {
+−     fn call(&self, x: i32, y: i32) -> i32 {
+−         x + y
++     pub fn new() -> Self {
++         Self {}
+      }
+  }
+− 
+− let add = Adder;
+− log::info!("{}", add.call(3, 4));
+− log::info!("{}", add.call(10, 20));
+────────────────────────────────────────────────────────────

@@ -1,0 +1,41 @@
+  init-subclass.toml :: init_subclass_default
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust: trait with default methods
+− trait Base {
+−     fn version() -> &'static str {
+−         "1.0"
++ #[derive(Debug, Copy, Clone)]
++ pub struct Base {}
++ impl Base {
++     pub fn new() -> Self {
++         Self {}
++     }
++ }
++ #[derive(Debug, Copy, Clone)]
++ pub struct SubWithDefault {}
++ impl SubWithDefault {
++     pub fn new() -> Self {
++         Self {}
+      }
+  }
+− 
+− struct SubWithDefault;
+− impl Base for SubWithDefault {}
+− 
+− struct SubWithCustom;
+− impl Base for SubWithCustom {
+−     fn version() -> &'static str {
+−         "2.0"
++ #[derive(Debug, Copy, Clone)]
++ pub struct SubWithCustom {}
++ impl SubWithCustom {
++     pub fn new() -> Self {
++         Self {}
+      }
+  }
+− 
+− assert_eq!(SubWithDefault::version(), "1.0");
+− assert_eq!(SubWithCustom::version(), "2.0");
+────────────────────────────────────────────────────────────

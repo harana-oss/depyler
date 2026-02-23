@@ -1,0 +1,15 @@
+  dictionaries.toml :: dict_combined_mutations
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use std::collections::HashMap;
+  pub fn modify_dict(mut d: HashMap<String, i32>, k1: String, k2: String) -> HashMap<String, i32> {
+−     d.clone().insert(k1, 10);
+−     if d.get(&k2.clone()).is_some() {
++     d.insert(k1, 10);
++     if d.get(&k2).is_some() {
+          d.remove(k2).expect("KeyError: key not found");
+      }
+      return d;
+  }
+────────────────────────────────────────────────────────────

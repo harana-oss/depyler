@@ -1,0 +1,18 @@
+  set-operations.toml :: set_intersection_update
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub const result: HashSet<i32> = a.clone();
+− lazy_static! {
+−     pub static ref a: HashSet<i32> = {
+−         let mut set = HashSet::new();
+−         set.insert(1);
+−         set.insert(2);
+−         set.insert(3);
+−         set
+−     };
+− }
+− use lazy_static::lazy_static;
+− use std::collections::HashSet;
++ 
+────────────────────────────────────────────────────────────

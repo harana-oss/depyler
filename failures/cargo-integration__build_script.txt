@@ -1,0 +1,17 @@
+  cargo-integration.toml :: build_script
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn needs_build_script(features: &[String]) -> bool {
+−     return features.iter().any(|f| f == "codegen" || f == "native");
++ pub fn needs_build_script(features: &Vec<String>) -> bool {
++     return (features.contains(&"codegen")) || (features.contains(&"native"));
+  }
+− 
+  pub fn build_script_content() -> String {
+−     return "fn main() { println!(\"cargo:rerun-if-changed=build.rs\"); }".to_string();
++     return "fn main () {
++     println!(\"cargo:rerun-if-changed=build.rs\"); }"
++         .to_string();
+  }
+────────────────────────────────────────────────────────────

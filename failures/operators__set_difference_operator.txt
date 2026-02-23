@@ -1,0 +1,17 @@
+  operators.toml :: set_difference_operator
+    Output mismatch
+
+────────────────────────────────────────────────────────────
++ use serde_json;
+  use std::collections::HashSet;
+− pub fn test_difference(a: &HashSet<Point>, b: &HashSet<Point>) -> HashSet<Point> {
++ pub fn test_difference(
++     a: &HashSet<serde_json::Value>,
++     b: &HashSet<serde_json::Value>,
++ ) -> HashSet<serde_json::Value> {
+      return a
+          .difference(&b)
+          .cloned()
+          .collect::<std::collections::HashSet<_>>();
+  }
+────────────────────────────────────────────────────────────

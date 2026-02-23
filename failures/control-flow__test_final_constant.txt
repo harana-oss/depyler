@@ -1,0 +1,10 @@
+  control-flow.toml :: test_final_constant
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn get_field_goal() -> i32 {
+      const FIELD_GOAL: i32 = 600;
+−     FIELD_GOAL
++     return FIELD_GOAL;
+  }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,29 @@
+  init-subclass.toml :: init_subclass_require
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust: enforce at compile-time with traits
+− trait Model {
+−     fn table_name() -> &'static str;
++ #[derive(Debug, Copy, Clone)]
++ pub struct Model {}
++ impl Model {
++     pub fn new() -> Self {
++         Self {}
++     }
+  }
+− 
+− struct User;
+− impl Model for User {
+−     fn table_name() -> &'static str {
+−         "users"
++ #[derive(Debug, Copy, Clone)]
++ pub struct User {}
++ impl User {
++     pub fn new() -> Self {
++         Self {}
+      }
+  }
+− 
+− assert_eq!(User::table_name(), "users");
+────────────────────────────────────────────────────────────

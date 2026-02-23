@@ -1,0 +1,9 @@
+  operators.toml :: power_float_exponent
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn power_float(x: f64) -> f64 {
+−     return x.powf(2.0);
++     return (x as f64).powf(2.0 as f64);
+  }
+────────────────────────────────────────────────────────────

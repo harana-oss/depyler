@@ -1,0 +1,42 @@
+  dunder-context.toml :: nested_with
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct CM {
+−     name: String,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct CM {
++     pub name: serde_json::Value,
+  }
+− 
+  impl CM {
+−     fn new(name: &str) -> Self {
+−         log::info!("Enter {}", name);
+−         CM {
+−             name: name.to_string(),
+−         }
++     pub fn new(name: serde_json::Value) -> Self {
++         Self { name }
++     }
++     pub fn __enter__(&self) -> &Self {
++         log::info!("{}", format!("Enter {}", self.name));
++         return self;
+      }
+− }
+− 
+− impl Drop for CM {
+−     fn drop(&mut self) {
+−         log::info!("Exit {}", self.name);
++     pub fn __exit__(&self) -> bool {
++         log::info!("{}", format!("Exit {}", self.name));
++         return false;
+      }
+  }
+− 
+− let _a = CM::new("A");
+− {
+−     let _b = CM::new("B");
+−     log::info!("Inside both");
+− }
+────────────────────────────────────────────────────────────

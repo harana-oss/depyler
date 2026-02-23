@@ -1,0 +1,10 @@
+  raw-strings.toml :: raw_latex
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− let latex = r"\frac{1}{2}";
+−     let result = latex == "\\frac{1}{2}";
++ pub const latex: &str = "\\frac{1}{2}";
++ pub const result: serde_json::Value = latex == "\\frac{1}{2}";
++ use serde_json;
+────────────────────────────────────────────────────────────

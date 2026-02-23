@@ -75,9 +75,8 @@ def get_value(data: dict, key: str) -> str:
 '''
 
 rust = '''
-use serde_json;
 use std::collections::HashMap;
-pub fn get_value(data: &HashMap<serde_json::Value, serde_json::Value>, key: String) -> String {
+pub fn get_value(data: &HashMap<String, i32>, key: String) -> String {
     {
         return data.get(&key).cloned().unwrap();
         return "default".to_string();
@@ -312,9 +311,8 @@ def get_value(data: dict, key: str) -> str:
 '''
 
 rust = '''
-use serde_json;
 use std::collections::HashMap;
-pub fn get_value(data: &HashMap<serde_json::Value, serde_json::Value>, key: String) -> String {
+pub fn get_value(data: &HashMap<String, i32>, key: String) -> String {
     {
         return data.get(&key).cloned().unwrap();
         return "default_key".to_string();
@@ -423,7 +421,7 @@ def process_with_cleanup(x: int) -> int:
         count = x * 2
         return count
     finally:
-        count = count + 1
+        count += 1
 '''
 
 rust = '''
@@ -503,7 +501,7 @@ def complete_pattern(x: int) -> int:
     except ValueError:
         result = -1
     else:
-        result = result + 1
+        result += 1
     finally:
         print("done")
     return result
@@ -568,12 +566,11 @@ def chained_handling(data: list) -> int:
 '''
 
 rust = '''
-use serde_json;
-pub fn chained_handling(data: &Vec<serde_json::Value>) -> i32 {
+pub fn chained_handling(data: &Vec<i32>) -> i32 {
     {
         return data.get(0usize).cloned().unwrap();
         {
-            return data.len() as i32 as i32;
+            return data.len() as i32;
             return -1;
         }
         return -2;
@@ -713,12 +710,9 @@ pub fn get_first(items: &Vec<i32>) -> i32 {
 pub fn safe_get(items: &Vec<i32>, index: i32) -> i32 {
     return items.get(index as usize).cloned().unwrap_or(-1);
 }
-fn main() {
-    let items = vec![10, 20, 30];
-    log::info!("{}", safe_get(items, 0));
-    log::info!("{}", safe_get(items, 5));
-}
-"""
+let items = vec![10, 20, 30];
+log::info!("{}", safe_get(items, 0));
+log::info!("{}", safe_get(items, 5));"""
 expected_output = """10
 -1"""
 
@@ -767,11 +761,8 @@ pub fn safe_get_result(items: &Vec<i32>, index: i32) -> i32 {
     }
     return items.get(index as usize).cloned().unwrap();
 }
-fn main() {
-    let items = vec![10, 20, 30];
-    log::info!("{}", safe_get_result(items, 1));
-    log::info!("{}", safe_get_result(items, 10));
-}
-"""
+let items = vec![10, 20, 30];
+log::info!("{}", safe_get_result(items, 1));
+log::info!("{}", safe_get_result(items, 10));"""
 expected_output = """20
 Error: Index out of bounds"""

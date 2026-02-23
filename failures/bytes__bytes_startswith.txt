@@ -1,0 +1,10 @@
+  bytes.toml :: bytes_startswith
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− let data = b"hello";
+−     let starts = data.starts_with(b"he");
+−     let ends = data.ends_with(b"lo");
+−     let result = (starts, ends);
++ 
+────────────────────────────────────────────────────────────

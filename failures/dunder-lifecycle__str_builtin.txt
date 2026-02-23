@@ -1,0 +1,36 @@
+  dunder-lifecycle.toml :: str_builtin
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::fmt;
+− 
+− struct Status {
+−     code: i32,
+−     message: String,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Status {
++     pub code: serde_json::Value,
++     pub message: serde_json::Value,
+  }
+− 
+  impl Status {
+−     fn new(code: i32, message: &str) -> Self {
+−         Status {
+−             code,
+−             message: message.to_string(),
+−         }
+−     }
+− }
+− 
+− impl fmt::Display for Status {
+−     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+−         write!(f, "[{}] {}", self.code, self.message)
++     pub fn new(code: serde_json::Value, message: serde_json::Value) -> Self {
++         Self { code, message }
+      }
+  }
+− 
+− let s = Status::new(200, "OK");
+− log::info!("{}", s);
+────────────────────────────────────────────────────────────

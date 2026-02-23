@@ -1,0 +1,7 @@
+  string-methods-all.toml :: str_count
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub const result: i32 = "hello".matches("l").count() as i32;
++ 
+────────────────────────────────────────────────────────────

@@ -1,0 +1,47 @@
+  multiple-inheritance.toml :: super_basic
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // super().method() calls parent
+−     trait Parent {
+−         fn method(&self) -> String {
+−             "parent".to_string()
+−         }
++ pub const result: serde_json::Value = Child::new().method() == "parent_child";
++ use serde_json;
++ #[derive(Debug, Copy, Clone)]
++ pub struct Parent {}
++ impl Parent {
++     pub fn new() -> Self {
++         Self {}
+      }
+− 
+−     struct Child;
+− 
+−     impl Parent for Child {}
+− 
+−     impl Child {
+−         fn method(&self) -> String {
+−             format!("{}_child", Parent::method(self))
+−         }
++     pub fn method(&self) -> String {
++         return "parent".to_string();
+      }
+− 
+−     pub fn test_super_basic() -> bool {
+−         let child = Child;
+−         child.method() == "parent_child"
++ }
++ #[derive(Debug, Copy, Clone)]
++ pub struct Child {}
++ impl Child {
++     pub fn new() -> Self {
++         Self {}
+      }
+− 
+−     let result = test_super_basic();
++     pub fn method(&self) -> String {
++         return format!("{}{}", { self.method() }, "_child".to_string());
++     }
++ }
+────────────────────────────────────────────────────────────

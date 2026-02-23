@@ -1,0 +1,13 @@
+  ellipsis.toml :: ellipsis_function_placeholder
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− fn func() {
+−     // Ellipsis maps to empty function body
++ pub fn func() {
++     ();
+  }
+− 
+− func();
+− log::info!("Function with ellipsis works");
+────────────────────────────────────────────────────────────

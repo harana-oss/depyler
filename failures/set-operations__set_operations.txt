@@ -1,0 +1,95 @@
+  set-operations.toml :: set_operations
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use std::collections::HashSet;
+  #[doc = "Test basic set creation and operations"]
+  pub fn test_set_creation() -> HashSet<i32> {
+      let s1 = {
+          let mut set = HashSet::new();
+          set.insert(1);
+          set.insert(2);
+          set.insert(3);
+          set
+      };
+      let s2 = {
+          let mut set = HashSet::new();
+          set.insert(3);
+          set.insert(4);
+          set.insert(5);
+          set
+      };
+      let empty = HashSet::<i32>::new();
+−     s1
++     return s1;
+  }
+  #[doc = "Test set operators"]
+  pub fn test_set_operators() -> HashSet<i32> {
+      let s1 = {
+          let mut set = HashSet::new();
+          set.insert(1);
+          set.insert(2);
+          set.insert(3);
+          set
+      };
+      let s2 = {
+          let mut set = HashSet::new();
+          set.insert(3);
+          set.insert(4);
+          set.insert(5);
+          set
+      };
+−     let _cse_temp_0 = s1
++     let union = s1
+          .union(&s2)
+          .cloned()
+          .collect::<std::collections::HashSet<_>>();
+−     let union = _cse_temp_0;
+−     let _cse_temp_1 = s1
++     let intersection = s1
+          .intersection(&s2)
+          .cloned()
+          .collect::<std::collections::HashSet<_>>();
+−     let intersection = _cse_temp_1;
+      let diff = s1
+          .difference(&s2)
+          .cloned()
+          .collect::<std::collections::HashSet<_>>();
+−     let _cse_temp_2 = s1
++     let sym_diff = s1
+          .symmetric_difference(&s2)
+          .cloned()
+          .collect::<std::collections::HashSet<_>>();
+−     let sym_diff = _cse_temp_2;
+−     union
++     return union;
+  }
+  #[doc = "Test set mutation methods"]
+  pub fn test_set_methods() -> HashSet<i32> {
+      let mut s = {
+          let mut set = HashSet::new();
+          set.insert(1);
+          set.insert(2);
+          set.insert(3);
+          set
+      };
+      s.insert(4);
+      if !s.remove(&2) {
+−         panic!("KeyError: element not in set")
++         panic!("KeyError: element not in set");
+      };
+      s.remove(&5);
+−     s
++     return s;
+  }
+  #[doc = "Test set comprehension"]
+  pub fn test_set_comprehension() -> HashSet<i32> {
+      let squares = (0..5).map(|x| x * x).collect::<HashSet<_>>();
+      let even_squares = (0..10)
+          .filter(|x| x % 2 == 0)
+          .map(|x| x * x)
+          .collect::<HashSet<_>>();
+−     even_squares
++     return even_squares;
+  }
+────────────────────────────────────────────────────────────

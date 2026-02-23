@@ -1,0 +1,20 @@
+  dunder-reflected.toml :: dunder_rdivmod
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− fn divmod(dividend: i32, divisor: i32) -> (i32, i32) {
+−     (dividend / divisor, dividend % divisor)
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Number {
++     pub value: serde_json::Value,
++ }
++ impl Number {
++     pub fn new(value: serde_json::Value) -> Self {
++         Self { value }
++     }
+  }
+− 
+− let result = divmod(10, 3);
+− log::info!("{:?}", result);
+────────────────────────────────────────────────────────────

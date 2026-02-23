@@ -1,0 +1,23 @@
+  trait-impls.toml :: default_impl_complex
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use serde_json;
+  #[derive(Debug, Clone)]
+  pub struct State {
+      pub items: Vec<serde_json::Value>,
+      pub active: bool,
+      pub name: String,
+  }
+  impl State {
+      pub fn new() -> Self {
+          Self {
+−             items: Vec::new(),
++             items: vec![],
+              active: false,
+−             name: String::new(),
++             name: "".to_string(),
+          }
+      }
+  }
+────────────────────────────────────────────────────────────

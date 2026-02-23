@@ -1,0 +1,9 @@
+  control-flow.toml :: ternary_variable_usage
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn abs_value(x: i32) -> i32 {
+−     return if x > 0 { x } else { (-x) };
++     return if x > 0 { x } else { (-x) };
++ }
+────────────────────────────────────────────────────────────

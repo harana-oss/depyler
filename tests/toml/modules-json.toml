@@ -21,7 +21,7 @@ rust = '''
 use serde_json as json;
 use serde_json;
 use std::collections::HashMap;
-pub fn serialize_data(data: &HashMap<serde_json::Value, serde_json::Value>) -> String {
+pub fn serialize_data(data: &HashMap<String, i32>) -> String {
     return serde_json::to_string(&data).unwrap();
 }
 '''
@@ -41,7 +41,7 @@ rust = '''
 use serde_json as json;
 use serde_json;
 use std::collections::HashMap;
-pub fn pretty_json(data: &HashMap<serde_json::Value, serde_json::Value>) -> String {
+pub fn pretty_json(data: &HashMap<String, i32>) -> String {
     return serde_json::to_string(&data).unwrap();
 }
 '''
@@ -61,7 +61,7 @@ rust = '''
 use serde_json as json;
 use serde_json;
 use std::collections::HashMap;
-pub fn deserialize_data(s: String) -> HashMap<serde_json::Value, serde_json::Value> {
+pub fn deserialize_data(s: String) -> HashMap<String, i32> {
     return serde_json::from_str::<serde_json::Value>(&s).unwrap();
 }
 '''
@@ -80,7 +80,7 @@ def parse_array(s: str) -> list:
 rust = '''
 use serde_json as json;
 use serde_json;
-pub fn parse_array(s: String) -> Vec<serde_json::Value> {
+pub fn parse_array(s: String) -> Vec<i32> {
     return serde_json::from_str::<serde_json::Value>(&s).unwrap();
 }
 '''

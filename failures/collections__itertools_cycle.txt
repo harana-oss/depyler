@@ -1,0 +1,14 @@
+  collections.toml :: itertools_cycle
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use itertools::cycle;
+  use serde_json;
+− pub fn cycle_items(items: Vec<serde_json::Value>, n: i32) -> Vec<i32> {
++ pub fn cycle_items(items: Vec<serde_json::Value>, n: i32) -> Vec<serde_json::Value> {
+      let cycler = itertools::cycle(items);
+      return (0..n)
+          .map(|_| cycler.next().expect("StopIteration: iterator is empty"))
+          .collect::<Vec<_>>();
+  }
+────────────────────────────────────────────────────────────

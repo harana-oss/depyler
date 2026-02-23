@@ -1,0 +1,15 @@
+  crypto.toml :: hashlib_sha224
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use sha2 as hashlib;
+  pub fn hash_sha224(data: &bytes) -> String {
+      return {
+          use sha2::Digest;
+          let mut hasher = sha2::Sha224::new();
+          hasher.update(data);
+          hex::encode(hasher.finalize())
+−     }
++     };
++ }
+────────────────────────────────────────────────────────────

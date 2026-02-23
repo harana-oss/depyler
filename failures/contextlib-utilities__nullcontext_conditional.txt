@@ -1,0 +1,16 @@
+  contextlib-utilities.toml :: nullcontext_conditional
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn test_nullcontext_conditional() -> bool {
+      let threaded = false;
+−     if threaded {
+−         // would use mutex here
+−     }
+−     true
++     let lock = threading.Lock();
++     let cm = if threaded { lock } else { nullcontext() };
++     let _context = cm;
++     return true;
+  }
+────────────────────────────────────────────────────────────

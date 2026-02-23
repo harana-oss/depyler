@@ -1,0 +1,11 @@
+  collection-edge-cases.toml :: copy_before_modify
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn modify_copy(items: Vec<i32>) -> Vec<i32> {
+−     let mut copy = items.clone();
++     let mut copy = items.into_iter().collect::<Vec<_>>();
+      copy.push(99);
+      return copy;
+  }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,29 @@
+  string-methods-all.toml :: str_istitle
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub const result: bool = {
+−     let s = "Hello World";
+−     let mut prev_is_cased = false;
+−     let mut result = false;
+−     for c in s.chars() {
+−         if c.is_uppercase() || c.is_titlecase() {
+−             if prev_is_cased {
+−                 return false;
+−             }
+−             prev_is_cased = true;
+−             result = true;
+−         } else if c.is_lowercase() {
+−             if !prev_is_cased {
+−                 return false;
+−             }
+−             prev_is_cased = true;
+−             result = true;
+−         } else {
+−             prev_is_cased = false;
+−         }
+−     }
+−     result
+− };
++ 
+────────────────────────────────────────────────────────────

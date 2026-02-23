@@ -1,0 +1,41 @@
+  dunder-callable.toml :: callable_memoize
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::collections::HashMap;
+− 
+− struct Memoize {
+−     cache: HashMap<i32, i32>,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Memoize {
++     pub cache: HashMap<serde_json::Value, serde_json::Value>,
+  }
+− 
+  impl Memoize {
+−     fn new() -> Self {
+−         Memoize {
+−             cache: HashMap::new(),
+−         }
+−     }
+− 
+−     fn call(&mut self, x: i32) -> i32 {
+−         if !self.cache.contains_key(&x) {
+−             log::info!("Computing {}", x);
+−             self.cache.insert(x, x * x);
++     pub fn new() -> Self {
++         Self {
++             cache: {
++                 let mut map = HashMap::new();
++                 map
++             },
+          }
+−         *self.cache.get(&x).unwrap()
+      }
+  }
+− 
+− let mut memo = Memoize::new();
+− log::info!("{}", memo.call(5));
+− log::info!("{}", memo.call(5));
+− log::info!("{}", memo.call(3));
+────────────────────────────────────────────────────────────

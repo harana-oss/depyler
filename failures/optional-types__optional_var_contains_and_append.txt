@@ -1,0 +1,18 @@
+  optional-types.toml :: optional_var_contains_and_append
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn get_name() -> Option<String> {
+      return Some("Alice".to_string());
+  }
+  pub fn add_unique_name(names: &mut Vec<String>) {
+      let name = get_name();
+−     if name.clone().is_some() {
+−         if !names.contains(&name.clone().unwrap()) {
++     if name.is_some() {
++         if !names.contains(&name.as_ref().unwrap()) {
+              names.push(name.clone().unwrap());
+          }
+      }
+  }
+────────────────────────────────────────────────────────────

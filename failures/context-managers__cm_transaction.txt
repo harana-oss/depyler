@@ -1,0 +1,69 @@
+  context-managers.toml :: cm_transaction
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct Transaction {
+−         committed: bool,
+−         rolled_back: bool,
++ use serde_json;
++ #[derive(Debug, Copy, Clone)]
++ pub struct Transaction {
++     pub committed: bool,
++     pub rolled_back: bool,
++ }
++ impl Transaction {
++     pub fn new() -> Self {
++         Self {
++             committed: false,
++             rolled_back: false,
++         }
++     }
++     pub fn __enter__(&self) -> &Self {
++         return self;
+      }
+− 
+−     impl Transaction {
+−         fn new() -> Self {
+−             Transaction {
+−                 committed: false,
+−                 rolled_back: false,
+−             }
+−         }
+− 
+−         fn commit(&mut self) {
++     pub fn __exit__(
++         &mut self,
++         exc_type: serde_json::Value,
++         exc_val: serde_json::Value,
++         exc_tb: serde_json::Value,
++     ) -> bool {
++         if exc_type.is_none() {
+              self.committed = true;
+−         }
+− 
+−         fn rollback(&mut self) {
++         } else {
+              self.rolled_back = true;
+          }
+−     }
+− 
+−     // Success case
+−     let mut txn1 = Transaction::new();
+−     let result1: Result<(), ()> = Ok(());
+−     if result1.is_ok() {
+−         txn1.commit();
++         return false;
+      }
+−     assert!(txn1.committed);
+−     assert!(!txn1.rolled_back);
+− 
+−     // Failure case
+−     let mut txn2 = Transaction::new();
+−     let result2: Result<(), String> = Err("error".to_string());
+−     if result2.is_err() {
+−         txn2.rollback();
+−     }
+−     assert!(!txn2.committed);
+−     assert!(txn2.rolled_back);
++ }
+────────────────────────────────────────────────────────────

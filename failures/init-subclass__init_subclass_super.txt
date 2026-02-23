@@ -1,0 +1,41 @@
+  init-subclass.toml :: init_subclass_super
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust: trait composition
+− trait Base {
+−     fn from_base() -> bool {
+−         true
++ #[derive(Debug, Copy, Clone)]
++ pub struct Base {}
++ impl Base {
++     pub fn new() -> Self {
++         Self {}
++     }
++ }
++ #[derive(Debug, Copy, Clone)]
++ pub struct Middle {}
++ impl Middle {
++     pub fn new() -> Self {
++         Self {}
+      }
+  }
+− 
+− trait Middle: Base {
+−     fn from_middle() -> bool {
+−         true
++ #[derive(Debug, Copy, Clone)]
++ pub struct Leaf {}
++ impl Leaf {
++     pub fn new() -> Self {
++         Self {}
+      }
+  }
+− 
+− struct Leaf;
+− impl Base for Leaf {}
+− impl Middle for Leaf {}
+− 
+− assert_eq!(Leaf::from_base(), true);
+− assert_eq!(Leaf::from_middle(), true);
+────────────────────────────────────────────────────────────

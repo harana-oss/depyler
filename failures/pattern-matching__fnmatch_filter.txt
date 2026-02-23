@@ -1,0 +1,26 @@
+  pattern-matching.toml :: fnmatch_filter
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use serde_json;
+− pub fn filter_files(names: &Vec<serde_json::Value>, pattern: String) -> Vec<i32> {
++ pub fn filter_files(names: &Vec<serde_json::Value>, pattern: String) -> Vec<serde_json::Value> {
+      return {
+          let pattern_str = pattern;
+          let regex_pattern = pattern_str
+              .replace(".", "\\.")
+              .replace("*", ".*")
+              .replace("?", ".")
+              .replace("[!", "[^");
+−         let regex =
+−             regex::Regex::new(&format!("^{}$", regex_pattern)).unwrap_or_else(|_| regex::Regex::new("^$").unwrap());
++         let regex = regex::Regex::new(&format!("^{}$", regex_pattern))
++             .unwrap_or_else(|_| regex::Regex::new("^$").unwrap());
+          (names)
+              .into_iter()
+              .filter(|name| regex.is_match(&name.to_string()))
+              .collect::<Vec<_>>()
+−     }
++     };
++ }
+────────────────────────────────────────────────────────────

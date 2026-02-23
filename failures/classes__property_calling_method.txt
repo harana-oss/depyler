@@ -1,0 +1,22 @@
+  classes.toml :: property_calling_method
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug, Copy, Clone]
++ #[derive(Debug, Copy, Clone)]
+  pub struct Calculator {
+      pub value: i32,
+  }
+  impl Calculator {
+      pub fn new(value: i32) -> Self {
+          Self { value }
+      }
+      pub fn double(&self) -> i32 {
+          return self.value * 2;
+      }
+      pub fn doubled_value(&self) -> i32 {
+          return self.double();
+      }
+− }
++ }
+────────────────────────────────────────────────────────────

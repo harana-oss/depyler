@@ -1,0 +1,11 @@
+  basic-types.toml :: float_list_constant
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− lazy_static! {
+−     pub static ref VEC: Vec<f64> = vec![1.1, 2.2, 3.3, 4.4];
+− }
+− use lazy_static::lazy_static;
++ pub const VEC: serde_json::Value = vec![1.1, 2.2, 3.3, 4.4];
++ use serde_json;
+────────────────────────────────────────────────────────────

@@ -1,0 +1,17 @@
+  lambdas.toml :: lambda_in_comprehension
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use serde_json;
+− pub fn process_items(items: &Vec<i32>) -> Vec<i32> {
++ pub fn process_items(items: &Vec<serde_json::Value>) -> Vec<serde_json::Value> {
+      let transform = |x| x * 2;
+      return items
+−         .clone()
+−         .into_iter()
++         .iter()
++         .cloned()
+          .map(|item| transform(item))
+          .collect::<Vec<_>>();
+  }
+────────────────────────────────────────────────────────────

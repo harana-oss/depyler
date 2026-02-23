@@ -1,0 +1,13 @@
+  multi-module.toml :: re_export
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn public_function(x: i32) -> i32 {
+      return x * 2;
+  }
+− 
+− fn internal_helper(x: i32) -> i32 {
++ pub fn internal_helper(x: i32) -> i32 {
+      return x + 1;
+  }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,40 @@
+  positional-only-args.toml :: posonly_pow
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− fn my_pow(base: i32, exp: u32, modulo: Option<i32>) -> i32 {
+−     let result = base.pow(exp);
+−     if let Some(m) = modulo {
+−         result % m
+−     } else {
+−         result
++ #[derive(Debug, Clone)]
++ pub struct ZeroDivisionError {
++     message: String,
++ }
++ impl std::fmt::Display for ZeroDivisionError {
++     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
++         write!(f, "division by zero: {}", self.message)
+      }
+  }
+− 
+− log::info!("{}", my_pow(2, 3, None));
+− log::info!("{}", my_pow(2, 3, Some(5)));
++ impl std::error::Error for ZeroDivisionError {}
++ impl ZeroDivisionError {
++     pub fn new(message: impl Into<String>) -> Self {
++         Self {
++             message: message.into(),
++         }
++     }
++ }
++ pub fn my_pow() -> Result<(), ZeroDivisionError> {
++     let mut result = base
++         .checked_pow(exp as u32)
++         .expect("Power operation overflowed");
++     if r#mod.is_some() {
++         result %= r#mod;
++     }
++     return Ok(result);
++ }
+────────────────────────────────────────────────────────────

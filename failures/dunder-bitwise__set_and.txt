@@ -1,0 +1,13 @@
+  dunder-bitwise.toml :: set_and
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::collections::HashSet;
+  
+− let set1: HashSet<_> = vec![1, 2, 3, 4].into_iter().collect();
+− let set2: HashSet<_> = vec![3, 4, 5, 6].into_iter().collect();
+− let result: Vec<_> = set1.intersection(&set2).copied().collect();
+− let mut sorted = result;
+− sorted.sort();
+− log::info!("{:?}", sorted);
+────────────────────────────────────────────────────────────

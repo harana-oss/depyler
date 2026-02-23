@@ -1,0 +1,39 @@
+  dunder-context.toml :: cm_file_like
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct File {
+−     name: String,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct File {
++     pub name: serde_json::Value,
+  }
+− 
+  impl File {
+−     fn new(name: &str) -> Self {
+−         log::info!("Opening {}", name);
+−         File {
+−             name: name.to_string(),
+−         }
++     pub fn new(name: serde_json::Value) -> Self {
++         Self { name }
+      }
+− }
+− 
+− impl Drop for File {
+−     fn drop(&mut self) {
+−         log::info!("Closing {}", self.name);
++     pub fn __enter__(&self) -> &Self {
++         log::info!("{}", format!("Opening {}", self.name));
++         return self;
++     }
++     pub fn __exit__(&self) -> bool {
++         log::info!("{}", format!("Closing {}", self.name));
++         return false;
+      }
+  }
+− 
+− let f = File::new("data.txt");
+− log::info!("Working with {}", f.name);
+────────────────────────────────────────────────────────────

@@ -1,0 +1,17 @@
+  numeric-csv.toml :: csv_reader
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use csv;
+  use serde_json;
+− pub fn read_csv_file(filename: String) -> Vec<i32> {
++ pub fn read_csv_file(filename: String) -> Result<Vec<serde_json::Value>, std::io::Error> {
+      let mut f = std::fs::File::open(filename)?;
+      let reader = csv::Reader::from_reader(f);
+−     return reader
++     return Ok(reader
+          .deserialize::<HashMap<String, String>>()
+−         .collect::<Vec<_>>();
++         .collect::<Vec<_>>());
+  }
+────────────────────────────────────────────────────────────

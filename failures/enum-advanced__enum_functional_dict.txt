@@ -1,0 +1,22 @@
+  enum-advanced.toml :: enum_functional_dict
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug)]
+− enum Color {
+−     Red = 1,
+−     Green = 2,
+− }
+− 
++ use std::collections::HashMap;
+  pub fn test_enum_functional_dict() -> i32 {
+−     Color::Red as i32
++     let Color = Enum::new("Color", {
++         let mut map = HashMap::new();
++         map.insert("RED".to_string(), 1);
++         map.insert("GREEN".to_string(), 2);
++         map
++     });
++     return Color.RED.value;
+  }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,37 @@
+  dunder-attribute.toml :: getattr_descriptor
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust doesn't have Python-style descriptors
+− // Use traits or methods instead
+− struct Descriptor;
+− 
++ #[derive(Debug, Copy, Clone)]
++ pub struct Descriptor {}
+  impl Descriptor {
+−     fn get(&self) -> &str {
+−         "descriptor value"
++     pub fn new() -> Self {
++         Self {}
+      }
+  }
+− 
+− struct Container;
+− 
++ #[derive(Debug, Copy, Clone)]
++ pub struct Container {}
+  impl Container {
+−     fn get_attr(&self, name: &str) -> Option<Descriptor> {
+−         match name {
+−             "desc" => Some(Descriptor),
+−             _ => None,
+−         }
++     pub fn new() -> Self {
++         Self {}
+      }
+  }
+− 
+− let obj = Container;
+− let desc = obj.get_attr("desc").unwrap();
+− log::info!("Descriptor");
+────────────────────────────────────────────────────────────

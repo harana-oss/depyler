@@ -1,0 +1,33 @@
+  string-encoding.toml :: title_case
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn titlecase(s: &str) -> String {
+−     let mut result = String::new();
+−     let mut capitalize_next = true;
+−     for c in s.chars() {
+−         if c.is_whitespace() {
+−             result.push(c);
+−             capitalize_next = true;
+−         } else if capitalize_next {
+−             result.extend(c.to_uppercase());
+−             capitalize_next = false;
+−         } else {
+−             result.extend(c.to_lowercase());
+−         }
+−     }
+−     return result;
++ pub fn titlecase(s: String) -> String {
++     return s
++         .split_whitespace()
++         .map(|word| {
++             let mut chars = word.chars();
++             match chars.next() {
++                 None => String::new(),
++                 Some(first) => first.to_uppercase().chain(chars).collect::<String>(),
++             }
++         })
++         .collect::<Vec<_>>()
++         .join(" ");
+  }
+────────────────────────────────────────────────────────────

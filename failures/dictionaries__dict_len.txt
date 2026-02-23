@@ -1,0 +1,12 @@
+  dictionaries.toml :: dict_len
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use serde_json;
+  use std::collections::HashMap;
+− pub fn dict_size(d: &HashMap<String, i32>) -> i32 {
+−     return d.len() as i32;
++ pub fn dict_size(d: &HashMap<serde_json::Value, serde_json::Value>) -> i32 {
++     return d.len() as i32 as i32;
+  }
+────────────────────────────────────────────────────────────

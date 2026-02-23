@@ -1,0 +1,13 @@
+  packages-init.toml :: init_from_sub
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // In Rust: use pkg::sub::item;
+−     // Brings item into current scope
+−     // Example:
+−     // use std::collections::HashMap;
+−     // let map = HashMap::new();  // No std::collections:: prefix needed
+−     let result = true;
+−     log::info!("Rust uses 'use pkg::sub::item' for specific imports");
++ 
+────────────────────────────────────────────────────────────

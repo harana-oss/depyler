@@ -1,0 +1,46 @@
+  generators.toml :: generator_state_type_from_param
+    Output mismatch
+
+────────────────────────────────────────────────────────────
++ use serde_json;
+  #[doc = " Generator state struct"]
+  #[derive(Debug)]
+  struct RangeFromState {
+      state: usize,
+−     i: i32,
++     i: serde_json::Value,
+      n: i32,
+  }
+  #[doc = " Generator function - returns Iterator"]
+  pub fn range_from(n: i32) -> impl Iterator<Item = i32> {
+      RangeFromState {
+          state: 0,
+−         i: 0,
++         i: Default::default(),
+          n: n,
+      }
+  }
+  impl Iterator for RangeFromState {
+      type Item = i32;
+      fn next(&mut self) -> Option<Self::Item> {
+          match self.state {
+              0 => {
+                  self.i = self.n;
+                  self.state = 1;
+                  self.next()
+              }
+              1 => {
+                  if self.i > 0 {
+                      let result = self.i;
+                      self.i = self.i - 1;
+                      return Some(result);
+                  } else {
+                      self.state = 2;
+                      None
+                  }
+              }
+              _ => None,
+          }
+      }
+  }
+────────────────────────────────────────────────────────────

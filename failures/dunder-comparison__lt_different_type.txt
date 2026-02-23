@@ -1,0 +1,25 @@
+  dunder-comparison.toml :: lt_different_type
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust prevents this at compile time
+− struct Value {
+−     x: i32,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Value {
++     pub x: serde_json::Value,
+  }
+− 
+  impl Value {
+−     fn new(x: i32) -> Self {
+−         Value { x }
++     pub fn new(x: serde_json::Value) -> Self {
++         Self { x }
+      }
+  }
+− 
+− let _v = Value::new(5);
+− // v < "string" would not compile in Rust
+− log::info!("TypeError");
+────────────────────────────────────────────────────────────

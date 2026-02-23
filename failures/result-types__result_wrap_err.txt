@@ -1,0 +1,11 @@
+  result-types.toml :: result_wrap_err
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn fail(message: String) {
+−     panic!("{}", RuntimeError::new(message));
++ pub fn fail(message: String) -> Result<(), RuntimeError> {
++     return Err(RuntimeError::new(message));
++     Ok(())
+  }
+────────────────────────────────────────────────────────────

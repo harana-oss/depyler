@@ -1,0 +1,10 @@
+  async-generators.toml :: async_generator_basic
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− async fn f() {
+−     // Async function
+− }
++ pub async fn f() {
++     }
+────────────────────────────────────────────────────────────

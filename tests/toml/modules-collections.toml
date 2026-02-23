@@ -353,7 +353,7 @@ def create_heap(items: list) -> None:
 
 rust = '''
 use serde_json;
-pub fn create_heap(items: &Vec<serde_json::Value>) {
+pub fn create_heap(items: &Vec<i32>) {
     {
         let heap = &mut (items);
         let len = heap.len();
@@ -424,7 +424,7 @@ def pop_min(heap: list) -> int:
 
 rust = '''
 use serde_json;
-pub fn pop_min(heap: &Vec<serde_json::Value>) -> i32 {
+pub fn pop_min(heap: &Vec<i32>) -> i32 {
     return {
         let heap = &mut (heap);
         if heap.is_empty() {
@@ -470,7 +470,7 @@ def get_largest(n: int, items: list) -> list:
 
 rust = '''
 use serde_json;
-pub fn get_largest(n: i32, items: &Vec<serde_json::Value>) -> Vec<serde_json::Value> {
+pub fn get_largest(n: i32, items: &Vec<serde_json::Value>) -> Vec<i32> {
     return {
         let n = n as usize;
         let mut items = items;
@@ -492,7 +492,7 @@ def get_smallest(n: int, items: list) -> list:
 
 rust = '''
 use serde_json;
-pub fn get_smallest(n: i32, items: &Vec<serde_json::Value>) -> Vec<serde_json::Value> {
+pub fn get_smallest(n: i32, items: &Vec<serde_json::Value>) -> Vec<i32> {
     return {
         let n = n as usize;
         let mut items = items;

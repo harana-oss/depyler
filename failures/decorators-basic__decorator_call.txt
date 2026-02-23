@@ -1,0 +1,27 @@
+  decorators-basic.toml :: decorator_call
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− fn add_prefix<F>(f: F) -> impl Fn() -> String
+−     where
+−         F: Fn() -> String,
+−     {
+−         move || format!("PREFIX: {}", f())
+−     }
+− 
+−     fn message_impl() -> String {
+−         "hello".to_string()
++ use serde_json;
++ pub fn add_prefix(f: &serde_json::Value) {
++     fn wrapper() -> () {
++         return format!("{}{}", "PREFIX: ", f());
+      }
+− 
+−     let message = add_prefix(message_impl);
+−     let result = message();
++     return wrapper;
++ }
++ pub fn message() -> String {
++     return "hello".to_string();
++ }
+────────────────────────────────────────────────────────────

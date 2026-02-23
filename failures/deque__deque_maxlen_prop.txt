@@ -1,0 +1,21 @@
+  deque.toml :: deque_maxlen_prop
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // d.maxlen
+−     struct BoundedDeque<T> {
+−         deque: std::collections::VecDeque<T>,
+−         maxlen: Option<usize>,
+−     }
+− 
+−     let d1 = BoundedDeque {
+−         deque: std::collections::VecDeque::new(),
+−         maxlen: Some(5),
+−     };
+−     let d2 = BoundedDeque {
+−         deque: std::collections::VecDeque::new(),
+−         maxlen: None,
+−     };
+−     let result = d1.maxlen == Some(5) && d2.maxlen == None;
++ use std::collections::VecDeque;
+────────────────────────────────────────────────────────────

@@ -1,0 +1,43 @@
+  dunder-lifecycle.toml :: dunder_str
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::fmt;
+− 
+− struct Person {
+−     name: String,
+−     age: i32,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Person {
++     pub name: serde_json::Value,
++     pub age: serde_json::Value,
+  }
+− 
+  impl Person {
+−     fn new(name: &str, age: i32) -> Self {
+−         Person {
+−             name: name.to_string(),
+−             age,
+−         }
++     pub fn new(name: serde_json::Value, age: serde_json::Value) -> Self {
++         Self { name, age }
+      }
+  }
+− 
+− impl fmt::Display for Person {
+−     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+−         write!(f, "{}, {} years old", self.name, self.age)
+−     }
+− }
+− 
+− impl fmt::Debug for Person {
+−     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+−         write!(f, "Person('{}', {})", self.name, self.age)
+−     }
+− }
+− 
+− let p = Person::new("Alice", 30);
+− log::info!("{}", p);
+− log::info!("{:?}", p);
+────────────────────────────────────────────────────────────

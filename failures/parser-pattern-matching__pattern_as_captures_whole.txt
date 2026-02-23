@@ -1,0 +1,22 @@
+  parser-pattern-matching.toml :: pattern_as_captures_whole
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− fn process(x: i64) -> String {
+−     match x {
+−         n @ 1.. => format!("positive: {}", n),
+−         _ => "not positive".to_string(),
++ pub fn process(x: i32) -> String {
++     if x > 0 {
++         let n = x;
++         return format!("positive: {}", n);
++     } else {
++         return "not positive".to_string();
+      }
+− }
+− 
+− fn main() {
+−     let result = process(5);
+−     println!("{}", result);
+  }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,21 @@
+  functools-wraps.toml :: wraps_help
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // help() shows original docs
+−     /// This function does something
+−     fn func() {}
+− 
+−     let result = true;
++ use std;
++ pub const result: serde_json::Value = func.__doc__ == "This function does something";
++ use serde_json;
++ pub fn my_decorator(f: &serde_json::Value) {
++     fn wrapper() -> () {
++         return f(args);
++     }
++     return wrapper;
++ }
++ #[doc = "This function does something"]
++ pub fn func() {}
+────────────────────────────────────────────────────────────

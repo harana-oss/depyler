@@ -1,0 +1,12 @@
+  modules-json.toml :: json_loads
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use serde_json as json;
+  use serde_json;
+  use std::collections::HashMap;
+− pub fn deserialize_data(s: String) -> HashMap<String, i32> {
++ pub fn deserialize_data(s: String) -> HashMap<serde_json::Value, serde_json::Value> {
+      return serde_json::from_str::<serde_json::Value>(&s).unwrap();
+  }
+────────────────────────────────────────────────────────────

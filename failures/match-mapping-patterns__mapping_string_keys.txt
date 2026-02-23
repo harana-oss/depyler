@@ -1,0 +1,14 @@
+  match-mapping-patterns.toml :: mapping_string_keys
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::collections::HashMap;
+− 
+−     let mut data = HashMap::new();
+−     data.insert("a", 10);
+  
+−     let result = match data.get("a") {
+−         Some(&x) => x,
+−         None => 0,
+−     };
+────────────────────────────────────────────────────────────

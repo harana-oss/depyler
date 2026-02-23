@@ -1,0 +1,33 @@
+  dunder-lifecycle.toml :: print_uses_str
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::fmt;
+− 
+− struct Message {
+−     text: String,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Message {
++     pub text: serde_json::Value,
+  }
+− 
+  impl Message {
+−     fn new(text: &str) -> Self {
+−         Message {
+−             text: text.to_string(),
+−         }
+−     }
+− }
+− 
+− impl fmt::Display for Message {
+−     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+−         write!(f, "Message: {}", self.text)
++     pub fn new(text: serde_json::Value) -> Self {
++         Self { text }
+      }
+  }
+− 
+− let m = Message::new("Hello");
+− log::info!("{}", m);
+────────────────────────────────────────────────────────────

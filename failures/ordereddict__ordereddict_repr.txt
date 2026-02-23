@@ -1,0 +1,11 @@
+  ordereddict.toml :: ordereddict_repr
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Using indexmap crate for insertion-order preservation
+−     use indexmap::IndexMap;
+−     let mut od = IndexMap::new();
+−     od.insert("a", 1);
+−     od.insert("b", 2);
++ use std::collections::IndexMap;
+────────────────────────────────────────────────────────────

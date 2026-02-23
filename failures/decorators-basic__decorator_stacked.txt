@@ -1,0 +1,51 @@
+  decorators-basic.toml :: decorator_stacked
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− fn add_a<F>(f: F) -> impl Fn() -> String
+−     where
+−         F: Fn() -> String,
+−     {
+−         move || format!("a({})", f())
+−     }
+− 
+−     fn add_b<F>(f: F) -> impl Fn() -> String
+−     where
+−         F: Fn() -> String,
+−     {
+−         move || format!("b({})", f())
++ use serde_json;
++ pub fn add_a(f: &serde_json::Value) {
++     fn wrapper() -> () {
++         return format!("{}{}", format!("{}{}", "a(", f()), ")");
+      }
+− 
+−     fn add_c<F>(f: F) -> impl Fn() -> String
+−     where
+−         F: Fn() -> String,
+−     {
+−         move || format!("c({})", f())
++     return wrapper;
++ }
++ pub fn add_b(f: &serde_json::Value) {
++     fn wrapper() -> () {
++         return format!("{}{}", format!("{}{}", "b(", f()), ")");
+      }
+− 
+−     fn func_impl() -> String {
+−         "x".to_string()
++     return wrapper;
++ }
++ pub fn add_c(f: &serde_json::Value) {
++     fn wrapper() -> () {
++         return format!("{}{}", format!("{}{}", "c(", f()), ")");
+      }
+− 
+−     let func = add_a(add_b(add_c(func_impl)));
+−     let result = func();
++     return wrapper;
++ }
++ pub fn func() -> String {
++     return "x".to_string();
++ }
+────────────────────────────────────────────────────────────

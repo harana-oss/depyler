@@ -1,0 +1,13 @@
+  functions.toml :: reference_list_str
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn f(x: &Vec<String>) -> i32 {
+−     return x.len() as i32;
++     return x.len() as i32 as i32;
+  }
+  pub fn main() {
+      let v = vec!["a".to_string(), "b".to_string()];
+      f(&v);
+  }
+────────────────────────────────────────────────────────────

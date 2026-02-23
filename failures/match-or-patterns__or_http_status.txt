@@ -1,0 +1,11 @@
+  match-or-patterns.toml :: or_http_status
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− let status = 201;
+−     let result = match status {
+−         200 | 201 | 204 => true,
+−         _ => false,
+−     };
++ 
+────────────────────────────────────────────────────────────

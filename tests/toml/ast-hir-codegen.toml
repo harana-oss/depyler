@@ -114,8 +114,7 @@ def conditional(x: int) -> int:
 
 rust = '''
 pub fn conditional(x: i32) -> i32 {
-    let _cse_temp_0 = x > 0;
-    if _cse_temp_0 {
+        if x > 0 {
         return 1;
     } else {
         return -1;
@@ -139,7 +138,7 @@ rust = '''
 pub fn sum_list(nums: &Vec<i32>) -> i32 {
     let mut total = 0;
     for n in nums.iter().cloned() {
-        total = total + n;
+        total += n;
     }
     return total;
 }
@@ -159,7 +158,7 @@ def countdown(n: int) -> int:
 rust = '''
 pub fn countdown(mut n: i32) -> i32 {
     while n > 0 {
-        n = n - 1;
+        n -= 1;
     }
     return n;
 }
@@ -197,7 +196,7 @@ class Point:
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone]
 pub struct Point {
     pub x: i32,
     pub y: i32,
@@ -205,34 +204,6 @@ pub struct Point {
 impl Point {
     pub fn new(x: i32, y: i32) -> Self {
         Self { x, y }
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "x" => Some(Box::new(self.x.clone()) as Box<dyn std::any::Any>),
-            "y" => Some(Box::new(self.y.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "x" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.x = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "y" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.y = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 '''
@@ -252,7 +223,7 @@ class Counter:
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone]
 pub struct Counter {
     pub value: i32,
 }
@@ -263,25 +234,6 @@ impl Counter {
     pub fn increment(&mut self) -> i32 {
         self.value = format!("{}{}", self.value, 1);
         return self.value.clone();
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "value" => Some(Box::new(self.value.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "value" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.value = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 '''

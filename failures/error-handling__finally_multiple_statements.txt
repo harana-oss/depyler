@@ -1,0 +1,20 @@
+  error-handling.toml :: finally_multiple_statements
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn multi_stmt_finally() -> i32 {
+−     let mut x = 0;
+−     {
+−         x = 42;
+−         log::info!("{}", "cleanup 1");
+−         log::info!("{}", "cleanup 2");
+−         log::info!("{}", "done");
+−     }
++     let x = 0;
++     x = 42;
++     log::info!("{}", "cleanup 1");
++     log::info!("{}", "cleanup 2");
++     log::info!("{}", "done");
+      return x;
+  }
+────────────────────────────────────────────────────────────

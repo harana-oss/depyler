@@ -1,0 +1,22 @@
+  contextlib-utilities.toml :: exitstack_push
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn test_exitstack_push() -> bool {
+−     let mut called = Vec::new();
+−     {
+−         // cleanup function would be pushed here
++     let called = vec![];
++     fn cleanup(exc_type: (), exc_val: (), exc_tb: ()) -> () {
++         called.push(true);
++         return false;
+      }
+−     // cleanup would be called on exit
+−     called.push(true);
+−     called.len() == 1
++     let _context = ExitStack::new();
++     let mut stack = _context.__enter__();
++     stack.push(cleanup);
++     return called.len() as i32 == 1;
+  }
+────────────────────────────────────────────────────────────

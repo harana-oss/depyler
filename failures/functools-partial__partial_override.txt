@@ -1,0 +1,17 @@
+  functools-partial.toml :: partial_override
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− fn greet(name: &str, greeting: &str) -> String {
+−     format!("{}, {}!", greeting, name)
++ use std;
++ pub fn greet(name: String, greeting: String) -> String {
++     return format!("{}, {}!", greeting, name);
+  }
+− 
+− // In Rust, we would need to design the API differently
+− // to allow overriding captured values
+− let hello_greeter =
+−     |name, greeting_override: Option<&str>| greet(name, greeting_override.unwrap_or("Hello"));
+− log::info!("{}", hello_greeter("Alice", Some("Hi")));
+────────────────────────────────────────────────────────────

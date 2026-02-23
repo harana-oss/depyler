@@ -1,0 +1,16 @@
+  template-strings.toml :: template_custom_pattern
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust: custom pattern matching with regex
+−     let result = "lower $ABC";
+−     assert_eq!(result, "lower $ABC");
++ #[derive(Debug, Copy, Clone)]
++ pub struct MyTemplate {}
++ impl MyTemplate {
++     pub const idpattern: String = "[a-z]+".to_string();
++     pub fn new() -> Self {
++         Self {}
++     }
++ }
+────────────────────────────────────────────────────────────

@@ -31,12 +31,9 @@ fn modify() {
     X.with(|x| x.set(20));
 }
 
-fn main() {
-    log::info!("Before: {}", X.with(|x| x.get()));
-    modify();
-    log::info!("After: {}", X.with(|x| x.get()));
-}
-"""
+log::info!("Before: {}", X.with(|x| x.get()));
+modify();
+log::info!("After: {}", X.with(|x| x.get()));"""
 
 [[test]]
 name = "global_read"
@@ -57,11 +54,8 @@ fn read_global() -> i32 {
     X
 }
 
-fn main() {
-    let result = read_global();
-    log::info!("Global value: {}", result);
-}
-"""
+let result = read_global();
+log::info!("Global value: {}", result);"""
 
 [[test]]
 name = "global_write"
@@ -87,13 +81,10 @@ fn increment() {
     COUNTER.fetch_add(1, Ordering::SeqCst);
 }
 
-fn main() {
-    log::info!("Initial: {}", COUNTER.load(Ordering::SeqCst));
-    increment();
-    increment();
-    log::info!("After increments: {}", COUNTER.load(Ordering::SeqCst));
-}
-"""
+log::info!("Initial: {}", COUNTER.load(Ordering::SeqCst));
+increment();
+increment();
+log::info!("After increments: {}", COUNTER.load(Ordering::SeqCst));"""
 
 [[test]]
 name = "global_multiple"
@@ -126,22 +117,19 @@ fn modify_all() {
     C.with(|c| c.set(30));
 }
 
-fn main() {
-    log::info!(
-        "Before: {}, {}, {}",
-        A.with(|a| a.get()),
-        B.with(|b| b.get()),
-        C.with(|c| c.get())
-    );
-    modify_all();
-    log::info!(
-        "After: {}, {}, {}",
-        A.with(|a| a.get()),
-        B.with(|b| b.get()),
-        C.with(|c| c.get())
-    );
-}
-"""
+log::info!(
+    "Before: {}, {}, {}",
+    A.with(|a| a.get()),
+    B.with(|b| b.get()),
+    C.with(|c| c.get())
+);
+modify_all();
+log::info!(
+    "After: {}, {}, {}",
+    A.with(|a| a.get()),
+    B.with(|b| b.get()),
+    C.with(|c| c.get())
+);"""
 
 [[test]]
 name = "global_nested"
@@ -180,11 +168,8 @@ fn outer() {
     log::info!("Outer's x: {}", x);
 }
 
-fn main() {
-    outer();
-    log::info!("Global x: {}", X.with(|x| x.get()));
-}
-"""
+outer();
+log::info!("Global x: {}", X.with(|x| x.get()));"""
 
 # =============================================================================
 # Nonlocal Statement
@@ -222,10 +207,7 @@ fn outer() {
     log::info!("After: {}", x.get());
 }
 
-fn main() {
-    outer();
-}
-"""
+outer();"""
 
 [[test]]
 name = "nonlocal_read"
@@ -254,10 +236,7 @@ fn outer() {
     log::info!("Value: {}", result);
 }
 
-fn main() {
-    outer();
-}
-"""
+outer();"""
 
 [[test]]
 name = "nonlocal_write"
@@ -294,10 +273,7 @@ fn counter() {
     log::info!("Count 3: {}", increment());
 }
 
-fn main() {
-    counter();
-}
-"""
+counter();"""
 
 [[test]]
 name = "nonlocal_multiple"
@@ -337,10 +313,7 @@ fn outer() {
     log::info!("After: {}, {}, {}", a.get(), b.get(), c.get());
 }
 
-fn main() {
-    outer();
-}
-"""
+outer();"""
 
 [[test]]
 name = "nonlocal_chain"
@@ -386,10 +359,7 @@ fn level1() {
     log::info!("Level 1 sees: {}", x.get());
 }
 
-fn main() {
-    level1();
-}
-"""
+level1();"""
 
 # =============================================================================
 # Closures with Global/Nonlocal
@@ -427,13 +397,10 @@ fn make_counter() -> impl FnMut() -> i32 {
     }
 }
 
-fn main() {
-    let mut counter = make_counter();
-    log::info!("Call 1: {}", counter());
-    log::info!("Call 2: {}", counter());
-    log::info!("Call 3: {}", counter());
-}
-"""
+let mut counter = make_counter();
+log::info!("Call 1: {}", counter());
+log::info!("Call 2: {}", counter());
+log::info!("Call 3: {}", counter());"""
 
 [[test]]
 name = "closure_factory"
@@ -455,14 +422,11 @@ fn make_adder(n: i32) -> impl Fn(i32) -> i32 {
     move |x| x + n
 }
 
-fn main() {
-    let add5 = make_adder(5);
-    let add10 = make_adder(10);
+let add5 = make_adder(5);
+let add10 = make_adder(10);
 
-    log::info!("add5(3) = {}", add5(3));
-    log::info!("add10(3) = {}", add10(3));
-}
-"""
+log::info!("add5(3) = {}", add5(3));
+log::info!("add10(3) = {}", add10(3));"""
 
 [[test]]
 name = "closures_shared_state"
@@ -511,13 +475,10 @@ fn make_account(initial: i32) -> (impl FnMut(i32) -> i32, impl FnMut(i32) -> i32
     (deposit, withdraw)
 }
 
-fn main() {
-    let (mut deposit, mut withdraw) = make_account(100);
-    log::info!("Initial balance after deposit(50): {}", deposit(50));
-    log::info!("Balance after withdraw(30): {}", withdraw(30));
-    log::info!("Balance after deposit(20): {}", deposit(20));
-}
-"""
+let (mut deposit, mut withdraw) = make_account(100);
+log::info!("Initial balance after deposit(50): {}", deposit(50));
+log::info!("Balance after withdraw(30): {}", withdraw(30));
+log::info!("Balance after deposit(20): {}", deposit(20));"""
 
 # =============================================================================
 # Edge Cases
@@ -542,10 +503,7 @@ fn read_only() {
     log::info!("Value: {}", X);
 }
 
-fn main() {
-    read_only();
-}
-"""
+read_only();"""
 
 [[test]]
 name = "shadowing_vs_global"
@@ -568,11 +526,8 @@ fn shadow() {
     log::info!("Local x: {}", x);
 }
 
-fn main() {
-    shadow();
-    log::info!("Global x: {}", GLOBAL_X);
-}
-"""
+shadow();
+log::info!("Global x: {}", GLOBAL_X);"""
 
 [[test]]
 name = "global_in_method"
@@ -604,14 +559,11 @@ impl MyClass {
     }
 }
 
-fn main() {
-    let obj = MyClass;
-    log::info!("Before: {}", COUNTER.load(Ordering::SeqCst));
-    obj.increment();
-    obj.increment();
-    log::info!("After: {}", COUNTER.load(Ordering::SeqCst));
-}
-"""
+let obj = MyClass;
+log::info!("Before: {}", COUNTER.load(Ordering::SeqCst));
+obj.increment();
+obj.increment();
+log::info!("After: {}", COUNTER.load(Ordering::SeqCst));"""
 
 [[test]]
 name = "nonlocal_error"
@@ -631,18 +583,15 @@ result = outer()
 print(result)
 """
 rust = """
-fn main() {
-    // Rust uses closures with move or borrow semantics
-    let mut x = 5;
-    {
-        let inner = || {
-            x = 10;
-        };
-        // inner() would need x to be mutable
-    }
-    log::info!("{}", 10);
+// Rust uses closures with move or borrow semantics
+let mut x = 5;
+{
+    let inner = || {
+        x = 10;
+    };
+    // inner() would need x to be mutable
 }
-"""
+log::info!("{}", 10);"""
 expected_output = "10"
 
 # =============================================================================
@@ -697,11 +646,8 @@ fn outer() {
     log::info!("After inner, enclosing: {}", enclosing_var.get());
 }
 
-fn main() {
-    outer();
-    log::info!("After outer, global: {}", GLOBAL_VAR.load(Ordering::SeqCst));
-}
-"""
+outer();
+log::info!("After outer, global: {}", GLOBAL_VAR.load(Ordering::SeqCst));"""
 
 [[test]]
 name = "mixed_scopes"
@@ -768,8 +714,5 @@ fn level1() {
     log::info!("Level 1 - L1: {}", local1.get());
 }
 
-fn main() {
-    level1();
-    log::info!("Global count: {}", GLOBAL_COUNT.load(Ordering::SeqCst));
-}
-"""
+level1();
+log::info!("Global count: {}", GLOBAL_COUNT.load(Ordering::SeqCst));"""

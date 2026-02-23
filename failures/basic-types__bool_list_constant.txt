@@ -1,0 +1,11 @@
+  basic-types.toml :: bool_list_constant
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− lazy_static! {
+−     pub static ref VEC: Vec<bool> = vec![true, false, true, false];
+− }
+− use lazy_static::lazy_static;
++ pub const VEC: serde_json::Value = vec![true, false, true, false];
++ use serde_json;
+────────────────────────────────────────────────────────────

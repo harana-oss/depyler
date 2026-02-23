@@ -1,0 +1,27 @@
+  global-nonlocal.toml :: closure_counter
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::cell::Cell;
+− use std::rc::Rc;
+− 
+− fn make_counter() -> impl FnMut() -> i32 {
+−     let count = Rc::new(Cell::new(0));
+−     move || {
+−         let new_count = count.get() + 1;
+−         count.set(new_count);
+−         new_count
++ pub fn make_counter() {
++     let count = 0;
++     fn increment() -> () {
++         count += 1;
++         return count;
+      }
++     return increment;
+  }
+− 
+− let mut counter = make_counter();
+− log::info!("Call 1: {}", counter());
+− log::info!("Call 2: {}", counter());
+− log::info!("Call 3: {}", counter());
+────────────────────────────────────────────────────────────

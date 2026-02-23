@@ -1,0 +1,32 @@
+  packages-init.toml :: init_circular
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct Example {
+−         value: i32,
++ pub const result: serde_json::Value = Example::new(42).get_value() == 42;
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Example {
++     pub value: serde_json::Value,
++ }
++ impl Example {
++     pub fn new(value: serde_json::Value) -> Self {
++         Self { value }
+      }
+− 
+−     impl Example {
+−         fn new(value: i32) -> Self {
+−             Self { value }
+−         }
+− 
+−         fn get_value(&self) -> i32 {
+−             self.value
+−         }
++     pub fn get_value(&self) {
++         return self.value.clone();
+      }
+− 
+−     let result = Example::new(42).get_value() == 42;
++ }
+────────────────────────────────────────────────────────────

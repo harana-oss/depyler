@@ -1,0 +1,17 @@
+  dunder-unary.toml :: dunder_ceil
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct Example {
+−     value: i32,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Example {
++     pub value: serde_json::Value,
++ }
++ impl Example {
++     pub fn new(value: serde_json::Value) -> Self {
++         Self { value }
++     }
+  }
+────────────────────────────────────────────────────────────

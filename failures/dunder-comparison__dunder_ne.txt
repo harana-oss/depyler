@@ -1,0 +1,27 @@
+  dunder-comparison.toml :: dunder_ne
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(PartialEq)]
+− struct Value {
+−     x: i32,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Value {
++     pub x: serde_json::Value,
+  }
+− 
+  impl Value {
+−     fn new(x: i32) -> Self {
+−         Value { x }
++     pub fn new(x: serde_json::Value) -> Self {
++         Self { x }
+      }
+  }
+− 
+− let v1 = Value::new(5);
+− let v2 = Value::new(5);
+− let v3 = Value::new(10);
+− log::info!("{}", v1 != v2);
+− log::info!("{}", v1 != v3);
+────────────────────────────────────────────────────────────

@@ -1,0 +1,16 @@
+  class-methods.toml :: classmethod_args
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  #[derive(Debug, Copy, Clone)]
+  pub struct Calculator {}
+  impl Calculator {
+      pub fn new() -> Self {
+          Self {}
+      }
+      pub fn add(a: i32, b: i32) {
+          return a + b;
+      }
+  }
+− log::info!("{}", Calculator::add(5, 3));
+────────────────────────────────────────────────────────────

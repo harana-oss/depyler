@@ -1,0 +1,16 @@
+  match-mapping-patterns.toml :: mapping_literal_value
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::collections::HashMap;
+− 
+−     let mut data = HashMap::new();
+−     data.insert("type", "error");
+−     data.insert("message", "Failed");
+  
+−     let result = match (data.get("type"), data.get("message")) {
+−         (Some(&"error"), Some(&msg)) => format!("Error: {}", msg),
+−         (Some(&"warning"), Some(&msg)) => format!("Warning: {}", msg),
+−         _ => "Unknown".to_string(),
+−     };
+────────────────────────────────────────────────────────────

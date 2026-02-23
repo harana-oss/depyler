@@ -1,0 +1,20 @@
+  operators.toml :: power_precedence
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn test_precedence() -> (i32, i32, i32) {
+−     let _cse_temp_0 = 3_i32.pow(2 as u32);
+−     let a = (2 as f64) + _cse_temp_0;
+−     let _cse_temp_1 = 5_i32.pow(2 as u32);
+−     let b = _cse_temp_1;
+−     let _cse_temp_2 = 2_i32.pow(3 as u32);
+−     let _cse_temp_3 = _cse_temp_2 * (4 as f64);
+−     let c = _cse_temp_3;
++     let _cse_temp_0 = 2 + 3_i32.pow(2 as u32);
++     let a = _cse_temp_0;
++     let b = 5_i32.pow(2 as u32);
++     let _cse_temp_1 = 2_i32.pow(3 as u32) * 4;
++     let c = _cse_temp_1;
+      return (a, b, c);
+  }
+────────────────────────────────────────────────────────────

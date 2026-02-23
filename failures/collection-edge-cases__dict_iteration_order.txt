@@ -1,0 +1,31 @@
+  collection-edge-cases.toml :: dict_iteration_order
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use indexmap::IndexMap;
+− 
++ use std::collections::HashMap;
+  pub fn iter_dict() -> Vec<(String, i32)> {
+−     let mut d = IndexMap::new();
+−     d.insert("first".to_string(), 1);
+−     d.insert("second".to_string(), 2);
+−     d.insert("third".to_string(), 3);
++     let d = {
++         let mut map = HashMap::new();
++         map.insert("first".to_string(), 1);
++         map.insert("second".to_string(), 2);
++         map.insert("third".to_string(), 3);
++         map
++     };
+      let mut result = vec![];
+−     for (k, v) in d {
++     for (k, v) in d
++         .iter()
++         .map(|(k, v)| (k.clone(), v.clone()))
++         .collect::<Vec<_>>()
++     {
+          result.push((k, v));
+      }
+      return result;
+  }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,10 @@
+  imports-basic.toml :: import_alias
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust: using aliased type
+−     use std::vec::Vec as V;
+−     let result: V<i32> = V::from([1, 2, 3]);
+−     assert_eq!(result, vec![1, 2, 3]);
++ use serde_json as json;
+────────────────────────────────────────────────────────────

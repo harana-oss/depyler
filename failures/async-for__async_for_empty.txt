@@ -1,0 +1,41 @@
+  async-for.toml :: async_for_empty
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use futures::stream::{self, StreamExt};
+− 
+− #[tokio::main]
+− async let mut result = Vec::new();
+− let mut stream = stream::empty::<i32>();
+− while let Some(item) = stream.next().await {
++ use serde_json;
++ #[doc = " Generator state struct"] #[derive(Debug)] struct EmptyAsyncState {
++     state: usize ,
++ }
++ #[doc = " Generator function - returns Iterator"] pub fn empty_async() -> impl Iterator<Item = serde_json::Value>{
++     EmptyAsyncState {
++     state: 0 ,
++ }
++ } impl Iterator for EmptyAsyncState {
++     type Item = serde_json::Value;
++     fn next(&mut self) -> Option<Self::Item>{
++     match self.state {
++     0 =>{
++     self.state = 1;
++     return;
++     None
++ }
++ _ =>None
++ }
++ }
++ }
++ pub async fn test() -> Vec<serde_json::Value>{
++     let result = vec! [];
++     while let Some(item) = empty_async().next().await {
+      result.push(item);
++    
+  }
+− log::info!("{:?}", result);
++ return result;
++     }
+────────────────────────────────────────────────────────────

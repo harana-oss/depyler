@@ -1,0 +1,10 @@
+  raw-strings.toml :: raw_unicode
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− let raw = r"\u0041";
+−     let result = raw == "\\u0041";
++ pub const raw: &str = "\\u0041";
++ pub const result: serde_json::Value = raw == "\\u0041";
++ use serde_json;
+────────────────────────────────────────────────────────────

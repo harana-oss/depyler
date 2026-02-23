@@ -1,0 +1,10 @@
+  regressions.toml :: method_name_mut_keyword
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn test_mut<T>(obj: &T) {
++ use serde_json;
++ pub fn test_mut(obj: &serde_json::Value) {
+      return obj.r#mut();
+  }
+────────────────────────────────────────────────────────────

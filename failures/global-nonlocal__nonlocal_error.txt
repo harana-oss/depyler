@@ -1,0 +1,20 @@
+  global-nonlocal.toml :: nonlocal_error
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust uses closures with move or borrow semantics
+− let mut x = 5;
+− {
+−     let inner = || {
++ pub fn outer() -> i32 {
++     let x = 5;
++     fn inner() -> () {
+          x = 10;
+−     };
+−     // inner() would need x to be mutable
++     }
++     inner();
++     return x;
+  }
+− log::info!("{}", 10);
+────────────────────────────────────────────────────────────

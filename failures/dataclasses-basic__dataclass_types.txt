@@ -1,0 +1,19 @@
+  dataclasses-basic.toml :: dataclass_types
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub const p: Person = Person::new("Alice".to_string(), 30, 5.5);
+− pub const result: (String, i32, f64) = (p.name, p.age, p.height);
+− use serde_json;
+  #[derive(Debug, Clone, PartialEq, Default)]
+  pub struct Person {
+      pub name: String,
+      pub age: i32,
+      pub height: f64,
+  }
+  impl Person {
+      pub fn new(name: String, age: i32, height: f64) -> Self {
+          Self { name, age, height }
+      }
+  }
+────────────────────────────────────────────────────────────

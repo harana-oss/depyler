@@ -1,0 +1,11 @@
+  iterators.toml :: iter_vs_into_iter_choice
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn use_list_twice(items: Vec<i32>) -> i32 {
++ pub fn use_list_twice(items: &Vec<i32>) -> i32 {
+      let first = items.iter().sum::<i32>();
+      let second = items.iter().sum::<i32>();
+      return first + second;
+  }
+────────────────────────────────────────────────────────────

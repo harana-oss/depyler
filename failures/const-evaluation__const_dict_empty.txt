@@ -1,0 +1,14 @@
+  const-evaluation.toml :: const_dict_empty
+    Output mismatch
+
+────────────────────────────────────────────────────────────
++ pub const EMPTY_DICT: HashMap<String, i32> = {
++     let map = HashMap::new();
++     map
++ };
+  use std::collections::HashMap;
+− lazy_static! {
+−     pub static ref EMPTY_DICT: HashMap<String, i32> = HashMap::new();
+− }
+− use lazy_static::lazy_static;
+────────────────────────────────────────────────────────────

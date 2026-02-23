@@ -1,0 +1,11 @@
+  deque.toml :: deque_contains
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // x in d
+−     use std::collections::VecDeque;
+− 
+−     let d = VecDeque::from(vec![1, 2, 3]);
+−     let result = d.contains(&2) && !d.contains(&4);
++ use std::collections::VecDeque;
+────────────────────────────────────────────────────────────

@@ -1,0 +1,12 @@
+  dunder-bitwise.toml :: bitwise_bool
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− let result1 = true & false;
+− let result2 = true | false;
+− let result3 = true ^ false;
+  
+− log::info!("True & False = {}", result1);
+− log::info!("True | False = {}", result2);
+− log::info!("True ^ False = {}", result3);
+────────────────────────────────────────────────────────────

@@ -1,0 +1,2 @@
+  unicode-strings.toml :: unicode_lookup
+    Transpilation failed: unicodedata.lookup is not yet supported - no direct Rust equivalent in unicode-normalization crate

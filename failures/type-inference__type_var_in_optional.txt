@@ -1,0 +1,9 @@
+  type-inference.toml :: type_var_in_optional
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn maybe_value<T: Clone>(x: Option<T>) -> T {
+      return x.unwrap();
+− };
++ }
+────────────────────────────────────────────────────────────

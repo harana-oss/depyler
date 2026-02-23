@@ -14,7 +14,7 @@ python = '''
 def count_items(items: list[int]) -> int:
     count = 0
     for item in items:
-        count = count + 1
+        count += 1
     return count
 '''
 
@@ -22,7 +22,7 @@ rust = '''
 pub fn count_items(items: &Vec<i32>) -> i32 {
     let mut count = 0;
     for _item in items.iter().cloned() {
-        count = count + 1;
+        count += 1;
     }
     return count;
 }
@@ -36,7 +36,7 @@ python = '''
 def sum_items(items: list[int]) -> int:
     total = 0
     for item in items:
-        total = total + item
+        total += item
     return total
 '''
 
@@ -44,7 +44,7 @@ rust = '''
 pub fn sum_items(items: &Vec<i32>) -> i32 {
     let mut total = 0;
     for item in items.iter().cloned() {
-        total = total + item;
+        total += item;
     }
     return total;
 }
@@ -58,7 +58,7 @@ python = '''
 def process_pairs(pairs: list[tuple[int, int]]) -> int:
     total = 0
     for a, b in pairs:
-        total = total + a + b
+        total += a + b
     return total
 '''
 
@@ -66,7 +66,7 @@ rust = '''
 pub fn process_pairs(pairs: &Vec<(i32, i32)>) -> i32 {
     let mut total = 0;
     for (a, b) in pairs.iter().cloned() {
-        total = total + a + b;
+        total += a + b;
     }
     return total;
 }
@@ -80,7 +80,7 @@ python = '''
 def process_values(items: list[tuple[int, str]]) -> str:
     result = ""
     for idx, val in items:
-        result = result + val
+        result += val
     return result
 '''
 
@@ -102,7 +102,7 @@ python = '''
 def count_by_index(items: list[tuple[int, str]]) -> int:
     total = 0
     for idx, val in items:
-        total = total + idx
+        total += idx
     return total
 '''
 
@@ -110,7 +110,7 @@ rust = '''
 pub fn count_by_index(items: &Vec<(i32, String)>) -> i32 {
     let mut total = 0;
     for (idx, _val) in items.iter().cloned() {
-        total = total + idx;
+        total += idx;
     }
     return total;
 }
@@ -124,7 +124,7 @@ python = '''
 def count_pairs(pairs: list[tuple[int, int]]) -> int:
     count = 0
     for a, b in pairs:
-        count = count + 1
+        count += 1
     return count
 '''
 
@@ -132,7 +132,7 @@ rust = '''
 pub fn count_pairs(pairs: &Vec<(i32, i32)>) -> i32 {
     let mut count = 0;
     for (_a, _b) in pairs.iter().cloned() {
-        count = count + 1;
+        count += 1;
     }
     return count;
 }
@@ -146,7 +146,7 @@ python = '''
 def count_chars(s: str) -> int:
     count = 0
     for c in s:
-        count = count + 1
+        count += 1
     return count
 '''
 
@@ -155,7 +155,7 @@ pub fn count_chars(s: String) -> i32 {
     let mut count = 0;
     for _c in s.chars() {
         let c = _c.to_string();
-        count = count + 1;
+        count += 1;
     }
     return count;
 }
@@ -169,7 +169,7 @@ python = '''
 def process_string(string: str) -> int:
     total = 0
     for char in string:
-        total = total + 1
+        total += 1
     return total
 '''
 
@@ -178,7 +178,7 @@ pub fn process_string(string: String) -> i32 {
     let mut total = 0;
     for _char in string.chars() {
         let char = _char.to_string();
-        total = total + 1;
+        total += 1;
     }
     return total;
 }
@@ -192,7 +192,7 @@ python = '''
 def process_str_data(str_input: str) -> int:
     count = 0
     for c in str_input:
-        count = count + 1
+        count += 1
     return count
 '''
 
@@ -201,7 +201,7 @@ pub fn process_str_data(str_input: String) -> i32 {
     let mut count = 0;
     for _c in str_input.chars() {
         let c = _c.to_string();
-        count = count + 1;
+        count += 1;
     }
     return count;
 }
@@ -215,7 +215,7 @@ python = '''
 def process_input(input_str: str) -> int:
     length = 0
     for c in input_str:
-        length = length + 1
+        length += 1
     return length
 '''
 
@@ -224,7 +224,7 @@ pub fn process_input(input_str: String) -> i32 {
     let mut length = 0;
     for _c in input_str.chars() {
         let c = _c.to_string();
-        length = length + 1;
+        length += 1;
     }
     return length;
 }
@@ -238,7 +238,7 @@ python = '''
 def analyze_text(text: str) -> int:
     vowels = 0
     for c in text:
-        vowels = vowels + 1
+        vowels += 1
     return vowels
 '''
 
@@ -247,7 +247,7 @@ pub fn analyze_text(text: String) -> i32 {
     let mut vowels = 0;
     for _c in text.chars() {
         let c = _c.to_string();
-        vowels = vowels + 1;
+        vowels += 1;
     }
     return vowels;
 }
@@ -261,7 +261,7 @@ python = '''
 def count_letters(word: str) -> int:
     count = 0
     for letter in word:
-        count = count + 1
+        count += 1
     return count
 '''
 
@@ -270,7 +270,7 @@ pub fn count_letters(word: String) -> i32 {
     let mut count = 0;
     for _letter in word.chars() {
         let letter = _letter.to_string();
-        count = count + 1;
+        count += 1;
     }
     return count;
 }
@@ -284,7 +284,7 @@ python = '''
 def sum_numbers(numbers: list[int]) -> int:
     total = 0
     for num in numbers:
-        total = total + num
+        total += num
     return total
 '''
 
@@ -292,7 +292,7 @@ rust = '''
 pub fn sum_numbers(numbers: &Vec<i32>) -> i32 {
     let mut total = 0;
     for num in numbers.iter().cloned() {
-        total = total + num;
+        total += num;
     }
     return total;
 }
@@ -306,7 +306,7 @@ python = '''
 def process_strings(strings: list[str]) -> int:
     count = 0
     for s in strings:
-        count = count + 1
+        count += 1
     return count
 '''
 
@@ -314,7 +314,7 @@ rust = '''
 pub fn process_strings(strings: &Vec<String>) -> i32 {
     let mut count = 0;
     for _s in strings.iter().cloned() {
-        count = count + 1;
+        count += 1;
     }
     return count;
 }
@@ -328,7 +328,7 @@ python = '''
 def indexed_sum(items: list[int]) -> int:
     total = 0
     for i, val in enumerate(items):
-        total = total + i + val
+        total += i + val
     return total
 '''
 
@@ -337,7 +337,7 @@ pub fn indexed_sum(items: Vec<i32>) -> i32 {
     let mut total = 0;
     for (i, val) in items.iter().enumerate().map(|(i, x)| (i as i32, x.clone())) {
         let i = i as i32;
-        total = total + i + val;
+        total += i + val;
     }
     return total;
 }
@@ -351,7 +351,7 @@ python = '''
 def count_items(items: list[int]) -> int:
     count = 0
     for i, val in enumerate(items):
-        count = count + i
+        count += i
     return count
 '''
 
@@ -360,7 +360,7 @@ pub fn count_items(items: Vec<i32>) -> i32 {
     let mut count = 0;
     for (i, _val) in items.iter().enumerate().map(|(i, x)| (i as i32, x.clone())) {
         let i = i as i32;
-        count = count + i;
+        count += i;
     }
     return count;
 }
@@ -429,7 +429,7 @@ python = '''
 def sum_range(n: int) -> int:
     total = 0
     for i in range(n):
-        total = total + i
+        total += i
     return total
 '''
 
@@ -437,7 +437,7 @@ rust = '''
 pub fn sum_range(n: i32) -> i32 {
     let mut total = 0;
     for i in 0..n {
-        total = total + i;
+        total += i;
     }
     return total;
 }
@@ -452,7 +452,7 @@ def nested_sum(matrix: list[list[int]]) -> int:
     total = 0
     for row in matrix:
         for val in row:
-            total = total + val
+            total += val
     return total
 '''
 
@@ -461,7 +461,7 @@ pub fn nested_sum(matrix: &Vec<Vec<i32>>) -> i32 {
     let mut total = 0;
     for row in matrix.iter().cloned() {
         for val in row.iter().cloned() {
-            total = total + val;
+            total += val;
         }
     }
     return total;
@@ -573,7 +573,7 @@ impl IndexError {
     }
 }
 pub fn find_min(numbers: &Vec<i32>) -> i32 {
-    if numbers.clone().is_empty() {
+    if numbers.is_empty() {
         return 0;
     }
     let mut min_val = numbers.clone().get(0usize).cloned().unwrap();
@@ -595,7 +595,7 @@ python = '''
 def sum_list(numbers: list[int]) -> int:
     total = 0
     for num in numbers:
-        total = total + num
+        total += num
     return total
 '''
 
@@ -603,7 +603,7 @@ rust = '''
 pub fn sum_list(numbers: &Vec<i32>) -> i32 {
     let mut total = 0;
     for num in numbers.iter().cloned() {
-        total = total + num;
+        total += num;
     }
     return total;
 }
@@ -644,7 +644,7 @@ impl IndexError {
     }
 }
 pub fn find_max(numbers: &Vec<i32>) -> i32 {
-    if numbers.clone().is_empty() {
+    if numbers.is_empty() {
         return 0;
     }
     let mut max_val = numbers.clone().get(0usize).cloned().unwrap();
@@ -692,12 +692,12 @@ impl IndexError {
     }
 }
 pub fn find_longest(words: &Vec<String>) -> String {
-    if words.clone().is_empty() {
+    if words.is_empty() {
         return "".to_string();
     }
     let mut longest = words.clone().get(0usize).cloned().unwrap();
     for word in words.iter().cloned() {
-        if word.clone().len() as i32 > longest.clone().len() as i32 {
+        if word.len() as i32 > longest.len() as i32 {
             longest = word;
         }
     }
@@ -727,8 +727,7 @@ def fibonacci(n: int) -> int:
 rust = '''
 #[doc = "Calculate Fibonacci number."]
 pub fn fibonacci(n: i32) -> i32 {
-    let _cse_temp_0 = n <= 1;
-    if _cse_temp_0 {
+        if n <= 1 {
         return n;
     }
     let mut a = 0;
@@ -752,9 +751,9 @@ def repeat_operations(n: int) -> int:
     """Perform operations n times."""
     result = 0
     for i in range(n):
-        result = result + 1
+        result += 1
     for j in range(n):
-        result = result * 2
+        result *= 2
     return result
 '''
 
@@ -763,10 +762,10 @@ rust = '''
 pub fn repeat_operations(n: i32) -> i32 {
     let mut result = 0;
     for _i in 0..n {
-        result = result + 1;
+        result += 1;
     }
     for _j in 0..n {
-        result = result * 2;
+        result *= 2;
     }
     return result;
 }
@@ -783,7 +782,7 @@ def nested_count(outer: list[int], inner: list[int]) -> int:
     count = 0
     for x in outer:
         for y in inner:
-            count = count + y
+            count += y
     return count
 '''
 
@@ -793,7 +792,7 @@ pub fn nested_count(outer: &Vec<i32>, inner: &Vec<i32>) -> i32 {
     let mut count = 0;
     for _x in outer.iter().cloned() {
         for y in inner.iter().cloned() {
-            count = count + y;
+            count += y;
         }
     }
     return count;
@@ -811,7 +810,7 @@ def process_values(items: list[str]) -> int:
     count = 0
     for i, val in enumerate(items):
         if val:
-            count = count + 1
+            count += 1
     return count
 '''
 
@@ -821,7 +820,7 @@ pub fn process_values(items: Vec<String>) -> i32 {
     let mut count = 0;
     for (_i, val) in items.iter().enumerate().map(|(i, x)| (i as i32, x.clone())) {
         if !val.is_empty() {
-            count = count + 1;
+            count += 1;
         }
     }
     return count;

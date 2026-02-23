@@ -1,0 +1,33 @@
+  optional-types.toml :: type_narrowing_attribute_access
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  #[derive(Debug, Clone)]
+  pub struct Player {
+      pub name: String,
+      pub score: i32,
+  }
+  impl Player {
+      pub fn new(name: String, score: i32) -> Self {
+          Self { name, score }
+      }
+  }
+  pub fn find_player(players: &Vec<Player>, name: String) -> Option<Player> {
+      for p in players.iter().cloned() {
+−         if p.name.clone() == name {
++         if p.name == name {
+              return Some(p);
+          }
+      }
+      return None;
+  }
+− pub fn update_score(players: Vec<Player>, name: String, bonus: i32) {
++ pub fn update_score(players: &Vec<Player>, name: &str, bonus: i32) {
+      let mut player = find_player(&players, name);
+      if player.is_some() {
+−         let _cse_temp_0 = player.as_ref().unwrap().score + bonus;
+−         player.as_mut().unwrap().score = _cse_temp_0;
++         player.score += bonus;
+      }
+  }
+────────────────────────────────────────────────────────────

@@ -195,6 +195,8 @@ pub struct DepylerPipeline {
     mcp_client: LazyMcpClient,
     #[serde(skip_serializing_if = "Option::is_none")]
     debug_config: Option<debug::DebugConfig>,
+    #[serde(skip)]
+    config: Config,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -271,6 +273,7 @@ impl DepylerPipeline {
             verifier: None,
             mcp_client: LazyMcpClient::default(),
             debug_config: None,
+            config: Config::default(),
         }
     }
 
@@ -493,7 +496,7 @@ impl DepylerPipeline {
         };
 
         // Generate Rust code with dependencies
-        rust_gen::generate_rust_file(&optimized_hir, &self.transpiler.type_mapper)
+        rust_gen::generate_rust_file(&optimized_hir, &self.transpiler.type_mapper, self.config.enable_test_generation)
     }
 
     pub fn transpile(&self, python_source: &str) -> Result<String> {
@@ -633,7 +636,7 @@ impl DepylerPipeline {
 
         // Generate Rust code using the unified generation system
         let (rust_code, _dependencies) =
-            rust_gen::generate_rust_file(&optimized_hir, &self.transpiler.type_mapper)?;
+            rust_gen::generate_rust_file(&optimized_hir, &self.transpiler.type_mapper, self.config.enable_test_generation)?;
 
         Ok(rust_code)
     }
@@ -685,11 +688,23 @@ impl DepylerPipeline {
     }
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone)]
 pub struct Config {
     pub enable_verification: bool,
     pub enable_metrics: bool,
+    pub enable_test_generation: bool,
     pub optimization_level: OptimizationLevel,
+}
+
+impl Default for Config {
+    fn default() -> Self {
+        Self {
+            enable_verification: false,
+            enable_metrics: false,
+            enable_test_generation: true, // Default to true for backward compatibility
+            optimization_level: OptimizationLevel::default(),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Default)]
@@ -704,6 +719,7 @@ impl DepylerPipeline {
     pub fn new_with_config(config: Config) -> Self {
         let mut pipeline = Self::new();
         pipeline.analyzer.metrics_enabled = config.enable_metrics;
+        pipeline.config = config.clone();
 
         if config.enable_verification {
             pipeline = pipeline.with_verification();

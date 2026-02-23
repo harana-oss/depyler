@@ -1,0 +1,19 @@
+  ffi-ctypes.toml :: ctypes_sizes
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn size_of_int() -> i32 {
+−     return std::mem::size_of::<i32>() as i32;
++     return 4;
+  }
+− 
+  pub fn size_of_float() -> i32 {
+−     return std::mem::size_of::<f32>() as i32;
++     return 4;
+  }
+− 
+  pub fn size_of_double() -> i32 {
+−     return std::mem::size_of::<f64>() as i32;
++     return 8;
+  }
+────────────────────────────────────────────────────────────

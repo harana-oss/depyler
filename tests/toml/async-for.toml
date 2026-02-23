@@ -27,15 +27,12 @@ rust = """
 use futures::stream::{self, StreamExt};
 
 #[tokio::main]
-async fn main() {
-    let mut result = Vec::new();
-    let mut stream = stream::iter(0..5);
-    while let Some(item) = stream.next().await {
-        result.push(item);
-    }
-    log::info!("{:?}", result);
+async let mut result = Vec::new();
+let mut stream = stream::iter(0..5);
+while let Some(item) = stream.next().await {
+    result.push(item);
 }
-"""
+log::info!("{:?}", result);"""
 
 [[test]]
 name = "async_for_body"
@@ -58,15 +55,12 @@ rust = """
 use futures::stream::{self, StreamExt};
 
 #[tokio::main]
-async fn main() {
-    let mut result = Vec::new();
-    let mut stream = stream::iter(vec!["a", "b", "c"]);
-    while let Some(item) = stream.next().await {
-        result.push(item.to_uppercase());
-    }
-    log::info!("{:?}", result);
+async let mut result = Vec::new();
+let mut stream = stream::iter(vec!["a", "b", "c"]);
+while let Some(item) = stream.next().await {
+    result.push(item.to_uppercase());
 }
-"""
+log::info!("{:?}", result);"""
 
 [[test]]
 name = "async_for_break"
@@ -91,18 +85,15 @@ rust = """
 use futures::stream::{self, StreamExt};
 
 #[tokio::main]
-async fn main() {
-    let mut result = Vec::new();
-    let mut stream = stream::iter(0..10);
-    while let Some(item) = stream.next().await {
-        if item == 3 {
-            break;
-        }
-        result.push(item);
+async let mut result = Vec::new();
+let mut stream = stream::iter(0..10);
+while let Some(item) = stream.next().await {
+    if item == 3 {
+        break;
     }
-    log::info!("{:?}", result);
+    result.push(item);
 }
-"""
+log::info!("{:?}", result);"""
 
 [[test]]
 name = "async_for_continue"
@@ -127,18 +118,15 @@ rust = """
 use futures::stream::{self, StreamExt};
 
 #[tokio::main]
-async fn main() {
-    let mut result = Vec::new();
-    let mut stream = stream::iter(0..6);
-    while let Some(item) = stream.next().await {
-        if item % 2 == 1 {
-            continue;
-        }
-        result.push(item);
+async let mut result = Vec::new();
+let mut stream = stream::iter(0..6);
+while let Some(item) = stream.next().await {
+    if item % 2 == 1 {
+        continue;
     }
-    log::info!("{:?}", result);
+    result.push(item);
 }
-"""
+log::info!("{:?}", result);"""
 
 # =============================================================================
 # Async Iterator Protocol
@@ -203,15 +191,12 @@ impl Stream for AsyncRange {
 }
 
 #[tokio::main]
-async fn main() {
-    let mut result = Vec::new();
-    let mut stream = AsyncRange::new(5);
-    while let Some(i) = stream.next().await {
-        result.push(i);
-    }
-    log::info!("{:?}", result);
+async let mut result = Vec::new();
+let mut stream = AsyncRange::new(5);
+while let Some(i) = stream.next().await {
+    result.push(i);
 }
-"""
+log::info!("{:?}", result);"""
 
 [[test]]
 name = "anext"
@@ -245,11 +230,8 @@ rust = """
 use futures::stream::{self, StreamExt};
 
 #[tokio::main]
-async fn main() {
-    let result: Vec<i32> = stream::iter(0..3).collect().await;
-    log::info!("{:?}", result);
-}
-"""
+async let result: Vec<i32> = stream::iter(0..3).collect().await;
+log::info!("{:?}", result);"""
 
 [[test]]
 name = "stop_async_iteration"
@@ -282,11 +264,8 @@ rust = """
 use futures::stream::{self, StreamExt};
 
 #[tokio::main]
-async fn main() {
-    let result: Vec<i32> = stream::iter(1..=3).collect().await;
-    log::info!("{:?}", result);
-}
-"""
+async let result: Vec<i32> = stream::iter(1..=3).collect().await;
+log::info!("{:?}", result);"""
 
 # =============================================================================
 # Custom Async Iterator
@@ -324,11 +303,8 @@ rust = """
 use futures::stream::{self, StreamExt};
 
 #[tokio::main]
-async fn main() {
-    let result: Vec<i32> = stream::iter(0..5).map(|i| i * i).collect().await;
-    log::info!("{:?}", result);
-}
-"""
+async let result: Vec<i32> = stream::iter(0..5).map(|i| i * i).collect().await;
+log::info!("{:?}", result);"""
 
 [[test]]
 name = "async_iterator_state"
@@ -391,15 +367,12 @@ impl Stream for AsyncAccumulator {
 }
 
 #[tokio::main]
-async fn main() {
-    let mut result = Vec::new();
-    let mut stream = AsyncAccumulator::new(5);
-    while let Some(total) = stream.next().await {
-        result.push(total);
-    }
-    log::info!("{:?}", result);
+async let mut result = Vec::new();
+let mut stream = AsyncAccumulator::new(5);
+while let Some(total) = stream.next().await {
+    result.push(total);
 }
-"""
+log::info!("{:?}", result);"""
 
 [[test]]
 name = "async_iterator_cleanup"
@@ -437,12 +410,9 @@ rust = """
 use futures::stream::{self, StreamExt};
 
 #[tokio::main]
-async fn main() {
-    let result: Vec<i32> = stream::iter(0..3).collect().await;
-    let closed = true; // Automatic cleanup
-    log::info!("{:?} {}", result, closed);
-}
-"""
+async let result: Vec<i32> = stream::iter(0..3).collect().await;
+let closed = true; // Automatic cleanup
+log::info!("{:?} {}", result, closed);"""
 
 # =============================================================================
 # Async For Else
@@ -471,19 +441,16 @@ rust = """
 use futures::stream::{self, StreamExt};
 
 #[tokio::main]
-async fn main() {
-    let mut result = Vec::new();
-    let mut stream = stream::iter(0..3);
-    let mut broke = false;
-    while let Some(i) = stream.next().await {
-        result.push(i.to_string());
-    }
-    if !broke {
-        result.push("completed".to_string());
-    }
-    log::info!("{:?}", result);
+async let mut result = Vec::new();
+let mut stream = stream::iter(0..3);
+let mut broke = false;
+while let Some(i) = stream.next().await {
+    result.push(i.to_string());
 }
-"""
+if !broke {
+    result.push("completed".to_string());
+}
+log::info!("{:?}", result);"""
 
 [[test]]
 name = "async_for_else_break"
@@ -510,23 +477,20 @@ rust = """
 use futures::stream::{self, StreamExt};
 
 #[tokio::main]
-async fn main() {
-    let mut result = Vec::new();
-    let mut stream = stream::iter(0..5);
-    let mut broke = false;
-    while let Some(i) = stream.next().await {
-        if i == 2 {
-            broke = true;
-            break;
-        }
-        result.push(i.to_string());
+async let mut result = Vec::new();
+let mut stream = stream::iter(0..5);
+let mut broke = false;
+while let Some(i) = stream.next().await {
+    if i == 2 {
+        broke = true;
+        break;
     }
-    if !broke {
-        result.push("completed".to_string());
-    }
-    log::info!("{:?}", result);
+    result.push(i.to_string());
 }
-"""
+if !broke {
+    result.push("completed".to_string());
+}
+log::info!("{:?}", result);"""
 
 # =============================================================================
 # Use Cases
@@ -554,15 +518,12 @@ rust = """
 use futures::stream::{self, StreamExt};
 
 #[tokio::main]
-async fn main() {
-    let chunks = vec!["chunk1", "chunk2", "chunk3"];
-    let result: Vec<String> = stream::iter(chunks)
-        .map(|chunk| chunk.to_uppercase())
-        .collect()
-        .await;
-    log::info!("{:?}", result);
-}
-"""
+async let chunks = vec!["chunk1", "chunk2", "chunk3"];
+let result: Vec<String> = stream::iter(chunks)
+    .map(|chunk| chunk.to_uppercase())
+    .collect()
+    .await;
+log::info!("{:?}", result);"""
 
 [[test]]
 name = "async_for_pagination"
@@ -587,15 +548,12 @@ rust = """
 use futures::stream::{self, StreamExt};
 
 #[tokio::main]
-async fn main() {
-    let pages = vec![vec![1, 2, 3], vec![4, 5, 6], vec![7, 8, 9]];
-    let result: Vec<i32> = stream::iter(pages)
-        .flat_map(|page| stream::iter(page))
-        .collect()
-        .await;
-    log::info!("{:?}", result);
-}
-"""
+async let pages = vec![vec![1, 2, 3], vec![4, 5, 6], vec![7, 8, 9]];
+let result: Vec<i32> = stream::iter(pages)
+    .flat_map(|page| stream::iter(page))
+    .collect()
+    .await;
+log::info!("{:?}", result);"""
 
 [[test]]
 name = "async_for_file"
@@ -619,15 +577,12 @@ rust = """
 use futures::stream::{self, StreamExt};
 
 #[tokio::main]
-async fn main() {
-    let lines = vec!["line1", "line2", "line3"];
-    let result: Vec<String> = stream::iter(lines)
-        .map(|line| line.trim().to_string())
-        .collect()
-        .await;
-    log::info!("{:?}", result);
-}
-"""
+async let lines = vec!["line1", "line2", "line3"];
+let result: Vec<String> = stream::iter(lines)
+    .map(|line| line.trim().to_string())
+    .collect()
+    .await;
+log::info!("{:?}", result);"""
 
 # =============================================================================
 # Async For Context
@@ -656,15 +611,12 @@ rust = """
 use futures::stream::{self, StreamExt};
 
 #[tokio::main]
-async fn main() {
-    let mut result = Vec::new();
-    let mut stream = stream::iter(0..3);
-    while let Some(item) = stream.next().await {
-        result.push(item);
-    }
-    log::info!("{}", result.len());
+async let mut result = Vec::new();
+let mut stream = stream::iter(0..3);
+while let Some(item) = stream.next().await {
+    result.push(item);
 }
-"""
+log::info!("{}", result.len());"""
 expected_output = "3"
 
 [[test]]
@@ -697,18 +649,15 @@ async fn inner_iter(x: i32) -> Vec<i32> {
 }
 
 #[tokio::main]
-async fn main() {
-    let mut result = Vec::new();
-    let mut outer = stream::iter(0..3);
-    while let Some(i) = outer.next().await {
-        let inner_results = inner_iter(i).await;
-        for j in inner_results {
-            result.push(j);
-        }
+async let mut result = Vec::new();
+let mut outer = stream::iter(0..3);
+while let Some(i) = outer.next().await {
+    let inner_results = inner_iter(i).await;
+    for j in inner_results {
+        result.push(j);
     }
-    log::info!("{:?}", result);
 }
-"""
+log::info!("{:?}", result);"""
 
 # =============================================================================
 # Edge Cases
@@ -735,15 +684,12 @@ rust = """
 use futures::stream::{self, StreamExt};
 
 #[tokio::main]
-async fn main() {
-    let mut result = Vec::new();
-    let mut stream = stream::empty::<i32>();
-    while let Some(item) = stream.next().await {
-        result.push(item);
-    }
-    log::info!("{:?}", result);
+async let mut result = Vec::new();
+let mut stream = stream::empty::<i32>();
+while let Some(item) = stream.next().await {
+    result.push(item);
 }
-"""
+log::info!("{:?}", result);"""
 
 [[test]]
 name = "async_for_exception"
@@ -771,23 +717,20 @@ rust = """
 use futures::stream::{self, StreamExt};
 
 #[tokio::main]
-async fn main() {
-    let mut result = Vec::new();
-    let stream = stream::iter(0..5).map(|i| if i == 3 { Err("Error at 3") } else { Ok(i) });
+async let mut result = Vec::new();
+let stream = stream::iter(0..5).map(|i| if i == 3 { Err("Error at 3") } else { Ok(i) });
 
-    futures::pin_mut!(stream);
-    while let Some(item) = stream.next().await {
-        match item {
-            Ok(val) => result.push(val.to_string()),
-            Err(e) => {
-                result.push(e.to_string());
-                break;
-            }
+futures::pin_mut!(stream);
+while let Some(item) = stream.next().await {
+    match item {
+        Ok(val) => result.push(val.to_string()),
+        Err(e) => {
+            result.push(e.to_string());
+            break;
         }
     }
-    log::info!("{:?}", result);
 }
-"""
+log::info!("{:?}", result);"""
 
 [[test]]
 name = "aiter_anext_builtins"
@@ -816,21 +759,18 @@ rust = """
 use futures::stream::{self, StreamExt};
 
 #[tokio::main]
-async fn main() {
-    let mut stream = stream::iter(0..3);
-    let mut result = Vec::new();
-    if let Some(val) = stream.next().await {
-        result.push(val.to_string());
-    }
-    if let Some(val) = stream.next().await {
-        result.push(val.to_string());
-    }
-    if let Some(val) = stream.next().await {
-        result.push(val.to_string());
-    }
-    if stream.next().await.is_none() {
-        result.push("done".to_string());
-    }
-    log::info!("{:?}", result);
+async let mut stream = stream::iter(0..3);
+let mut result = Vec::new();
+if let Some(val) = stream.next().await {
+    result.push(val.to_string());
 }
-"""
+if let Some(val) = stream.next().await {
+    result.push(val.to_string());
+}
+if let Some(val) = stream.next().await {
+    result.push(val.to_string());
+}
+if stream.next().await.is_none() {
+    result.push("done".to_string());
+}
+log::info!("{:?}", result);"""

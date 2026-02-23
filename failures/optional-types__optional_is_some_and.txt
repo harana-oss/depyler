@@ -1,0 +1,25 @@
+  optional-types.toml :: optional_is_some_and
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug, Clone, PartialEq, Default)]
++ #[derive(Debug, Copy, Clone, PartialEq, Default)]
+  pub struct Person {
+      pub age: Option<i32>,
+  }
+  impl Person {
+      pub fn new(age: Option<i32>) -> Self {
+          Self { age }
+      }
+  }
+  pub fn is_adult(p: &Person) -> bool {
+−     let _cse_temp_0 = p.age.unwrap() >= 18;
+−     let _cse_temp_1 = (p.age.unwrap().is_some()) && (_cse_temp_0);
+−     if _cse_temp_1 {
++     let _cse_temp_0 = (p.age) && (p.age >= 18);
++     if _cse_temp_0 {
+          return true;
+      }
+      return false;
+  }
+────────────────────────────────────────────────────────────

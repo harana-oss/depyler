@@ -1,0 +1,13 @@
+  type-inference.toml :: type_annotation_usize_to_i32
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn test() -> i32 {
+      let arr = vec![1, 2, 3];
+−     let _cse_temp_0 = arr.len() as i32;
+−     let right: i32 = _cse_temp_0 - 1;
++     let _cse_temp_0 = (arr.len() as i32).saturating_sub(1);
++     let right: i32 = _cse_temp_0;
+      return right;
+  }
+────────────────────────────────────────────────────────────

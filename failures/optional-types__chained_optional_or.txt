@@ -1,0 +1,24 @@
+  optional-types.toml :: chained_optional_or
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  #[derive(Debug, Clone, PartialEq, Default)]
+  pub struct Person {
+      pub nickname: Option<String>,
+      pub name: Option<String>,
+  }
+  impl Person {
+      pub fn new(nickname: Option<String>, name: Option<String>) -> Self {
+          Self { nickname, name }
+      }
+  }
+  pub fn get_display(p: &Person) -> String {
+−     return p
+−         .nickname
+−         .clone()
+−         .clone()
+−         .or_else(|| p.name.clone().clone())
+−         .unwrap_or_else(|| "Anonymous".to_string());
++     return ((p.nickname) || (p.name)) || ("Anonymous");
+  }
+────────────────────────────────────────────────────────────

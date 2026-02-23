@@ -1,0 +1,24 @@
+  dataclasses-field.toml :: field_kw_only_sentinel
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust doesn't distinguish positional vs keyword arguments
+−     // Use builder pattern for similar functionality
+−     #[derive(Debug)]
+−     struct Point {
+−         x: i32,
+−         y: i32,
++ #[derive(Debug, Clone, PartialEq, Default)]
++ pub struct Point {
++     pub x: i32,
++     pub y: i32,
++ }
++ impl Point {
++     pub fn new(x: i32, y: i32) -> Self {
++         Self { x, y }
+      }
+− 
+−     let p = Point { x: 1, y: 2 };
+−     let result = p.x == 1 && p.y == 2;
++ }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,21 @@
+  optional-types.toml :: optional_var_not_in_list
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn find_number(target: i32) -> Option<i32> {
+      if target > 0 {
+          return Some(target);
+      }
+      return None;
+  }
+− pub fn add_if_missing(numbers: &mut Vec<i32>, target: i32) {
++ pub fn add_if_missing(numbers: &mut Vec<i32>, target: &i32) {
+      let value = find_number(target);
+      if value.is_some() {
+−         if !numbers.contains(&value.clone().unwrap()) {
++         if !numbers.contains(&value.as_ref().unwrap()) {
+              numbers.push(value.clone().unwrap());
+          }
+      }
+  }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,44 @@
+  dunder-lifecycle.toml :: dunder_init_defaults
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct Config {
+−     timeout: i32,
+−     retries: i32,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Config {
++     pub timeout: serde_json::Value,
++     pub retries: serde_json::Value,
+  }
+− 
+  impl Config {
+−     fn new() -> Self {
+−         Config {
+−             timeout: 30,
+−             retries: 3,
+−         }
+−     }
+− 
+−     fn with_timeout(timeout: i32) -> Self {
+−         Config {
+−             timeout,
+−             retries: 3,
+−         }
+−     }
+− 
+−     fn with_both(timeout: i32, retries: i32) -> Self {
+−         Config { timeout, retries }
++     pub fn new(timeout: serde_json::Value, retries: serde_json::Value) -> Self {
++         Self { timeout, retries }
+      }
+  }
+− 
+− let c1 = Config::new();
+− let c2 = Config::with_timeout(60);
+− let c3 = Config::with_both(45, 5);
+− 
+− log::info!("{}, {}", c1.timeout, c1.retries);
+− log::info!("{}, {}", c2.timeout, c2.retries);
+− log::info!("{}, {}", c3.timeout, c3.retries);
+────────────────────────────────────────────────────────────

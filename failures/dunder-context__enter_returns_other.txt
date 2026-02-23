@@ -1,0 +1,39 @@
+  dunder-context.toml :: enter_returns_other
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct FileManager {
+−     file: Option<String>,
+− }
+− 
++ #[derive(Debug, Copy, Clone)]
++ pub struct FileManager {}
+  impl FileManager {
+−     fn new() -> (Self, String) {
+−         let mgr = FileManager {
+−             file: Some("file_handle".to_string()),
+−         };
+−         let handle = "file_handle".to_string();
+−         (mgr, handle)
++     pub fn new() -> Self {
++         Self {}
++     }
++     pub fn __enter__(&mut self) {
++         self.file = "file_handle".to_string();
++         return self.file;
+      }
+− }
+− 
+− impl Drop for FileManager {
+−     fn drop(&mut self) {
+−         log::info!("Closing file");
++     pub fn __exit__(&self) -> bool {
++         log::info!("{}", "Closing file".to_string());
++         return false;
+      }
+  }
+− 
+− let (mgr, f) = FileManager::new();
+− log::info!("Using: {}", f);
+− drop(mgr);
+────────────────────────────────────────────────────────────

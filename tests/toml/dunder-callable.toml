@@ -35,11 +35,8 @@ impl Callable {
     }
 }
 
-fn main() {
-    let obj = Callable::new(42);
-    log::info!("{}", obj.call());
-}
-"""
+let obj = Callable::new(42);
+log::info!("{}", obj.call());"""
 
 [[test]]
 name = "dunder_call_args"
@@ -62,12 +59,9 @@ impl Adder {
     }
 }
 
-fn main() {
-    let add = Adder;
-    log::info!("{}", add.call(3, 4));
-    log::info!("{}", add.call(10, 20));
-}
-"""
+let add = Adder;
+log::info!("{}", add.call(3, 4));
+log::info!("{}", add.call(10, 20));"""
 
 [[test]]
 name = "dunder_call_kwargs"
@@ -93,14 +87,11 @@ impl Handler {
     }
 }
 
-fn main() {
-    let handler = Handler;
-    let mut kwargs = HashMap::new();
-    kwargs.insert("a".to_string(), 1);
-    kwargs.insert("b".to_string(), 2);
-    log::info!("{}", handler.call(kwargs));
-}
-"""
+let handler = Handler;
+let mut kwargs = HashMap::new();
+kwargs.insert("a".to_string(), 1);
+kwargs.insert("b".to_string(), 2);
+log::info!("{}", handler.call(kwargs));"""
 
 [[test]]
 name = "dunder_call_varargs"
@@ -124,14 +115,11 @@ impl Flexible {
     }
 }
 
-fn main() {
-    let flex = Flexible;
-    let args = vec![1, 2];
-    let mut kwargs = HashMap::new();
-    kwargs.insert("x".to_string(), 3);
-    log::info!("{}", flex.call(args, kwargs));
-}
-"""
+let flex = Flexible;
+let args = vec![1, 2];
+let mut kwargs = HashMap::new();
+kwargs.insert("x".to_string(), 3);
+log::info!("{}", flex.call(args, kwargs));"""
 
 # =============================================================================
 # callable() Check
@@ -160,12 +148,9 @@ impl MyCallable {
     }
 }
 
-fn main() {
-    let obj = MyCallable;
-    log::info!("true"); // Would be callable in Python
-    log::info!("{}", obj.call());
-}
-"""
+let obj = MyCallable;
+log::info!("true"); // Would be callable in Python
+log::info!("{}", obj.call());"""
 
 [[test]]
 name = "callable_false"
@@ -181,12 +166,9 @@ print(callable(42))
 rust = """
 struct NotCallable;
 
-fn main() {
-    let _obj = NotCallable;
-    log::info!("false"); // No __call__ method
-    log::info!("false"); // Integers aren't callable
-}
-"""
+let _obj = NotCallable;
+log::info!("false"); // No __call__ method
+log::info!("false"); // Integers aren't callable"""
 
 [[test]]
 name = "callable_function"
@@ -203,11 +185,8 @@ fn my_function() -> &'static str {
     "hello"
 }
 
-fn main() {
-    log::info!("true"); // Functions are callable
-    log::info!("true"); // Closures are callable
-}
-"""
+log::info!("true"); // Functions are callable
+log::info!("true"); // Closures are callable"""
 
 # =============================================================================
 # Use Cases
@@ -244,13 +223,10 @@ impl Multiplier {
     }
 }
 
-fn main() {
-    let times_two = Multiplier::new(2);
-    let times_three = Multiplier::new(3);
-    log::info!("{}", times_two.call(5));
-    log::info!("{}", times_three.call(5));
-}
-"""
+let times_two = Multiplier::new(2);
+let times_three = Multiplier::new(3);
+log::info!("{}", times_two.call(5));
+log::info!("{}", times_three.call(5));"""
 
 [[test]]
 name = "stateful_callable"
@@ -285,13 +261,10 @@ impl Counter {
     }
 }
 
-fn main() {
-    let mut counter = Counter::new();
-    log::info!("{}", counter.call());
-    log::info!("{}", counter.call());
-    log::info!("{}", counter.call());
-}
-"""
+let mut counter = Counter::new();
+log::info!("{}", counter.call());
+log::info!("{}", counter.call());
+log::info!("{}", counter.call());"""
 
 [[test]]
 name = "callable_decorator"
@@ -329,12 +302,9 @@ where
     }
 }
 
-fn main() {
-    let add_five = |x: i32| x + 5;
-    let decorated = TimesTwo::new(add_five);
-    log::info!("{}", decorated.call(3));
-}
-"""
+let add_five = |x: i32| x + 5;
+let decorated = TimesTwo::new(add_five);
+log::info!("{}", decorated.call(3));"""
 
 [[test]]
 name = "callable_factory"
@@ -372,11 +342,8 @@ fn make_adder(n: i32) -> Adder {
     Adder::new(n)
 }
 
-fn main() {
-    let add_10 = make_adder(10);
-    log::info!("{}", add_10.call(5));
-}
-"""
+let add_10 = make_adder(10);
+log::info!("{}", add_10.call(5));"""
 
 [[test]]
 name = "callable_memoize"
@@ -420,13 +387,10 @@ impl Memoize {
     }
 }
 
-fn main() {
-    let mut memo = Memoize::new();
-    log::info!("{}", memo.call(5));
-    log::info!("{}", memo.call(5));
-    log::info!("{}", memo.call(3));
-}
-"""
+let mut memo = Memoize::new();
+log::info!("{}", memo.call(5));
+log::info!("{}", memo.call(5));
+log::info!("{}", memo.call(3));"""
 
 # =============================================================================
 # __call__ with Methods
@@ -459,11 +423,8 @@ impl Processor {
     }
 }
 
-fn main() {
-    let proc = Processor;
-    log::info!("{}", proc.call(5));
-}
-"""
+let proc = Processor;
+log::info!("{}", proc.call(5));"""
 
 [[test]]
 name = "call_modifies_self"
@@ -498,13 +459,10 @@ impl Accumulator {
     }
 }
 
-fn main() {
-    let mut acc = Accumulator::new();
-    log::info!("{}", acc.call(10));
-    log::info!("{}", acc.call(5));
-    log::info!("{}", acc.call(3));
-}
-"""
+let mut acc = Accumulator::new();
+log::info!("{}", acc.call(10));
+log::info!("{}", acc.call(5));
+log::info!("{}", acc.call(3));"""
 
 # =============================================================================
 # Callable as Callback
@@ -540,11 +498,8 @@ where
     callback(data);
 }
 
-fn main() {
-    let logger = Logger;
-    process(|msg| logger.call(msg), "Processing data");
-}
-"""
+let logger = Logger;
+process(|msg| logger.call(msg), "Processing data");"""
 
 [[test]]
 name = "callable_higher_order"
@@ -567,12 +522,9 @@ impl Square {
     }
 }
 
-fn main() {
-    let square = Square;
-    let result: Vec<i32> = vec![1, 2, 3, 4].iter().map(|&x| square.call(x)).collect();
-    log::info!("{:?}", result);
-}
-"""
+let square = Square;
+let result: Vec<i32> = vec![1, 2, 3, 4].iter().map(|&x| square.call(x)).collect();
+log::info!("{:?}", result);"""
 
 # =============================================================================
 # Edge Cases
@@ -599,12 +551,9 @@ impl SideEffect {
     }
 }
 
-fn main() {
-    let obj = SideEffect;
-    obj.call();
-    log::info!("Result: None");
-}
-"""
+let obj = SideEffect;
+obj.call();
+log::info!("Result: None");"""
 
 [[test]]
 name = "call_nested"
@@ -638,12 +587,9 @@ impl Inner {
     }
 }
 
-fn main() {
-    let obj = Outer;
-    let result = obj.call().call(5);
-    log::info!("{}", result);
-}
-"""
+let obj = Outer;
+let result = obj.call().call(5);
+log::info!("{}", result);"""
 
 [[test]]
 name = "call_type_hints"
@@ -665,11 +611,8 @@ impl TypedCallable {
     }
 }
 
-fn main() {
-    let obj = TypedCallable;
-    log::info!("{}", obj.call(3, 4));
-}
-"""
+let obj = TypedCallable;
+log::info!("{}", obj.call(3, 4));"""
 
 [[test]]
 name = "callable_subclass"
@@ -706,8 +649,5 @@ impl Callable for Derived {
     }
 }
 
-fn main() {
-    let obj = Derived;
-    log::info!("{}", obj.call(5));
-}
-"""
+let obj = Derived;
+log::info!("{}", obj.call(5));"""

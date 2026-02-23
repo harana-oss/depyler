@@ -1,0 +1,57 @@
+  examples-stdlib.toml :: test_hashlib
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[doc = "// Python import: hashlib"]
++ use sha2 as hashlib;
+  #[doc = "Hash a password using SHA256"]
+− pub fn hash_password<'a>(password: &'a str) -> String {
+−     let hasher = std::Sha256();
+−     for (k, v) in password.encode("utf-8".to_string()) {
+−         hasher.insert(k, v)
++ pub fn hash_password(password: String) -> String {
++     let mut hasher = {
++         use sha2::Digest;
++         let mut hasher = sha2::Sha256::new();
++         hex::encode(hasher.finalize())
++     };
++     for (k, v) in password.encode("utf-8") {
++         hasher.insert(k, v);
+      }
+      return hasher.hexdigest();
+  }
+  #[doc = "Compute MD5 checksum of file data"]
+− pub fn compute_file_checksum<'a>(data: &'a bytes) -> String {
+−     let hasher = std::Md5();
++ pub fn compute_file_checksum(data: &bytes) -> String {
++     let mut hasher = {
++         use md5::Digest;
++         let mut hasher = md5::Md5::new();
++         hex::encode(hasher.finalize())
++     };
+      for (k, v) in data {
+−         hasher.insert(k, v)
++         hasher.insert(k, v);
+      }
+      return hasher.hexdigest();
+  }
+  #[doc = "Verify data integrity using SHA512"]
+− pub fn verify_integrity<'a, 'b>(data: &'a str, expected_hash: &'b str) -> bool {
+−     let hasher = std::Sha512();
+−     for (k, v) in data.encode("utf-8".to_string()) {
+−         hasher.insert(k, v)
++ pub fn verify_integrity(data: String, expected_hash: String) -> bool {
++     let mut hasher = {
++         use sha2::Digest;
++         let mut hasher = sha2::Sha512::new();
++         hex::encode(hasher.finalize())
++     };
++     for (k, v) in data.encode("utf-8") {
++         hasher.insert(k, v);
+      }
+      let actual_hash = hasher.hexdigest();
+−     let _cse_temp_0 = actual_hash == expected_hash;
+−     return _cse_temp_0;
++     return actual_hash == expected_hash;
+  }
+────────────────────────────────────────────────────────────

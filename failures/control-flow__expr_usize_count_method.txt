@@ -1,0 +1,9 @@
+  control-flow.toml :: expr_usize_count_method
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn count_occurrences(text: String, char: String) -> i32 {
+−     return text.matches(char).count() as i32;
++     return text.matches(char).count() as i32 as i32;
+  }
+────────────────────────────────────────────────────────────

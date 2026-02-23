@@ -39,12 +39,9 @@ impl AddAssign for Counter {
     }
 }
 
-fn main() {
-    let mut a = Counter { x: 5 };
-    a += Counter { x: 3 };
-    log::info!("Counter({})", a.x);
-}
-"""
+let mut a = Counter { x: 5 };
+a += Counter { x: 3 };
+log::info!("Counter({})", a.x);"""
 
 [[test]]
 name = "dunder_isub"
@@ -79,12 +76,9 @@ impl SubAssign for Counter {
     }
 }
 
-fn main() {
-    let mut a = Counter { x: 10 };
-    a -= Counter { x: 3 };
-    log::info!("Counter({})", a.x);
-}
-"""
+let mut a = Counter { x: 10 };
+a -= Counter { x: 3 };
+log::info!("Counter({})", a.x);"""
 
 [[test]]
 name = "dunder_imul"
@@ -119,12 +113,9 @@ impl MulAssign for Counter {
     }
 }
 
-fn main() {
-    let mut a = Counter { x: 5 };
-    a *= Counter { x: 3 };
-    log::info!("Counter({})", a.x);
-}
-"""
+let mut a = Counter { x: 5 };
+a *= Counter { x: 3 };
+log::info!("Counter({})", a.x);"""
 
 [[test]]
 name = "dunder_itruediv"
@@ -159,12 +150,9 @@ impl DivAssign for Counter {
     }
 }
 
-fn main() {
-    let mut a = Counter { x: 10.0 };
-    a /= Counter { x: 2.0 };
-    log::info!("Counter({})", a.x);
-}
-"""
+let mut a = Counter { x: 10.0 };
+a /= Counter { x: 2.0 };
+log::info!("Counter({})", a.x);"""
 
 [[test]]
 name = "dunder_ifloordiv"
@@ -200,12 +188,9 @@ impl DivAssign for Counter {
     }
 }
 
-fn main() {
-    let mut a = Counter { x: 10 };
-    a /= Counter { x: 3 };
-    log::info!("Counter({})", a.x);
-}
-"""
+let mut a = Counter { x: 10 };
+a /= Counter { x: 3 };
+log::info!("Counter({})", a.x);"""
 
 [[test]]
 name = "dunder_imod"
@@ -240,12 +225,9 @@ impl RemAssign for Counter {
     }
 }
 
-fn main() {
-    let mut a = Counter { x: 10 };
-    a %= Counter { x: 3 };
-    log::info!("Counter({})", a.x);
-}
-"""
+let mut a = Counter { x: 10 };
+a %= Counter { x: 3 };
+log::info!("Counter({})", a.x);"""
 
 [[test]]
 name = "dunder_ipow"
@@ -279,12 +261,9 @@ impl Counter {
     }
 }
 
-fn main() {
-    let mut a = Counter { x: 2 };
-    a.pow_assign(Counter { x: 3 });
-    log::info!("Counter({})", a.x);
-}
-"""
+let mut a = Counter { x: 2 };
+a.pow_assign(Counter { x: 3 });
+log::info!("Counter({})", a.x);"""
 
 # =============================================================================
 # In-Place Bitwise
@@ -323,12 +302,9 @@ impl BitAndAssign for Flags {
     }
 }
 
-fn main() {
-    let mut a = Flags { x: 0b1100 };
-    a &= Flags { x: 0b1010 };
-    log::info!("Flags({})", a.x);
-}
-"""
+let mut a = Flags { x: 0b1100 };
+a &= Flags { x: 0b1010 };
+log::info!("Flags({})", a.x);"""
 
 [[test]]
 name = "dunder_ior"
@@ -363,12 +339,9 @@ impl BitOrAssign for Flags {
     }
 }
 
-fn main() {
-    let mut a = Flags { x: 0b1100 };
-    a |= Flags { x: 0b1010 };
-    log::info!("Flags({})", a.x);
-}
-"""
+let mut a = Flags { x: 0b1100 };
+a |= Flags { x: 0b1010 };
+log::info!("Flags({})", a.x);"""
 
 [[test]]
 name = "dunder_ixor"
@@ -403,12 +376,9 @@ impl BitXorAssign for Flags {
     }
 }
 
-fn main() {
-    let mut a = Flags { x: 0b1100 };
-    a ^= Flags { x: 0b1010 };
-    log::info!("Flags({})", a.x);
-}
-"""
+let mut a = Flags { x: 0b1100 };
+a ^= Flags { x: 0b1010 };
+log::info!("Flags({})", a.x);"""
 
 [[test]]
 name = "dunder_ilshift"
@@ -443,12 +413,9 @@ impl ShlAssign<Shifter> for Shifter {
     }
 }
 
-fn main() {
-    let mut a = Shifter { x: 5 };
-    a <<= Shifter { x: 2 };
-    log::info!("Shifter({})", a.x);
-}
-"""
+let mut a = Shifter { x: 5 };
+a <<= Shifter { x: 2 };
+log::info!("Shifter({})", a.x);"""
 
 [[test]]
 name = "dunder_irshift"
@@ -483,12 +450,9 @@ impl ShrAssign<Shifter> for Shifter {
     }
 }
 
-fn main() {
-    let mut a = Shifter { x: 20 };
-    a >>= Shifter { x: 2 };
-    log::info!("Shifter({})", a.x);
-}
-"""
+let mut a = Shifter { x: 20 };
+a >>= Shifter { x: 2 };
+log::info!("Shifter({})", a.x);"""
 
 # =============================================================================
 # Other In-Place
@@ -542,17 +506,14 @@ impl Matrix {
     }
 }
 
-fn main() {
-    let mut a = Matrix {
-        data: vec![vec![1, 2], vec![3, 4]],
-    };
-    let b = Matrix {
-        data: vec![vec![2, 0], vec![1, 2]],
-    };
-    a.matmul_assign(&b);
-    log::info!("Matrix({:?})", a.data);
-}
-"""
+let mut a = Matrix {
+    data: vec![vec![1, 2], vec![3, 4]],
+};
+let b = Matrix {
+    data: vec![vec![2, 0], vec![1, 2]],
+};
+a.matmul_assign(&b);
+log::info!("Matrix({:?})", a.data);"""
 
 # =============================================================================
 # Fallback Behavior
@@ -560,7 +521,7 @@ fn main() {
 
 [[test]]
 name = "inplace_fallback"
-description = "a += b falls back to a = a + b if no __iadd__"
+description = "a += b falls back to a += 1 b if no __iadd__"
 python = """
 class NoInPlace:
     def __init__(self, x):
@@ -599,14 +560,11 @@ impl Add for NoInPlace {
     }
 }
 
-fn main() {
-    let a = NoInPlace { x: 5 };
-    let a = a + NoInPlace { x: 3 }; // No in-place in Rust without mut + AddAssign
+let a = NoInPlace { x: 5 };
+let a += 1 NoInPlace { x: 3 }; // No in-place in Rust without mut + AddAssign
 
-    log::info!("NoInPlace({})", a.x);
-    log::info!("Object changed: true");
-}
-"""
+log::info!("NoInPlace({})", a.x);
+log::info!("Object changed: true");"""
 
 [[test]]
 name = "iadd_return_self"
@@ -646,14 +604,11 @@ impl AddAssign for Accumulator {
     }
 }
 
-fn main() {
-    let mut a = Accumulator { x: 5 };
-    a += Accumulator { x: 3 };
+let mut a = Accumulator { x: 5 };
+a += Accumulator { x: 3 };
 
-    log::info!("Accumulator({})", a.x);
-    log::info!("Same object: true");
-}
-"""
+log::info!("Accumulator({})", a.x);
+log::info!("Same object: true");"""
 
 # =============================================================================
 # Mutable vs Immutable
@@ -673,15 +628,12 @@ print(f"List: {original}")
 print(f"Same object: {original_id == new_id}")
 """
 rust = """
-fn main() {
-    let mut original = vec![1, 2, 3];
+let mut original = vec![1, 2, 3];
 
-    original.extend_from_slice(&[4, 5]);
+original.extend_from_slice(&[4, 5]);
 
-    log::info!("List: {:?}", original);
-    log::info!("Same object: true");
-}
-"""
+log::info!("List: {:?}", original);
+log::info!("Same object: true");"""
 
 [[test]]
 name = "inplace_immutable"
@@ -697,15 +649,12 @@ print(f"Value: {x}")
 print(f"Different object: {original_id != new_id}")
 """
 rust = """
-fn main() {
-    let mut x = 5;
+let mut x = 5;
 
-    x += 1; // In Rust, integers are always copied
+x += 1; // In Rust, integers are always copied
 
-    log::info!("Value: {}", x);
-    log::info!("Different object: true");
-}
-"""
+log::info!("Value: {}", x);
+log::info!("Different object: true");"""
 
 # =============================================================================
 # Edge Cases
@@ -721,14 +670,11 @@ my_list += (4, 5)  # Tuple is iterable, extends list
 print(f"List: {my_list}")
 """
 rust = """
-fn main() {
-    let mut my_list = vec![1, 2, 3];
-    let tuple = [4, 5]; // Rust doesn't have true tuples for this, use array
-    my_list.extend_from_slice(&tuple);
+let mut my_list = vec![1, 2, 3];
+let tuple = [4, 5]; // Rust doesn't have true tuples for this, use array
+my_list.extend_from_slice(&tuple);
 
-    log::info!("List: {:?}", my_list);
-}
-"""
+log::info!("List: {:?}", my_list);"""
 
 [[test]]
 name = "inplace_different_object"
@@ -773,14 +719,11 @@ impl Add for Weird {
     }
 }
 
-fn main() {
-    let a = Weird { x: 5 };
-    let a = a + Weird { x: 3 };
+let a = Weird { x: 5 };
+let a += 1 Weird { x: 3 };
 
-    log::info!("Weird({})", a.x);
-    log::info!("Different object: true");
-}
-"""
+log::info!("Weird({})", a.x);
+log::info!("Different object: true");"""
 
 [[test]]
 name = "inplace_chained"
@@ -798,15 +741,12 @@ a += b
 print(f"a: {a}, b: {b}, c: {c}")
 """
 rust = """
-fn main() {
-    let mut a = 5;
-    let mut b = 10;
-    let c = 3;
+let mut a = 5;
+let mut b = 10;
+let c = 3;
 
-    b += c;
-    a += b;
+b += c;
+a += b;
 
-    log::info!("a: {}, b: {}, c: {}", a, b, c);
-}
-"""
+log::info!("a: {}, b: {}, c: {}", a, b, c);"""
 # 

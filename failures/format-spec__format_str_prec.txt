@@ -1,0 +1,10 @@
+  format-spec.toml :: format_str_prec
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn format_str_precision() -> String {
+−     let s = "hello world";
+−     return s.chars().take(5).collect::<String>();
++     return format!("{:.5}", "hello world");
+  }
+────────────────────────────────────────────────────────────

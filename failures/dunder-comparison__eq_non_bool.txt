@@ -1,0 +1,36 @@
+  dunder-comparison.toml :: eq_non_bool
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust's PartialEq trait requires bool return
+− // This is a Python-specific feature
+− struct Special {
+−     x: i32,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Special {
++     pub x: serde_json::Value,
+  }
+− 
+  impl Special {
+−     fn new(x: i32) -> Self {
+−         Special { x }
+−     }
+− 
+−     fn eq_str(&self, other: &Special) -> &'static str {
+−         if self.x == other.x {
+−             "equal"
+−         } else {
+−             "not equal"
+−         }
++     pub fn new(x: serde_json::Value) -> Self {
++         Self { x }
+      }
+  }
+− 
+− let s1 = Special::new(5);
+− let s2 = Special::new(5);
+− let s3 = Special::new(10);
+− log::info!("{}", s1.eq_str(&s2));
+− log::info!("{}", s1.eq_str(&s3));
+────────────────────────────────────────────────────────────

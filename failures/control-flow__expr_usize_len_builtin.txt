@@ -1,0 +1,9 @@
+  control-flow.toml :: expr_usize_len_builtin
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn get_size(items: &Vec<i32>) -> i32 {
+−     return items.len() as i32;
++     return items.len() as i32 as i32;
+  }
+────────────────────────────────────────────────────────────

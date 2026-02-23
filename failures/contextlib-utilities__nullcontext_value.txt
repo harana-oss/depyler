@@ -1,0 +1,14 @@
+  contextlib-utilities.toml :: nullcontext_value
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn test_nullcontext_value() -> i32 {
+−     let x = 42;
+−     {
+−         x
+−     }
++     let _context = nullcontext(42);
++     let mut x = _context.__enter__();
++     return x;
+  }
+────────────────────────────────────────────────────────────

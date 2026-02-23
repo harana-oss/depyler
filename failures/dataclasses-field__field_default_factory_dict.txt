@@ -1,0 +1,32 @@
+  dataclasses-field.toml :: field_default_factory_dict
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::collections::HashMap;
+−     #[derive(Debug)]
+−     struct Config {
+−         settings: HashMap<String, i32>,
+−     }
+− 
+−     impl Config {
+−         fn new() -> Self {
+−             Config {
+−                 settings: HashMap::new(),
+−             }
++ #[derive(Debug, Clone, PartialEq, Default)]
++ pub struct Config {
++     pub settings: HashMap<String, i32>,
++ }
++ impl Config {
++     pub fn new() -> Self {
++         Self {
++             settings: HashMap::new(),
+          }
+      }
+− 
+−     let mut c1 = Config::new();
+−     let c2 = Config::new();
+−     c1.settings.insert("key".to_string(), 42);
+−     let result = c1.settings.len() == 1 && c2.settings.len() == 0;
++ }
+────────────────────────────────────────────────────────────

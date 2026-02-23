@@ -1,0 +1,28 @@
+  dataclasses-field.toml :: field_classvar
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust uses associated constants or static variables
+−     #[derive(Debug)]
+−     struct Counter {
+−         value: i32,
++ #[derive(Debug, Clone, PartialEq, Default)]
++ pub struct Counter {
++     pub count: ClassVar<i32>,
++     pub value: i32,
++ }
++ impl Counter {
++     pub fn new(value: i32) -> Self {
++         Self {
++             count: Default::default(),
++             value,
++         }
+      }
+− 
+−     impl Counter {
+−         const COUNT: i32 = 0;
+−     }
+− 
+−     let result = Counter::COUNT == 0;
++ }
+────────────────────────────────────────────────────────────

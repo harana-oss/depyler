@@ -82,7 +82,7 @@ def outer():
     message = "Hello"
     def inner():
         nonlocal message
-        message = message + " World"
+        message += " World"
     inner()
     return message
 

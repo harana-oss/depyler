@@ -1,0 +1,10 @@
+  error-handling.toml :: assert_statement
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn validate(x: i32) -> i32 {
+−     assert!(x > 0, "must be positive");
++     assert!(x > 0, "{}", "must be positive");
+      return x;
+  }
+────────────────────────────────────────────────────────────

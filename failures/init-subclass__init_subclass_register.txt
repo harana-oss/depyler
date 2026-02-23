@@ -1,0 +1,56 @@
+  init-subclass.toml :: init_subclass_register
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust: use inventory crate or lazy_static for registration
+−     use std::collections::HashMap;
+− 
+−     trait Plugin {
+−         fn id() -> &'static str;
++ use serde_json;
++ #[derive(Debug, Copy, Clone)]
++ pub struct Plugin {}
++ impl Plugin {
++     pub const registry: HashMap<serde_json::Value, serde_json::Value> = {
++         let mut map = HashMap::new();
++         map
++     };
++     pub fn new() -> Self {
++         Self {}
+      }
+− 
+−     struct DatabasePlugin;
+−     impl Plugin for DatabasePlugin {
+−         fn id() -> &'static str {
+−             "db"
+−         }
++ }
++ #[derive(Debug, Copy, Clone)]
++ pub struct DatabasePlugin {}
++ impl DatabasePlugin {
++     pub fn new() -> Self {
++         Self {}
+      }
+− 
+−     struct CachePlugin;
+−     impl Plugin for CachePlugin {
+−         fn id() -> &'static str {
+−             "cache"
+−         }
++ }
++ #[derive(Debug, Copy, Clone)]
++ pub struct CachePlugin {}
++ impl CachePlugin {
++     pub fn new() -> Self {
++         Self {}
+      }
+− 
+−     // Manually build registry (or use macro)
+−     let mut registry = HashMap::new();
+−     registry.insert(DatabasePlugin::id(), "DatabasePlugin");
+−     registry.insert(CachePlugin::id(), "CachePlugin");
+− 
+−     assert!(registry.contains_key("db"));
+−     assert!(registry.contains_key("cache"));
++ }
+────────────────────────────────────────────────────────────

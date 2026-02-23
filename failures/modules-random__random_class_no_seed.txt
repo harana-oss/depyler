@@ -1,0 +1,14 @@
+  modules-random.toml :: random_class_no_seed
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use rand as random;
+− use rand::prelude::*;
+− use rand::rngs::SmallRng;
+− use rand::Rng;
+− use rand::SeedableRng;
+  pub fn create_random_rng() -> i32 {
+      let rng = SmallRng::from_os_rng();
+      return 0;
+  }
+────────────────────────────────────────────────────────────

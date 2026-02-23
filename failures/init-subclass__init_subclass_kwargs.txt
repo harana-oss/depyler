@@ -1,0 +1,40 @@
+  init-subclass.toml :: init_subclass_kwargs
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust: use builder pattern or attribute macros
+−     // Conceptual equivalent:
+−     trait Base {}
+− 
+−     #[derive(Debug)]
+−     struct SubConfig {
+−         custom_param: String,
+−         another: i32,
++ #[derive(Debug, Copy, Clone)]
++ pub struct Base {}
++ impl Base {
++     pub fn new() -> Self {
++         Self {}
+      }
+− 
+−     struct Sub {
+−         config: SubConfig,
++ }
++ #[derive(Debug, Copy, Clone)]
++ pub struct Sub {}
++ impl Sub {
++     pub fn new() -> Self {
++         Self {}
+      }
+− 
+−     impl Base for Sub {}
+− 
+−     let sub = Sub {
+−         config: SubConfig {
+−             custom_param: "value".to_string(),
+−             another: 42,
+−         },
+−     };
+−     assert_eq!(sub.config.custom_param, "value");
++ }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,32 @@
+  dunder-bitwise.toml :: bitwise_custom_int
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use std::ops::BitAnd;
+− 
+− #[derive(Debug)]
+− struct CustomFlags {
+−     value: i32,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct CustomFlags {
++     pub value: serde_json::Value,
+  }
+− 
+− impl BitAnd<i32> for CustomFlags {
+−     type Output = CustomFlags;
+− 
+−     fn bitand(self, other: i32) -> CustomFlags {
+−         CustomFlags {
+−             value: self.value & other,
+−         }
++ impl CustomFlags {
++     pub fn new(value: serde_json::Value) -> Self {
++         Self { value }
+      }
+  }
+− 
+− let flags = CustomFlags { value: 0xFF00 };
+− let result = flags & 0xFF;
+− log::info!("CustomFlags({:#x})", result.value);
+────────────────────────────────────────────────────────────

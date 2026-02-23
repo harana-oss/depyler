@@ -1,0 +1,17 @@
+  functools-partial.toml :: partial_func
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust closures don't expose the original function
+− // This behavior is specific to Python's partial implementation
+− fn add(a: i32, b: i32) -> i32 {
+−     a + b
++ use std;
++ pub fn add(a: i32, b: i32) {
++     return a + b;
+  }
+− 
+− // In Rust, we would use a struct to hold both function and args
+− let add5 = |b| add(5, b);
+− log::info!("True"); // Simulated
+────────────────────────────────────────────────────────────

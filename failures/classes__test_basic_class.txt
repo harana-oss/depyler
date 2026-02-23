@@ -1,0 +1,41 @@
+  classes.toml :: test_basic_class
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  use serde_json;
+− #[doc = "// TODO: Map Python module 'dataclasses'"]
+− #[derive(Debug, Clone, PartialEq)]
+− pub struct Counter {}
++ #[derive(Debug, Copy, Clone, PartialEq, Default)]
++ pub struct Counter {
++     pub value: i32,
++ }
+  impl Counter {
+−     pub const value: i32 = 0;
+      pub fn new() -> Self {
+−         Self {}
++         Self { value: 0 }
+      }
+      pub fn increment(&mut self) {
+−         self.value = self.value + 1;
++         self.value += 1;
+      }
+      pub fn get_value(&self) -> i32 {
+−         return self.value;
++         return self.value.clone();
+      }
+      pub fn create_with_value(val: i32) {
+          return Counter::new(val);
+      }
+  }
+− pub fn test_counter() -> (i32, i32) {
++ pub fn test_counter() -> (serde_json::Value, serde_json::Value) {
+      let mut c = Counter::new();
+      c.increment();
+      c.increment();
+      let val = c.get_value();
+      let c2 = Counter::create_with_value(10);
+−     (val, c2.value)
++     return (val, c2.value);
+  }
+────────────────────────────────────────────────────────────

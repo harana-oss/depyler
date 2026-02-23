@@ -1,0 +1,10 @@
+  assert-statement.toml :: assert_true
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− fn main() {
+−     assert!(true);
+−     let result = true;
+− }
++ 
+────────────────────────────────────────────────────────────

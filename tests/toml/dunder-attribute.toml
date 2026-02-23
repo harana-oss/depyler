@@ -33,14 +33,11 @@ impl DynamicAttrs {
     }
 }
 
-fn main() {
-    let obj = DynamicAttrs {
-        attrs: HashMap::new(),
-    };
-    log::info!("{}", obj.get_attr("anything"));
-    log::info!("{}", obj.get_attr("foo"));
-}
-"""
+let obj = DynamicAttrs {
+    attrs: HashMap::new(),
+};
+log::info!("{}", obj.get_attr("anything"));
+log::info!("{}", obj.get_attr("foo"));"""
 
 [[test]]
 name = "getattr_only_missing"
@@ -77,12 +74,9 @@ impl Obj {
     }
 }
 
-fn main() {
-    let obj = Obj::new();
-    log::info!("{}", obj.real);
-    log::info!("{}", obj.get_attr("missing"));
-}
-"""
+let obj = Obj::new();
+log::info!("{}", obj.real);
+log::info!("{}", obj.get_attr("missing"));"""
 
 [[test]]
 name = "getattr_return_value"
@@ -111,12 +105,9 @@ impl LazyAttrs {
     }
 }
 
-fn main() {
-    let obj = LazyAttrs;
-    log::info!("{}", obj.get_attr("compute_something").unwrap());
-    log::info!("{}", obj.get_attr("compute_x").unwrap());
-}
-"""
+let obj = LazyAttrs;
+log::info!("{}", obj.get_attr("compute_something").unwrap());
+log::info!("{}", obj.get_attr("compute_x").unwrap());"""
 
 [[test]]
 name = "getattr_raise"
@@ -147,15 +138,12 @@ impl StrictAttrs {
     }
 }
 
-fn main() {
-    let obj = StrictAttrs;
-    log::info!("{}", obj.get_attr("allowed").unwrap());
-    match obj.get_attr("forbidden") {
-        Err(e) => log::info!("Error: {}", e),
-        Ok(_) => {}
-    }
-}
-"""
+let obj = StrictAttrs;
+log::info!("{}", obj.get_attr("allowed").unwrap());
+match obj.get_attr("forbidden") {
+    Err(e) => log::info!("Error: {}", e),
+    Ok(_) => {}
+}"""
 
 # =============================================================================
 # __getattribute__
@@ -196,11 +184,8 @@ impl TrackedAttrs {
     }
 }
 
-fn main() {
-    let obj = TrackedAttrs::new();
-    log::info!("{}", obj.get_attribute("value").unwrap());
-}
-"""
+let obj = TrackedAttrs::new();
+log::info!("{}", obj.get_attribute("value").unwrap());"""
 
 [[test]]
 name = "getattribute_always"
@@ -235,11 +220,8 @@ impl AllAccess {
     }
 }
 
-fn main() {
-    let obj = AllAccess::new();
-    let _ = obj.get_attribute("existing");
-}
-"""
+let obj = AllAccess::new();
+let _ = obj.get_attribute("existing");"""
 
 [[test]]
 name = "getattribute_recursion"
@@ -266,11 +248,8 @@ impl Safe {
     }
 }
 
-fn main() {
-    let obj = Safe::new();
-    log::info!("{}", obj.value);
-}
-"""
+let obj = Safe::new();
+log::info!("{}", obj.value);"""
 
 [[test]]
 name = "getattribute_vs_getattr"
@@ -314,12 +293,9 @@ impl Both {
     }
 }
 
-fn main() {
-    let obj = Both::new();
-    log::info!("{}", obj.get_attribute("real"));
-    log::info!("{}", obj.get_attribute("missing"));
-}
-"""
+let obj = Both::new();
+log::info!("{}", obj.get_attribute("real"));
+log::info!("{}", obj.get_attribute("missing"));"""
 
 # =============================================================================
 # __setattr__
@@ -361,13 +337,10 @@ impl TrackedSets {
     }
 }
 
-fn main() {
-    let mut obj = TrackedSets::new();
-    obj.set_attribute("x", 10);
-    obj.set_attribute("y", 20);
-    log::info!("{} {}", obj.x.unwrap(), obj.y.unwrap());
-}
-"""
+let mut obj = TrackedSets::new();
+obj.set_attribute("x", 10);
+obj.set_attribute("y", 20);
+log::info!("{} {}", obj.x.unwrap(), obj.y.unwrap());"""
 
 [[test]]
 name = "setattr_always"
@@ -403,12 +376,9 @@ impl AllSets {
     }
 }
 
-fn main() {
-    let mut obj = AllSets::new();
-    obj.set("a", 1);
-    obj.set("b", 2);
-}
-"""
+let mut obj = AllSets::new();
+obj.set("a", 1);
+obj.set("b", 2);"""
 
 [[test]]
 name = "setattr_recursion"
@@ -438,12 +408,9 @@ impl Safe {
     }
 }
 
-fn main() {
-    let mut obj = Safe::new();
-    obj.set_value(42);
-    log::info!("{}", obj.value);
-}
-"""
+let mut obj = Safe::new();
+obj.set_value(42);
+log::info!("{}", obj.value);"""
 
 [[test]]
 name = "setattr_validation"
@@ -482,16 +449,13 @@ impl Validated {
     }
 }
 
-fn main() {
-    let mut obj = Validated::new();
-    obj.set_age(25).unwrap();
-    log::info!("{}", obj.age);
-    match obj.set_age(-5) {
-        Err(e) => log::info!("Error: {}", e),
-        Ok(_) => {}
-    }
-}
-"""
+let mut obj = Validated::new();
+obj.set_age(25).unwrap();
+log::info!("{}", obj.age);
+match obj.set_age(-5) {
+    Err(e) => log::info!("Error: {}", e),
+    Ok(_) => {}
+}"""
 
 # =============================================================================
 # __delattr__
@@ -541,15 +505,12 @@ impl TrackedDel {
     }
 }
 
-fn main() {
-    let mut obj = TrackedDel::new();
-    log::info!("{}", obj.get_attr("x").unwrap());
-    obj.delete_attr("x");
-    if obj.get_attr("x").is_none() {
-        log::info!("x was deleted");
-    }
-}
-"""
+let mut obj = TrackedDel::new();
+log::info!("{}", obj.get_attr("x").unwrap());
+obj.delete_attr("x");
+if obj.get_attr("x").is_none() {
+    log::info!("x was deleted");
+}"""
 
 [[test]]
 name = "del_attr"
@@ -586,11 +547,8 @@ impl MyClass {
     }
 }
 
-fn main() {
-    let mut obj = MyClass::new();
-    obj.del_attr("value");
-}
-"""
+let mut obj = MyClass::new();
+obj.del_attr("value");"""
 
 [[test]]
 name = "delattr_cleanup"
@@ -628,11 +586,8 @@ impl Resource {
     }
 }
 
-fn main() {
-    let mut obj = Resource::new();
-    obj.delete_file();
-}
-"""
+let mut obj = Resource::new();
+obj.delete_file();"""
 
 # =============================================================================
 # __dir__
@@ -667,13 +622,10 @@ impl Custom {
     }
 }
 
-fn main() {
-    let obj = Custom::new();
-    let mut attrs = obj.dir();
-    attrs.sort();
-    log::info!("{:?}", attrs);
-}
-"""
+let obj = Custom::new();
+let mut attrs = obj.dir();
+attrs.sort();
+log::info!("{:?}", attrs);"""
 
 [[test]]
 name = "dir_builtin"
@@ -706,12 +658,9 @@ impl Obj {
     }
 }
 
-fn main() {
-    let obj = Obj::new();
-    let attrs = obj.dir();
-    log::info!("{}", attrs.contains(&"custom"));
-}
-"""
+let obj = Obj::new();
+let attrs = obj.dir();
+log::info!("{}", attrs.contains(&"custom"));"""
 
 [[test]]
 name = "dir_autocomplete"
@@ -748,13 +697,10 @@ impl API {
     }
 }
 
-fn main() {
-    let api = API::new();
-    let mut methods = api.dir();
-    methods.sort();
-    log::info!("Available methods: {:?}", methods);
-}
-"""
+let api = API::new();
+let mut methods = api.dir();
+methods.sort();
+log::info!("Available methods: {:?}", methods);"""
 
 # =============================================================================
 # Use Cases
@@ -803,12 +749,9 @@ impl Deref for Wrapper {
     }
 }
 
-fn main() {
-    let inner = Inner { value: 42 };
-    let wrapper = Wrapper::new(inner);
-    log::info!("{}", wrapper.value);
-}
-"""
+let inner = Inner { value: 42 };
+let wrapper = Wrapper::new(inner);
+log::info!("{}", wrapper.value);"""
 
 [[test]]
 name = "dynamic_attrs"
@@ -841,12 +784,9 @@ impl Computed {
     }
 }
 
-fn main() {
-    let obj = Computed;
-    log::info!("{}", obj.get_attr("double_5").unwrap());
-    log::info!("{}", obj.get_attr("double_10").unwrap());
-}
-"""
+let obj = Computed;
+log::info!("{}", obj.get_attr("double_5").unwrap());
+log::info!("{}", obj.get_attr("double_10").unwrap());"""
 
 [[test]]
 name = "attr_logging"
@@ -890,12 +830,9 @@ impl Logged {
     }
 }
 
-fn main() {
-    let mut obj = Logged::new();
-    obj.set_value(10);
-    log::info!("{}", obj.get_value());
-}
-"""
+let mut obj = Logged::new();
+obj.set_value(10);
+log::info!("{}", obj.get_value());"""
 
 [[test]]
 name = "attr_validation"
@@ -930,12 +867,9 @@ impl Validated {
     }
 }
 
-fn main() {
-    let mut obj = Validated::new();
-    obj.set_positive(10).unwrap();
-    log::info!("{}", obj.positive);
-}
-"""
+let mut obj = Validated::new();
+obj.set_positive(10).unwrap();
+log::info!("{}", obj.positive);"""
 
 # =============================================================================
 # Edge Cases
@@ -977,12 +911,9 @@ impl Slotted {
     }
 }
 
-fn main() {
-    let obj = Slotted::new();
-    log::info!("{}", obj.x);
-    log::info!("{}", obj.get_attr("missing"));
-}
-"""
+let obj = Slotted::new();
+log::info!("{}", obj.x);
+log::info!("{}", obj.get_attr("missing"));"""
 
 [[test]]
 name = "special_method_lookup"
@@ -1018,12 +949,9 @@ impl fmt::Display for Special {
     }
 }
 
-fn main() {
-    let obj = Special;
-    let result = obj.to_string();
-    log::info!("{}", result);
-}
-"""
+let obj = Special;
+let result = obj.to_string();
+log::info!("{}", result);"""
 
 [[test]]
 name = "getattr_descriptor"
@@ -1066,9 +994,6 @@ impl Container {
     }
 }
 
-fn main() {
-    let obj = Container;
-    let desc = obj.get_attr("desc").unwrap();
-    log::info!("Descriptor");
-}
-"""
+let obj = Container;
+let desc = obj.get_attr("desc").unwrap();
+log::info!("Descriptor");"""

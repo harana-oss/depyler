@@ -1,0 +1,37 @@
+  class-getitem.toml :: generic_class
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct Stack<T> {
+−     items: Vec<T>,
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Stack {
++     pub items: Vec<serde_json::Value>,
+  }
+− 
+− impl<T> Stack<T> {
+−     fn new() -> Self {
+−         Stack { items: Vec::new() }
++ impl Stack {
++     pub fn new() -> Self {
++         Self { items: vec![] }
+      }
+− 
+−     fn push(&mut self, item: T) {
++     pub fn push(&mut self, item: T) {
+          self.items.push(item);
+      }
+− 
+−     fn pop(&mut self) -> Option<T> {
+−         self.items.pop()
++     pub fn pop(&mut self) -> T {
++         return self.items.pop().unwrap();
+      }
+  }
+− 
+− let mut int_stack: Stack<i32> = Stack::new();
+− int_stack.push(1);
+− int_stack.push(2);
+− log::info!("{}", int_stack.pop().unwrap());
+────────────────────────────────────────────────────────────

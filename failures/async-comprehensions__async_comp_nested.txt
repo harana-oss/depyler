@@ -1,0 +1,42 @@
+  async-comprehensions.toml :: async_comp_nested
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− use futures::stream::{self, StreamExt};
+− 
+− #[tokio::main]
+− async let lists = vec![vec![1, 2], vec![3, 4], vec![5, 6]];
+− let result: Vec<i32> = stream::iter(lists)
+−     .flat_map(|lst| stream::iter(lst))
+−     .collect()
+−     .await;
+− log::info!("{:?}", result);
++ #[doc = " Generator state struct"] #[derive(Debug)] struct AsyncListsState {
++     state: usize, lists: Vec<Vec<i32>>
++ }
++ #[doc = " Generator function - returns Iterator"] pub fn async_lists() -> impl Iterator<Item = i32>{
++     AsyncListsState {
++     state: 0, lists: Default::default()
++ }
++ } impl Iterator for AsyncListsState {
++     type Item = i32;
++     fn next(&mut self) -> Option<Self::Item>{
++     match self.state {
++     0 =>{
++     self.state = 1;
++     self.lists = vec! [vec! [1, 2], vec! [3, 4], vec! [5, 6]];
++     for _lst in self.lists.iter().cloned() {
++     return Some(lst);
++    
++ }
++ None
++ }
++ _ =>None
++ }
++ }
++ }
++ pub async fn test() {
++     let result = async_lists().iter().flat_map(| x | x.iter().cloned()).collect::<Vec<_>>();
++     return result;
++     }
+────────────────────────────────────────────────────────────

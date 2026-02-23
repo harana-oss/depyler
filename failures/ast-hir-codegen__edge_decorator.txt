@@ -1,0 +1,16 @@
+  ast-hir-codegen.toml :: edge_decorator
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug, Clone)]
++ #[derive(Debug, Copy, Clone)]
+  pub struct Foo {}
+  impl Foo {
+      pub fn new() -> Self {
+          Self {}
+      }
+      pub fn helper() -> i32 {
+          return 0;
+      }
+  }
+────────────────────────────────────────────────────────────

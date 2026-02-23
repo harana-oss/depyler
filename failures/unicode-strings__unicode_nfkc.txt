@@ -1,0 +1,11 @@
+  unicode-strings.toml :: unicode_nfkc
+    Output mismatch
+
+────────────────────────────────────────────────────────────
++ use unicode_normalization as unicodedata;
+  pub fn normalize_nfkc(s: String) -> String {
+−     return unicodedata.normalize("NFKC", s);
+− };
++     return (s).nfkc().collect::<String>();
++ }
+────────────────────────────────────────────────────────────

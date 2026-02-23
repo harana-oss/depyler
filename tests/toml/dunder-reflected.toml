@@ -49,12 +49,9 @@ impl fmt::Display for Number {
     }
 }
 
-fn main() {
-    let n = Number { value: 5 };
-    let result = 10 + n;
-    log::info!("{}", result);
-}
-"""
+let n = Number { value: 5 };
+let result = 10 + n;
+log::info!("{}", result);"""
 
 [[test]]
 name = "dunder_rsub"
@@ -99,12 +96,9 @@ impl fmt::Display for Number {
     }
 }
 
-fn main() {
-    let n = Number { value: 3 };
-    let result = 10 - n;
-    log::info!("{}", result);
-}
-"""
+let n = Number { value: 3 };
+let result = 10 - n;
+log::info!("{}", result);"""
 
 [[test]]
 name = "dunder_rmul"
@@ -152,12 +146,9 @@ impl fmt::Display for Vector {
     }
 }
 
-fn main() {
-    let v = Vector { x: 3, y: 4 };
-    let result = 2 * v;
-    log::info!("{}", result);
-}
-"""
+let v = Vector { x: 3, y: 4 };
+let result = 2 * v;
+log::info!("{}", result);"""
 
 [[test]]
 name = "dunder_rtruediv"
@@ -202,12 +193,9 @@ impl fmt::Display for Number {
     }
 }
 
-fn main() {
-    let n = Number { value: 2.0 };
-    let result = 10 / n;
-    log::info!("{}", result);
-}
-"""
+let n = Number { value: 2.0 };
+let result = 10 / n;
+log::info!("{}", result);"""
 
 [[test]]
 name = "dunder_rfloordiv"
@@ -252,12 +240,9 @@ impl fmt::Display for Number {
     }
 }
 
-fn main() {
-    let n = Number { value: 3 };
-    let result = 10 / n;
-    log::info!("{}", result);
-}
-"""
+let n = Number { value: 3 };
+let result = 10 / n;
+log::info!("{}", result);"""
 
 [[test]]
 name = "dunder_rmod"
@@ -302,12 +287,9 @@ impl fmt::Display for Number {
     }
 }
 
-fn main() {
-    let n = Number { value: 3 };
-    let result = 10 % n;
-    log::info!("{}", result);
-}
-"""
+let n = Number { value: 3 };
+let result = 10 % n;
+log::info!("{}", result);"""
 
 [[test]]
 name = "dunder_rpow"
@@ -347,12 +329,9 @@ impl fmt::Display for Number {
     }
 }
 
-fn main() {
-    let n = Number { value: 3 };
-    let result = pow(2, n);
-    log::info!("{}", result);
-}
-"""
+let n = Number { value: 3 };
+let result = pow(2, n);
+log::info!("{}", result);"""
 
 # =============================================================================
 # Reflected Bitwise
@@ -401,12 +380,9 @@ impl fmt::Display for Bits {
     }
 }
 
-fn main() {
-    let b = Bits { value: 0b1100 };
-    let result = 0b1010 & b;
-    log::info!("{}", result);
-}
-"""
+let b = Bits { value: 0b1100 };
+let result = 0b1010 & b;
+log::info!("{}", result);"""
 
 [[test]]
 name = "dunder_ror"
@@ -451,12 +427,9 @@ impl fmt::Display for Bits {
     }
 }
 
-fn main() {
-    let b = Bits { value: 0b1100 };
-    let result = 0b1010 | b;
-    log::info!("{}", result);
-}
-"""
+let b = Bits { value: 0b1100 };
+let result = 0b1010 | b;
+log::info!("{}", result);"""
 
 [[test]]
 name = "dunder_rxor"
@@ -501,12 +474,9 @@ impl fmt::Display for Bits {
     }
 }
 
-fn main() {
-    let b = Bits { value: 0b1100 };
-    let result = 0b1010 ^ b;
-    log::info!("{}", result);
-}
-"""
+let b = Bits { value: 0b1100 };
+let result = 0b1010 ^ b;
+log::info!("{}", result);"""
 
 [[test]]
 name = "dunder_rlshift"
@@ -538,12 +508,9 @@ impl Shl<Shift> for i32 {
     }
 }
 
-fn main() {
-    let s = Shift { amount: 2 };
-    let result = 5 << s;
-    log::info!("{}", result);
-}
-"""
+let s = Shift { amount: 2 };
+let result = 5 << s;
+log::info!("{}", result);"""
 
 [[test]]
 name = "dunder_rrshift"
@@ -575,12 +542,9 @@ impl Shr<Shift> for i32 {
     }
 }
 
-fn main() {
-    let s = Shift { amount: 2 };
-    let result = 20 >> s;
-    log::info!("{}", result);
-}
-"""
+let s = Shift { amount: 2 };
+let result = 20 >> s;
+log::info!("{}", result);"""
 
 # =============================================================================
 # Other Reflected
@@ -624,14 +588,11 @@ fn matmul(left: &str, right: Matrix) -> Matrix {
     }
 }
 
-fn main() {
-    let m = Matrix {
-        data: "B".to_string(),
-    };
-    let result = matmul("A", m);
-    log::info!("{}", result);
-}
-"""
+let m = Matrix {
+    data: "B".to_string(),
+};
+let result = matmul("A", m);
+log::info!("{}", result);"""
 
 [[test]]
 name = "dunder_rdivmod"
@@ -654,11 +615,8 @@ fn divmod(dividend: i32, divisor: i32) -> (i32, i32) {
     (dividend / divisor, dividend % divisor)
 }
 
-fn main() {
-    let result = divmod(10, 3);
-    log::info!("{:?}", result);
-}
-"""
+let result = divmod(10, 3);
+log::info!("{:?}", result);"""
 
 # =============================================================================
 # When Reflected is Called
@@ -694,12 +652,9 @@ impl Add<Custom> for i32 {
     }
 }
 
-fn main() {
-    let obj = Custom { value: 5 };
-    let result = 1 + obj;
-    log::info!("{}", result);
-}
-"""
+let obj = Custom { value: 5 };
+let result = 1 + obj;
+log::info!("{}", result);"""
 
 [[test]]
 name = "reflected_subclass"
@@ -745,12 +700,9 @@ impl Addable for Derived {
     }
 }
 
-fn main() {
-    let obj = Derived { value: 10 };
-    let result = obj.radd(5);
-    log::info!("{}", result);
-}
-"""
+let obj = Derived { value: 10 };
+let result = obj.radd(5);
+log::info!("{}", result);"""
 
 [[test]]
 name = "reflected_both_fail"
@@ -769,11 +721,8 @@ except TypeError as e:
     print(f"TypeError: unsupported operand types")
 """
 rust = """
-fn main() {
-    // Rust's type system prevents this at compile time
-    log::info!("TypeError: unsupported operand types");
-}
-"""
+// Rust's type system prevents this at compile time
+log::info!("TypeError: unsupported operand types");"""
 
 # =============================================================================
 # Use Cases
@@ -825,12 +774,9 @@ impl fmt::Display for Vector {
     }
 }
 
-fn main() {
-    let v = Vector { x: 1, y: 2 };
-    let result = 2 * v;
-    log::info!("{}", result);
-}
-"""
+let v = Vector { x: 1, y: 2 };
+let result = 2 * v;
+log::info!("{}", result);"""
 
 [[test]]
 name = "reflected_format"
@@ -860,14 +806,11 @@ impl fmt::Display for Person {
     }
 }
 
-fn main() {
-    let p = Person {
-        name: "Alice".to_string(),
-    };
-    let result = format!("Hello, {}!", p);
-    log::info!("{}", result);
-}
-"""
+let p = Person {
+    name: "Alice".to_string(),
+};
+let result = format!("Hello, {}!", p);
+log::info!("{}", result);"""
 
 # =============================================================================
 # Edge Cases
@@ -924,13 +867,10 @@ impl fmt::Display for Number {
     }
 }
 
-fn main() {
-    let a = Number { value: 5 };
-    let b = Number { value: 3 };
-    let result = a + b;
-    log::info!("{}", result);
-}
-"""
+let a = Number { value: 5 };
+let b = Number { value: 3 };
+let result = a + b;
+log::info!("{}", result);"""
 
 [[test]]
 name = "reflected_none"

@@ -1,0 +1,9 @@
+  type-inference.toml :: return_type_propagation
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+  pub fn get_length(text: String) -> i32 {
+−     return text.len() as i32;
++     return text.len() as i32 as i32;
+  }
+────────────────────────────────────────────────────────────

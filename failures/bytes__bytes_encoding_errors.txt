@@ -1,0 +1,9 @@
+  bytes.toml :: bytes_encoding_errors
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust handles encoding errors with Result types
+−     let invalid = vec![0xff, 0xfe];
+−     let result_ignore = String::from_utf8_lossy(&invalid);
++ 
+────────────────────────────────────────────────────────────

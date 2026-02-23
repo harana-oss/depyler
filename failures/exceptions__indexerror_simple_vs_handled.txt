@@ -1,0 +1,33 @@
+  exceptions.toml :: indexerror_simple_vs_handled
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn get_first(items: &Vec<i32>) -> i32 {
+−     return items.get(0usize).cloned().unwrap();
++ #[derive(Debug, Clone)]
++ pub struct IndexError {
++     message: String,
++ }
++ impl std::fmt::Display for IndexError {
++     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
++         write!(f, "index out of range: {}", self.message)
++     }
++ }
++ impl std::error::Error for IndexError {}
++ impl IndexError {
++     pub fn new(message: impl Into<String>) -> Self {
++         Self {
++             message: message.into(),
++         }
++     }
++ }
++ pub fn get_first(items: &Vec<i32>) -> Result<i32, IndexError> {
++     return Ok(items.get(0usize).cloned().unwrap());
+  }
+  pub fn safe_get(items: &Vec<i32>, index: i32) -> i32 {
+      return items.get(index as usize).cloned().unwrap_or(-1);
+  }
+− let items = vec![10, 20, 30];
+− log::info!("{}", safe_get(items, 0));
+− log::info!("{}", safe_get(items, 5));
+────────────────────────────────────────────────────────────

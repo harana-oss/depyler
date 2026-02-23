@@ -1,0 +1,11 @@
+  assert-statement.toml :: assert_comparison
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− fn main() {
+−     let x = 10;
+−     assert!(x > 0);
+−     let result = x > 0;
+− }
++ 
+────────────────────────────────────────────────────────────

@@ -1,0 +1,9 @@
+  memoryview.toml :: memoryview_hash
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− let data = b"hello";
+−     let slice = &data[..];
+−     let result = slice.len();
++ 
+────────────────────────────────────────────────────────────

@@ -1,0 +1,27 @@
+  dataclasses-field.toml :: field_none_default
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug)]
+−     struct Config {
+−         timeout: Option<i32>,
+−     }
+− 
+−     impl Default for Config {
+−         fn default() -> Self {
+−             Config { timeout: None }
++ #[derive(Debug, Copy, Clone, PartialEq, Default)]
++ pub struct Config {
++     pub timeout: Option<i32>,
++ }
++ impl Config {
++     pub fn new() -> Self {
++         Self {
++             timeout: Default::default(),
+          }
+      }
+− 
+−     let c = Config::default();
+−     let result = c.timeout.is_none();
++ }
+────────────────────────────────────────────────────────────

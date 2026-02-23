@@ -1,0 +1,10 @@
+  regressions.toml :: method_name_type_keyword
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− pub fn test_type<T>(obj: &T) {
++ use serde_json;
++ pub fn test_type(obj: &serde_json::Value) {
+      return obj.r#type();
+  }
+────────────────────────────────────────────────────────────

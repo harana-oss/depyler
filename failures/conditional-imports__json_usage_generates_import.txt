@@ -1,0 +1,12 @@
+  conditional-imports.toml :: json_usage_generates_import
+    Output mismatch
+
+────────────────────────────────────────────────────────────
++ use serde_json as json;
++ use serde_json;
+  use std::collections::HashMap;
+  pub fn parse_json(s: String) -> HashMap<String, i32> {
+−     return serde_json::from_str(&s).unwrap();
++     return serde_json::from_str::<serde_json::Value>(&s).unwrap();
+  }
+────────────────────────────────────────────────────────────

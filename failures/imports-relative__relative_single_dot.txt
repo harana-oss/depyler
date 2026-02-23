@@ -1,0 +1,9 @@
+  imports-relative.toml :: relative_single_dot
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // from . import sibling
+−     // In Rust: use super::sibling;
+−     let result = true;
++ pub const result: bool = true;
+────────────────────────────────────────────────────────────

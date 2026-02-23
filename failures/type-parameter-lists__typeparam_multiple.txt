@@ -1,0 +1,8 @@
+  type-parameter-lists.toml :: typeparam_multiple
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // def f[K, V](key: K, value: V) -> tuple[K, V]: ...
+−     let result = true; // Placeholder
++ pub const result: bool = true;
+────────────────────────────────────────────────────────────

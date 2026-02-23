@@ -1,0 +1,8 @@
+  match-guards.toml :: same_pattern_diff_guards
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // case x if x > 0: ... case x if x < 0: ...
+−     let result = true; // Placeholder
++ pub const result: bool = true;
+────────────────────────────────────────────────────────────

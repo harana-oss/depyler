@@ -1,0 +1,36 @@
+  ownership.toml :: clone_struct_from_function_used_twice
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− #[derive(Debug, Clone, PartialEq, Default)]
++ #[derive(Debug, Copy, Clone, PartialEq, Default)]
+  pub struct Statistics {
+      pub value: i32,
+  }
+  impl Statistics {
+      pub fn new(value: i32) -> Self {
+          Self { value }
+      }
+  }
+  #[derive(Debug, Clone, PartialEq, Default)]
+  pub struct Player {
+      pub total_statistics: Statistics,
+  }
+  impl Player {
+      pub fn new(total_statistics: Statistics) -> Self {
+          Self { total_statistics }
+      }
+  }
+  pub fn create_statistics() -> Statistics {
+      return Statistics::new(0);
+  }
+  pub fn setup_player() -> Vec<Statistics> {
+      let mut items: Vec<Statistics> = vec![];
+      let mut player = Player::new(Statistics::new(0));
+      let total_statistics = create_statistics();
+−     player.total_statistics = total_statistics.clone();
++     player.total_statistics = total_statistics;
+      items.push(total_statistics);
+      return items;
+  }
+────────────────────────────────────────────────────────────

@@ -1,0 +1,8 @@
+  binary-literals.toml :: negative_literals
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− let result = -0xFF == -255;
++ pub const result: serde_json::Value = -255 == -255;
++ use serde_json;
+────────────────────────────────────────────────────────────

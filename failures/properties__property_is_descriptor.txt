@@ -1,0 +1,19 @@
+  properties.toml :: property_is_descriptor
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // Rust doesn't have descriptors, but methods work similarly
+− log::info!("Has __get__: true");
+− log::info!("Has __set__: true");
+− log::info!("Has __delete__: true");
++ #[derive(Debug, Copy, Clone)]
++ pub struct MyClass {}
++ impl MyClass {
++     pub fn new() -> Self {
++         Self {}
++     }
++     pub fn value(&self) -> i32 {
++         return 42;
++     }
++ }
+────────────────────────────────────────────────────────────

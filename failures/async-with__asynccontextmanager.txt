@@ -1,0 +1,8 @@
+  async-with.toml :: asynccontextmanager
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // from contextlib import asynccontextmanager
+−     let result = true; // Placeholder
++ pub const result: bool = true;
+────────────────────────────────────────────────────────────

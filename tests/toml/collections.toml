@@ -106,7 +106,7 @@ def count_items(lst: list, item: int) -> int:
 rust = '''
 use serde_json;
 pub fn count_items(lst: &Vec<serde_json::Value>, item: i32) -> i32 {
-    return lst.iter().filter(|x| **x == item).count() as i32 as i32;
+    return lst.iter().filter(|x| **x == item).count() as i32;
 }
 '''
 
@@ -304,9 +304,9 @@ rust = '''
 use serde_json;
 use std::collections::HashSet;
 pub fn union_sets(
-    s1: &HashSet<serde_json::Value>,
-    s2: &HashSet<serde_json::Value>,
-) -> HashSet<serde_json::Value> {
+    s1: &HashSet<Point>,
+    s2: &HashSet<Point>,
+) -> HashSet<Point> {
     return s1
         .union(&s2)
         .cloned()
@@ -327,9 +327,9 @@ rust = '''
 use serde_json;
 use std::collections::HashSet;
 pub fn intersect_sets(
-    s1: &HashSet<serde_json::Value>,
-    s2: &HashSet<serde_json::Value>,
-) -> HashSet<serde_json::Value> {
+    s1: &HashSet<Point>,
+    s2: &HashSet<Point>,
+) -> HashSet<Point> {
     return s1
         .intersection(&s2)
         .cloned()
@@ -350,9 +350,9 @@ rust = '''
 use serde_json;
 use std::collections::HashSet;
 pub fn diff_sets(
-    s1: &HashSet<serde_json::Value>,
-    s2: &HashSet<serde_json::Value>,
-) -> HashSet<serde_json::Value> {
+    s1: &HashSet<Point>,
+    s2: &HashSet<Point>,
+) -> HashSet<Point> {
     return s1
         .difference(&s2)
         .cloned()
@@ -373,9 +373,9 @@ rust = '''
 use serde_json;
 use std::collections::HashSet;
 pub fn symmetric_diff(
-    s1: &HashSet<serde_json::Value>,
-    s2: &HashSet<serde_json::Value>,
-) -> HashSet<serde_json::Value> {
+    s1: &HashSet<Point>,
+    s2: &HashSet<Point>,
+) -> HashSet<Point> {
     return s1
         .symmetric_difference(&s2)
         .cloned()
@@ -395,7 +395,7 @@ def is_subset(s1: set, s2: set) -> bool:
 rust = '''
 use serde_json;
 use std::collections::HashSet;
-pub fn is_subset(s1: &HashSet<serde_json::Value>, s2: &HashSet<serde_json::Value>) -> bool {
+pub fn is_subset(s1: &HashSet<Point>, s2: &HashSet<Point>) -> bool {
     return s1.is_subset(&s2);
 }
 '''
@@ -412,7 +412,7 @@ def discard_item(s: set, item: int) -> None:
 rust = '''
 use serde_json;
 use std::collections::HashSet;
-pub fn discard_item(s: &mut HashSet<serde_json::Value>, item: i32) {
+pub fn discard_item(s: &mut HashSet<Point>, item: i32) {
     s.remove(&item);
 }
 '''
@@ -429,7 +429,7 @@ def remove_item(s: set, item: int) -> None:
 rust = '''
 use serde_json;
 use std::collections::HashSet;
-pub fn remove_item(s: &mut HashSet<serde_json::Value>, item: i32) {
+pub fn remove_item(s: &mut HashSet<Point>, item: i32) {
     if !s.remove(&item) {
         panic!("KeyError: element not in set");
     };
@@ -717,7 +717,7 @@ def chain_lists(a: list, b: list) -> list:
 rust = '''
 use itertools::chain;
 use serde_json;
-pub fn chain_lists(a: Vec<serde_json::Value>, b: Vec<serde_json::Value>) -> Vec<serde_json::Value> {
+pub fn chain_lists(a: Vec<serde_json::Value>, b: Vec<serde_json::Value>) -> Vec<i32> {
     return itertools::chain(a, b).into_iter().collect::<Vec<_>>();
 }
 '''
@@ -737,7 +737,7 @@ def cycle_items(items: list, n: int) -> list:
 rust = '''
 use itertools::cycle;
 use serde_json;
-pub fn cycle_items(items: Vec<serde_json::Value>, n: i32) -> Vec<serde_json::Value> {
+pub fn cycle_items(items: Vec<serde_json::Value>, n: i32) -> Vec<i32> {
     let cycler = itertools::cycle(items);
     return (0..n)
         .map(|_| cycler.next().expect("StopIteration: iterator is empty"))
@@ -953,7 +953,7 @@ use serde_json;
 use std::collections::HashMap;
 pub fn convert_to_dict(
     mapping: &serde_json::Value,
-) -> HashMap<serde_json::Value, serde_json::Value> {
+) -> HashMap<String, i32> {
     return mapping.into_iter().collect::<HashMap<_, _>>();
 }
 '''
@@ -970,7 +970,7 @@ def make_empty_dict():
 rust = '''
 use serde_json;
 use std::collections::HashMap;
-pub fn make_empty_dict() -> HashMap<serde_json::Value, serde_json::Value> {
+pub fn make_empty_dict() -> HashMap<String, i32> {
     return HashMap::new();
 }
 '''
@@ -1004,7 +1004,7 @@ def convert_to_list(iterable):
 
 rust = '''
 use serde_json;
-pub fn convert_to_list(iterable: &serde_json::Value) -> Vec<serde_json::Value> {
+pub fn convert_to_list(iterable: &serde_json::Value) -> Vec<i32> {
     return iterable.into_iter().collect::<Vec<_>>();
 }
 '''
@@ -1020,7 +1020,7 @@ def make_empty_list():
 
 rust = '''
 use serde_json;
-pub fn make_empty_list() -> Vec<serde_json::Value> {
+pub fn make_empty_list() -> Vec<i32> {
     return Vec::new();
 }
 '''
@@ -1110,7 +1110,7 @@ def test_dict():
 rust = '''
 use serde_json;
 use std::collections::HashMap;
-pub fn test_dict() -> Vec<serde_json::Value> {
+pub fn test_dict() -> Vec<i32> {
     let d = {
         let mut map = HashMap::new();
         map.insert("a".to_string(), 1);
@@ -1134,7 +1134,7 @@ def test_dict():
 rust = '''
 use serde_json;
 use std::collections::HashMap;
-pub fn test_dict() -> Vec<serde_json::Value> {
+pub fn test_dict() -> Vec<i32> {
     let d = {
         let mut map = HashMap::new();
         map.insert("a".to_string(), 1);
@@ -1350,34 +1350,6 @@ pub struct Player {
 impl Player {
     pub fn new(name: String, score: i32) -> Self {
         Self { name, score }
-    }
-    pub fn _get_field(&self, name: &str) -> Option<Box<dyn std::any::Any>> {
-        match name {
-            "name" => Some(Box::new(self.name.clone()) as Box<dyn std::any::Any>),
-            "score" => Some(Box::new(self.score.clone()) as Box<dyn std::any::Any>),
-            _ => None,
-        }
-    }
-    pub fn _set_field(&mut self, name: &str, value: &dyn std::any::Any) -> bool {
-        match name {
-            "name" => {
-                if let Some(v) = value.downcast_ref::<String>() {
-                    self.name = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            "score" => {
-                if let Some(v) = value.downcast_ref::<i32>() {
-                    self.score = v.clone();
-                    true
-                } else {
-                    false
-                }
-            }
-            _ => false,
-        }
     }
 }
 pub fn find_high_scorer(players: &Vec<Player>) -> i32 {

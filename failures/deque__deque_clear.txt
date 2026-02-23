@@ -1,0 +1,12 @@
+  deque.toml :: deque_clear
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− // d.clear()
+−     use std::collections::VecDeque;
+− 
+−     let mut d = VecDeque::from(vec![1, 2, 3]);
+−     d.clear();
+−     let result = d.len() == 0;
++ use std::collections::VecDeque;
+────────────────────────────────────────────────────────────

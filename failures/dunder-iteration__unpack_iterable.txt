@@ -1,0 +1,32 @@
+  dunder-iteration.toml :: unpack_iterable
+    Output mismatch
+
+────────────────────────────────────────────────────────────
+− struct Triple {
+−     items: [i32; 3],
++ use serde_json;
++ #[derive(Debug, Clone)]
++ pub struct Triple {
++     pub items: Vec<serde_json::Value>,
+  }
+− 
+  impl Triple {
+−     fn new(a: i32, b: i32, c: i32) -> Self {
+−         Triple { items: [a, b, c] }
++     pub fn new(a: serde_json::Value, b: serde_json::Value, c: serde_json::Value) -> Self {
++         Self {
++             items: vec![a, b, c],
++         }
+      }
+− 
+−     fn unpack(&self) -> (i32, i32, i32) {
+−         (self.items[0], self.items[1], self.items[2])
++     pub fn __iter__(&self) {
++         return iter(self.items);
+      }
+  }
+− 
+− let triple = Triple::new(10, 20, 30);
+− let (a, b, c) = triple.unpack();
+− log::info!("{}, {}, {}", a, b, c);
+────────────────────────────────────────────────────────────
