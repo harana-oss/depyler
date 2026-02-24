@@ -1,0 +1,240 @@
+[metadata]
+name = "Random Module DEPYLER_RNG Tests"
+category = "stdlib-random"
+
+# =============================================================================
+# Tests verifying DEPYLER_RNG thread_local generation for random module
+# =============================================================================
+
+[[test]]
+name = "depyler_rng_random_float"
+description = "random.random() generates DEPYLER_RNG thread_local"
+
+python = '''
+import random
+
+def get_random_float() -> float:
+    return random.random()
+'''
+
+rust = '''
+use rand as random;
+use rand::rngs::SmallRng;
+use rand::Rng;
+use rand::SeedableRng;
+thread_local! {
+    static DEPYLER_RNG: std::cell::RefCell<SmallRng>= std::cell::RefCell::new(SmallRng::from_os_rng());
+
+}
+pub fn get_random_float() -> f64 {
+    return DEPYLER_RNG.with(|rng| rng.borrow_mut().gen::<f64>());
+}
+'''
+
+[[test]]
+name = "depyler_rng_randint"
+description = "random.randint() uses DEPYLER_RNG"
+
+python = '''
+import random
+
+def roll_dice() -> int:
+    return random.randint(1, 6)
+'''
+
+rust = '''
+use rand as random;
+use rand::rngs::SmallRng;
+use rand::Rng;
+use rand::SeedableRng;
+thread_local! {
+    static DEPYLER_RNG: std::cell::RefCell<SmallRng>= std::cell::RefCell::new(SmallRng::from_os_rng());
+
+}
+pub fn roll_dice() -> i32 {
+    return DEPYLER_RNG.with(|rng| rng.borrow_mut().gen_range(1..=6));
+}
+'''
+
+[[test]]
+name = "depyler_rng_randrange_stop"
+description = "random.randrange(stop) uses DEPYLER_RNG"
+
+python = '''
+import random
+
+def get_random_below(n: int) -> int:
+    return random.randrange(n)
+'''
+
+rust = '''
+use rand as random;
+use rand::rngs::SmallRng;
+use rand::Rng;
+use rand::SeedableRng;
+thread_local! {
+    static DEPYLER_RNG: std::cell::RefCell<SmallRng>= std::cell::RefCell::new(SmallRng::from_os_rng());
+
+}
+pub fn get_random_below(n: i32) -> i32 {
+    return DEPYLER_RNG.with(|rng| rng.borrow_mut().gen_range(0..n));
+}
+'''
+
+[[test]]
+name = "depyler_rng_randrange_start_stop"
+description = "random.randrange(start, stop) uses DEPYLER_RNG"
+
+python = '''
+import random
+
+def get_random_range(start: int, stop: int) -> int:
+    return random.randrange(start, stop)
+'''
+
+rust = '''
+use rand as random;
+use rand::rngs::SmallRng;
+use rand::Rng;
+use rand::SeedableRng;
+thread_local! {
+    static DEPYLER_RNG: std::cell::RefCell<SmallRng>= std::cell::RefCell::new(SmallRng::from_os_rng());
+
+}
+pub fn get_random_range(start: i32, stop: i32) -> i32 {
+    return DEPYLER_RNG.with(|rng| rng.borrow_mut().gen_range(start..stop));
+}
+'''
+
+[[test]]
+name = "depyler_rng_uniform"
+description = "random.uniform() uses DEPYLER_RNG"
+
+python = '''
+import random
+
+def random_in_range(low: float, high: float) -> float:
+    return random.uniform(low, high)
+'''
+
+rust = '''
+use rand as random;
+use rand::rngs::SmallRng;
+use rand::Rng;
+use rand::SeedableRng;
+thread_local! {
+    static DEPYLER_RNG: std::cell::RefCell<SmallRng>= std::cell::RefCell::new(SmallRng::from_os_rng());
+
+}
+pub fn random_in_range(low: f64, high: f64) -> f64 {
+    return DEPYLER_RNG.with(|rng| rng.borrow_mut().gen_range((low as f64)..=(high as f64)));
+}
+'''
+
+[[test]]
+name = "depyler_rng_choice"
+description = "random.choice() uses DEPYLER_RNG with SliceRandom"
+
+python = '''
+import random
+
+def pick_one(items: list[str]) -> str:
+    return random.choice(items)
+'''
+
+rust = '''
+use rand as random;
+use rand::rngs::SmallRng;
+use rand::Rng;
+use rand::SeedableRng;
+thread_local! {
+    static DEPYLER_RNG: std::cell::RefCell<SmallRng>= std::cell::RefCell::new(SmallRng::from_os_rng());
+
+}
+use rand::seq::SliceRandom;
+pub fn pick_one(items: &Vec<String>) -> String {
+    return DEPYLER_RNG.with(|rng| *items.choose(&mut *rng.borrow_mut()).unwrap());
+}
+'''
+
+[[test]]
+name = "depyler_rng_shuffle"
+description = "random.shuffle() uses DEPYLER_RNG with SliceRandom"
+
+python = '''
+import random
+
+def mix_up(items: list[int]) -> None:
+    random.shuffle(items)
+'''
+
+rust = '''
+use rand as random;
+use rand::rngs::SmallRng;
+use rand::Rng;
+use rand::SeedableRng;
+thread_local! {
+    static DEPYLER_RNG: std::cell::RefCell<SmallRng>= std::cell::RefCell::new(SmallRng::from_os_rng());
+
+}
+use rand::seq::SliceRandom;
+pub fn mix_up(items: &Vec<i32>) {
+    DEPYLER_RNG.with(|rng| items.shuffle(&mut *rng.borrow_mut()));
+}
+'''
+
+[[test]]
+name = "depyler_rng_seed_and_randrange"
+description = "random.seed() + random.randrange() both use DEPYLER_RNG"
+
+python = '''
+import random
+
+def set_seed_and_get(seed: int) -> int:
+    random.seed(seed)
+    return random.randrange(100)
+'''
+
+rust = '''
+use rand as random;
+use rand::rngs::SmallRng;
+use rand::Rng;
+use rand::SeedableRng;
+thread_local! {
+    static DEPYLER_RNG: std::cell::RefCell<SmallRng>= std::cell::RefCell::new(SmallRng::from_os_rng());
+
+}
+pub fn set_seed_and_get(seed: i32) -> i32 {
+    DEPYLER_RNG.with(|rng| *rng.borrow_mut() = SmallRng::seed_from_u64(seed as u64));
+    return DEPYLER_RNG.with(|rng| rng.borrow_mut().gen_range(0..100));
+}
+'''
+
+[[test]]
+name = "depyler_rng_gauss"
+description = "random.gauss() uses DEPYLER_RNG for normal distribution"
+
+python = '''
+import random
+
+def normal_random(mu: float, sigma: float) -> float:
+    return random.gauss(mu, sigma)
+'''
+
+rust = '''
+use rand as random;
+use rand::rngs::SmallRng;
+use rand::Rng;
+use rand::SeedableRng;
+thread_local! {
+    static DEPYLER_RNG: std::cell::RefCell<SmallRng>= std::cell::RefCell::new(SmallRng::from_os_rng());
+
+}
+pub fn normal_random(mu: f64, sigma: f64) -> f64 {
+    return {
+        use rand::distributions::Distribution;
+        let normal = rand_distr::Normal::new(mu as f64, sigma as f64).unwrap();
+        DEPYLER_RNG.with(|rng| normal.sample(&mut *rng.borrow_mut()))
+    };
+}
+'''

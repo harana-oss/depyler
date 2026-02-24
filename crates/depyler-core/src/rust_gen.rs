@@ -974,6 +974,23 @@ fn generate_conditional_imports(ctx: &CodeGenContext) -> Vec<proc_macro2::TokenS
         }
     }
 
+    // SmallRng thread_local for random module
+    if ctx.needs_small_rng {
+        imports.push(quote! { use rand::Rng; });
+        imports.push(quote! { use rand::SeedableRng; });
+        imports.push(quote! { use rand::rngs::SmallRng; });
+        imports.push(quote! {
+            thread_local! {
+                static DEPYLER_RNG: std::cell::RefCell<SmallRng> =
+                    std::cell::RefCell::new(SmallRng::from_os_rng());
+            }
+        });
+    }
+
+    if ctx.needs_slice_random {
+        imports.push(quote! { use rand::seq::SliceRandom; });
+    }
+
     imports
 }
 
