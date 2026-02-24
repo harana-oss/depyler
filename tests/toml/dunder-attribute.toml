@@ -20,8 +20,6 @@ print(obj.anything)
 print(obj.foo)
 """
 rust = """
-// Rust doesn't have dynamic attribute access like Python's __getattr__
-// Closest equivalent is implementing methods or using HashMap
 use std::collections::HashMap;
 
 struct DynamicAttrs {
@@ -170,7 +168,6 @@ obj = TrackedAttrs()
 print(obj.value)
 """
 rust = """
-// Rust doesn't have __getattribute__ - all access is explicit
 struct TrackedAttrs {
     value: i32,
 }
@@ -325,7 +322,6 @@ obj.y = 20
 print(obj.x, obj.y)
 """
 rust = """
-// Rust doesn't have dynamic setattr - use builder pattern or methods
 struct TrackedSets {
     x: Option<i32>,
     y: Option<i32>,
@@ -757,7 +753,6 @@ impl Wrapper {
     }
 }
 
-// Rust uses Deref trait for transparent proxying
 use std::ops::Deref;
 
 impl Deref for Wrapper {
@@ -916,7 +911,6 @@ print(obj.x)
 print(obj.missing)
 """
 rust = """
-// Rust doesn't have __slots__ but structs are fixed-size by default
 struct Slotted {
     x: i32,
 }
@@ -998,8 +992,6 @@ desc = obj.desc
 print(type(desc).__name__)
 """
 rust = """
-// Rust doesn't have Python-style descriptors
-// Use traits or methods instead
 struct Descriptor;
 
 impl Descriptor {

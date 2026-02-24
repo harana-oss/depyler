@@ -19,7 +19,6 @@ result = list(od.keys())
 '''
 
 rust = '''
-    // Using indexmap crate for insertion-order preservation
     use indexmap::IndexMap;
     let mut od = IndexMap::new();
     od.insert("a", 1);
@@ -40,7 +39,6 @@ result = list(od.keys())
 '''
 
 rust = '''
-    // Using indexmap crate for insertion-order preservation
     use indexmap::IndexMap;
     let mut od = IndexMap::new();
     od.insert("a", 1);
@@ -61,7 +59,6 @@ result = list(od.keys())
 '''
 
 rust = '''
-    // Using indexmap crate for insertion-order preservation
     use indexmap::IndexMap;
     let mut od = IndexMap::new();
     od.insert("a", 1);
@@ -86,7 +83,6 @@ result = list(od.keys())
 '''
 
 rust = '''
-    // Using indexmap crate for insertion-order preservation
     use indexmap::IndexMap;
     let mut od = IndexMap::new();
     od.insert("a", 1);
@@ -107,7 +103,6 @@ result = list(od.keys())
 '''
 
 rust = '''
-    // Using indexmap crate for insertion-order preservation
     use indexmap::IndexMap;
     let mut od = IndexMap::new();
     od.insert("a", 1);
@@ -128,7 +123,6 @@ result = list(od.keys())
 '''
 
 rust = '''
-    // Using indexmap crate for insertion-order preservation
     use indexmap::IndexMap;
     let mut od = IndexMap::new();
     od.insert("a", 1);
@@ -154,8 +148,6 @@ result = list(od.keys())
 '''
 
 rust = '''
-// Rust doesn't have built-in OrderedDict
-// Would use indexmap crate
 '''
 
 
@@ -173,8 +165,6 @@ result = list(od.keys())
 '''
 
 rust = '''
-// Rust doesn't have built-in OrderedDict
-// Would use indexmap crate
 '''
 
 
@@ -195,10 +185,6 @@ result = od.popitem()
 '''
 
 rust = '''
-// Using indexmap crate
-// let mut od = IndexMap::new();
-// od.insert("a", 1);
-// let result = od.pop();
 '''
 
 
@@ -215,10 +201,6 @@ result = od.popitem()
 '''
 
 rust = '''
-// Using indexmap crate
-// let mut od = IndexMap::new();
-// od.insert("a", 1);
-// let result = od.pop();
 '''
 
 
@@ -239,7 +221,6 @@ result = list(od.keys())
 '''
 
 rust = '''
-    // Using indexmap crate for insertion-order preservation
     use indexmap::IndexMap;
     let mut od = IndexMap::new();
     od.insert("a", 1);
@@ -260,7 +241,6 @@ result = list(od.keys())
 '''
 
 rust = '''
-    // Using indexmap crate for insertion-order preservation
     use indexmap::IndexMap;
     let mut od = IndexMap::new();
     od.insert("a", 1);
@@ -285,7 +265,6 @@ result = list(od.keys())
 '''
 
 rust = '''
-    // Using indexmap crate for insertion-order preservation
     use indexmap::IndexMap;
     let mut od = IndexMap::new();
     od.insert("a", 1);
@@ -306,7 +285,6 @@ result = list(od.keys())
 '''
 
 rust = '''
-    // Using indexmap crate for insertion-order preservation
     use indexmap::IndexMap;
     let mut od = IndexMap::new();
     od.insert("a", 1);
@@ -331,7 +309,6 @@ result = list(od.keys())
 '''
 
 rust = '''
-    // Using indexmap crate for insertion-order preservation
     use indexmap::IndexMap;
     let mut od = IndexMap::new();
     od.insert("a", 1);
@@ -352,7 +329,6 @@ result = list(od.keys())
 '''
 
 rust = '''
-    // Using indexmap crate for insertion-order preservation
     use indexmap::IndexMap;
     let mut od = IndexMap::new();
     od.insert("a", 1);
@@ -377,7 +353,6 @@ result = list(od.keys())
 '''
 
 rust = '''
-    // Using indexmap crate for insertion-order preservation
     use indexmap::IndexMap;
     let mut od = IndexMap::new();
     od.insert("a", 1);
@@ -398,7 +373,6 @@ result = list(od.keys())
 '''
 
 rust = '''
-    // Using indexmap crate for insertion-order preservation
     use indexmap::IndexMap;
     let mut od = IndexMap::new();
     od.insert("a", 1);
@@ -424,8 +398,6 @@ result = list(od.keys())
 '''
 
 rust = '''
-// Rust doesn't have built-in OrderedDict
-// Would use indexmap crate
 '''
 
 
@@ -446,7 +418,6 @@ result = list(od.keys())
 '''
 
 rust = '''
-    // Using indexmap crate for insertion-order preservation
     use indexmap::IndexMap;
     let mut od = IndexMap::new();
     od.insert("a", 1);
@@ -467,7 +438,6 @@ result = list(od.keys())
 '''
 
 rust = '''
-    // Using indexmap crate for insertion-order preservation
     use indexmap::IndexMap;
     let mut od = IndexMap::new();
     od.insert("a", 1);
@@ -488,7 +458,6 @@ result = list(od.keys())
 '''
 
 rust = '''
-    // Using indexmap crate for insertion-order preservation
     use indexmap::IndexMap;
     let mut od = IndexMap::new();
     od.insert("a", 1);

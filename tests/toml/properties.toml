@@ -183,7 +183,6 @@ impl Circle {
 let c = Circle::new(5.0);
 log::info!("Area: {:.2}", c.area());
 
-// In Rust, there's no setter so this is enforced at compile time
 log::info!("Cannot set read-only property");"""
 
 [[test]]
@@ -377,7 +376,6 @@ p.name = "Bob"
 print(f"Changed: {p.name}")
 """
 rust = """
-// Rust doesn't have property() function, use regular methods
 struct Person {
     name: String,
 }
@@ -596,7 +594,6 @@ print(f"Has __set__: {hasattr(MyClass.value, '__set__')}")
 print(f"Has __delete__: {hasattr(MyClass.value, '__delete__')}")
 """
 rust = """
-// Rust doesn't have descriptors, but methods work similarly
 log::info!("Has __get__: true");
 log::info!("Has __set__: true");
 log::info!("Has __delete__: true");"""
@@ -620,8 +617,6 @@ obj = MyClass()
 print(f"Value: {obj.value}")
 """
 rust = """
-// In Rust, methods are accessed differently
-// This demonstrates the conceptual difference
 log::info!("Type: property");
 log::info!("Value: 42");"""
 
@@ -643,12 +638,9 @@ class MyClass:
 print(f"Docstring: {MyClass.value.__doc__}")
 """
 rust = """
-// Rust uses doc comments for documentation
-/// This is the value property
 struct MyClass;
 
 impl MyClass {
-    /// This is the value property
     fn value(&self) -> i32 {
         42
     }

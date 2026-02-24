@@ -22,7 +22,6 @@ result = expensive(5) == 25
 '''
 
 rust = '''
-    // @cache def f(x): return expensive(x)
     use std::collections::HashMap;
     use std::sync::Mutex;
 
@@ -61,7 +60,6 @@ result = call_count == 1
 '''
 
 rust = '''
-// Same args return cached result
 use std::collections::HashMap;
 use std::sync::Mutex;
 
@@ -106,7 +104,6 @@ result = call_count == 2
 '''
 
 rust = '''
-// Different args compute fresh result
 use std::collections::HashMap;
 use std::sync::Mutex;
 
@@ -149,7 +146,6 @@ result = func(3) == 9
 '''
 
 rust = '''
-    // @lru_cache def f(x): ...
     use lru::LruCache;
     use std::sync::Mutex;
 
@@ -187,7 +183,6 @@ result = func(3) == 9 and func.cache_info().maxsize == 128
 '''
 
 rust = '''
-    // @lru_cache(maxsize=128)
     use lru::LruCache;
     use std::sync::Mutex;
 
@@ -225,7 +220,6 @@ result = func(3) == 9 and func.cache_info().maxsize is None
 '''
 
 rust = '''
-    // @lru_cache(maxsize=None)
     use std::collections::HashMap;
     use std::sync::Mutex;
 
@@ -264,14 +258,13 @@ result = call_count == 2
 '''
 
 rust = '''
-    // @lru_cache(typed=True) distinguishes int/float
     use std::collections::HashMap;
     use std::sync::Mutex;
 
     #[derive(Hash, Eq, PartialEq)]
     enum TypedKey {
         Int(i32),
-        Float(u64), // Using bits representation
+        Float(u64),
     }
 
     lazy_static::lazy_static! {
@@ -304,7 +297,6 @@ result = info.hits == 0 and info.misses == 1
 '''
 
 rust = '''
-    // f.cache_info() returns CacheInfo
     struct CacheInfo {
         hits: usize,
         misses: usize,
@@ -341,7 +333,6 @@ result = info.currsize == 0
 '''
 
 rust = '''
-    // f.cache_clear() empties cache
     use lru::LruCache;
     use std::sync::Mutex;
 
@@ -381,7 +372,6 @@ result = info.hits == 1 and info.misses == 2
 '''
 
 rust = '''
-    // Track hits, misses, size, maxsize
     struct CacheStats {
         hits: usize,
         misses: usize,
@@ -421,7 +411,6 @@ result = obj.expensive_prop == 42
 '''
 
 rust = '''
-    // @cached_property def prop(self): ...
     use once_cell::sync::Lazy;
 
     struct MyClass {
@@ -465,7 +454,6 @@ result = call_count == 1
 '''
 
 rust = '''
-    // Property computed only on first access
     use once_cell::sync::Lazy;
     use std::sync::atomic::{AtomicUsize, Ordering};
 
@@ -515,7 +503,6 @@ result = obj1.prop == 10 and obj2.prop == 20
 '''
 
 rust = '''
-    // Each instance has own cached value
     use once_cell::sync::Lazy;
 
     struct MyClass {
@@ -559,7 +546,6 @@ result = func(5) == 10 and func("hello") == "hellohello"
 '''
 
 rust = '''
-    // Args must be hashable for cache
     use std::collections::HashMap;
     use std::hash::Hash;
 
@@ -596,9 +582,6 @@ except TypeError:
 '''
 
 rust = '''
-    // TypeError with unhashable args
-    // Rust enforces hashability at compile time
-    // Cannot use non-Hash types as cache keys
     let result = true;
 '''
 
@@ -619,7 +602,6 @@ result = func((1, 2, 3)) == 6
 '''
 
 rust = '''
-    // Using wrapper to create hashable key
     use std::collections::HashMap;
 
     fn func(cache: &mut HashMap<Vec<i32>, i32>, x: Vec<i32>) -> i32 {
@@ -653,7 +635,6 @@ result = fib(10) == 55
 '''
 
 rust = '''
-    // Memoized Fibonacci
     use std::collections::HashMap;
 
     fn fib(n: i32, cache: &mut HashMap<i32, i32>) -> i32 {
@@ -690,7 +671,6 @@ result = fetch_data("key123") == "data_for_key123"
 '''
 
 rust = '''
-    // Cache expensive API calls
     use std::collections::HashMap;
     use std::sync::Mutex;
 
@@ -731,7 +711,6 @@ result = analyzer.mean == 3.0
 '''
 
 rust = '''
-    // Cache computed class attribute
     use once_cell::sync::Lazy;
 
     struct DataAnalyzer {
@@ -776,7 +755,6 @@ result = func(5) == 15 and func(5, y=20) == 25
 '''
 
 rust = '''
-    // Keyword args in cache key
     use std::collections::HashMap;
 
     #[derive(Hash, Eq, PartialEq)]
@@ -816,13 +794,12 @@ result = info.currsize == 2
 '''
 
 rust = '''
-    // LRU eviction when maxsize reached
     use lru::LruCache;
 
     let mut cache: LruCache<i32, i32> = LruCache::new(2.try_into().unwrap());
     cache.put(1, 2);
     cache.put(2, 4);
-    cache.put(3, 6); // evicts 1
+    cache.put(3, 6);
     let result = cache.len() == 2;
 '''
 
@@ -848,7 +825,6 @@ result = obj.compute(3) == 15
 '''
 
 rust = '''
-    // @lru_cache on instance method (use @cached_property or wrapper)
     use lru::LruCache;
     use std::sync::Mutex;
 

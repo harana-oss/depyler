@@ -743,8 +743,6 @@ except TypeError:
 '''
 
 rust = '''
-// Rust's type system prevents this at compile time
-// A decorator must return a callable type
 '''
 
 [[test]]

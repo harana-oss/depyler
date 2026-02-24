@@ -824,7 +824,6 @@ rust = '''
     use std::collections::HashSet;
 
     let fs: HashSet<i32> = vec![1, 2, 3].into_iter().collect();
-    // Rust HashSet with immutable binding is also immutable
     let result = fs.contains(&1) && fs.len() == 3;
 '''
 
@@ -909,7 +908,6 @@ result = True
 rust = '''
     use std::collections::HashSet;
 
-    // Rust: Vec is not hashable, use tuples or arrays
     let result: HashSet<(i32, i32)> = vec![(1, 2), (3, 4)].into_iter().collect();
     assert_eq!(result.len(), 2);
     let result = true;

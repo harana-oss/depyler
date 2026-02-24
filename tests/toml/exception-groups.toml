@@ -17,8 +17,6 @@ print(f"Message: {eg.message}")
 print(f"Count: {len(eg.exceptions)}")
 """
 rust = """
-// Rust uses Result and custom error types
-// This demonstrates error aggregation pattern
 
 #[derive(Debug)]
 struct MultiError {
@@ -166,7 +164,6 @@ except* TypeError as eg:
     print(f"Caught TypeError group: {len(eg.exceptions)}")
 """
 rust = """
-// Rust handles this with match on error types
 #[derive(Debug)]
 enum Error {
     ValueError(String),
@@ -363,14 +360,12 @@ let errors = vec![
     Error::TypeError("type".to_string()),
 ];
 
-// Handle ValueError
 for err in &errors {
     if matches!(err, Error::ValueError(_)) {
         log::info!("Handled ValueError");
     }
 }
 
-// TypeError propagates
 for err in &errors {
     if matches!(err, Error::TypeError(_)) {
         log::info!("Caught propagated TypeError");
@@ -531,8 +526,6 @@ eg = BaseExceptionGroup("system errors", [
 print(f"Base group: {len(eg.exceptions)}")
 """
 rust = """
-// Rust doesn't distinguish BaseException vs Exception
-// All errors use Result/panic mechanism
 
 #[derive(Debug)]
 enum SystemError {
@@ -806,8 +799,6 @@ except* ValueError as eg:
     print(f"Caught: {len(eg.exceptions)}")
 """
 rust = """
-// In Rust, we handle single errors normally
-// No need for wrapping in groups
 
 #[derive(Debug)]
 enum Error {
@@ -815,7 +806,6 @@ enum Error {
 }
 
 let error = Error::ValueError("single error".to_string());
-// Treat as single-item group for consistency
 let errors = vec![error];
 log::info!("Caught: {}", errors.len());"""
 expected_output = "Caught: 1"
@@ -838,8 +828,6 @@ result = True
 print(result)
 """
 rust = """
-// Rust uses match arms for error handling
-// Different error types can be handled in separate match arms
 let result = true;
 log::info!("{}", result);"""
 expected_output = "True"

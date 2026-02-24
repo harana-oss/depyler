@@ -281,7 +281,6 @@ result_replace = invalid.decode('utf-8', errors='replace')
 '''
 
 rust = '''
-    // Rust handles encoding errors with Result types
     let invalid = vec![0xff, 0xfe];
     let result_ignore = String::from_utf8_lossy(&invalid);
 '''
@@ -342,7 +341,7 @@ is_int = isinstance(result, int)
 
 rust = '''
     let result = b"hello"[0];
-    let is_int = true; // result is u8
+    let is_int = true;
 '''
 
 [[test]]

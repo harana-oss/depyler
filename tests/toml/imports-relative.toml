@@ -18,8 +18,6 @@ result = True
 '''
 
 rust = '''
-    // from . import sibling
-    // In Rust: use super::sibling;
     let result = true;
 '''
 
@@ -36,8 +34,6 @@ result = True
 '''
 
 rust = '''
-    // from .sibling import func
-    // In Rust: use super::sibling::func;
     let result = true;
 '''
 
@@ -58,8 +54,6 @@ result = True
 '''
 
 rust = '''
-    // from .. import parent_sibling
-    // In Rust: use super::super::parent_sibling;
     let result = true;
 '''
 
@@ -76,8 +70,6 @@ result = True
 '''
 
 rust = '''
-    // from ..sibling import func
-    // In Rust: use super::super::sibling::func;
     let result = true;
 '''
 
@@ -98,8 +90,6 @@ result = True
 '''
 
 rust = '''
-    // from ... import grandparent
-    // In Rust: use super::super::super::grandparent;
     let result = true;
 '''
 
@@ -116,8 +106,6 @@ result = True
 '''
 
 rust = '''
-    // from ....pkg import mod
-    // In Rust: use super::super::super::super::pkg::mod;
     let result = true;
 '''
 
@@ -138,8 +126,6 @@ result = True
 '''
 
 rust = '''
-    // from .sub.mod import item
-    // In Rust: use super::sub::mod::item;
     let result = true;
 '''
 
@@ -156,8 +142,6 @@ result = True
 '''
 
 rust = '''
-    // from ..other.sub import item
-    // In Rust: use super::super::other::sub::item;
     let result = true;
 '''
 
@@ -198,8 +182,6 @@ result = True
 '''
 
 rust = '''
-    // from .mod import func to re-export
-    // In Rust: pub use super::mod::func;
     let result = true;
 '''
 
@@ -221,9 +203,6 @@ result = True
 '''
 
 rust = '''
-    // from . import x vs import x
-    // use super::x; - relative
-    // use x; or use crate::x; - absolute
     let result = true;
 '''
 
@@ -240,8 +219,6 @@ result = True
 '''
 
 rust = '''
-    // import pkg (absolute)
-    // In Rust: use crate::pkg; or use pkg;
     let result = true;
 '''
 
@@ -262,8 +239,6 @@ result = True
 '''
 
 rust = '''
-    // from ... in top-level raises
-    // In Rust: This would be a compile error
     let result = true;
 '''
 
@@ -304,8 +279,6 @@ result = True
 '''
 
 rust = '''
-    // from . import *
-    // In Rust: use super::*; (imports all public items)
     let result = true;
 '''
 
@@ -322,8 +295,6 @@ result = True
 '''
 
 rust = '''
-    // from . import mod as m
-    // In Rust: use super::mod as m;
     let result = true;
 '''
 
@@ -340,8 +311,6 @@ result = True
 '''
 
 rust = '''
-    // Circular relative imports
-    // In Rust: Circular dependencies cause compile errors
     let result = true;
 '''
 

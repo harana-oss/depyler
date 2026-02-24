@@ -135,7 +135,6 @@ except AttributeError:
     print("no __dict__")
 """
 rust = """
-// Rust structs never have dynamic attributes
 struct Point {
     x: i32,
     y: i32,
@@ -194,14 +193,12 @@ except AttributeError:
     print("AttributeError")
 """
 rust = """
-// Rust prevents this at compile time
 struct Point {
     x: i32,
     y: i32,
 }
 
 let _p = Point { x: 1, y: 2 };
-// p.z = 3;  // Would not compile
 log::info!("AttributeError");"""
 
 [[test]]

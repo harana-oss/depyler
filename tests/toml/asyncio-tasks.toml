@@ -774,7 +774,6 @@ print(result)
 rust = '''
 #[tokio::main]
 async fn main() {
-    // Producer-consumer pattern with Vec
     let mut items: Vec<i32> = Vec::new();
     items.push(42);
     let value = items.remove(0);
@@ -838,7 +837,6 @@ print(result)
 rust = '''
 #[tokio::main]
 async fn main() {
-    // Tokio runtimes are isolated
     let result = 42;
     log::info!("{}", result);
 }

@@ -19,7 +19,6 @@ result = len(d) == 0
 '''
 
 rust = '''
-    // deque()
     use std::collections::VecDeque;
 
     let d: VecDeque<i32> = VecDeque::new();
@@ -40,7 +39,6 @@ result = list(d) == [1, 2, 3]
 '''
 
 rust = '''
-    // deque([1, 2, 3])
     use std::collections::VecDeque;
 
     let d: VecDeque<i32> = VecDeque::from(vec![1, 2, 3]);
@@ -61,7 +59,6 @@ result = d.maxlen == 3
 '''
 
 rust = '''
-    // deque(maxlen=3)
     use std::collections::VecDeque;
 
     struct BoundedDeque<T> {
@@ -95,7 +92,6 @@ result = list(d) == [1, 2, 3]
 '''
 
 rust = '''
-    // d.append(x)
     use std::collections::VecDeque;
 
     let mut d = VecDeque::from(vec![1, 2]);
@@ -118,7 +114,6 @@ result = list(d) == [1, 2, 3]
 '''
 
 rust = '''
-    // d.appendleft(x)
     use std::collections::VecDeque;
 
     let mut d = VecDeque::from(vec![2, 3]);
@@ -141,7 +136,6 @@ result = list(d) == [0, 1, 2, 3]
 '''
 
 rust = '''
-    // d.extend([1, 2, 3])
     use std::collections::VecDeque;
 
     let mut d = VecDeque::from(vec![0]);
@@ -164,7 +158,6 @@ result = list(d) == [3, 2, 1, 4]
 '''
 
 rust = '''
-    // d.extendleft([1, 2, 3]) # reversed
     use std::collections::VecDeque;
 
     let mut d = VecDeque::from(vec![4]);
@@ -189,7 +182,6 @@ result = list(d) == [1, 2, 3]
 '''
 
 rust = '''
-    // d.insert(i, x)
     use std::collections::VecDeque;
 
     let mut d = VecDeque::from(vec![1, 3]);
@@ -216,7 +208,6 @@ result = x == 3 and list(d) == [1, 2]
 '''
 
 rust = '''
-    // d.pop()
     use std::collections::VecDeque;
 
     let mut d = VecDeque::from(vec![1, 2, 3]);
@@ -239,7 +230,6 @@ result = x == 1 and list(d) == [2, 3]
 '''
 
 rust = '''
-    // d.popleft()
     use std::collections::VecDeque;
 
     let mut d = VecDeque::from(vec![1, 2, 3]);
@@ -262,7 +252,6 @@ result = list(d) == [1, 3, 2]
 '''
 
 rust = '''
-    // d.remove(x)
     use std::collections::VecDeque;
 
     let mut d = VecDeque::from(vec![1, 2, 3, 2]);
@@ -287,7 +276,6 @@ result = len(d) == 0
 '''
 
 rust = '''
-    // d.clear()
     use std::collections::VecDeque;
 
     let mut d = VecDeque::from(vec![1, 2, 3]);
@@ -314,7 +302,6 @@ result = list(d) == [3, 1, 2]
 '''
 
 rust = '''
-    // d.rotate(1)
     use std::collections::VecDeque;
 
     let mut d = VecDeque::from(vec![1, 2, 3]);
@@ -339,7 +326,6 @@ result = list(d) == [2, 3, 1]
 '''
 
 rust = '''
-    // d.rotate(-1)
     use std::collections::VecDeque;
 
     let mut d = VecDeque::from(vec![1, 2, 3]);
@@ -364,7 +350,6 @@ result = list(d) == [3, 4, 5, 1, 2]
 '''
 
 rust = '''
-    // d.rotate(3)
     use std::collections::VecDeque;
 
     let mut d = VecDeque::from(vec![1, 2, 3, 4, 5]);
@@ -390,7 +375,6 @@ result = d[0] == 1 and d[-1] == 3
 '''
 
 rust = '''
-    // d[0], d[-1]
     use std::collections::VecDeque;
 
     let d = VecDeque::from(vec![1, 2, 3]);
@@ -411,7 +395,6 @@ result = d.index(2) == 1
 '''
 
 rust = '''
-    // d.index(x)
     use std::collections::VecDeque;
 
     let d = VecDeque::from(vec![1, 2, 3, 2]);
@@ -432,7 +415,6 @@ result = d.count(2) == 3
 '''
 
 rust = '''
-    // d.count(x)
     use std::collections::VecDeque;
 
     let d = VecDeque::from(vec![1, 2, 3, 2, 2]);
@@ -458,7 +440,6 @@ result = list(d) == [2, 3, 4]
 '''
 
 rust = '''
-    // append to full deque drops left
     use std::collections::VecDeque;
 
     let mut d = VecDeque::from(vec![1, 2, 3]);
@@ -485,7 +466,6 @@ result = list(d) == [0, 1, 2]
 '''
 
 rust = '''
-    // appendleft to full drops right
     use std::collections::VecDeque;
 
     let mut d = VecDeque::from(vec![1, 2, 3]);
@@ -512,7 +492,6 @@ result = d1.maxlen == 5 and d2.maxlen is None
 '''
 
 rust = '''
-    // d.maxlen
     struct BoundedDeque<T> {
         deque: std::collections::VecDeque<T>,
         maxlen: Option<usize>,
@@ -548,7 +527,6 @@ result = list(d) == [3, 2, 1]
 '''
 
 rust = '''
-    // d.reverse()
     use std::collections::VecDeque;
 
     let mut d = VecDeque::from(vec![1, 2, 3]);
@@ -572,7 +550,6 @@ result = list(d2) == [1, 2, 3] and d1 is not d2
 '''
 
 rust = '''
-    // d.copy()
     use std::collections::VecDeque;
 
     let d1 = VecDeque::from(vec![1, 2, 3]);
@@ -594,7 +571,6 @@ result = 2 in d and 4 not in d
 '''
 
 rust = '''
-    // x in d
     use std::collections::VecDeque;
 
     let d = VecDeque::from(vec![1, 2, 3]);
@@ -615,7 +591,6 @@ result = len(d) == 3
 '''
 
 rust = '''
-    // len(d)
     use std::collections::VecDeque;
 
     let d = VecDeque::from(vec![1, 2, 3]);
@@ -642,7 +617,6 @@ result = queue.popleft() == 1 and queue.popleft() == 2
 '''
 
 rust = '''
-    // append right, popleft
     use std::collections::VecDeque;
 
     let mut queue = VecDeque::new();
@@ -667,7 +641,6 @@ result = stack.pop() == 2 and stack.pop() == 1
 '''
 
 rust = '''
-    // append right, pop right
     use std::collections::VecDeque;
 
     let mut stack = VecDeque::new();
@@ -692,7 +665,6 @@ result = list(window) == [2, 3, 4]
 '''
 
 rust = '''
-    // maxlen for fixed-size window
     use std::collections::VecDeque;
 
     let mut window = VecDeque::new();
@@ -727,7 +699,6 @@ result = sum_val == 6
 '''
 
 rust = '''
-    // for x in d: ...
     use std::collections::VecDeque;
 
     let d = VecDeque::from(vec![1, 2, 3]);
@@ -752,7 +723,6 @@ result = list(reversed(d)) == [3, 2, 1]
 '''
 
 rust = '''
-    // reversed(d)
     use std::collections::VecDeque;
 
     let d = VecDeque::from(vec![1, 2, 3]);
@@ -775,7 +745,6 @@ result = d1 == d2 and d1 != d3
 '''
 
 rust = '''
-    // deque([1,2]) == deque([1,2])
     use std::collections::VecDeque;
 
     let d1 = VecDeque::from(vec![1, 2]);

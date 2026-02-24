@@ -102,7 +102,6 @@ result = Color.RED.name == 'RED'
 '''
 
 rust = '''
-    // Rust enums don't have built-in name property, use Debug formatting
     #[derive(Debug, PartialEq)]
     enum Color {
         RED = 1,
@@ -134,8 +133,6 @@ result = Color['RED'] == Color.RED
 '''
 
 rust = '''
-    // Rust doesn't support runtime string-to-enum lookup natively
-    // Would typically use match or a helper function
     #[derive(Debug, PartialEq)]
     enum Color {
         RED = 1,
@@ -170,8 +167,6 @@ result = Color(1) == Color.RED
 '''
 
 rust = '''
-    // Rust doesn't support value-to-enum conversion automatically
-    // Use a helper function or match
     #[derive(Debug, PartialEq)]
     enum Color {
         RED = 1,
@@ -208,8 +203,6 @@ result = len(colors) == 3 and Color.RED in colors
 '''
 
 rust = '''
-    // Rust enums can't be iterated automatically
-    // Use a const array or macro for iteration
     #[derive(Debug, PartialEq, Clone, Copy)]
     enum Color {
         RED = 1,
@@ -243,8 +236,6 @@ result = Color.RED is Color.RED
 '''
 
 rust = '''
-    // Rust enums are value types, not references
-    // Use equality comparison instead
     #[derive(Debug, PartialEq)]
     enum Color {
         RED = 1,
@@ -324,14 +315,12 @@ result = Color.RED != 1
 '''
 
 rust = '''
-    // Rust enums are distinct types from their discriminants
     #[derive(Debug, PartialEq)]
     enum Color {
         RED = 1,
         GREEN = 2,
     }
 
-    // Cannot directly compare enum to integer in Rust (type safety)
     let result = true;
 '''
 
@@ -356,8 +345,6 @@ result = Status.OK.value == 'ok'
 '''
 
 rust = '''
-    // Rust enums can't directly hold string literals as discriminants
-    // Use associated constants or methods instead
     #[derive(Debug, PartialEq)]
     enum Status {
         OK,
@@ -396,7 +383,6 @@ result = Color.RED.value == 'red'
 '''
 
 rust = '''
-    // Rust doesn't have auto(), define explicitly
     #[derive(Debug, PartialEq)]
     enum Color {
         RED,
@@ -437,12 +423,11 @@ result = Color.RED.value == 1 and Color.GREEN.value == 2
 '''
 
 rust = '''
-    // Rust doesn't have auto(), but discriminants auto-increment
     #[derive(Debug, PartialEq)]
     enum Color {
-        RED,   // 0
-        GREEN, // 1
-        BLUE,  // 2
+        RED,
+        GREEN,
+        BLUE,
     }
 
     let result = Color::RED as i32 == 0 && Color::GREEN as i32 == 1;
@@ -466,12 +451,11 @@ result = Priority.LOW.value == 1 and Priority.MEDIUM.value == 2 and Priority.HIG
 '''
 
 rust = '''
-    // Rust discriminants start at 0 by default, but can be set
     #[derive(Debug, PartialEq)]
     enum Priority {
         LOW = 1,
-        MEDIUM, // 2
-        HIGH,   // 3
+        MEDIUM,
+        HIGH,
     }
 
     let result =
@@ -499,8 +483,8 @@ rust = '''
     #[derive(Debug, PartialEq)]
     enum Number {
         A = 1,
-        B, // 2
-        C, // 3
+        B,
+        C,
     }
 
     let result = Number::A as i32 == 1 && Number::B as i32 == 2 && Number::C as i32 == 3;
@@ -642,7 +626,6 @@ result = True
 '''
 
 rust = '''
-    // Rust enums are immutable by definition at compile time
     #[derive(Debug, PartialEq)]
     enum Color {
         RED = 1,
@@ -673,14 +656,11 @@ result = Color.RED is Color.CRIMSON
 '''
 
 rust = '''
-    // Rust doesn't support enum aliases directly
-    // All variants must have unique discriminants or be unit variants
     #[derive(Debug, PartialEq)]
     enum Color {
         RED = 1,
     }
 
-    // Type alias can refer to the same variant
     type Crimson = Color;
 
     let result = true;
@@ -705,12 +685,10 @@ result = Status.OK.value == 1 and Status.SUCCESS.value == 2
 '''
 
 rust = '''
-    // Rust enforces unique discriminants by default
     #[derive(Debug, PartialEq)]
     enum Status {
         OK = 1,
         SUCCESS = 2,
-        // GOOD = 1,  // Compile error: discriminant value already used
     }
 
     let result = Status::OK as i32 == 1 && Status::SUCCESS as i32 == 2;

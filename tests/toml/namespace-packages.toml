@@ -37,8 +37,7 @@ result = True  # Placeholder
 '''
 
 rust = '''
-    // import namespace_pkg
-    let result = true; // Placeholder
+    let result = true;
 '''
 
 
@@ -77,8 +76,7 @@ result = True  # Placeholder
 '''
 
 rust = '''
-    // Package split across directories
-    let result = true; // Placeholder
+    let result = true;
 '''
 
 
@@ -93,8 +91,7 @@ result = True  # Placeholder
 '''
 
 rust = '''
-    // First in sys.path found first
-    let result = true; // Placeholder
+    let result = true;
 '''
 
 
@@ -109,8 +106,7 @@ result = True  # Placeholder
 '''
 
 rust = '''
-    // Submodules from different locations
-    let result = true; // Placeholder
+    let result = true;
 '''
 
 
@@ -193,8 +189,7 @@ result = True  # Placeholder
 '''
 
 rust = '''
-    // Namespace for plugins
-    let result = true; // Placeholder
+    let result = true;
 '''
 
 
@@ -209,8 +204,7 @@ result = True  # Placeholder
 '''
 
 rust = '''
-    // Find all submodules in namespace
-    let result = true; // Placeholder
+    let result = true;
 '''
 
 
@@ -225,8 +219,7 @@ result = True  # Placeholder
 '''
 
 rust = '''
-    // Install adds to namespace
-    let result = true; // Placeholder
+    let result = true;
 '''
 
 
@@ -245,8 +238,7 @@ result = True  # Placeholder
 '''
 
 rust = '''
-    // Nested namespace packages
-    let result = true; // Placeholder
+    let result = true;
 '''
 
 
@@ -261,8 +253,7 @@ result = True  # Placeholder
 '''
 
 rust = '''
-    // Some levels namespace, some regular
-    let result = true; // Placeholder
+    let result = true;
 '''
 
 
@@ -301,8 +292,7 @@ result = True  # Placeholder
 '''
 
 rust = '''
-    // pkg_resources.declare_namespace
-    let result = true; // Placeholder
+    let result = true;
 '''
 
 
@@ -321,8 +311,7 @@ result = True  # Placeholder
 '''
 
 rust = '''
-    // NamespaceLoader
-    let result = true; // Placeholder
+    let result = true;
 '''
 
 
@@ -337,8 +326,7 @@ result = True  # Placeholder
 '''
 
 rust = '''
-    // ModuleSpec for namespace
-    let result = true; // Placeholder
+    let result = true;
 '''
 
 
@@ -357,8 +345,7 @@ result = True  # Placeholder
 '''
 
 rust = '''
-    // Namespace with no submodules
-    let result = true; // Placeholder
+    let result = true;
 '''
 
 
@@ -373,8 +360,7 @@ result = True  # Placeholder
 '''
 
 rust = '''
-    // Directory namespace vs .py file
-    let result = true; // Placeholder
+    let result = true;
 '''
 
 
@@ -389,7 +375,6 @@ result = True  # Placeholder
 '''
 
 rust = '''
-    // Namespace in zip file
-    let result = true; // Placeholder
+    let result = true;
 '''
 

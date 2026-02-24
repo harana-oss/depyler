@@ -23,7 +23,6 @@ import asyncio
 print(asyncio.run(test()))
 """
 rust = """
-// Async comprehensions map to stream collectors
 use futures::stream::{self, StreamExt};
 
 #[tokio::main]
@@ -493,10 +492,9 @@ rust = """
 use futures::stream::{self, StreamExt};
 
 #[tokio::main]
-async // Eager collection
+async
 let list_comp: Vec<i32> = stream::iter(0..5).collect().await;
 
-// Lazy stream
 let gen_expr = stream::iter(0..5);
 let gen_result: Vec<i32> = gen_expr.collect().await;
 

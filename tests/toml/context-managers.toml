@@ -62,8 +62,7 @@ rust = '''
         let content = f.read();
         assert_eq!(content, "content");
         assert!(!f.closed);
-    } // Drop called here
-    // assert!(f.closed); // f no longer in scope
+    }
 '''
 
 [[test]]
@@ -117,7 +116,7 @@ rust = '''
     {
         lock.acquire();
         assert!(lock.locked);
-    } // Drop called, releases lock
+    }
     assert!(!lock.locked);
 '''
 
@@ -277,9 +276,7 @@ rust = '''
     let mut r = Resource::new();
     assert!(!r.cleanup_called);
     {
-        // Resource used here
-    } // Drop called
-    // assert!(r.cleanup_called); // r moved/dropped
+    }
 '''
 
 [[test]]
@@ -356,7 +353,7 @@ rust = '''
     {
         let mut obs = Observer::new();
         let x = 1 + 1;
-    } // Drop called on success
+    }
 '''
 
 [[test]]
@@ -384,7 +381,6 @@ except ValueError:
 assert logger.exc_type == ValueError
 '''
 rust = '''
-    // Rust uses Result for explicit error handling
     struct ExceptionLogger {
         exc_occurred: bool,
     }
@@ -427,17 +423,15 @@ with Suppressor():
 # No exception propagated
 '''
 rust = '''
-// Rust doesn't have exception suppression; use Result
 fn with_suppressor<F>(f: F) 
 where F: FnOnce() -> Result<(), String>
 {
-    let _ = f(); // Ignore error
+    let _ = f();
 }
 
 with_suppressor(|| {
     Err("This will be suppressed".to_string())
 });
-// Error suppressed by ignoring Result
 '''
 
 [[test]]
@@ -461,12 +455,11 @@ except ValueError:
 assert caught
 '''
 rust = '''
-    // Rust propagates errors explicitly with Result
     fn with_propagator<F>(f: F) -> Result<(), String>
     where
         F: FnOnce() -> Result<(), String>,
     {
-        f() // Propagate error with ?
+        f()
     }
 
     let result = with_propagator(|| Err("This will propagate".to_string()));
@@ -543,7 +536,7 @@ rust = '''
         assert!(db.connected);
         let result = db.query();
         assert_eq!(result, "result");
-    } // Drop called
+    }
     assert!(!db.connected);
 '''
 
@@ -713,8 +706,6 @@ rust = '''
     use std::fs::File;
     use std::io::Write;
 
-    // In Rust, File implements Drop automatically
-    // Conceptual example
     struct MockFile {
         name: String,
         closed: bool,
@@ -743,7 +734,7 @@ rust = '''
         let mut f = MockFile::new("output.txt");
         f.write("data");
         assert!(!f.closed);
-    } // Drop called
+    }
 '''
 
 [[test]]
@@ -772,12 +763,11 @@ assert not lock.locked
 rust = '''
     use std::sync::Mutex;
 
-    // Rust's Mutex guard is a context manager
     let data = Mutex::new(0);
     {
         let mut guard = data.lock().unwrap();
         *guard = 42;
-    } // MutexGuard dropped, lock released
+    }
 '''
 
 [[test]]
@@ -840,7 +830,6 @@ rust = '''
         }
     }
 
-    // Success case
     let mut txn1 = Transaction::new();
     let result1: Result<(), ()> = Ok(());
     if result1.is_ok() {
@@ -849,7 +838,6 @@ rust = '''
     assert!(txn1.committed);
     assert!(!txn1.rolled_back);
 
-    // Failure case
     let mut txn2 = Transaction::new();
     let result2: Result<(), String> = Err("error".to_string());
     if result2.is_err() {
@@ -943,7 +931,6 @@ except ValueError:
 assert not cm.exit_called  # __exit__ not called
 '''
 rust = '''
-    // Rust: Drop not called if constructor fails
     struct Resource {
         dropped: bool,
     }
@@ -962,7 +949,6 @@ rust = '''
 
     let result = Resource::new();
     assert!(result.is_err());
-    // Drop not called because resource was never created
 '''
 
 [[test]]
@@ -986,8 +972,6 @@ except RuntimeError as e:
 assert str(caught) == "Exit error"  # Exit exception masks body exception
 '''
 rust = '''
-    // Rust: panicking in Drop is problematic
-    // This is a conceptual example showing error handling
 
     fn cleanup_that_fails() -> Result<(), String> {
         Err("Cleanup failed".to_string())
@@ -996,8 +980,6 @@ rust = '''
     let body_error: Result<(), String> = Err("Body error".to_string());
     let cleanup_error = cleanup_that_fails();
 
-    // In practice, handle both errors carefully
-    // Cleanup error would typically be prioritized
     assert!(cleanup_error.is_err());
 '''
 
@@ -1029,7 +1011,6 @@ assert result == "early"
 assert tracker.exit_called  # __exit__ still called
 '''
 rust = '''
-    // Rust: Drop still called on early return
     struct Tracker {
         exit_called: bool,
     }
@@ -1042,15 +1023,12 @@ rust = '''
 
     impl Drop for Tracker {
         fn drop(&mut self) {
-            // In real code, would use RefCell or similar to track
-            // Conceptual example
         }
     }
 
     fn func() -> String {
         let _tracker = Tracker::new();
-        return "early".to_string(); // Drop still called
-        // "late".to_string()
+        return "early".to_string();
     }
 
     let result = func();
@@ -1084,7 +1062,6 @@ assert counter.enter_count == 3  # Entered 0, 1, 2
 assert counter.exit_count == 3   # Exited all 3 times
 '''
 rust = '''
-    // Rust: Drop called even with break
     struct Counter {
         enter_count: i32,
         exit_count: i32,
@@ -1122,7 +1099,6 @@ rust = '''
         if i == 2 {
             break;
         }
-        // Guard dropped here in each iteration
     }
     assert_eq!(counter.enter_count, 3);
     assert_eq!(counter.exit_count, 3);

@@ -365,7 +365,6 @@ def multi_assign():
 '''
 
 rust = '''
-// Transpilation failed
 '''
 
 [[test]]

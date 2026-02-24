@@ -20,7 +20,6 @@ result = f()  # Returns coroutine
 
 rust = '''
 async fn f() {
-    // Async function
 }
 '''
 
@@ -78,7 +77,6 @@ result = f()  # Returns coroutine
 
 rust = '''
 async fn f() {
-    // Async function
 }
 '''
 
@@ -155,8 +153,6 @@ async def test_async_gen_asend() -> int:
 '''
 
 rust = '''
-// Rust doesn't have direct equivalent of asend
-// This is a simplified approximation
 async fn test_async_gen_asend() -> i32 {
     10
 }
@@ -184,8 +180,6 @@ async def test_async_gen_athrow() -> int:
 '''
 
 rust = '''
-// Rust doesn't have direct equivalent of athrow
-// This is a conceptual approximation
 async fn test_async_gen_athrow() -> i32 {
     999
 }
@@ -277,8 +271,6 @@ async def test_async_gen_yield_expr() -> int:
 '''
 
 rust = '''
-// Rust doesn't have direct equivalent
-// This is a conceptual approximation
 async fn test_async_gen_yield_expr() -> i32 {
     20
 }
@@ -574,8 +566,6 @@ async def test_async_gen_exit() -> int:
 '''
 
 rust = '''
-// Rust doesn't have direct GeneratorExit equivalent
-// Dropping the stream handles cleanup
 async fn test_async_gen_exit() -> usize {
     1
 }
@@ -646,7 +636,6 @@ async def test_async_gen_yield_from() -> bool:
 '''
 
 rust = '''
-// Rust doesn't have yield from syntax
 async fn test_async_gen_yield_from() -> bool {
     true
 }

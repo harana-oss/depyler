@@ -202,7 +202,6 @@ match value:
 '''
 
 rust = '''
-    // case (1 | 2 | 3) as num: capture which matched
     let value = 2;
     let result = match value {
         num @ (1 | 2 | 3) => num == 2,
@@ -226,7 +225,6 @@ match response:
 '''
 
 rust = '''
-    // case ('yes' | 'y') as answer: ...
     let response = "yes";
     let result = match response {
         answer @ ("yes" | "y") => answer == "yes",
@@ -259,7 +257,6 @@ match value:
 '''
 
 rust = '''
-    // case (Point(x, y) as p1, Point(a, b) as p2): ...
     #[derive(Debug)]
     struct Point {
         x: i32,
@@ -289,7 +286,6 @@ match value:
 '''
 
 rust = '''
-    // case [first as f, *rest]: ...
     let value = vec![1, 2, 3, 4];
     let result = match value.as_slice() {
         [f @ first, rest @ ..] => *f == 1 && rest == &[2, 3, 4],
@@ -317,7 +313,6 @@ match value:
 '''
 
 rust = '''
-    // Access both parts and whole
     let value = (10, 20);
     let result = match value {
         whole @ (x, y) => x == 10 && y == 20 && whole == (10, 20),
@@ -344,7 +339,6 @@ match value:
 '''
 
 rust = '''
-    // case x as whole if validate(whole): ...
     fn validate(x: i32) -> bool {
         x > 0
     }
@@ -372,7 +366,6 @@ match value:
 '''
 
 rust = '''
-    // Extract nested while keeping container
     use std::collections::HashMap;
 
     let mut user_data = HashMap::new();
@@ -414,7 +407,6 @@ match value:
 '''
 
 rust = '''
-    // case [x, y] as point if is_valid(point): ...
     fn is_valid(point: &[i32; 2]) -> bool {
         point[0] > 0 && point[1] > 0
     }
@@ -442,7 +434,6 @@ match value:
 '''
 
 rust = '''
-    // Guard uses both destructured and whole
     let value = (3, 4);
     let result = match value {
         point @ (x, y) if x + y == point.0 + point.1 => x == 3 && y == 4,
@@ -468,7 +459,6 @@ match value:
 '''
 
 rust = '''
-    // case _ as x: capture anything
     let value = 42;
     let result = match value {
         x @ _ => x == 42,
@@ -492,7 +482,6 @@ match value:
 '''
 
 rust = '''
-    // Nested @ patterns in Rust
     let value = vec![1, 2];
     let result = match value.as_slice() {
         whole @ [a, b] => whole == &[1, 2] && *a == 1 && *b == 2,
@@ -516,7 +505,6 @@ match value:
 '''
 
 rust = '''
-    // as bindings available in guard and body
     let value = vec![1, 2, 3];
     let result = match value.as_slice() {
         lst @ [items @ ..] if lst.len() > 0 => items.len() == 3 && lst == &[1, 2, 3],
@@ -539,7 +527,6 @@ match value:
 '''
 
 rust = '''
-    // Simple capture pattern
     let value = 42;
     let result = match value {
         x => x == 42,

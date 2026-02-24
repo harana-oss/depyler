@@ -18,17 +18,6 @@ print(obj.x)
 print(obj.method())
 """
 rust = """
-// Dynamic type() creation is not supported in Rust
-// Use static struct definitions instead:
-//
-// struct MyClass {
-//     x: i32,
-// }
-//
-// impl MyClass {
-//     fn new() -> Self { MyClass { x: 10 } }
-//     fn method(&self) -> i32 { self.x * 2 }
-// }
 """
 
 [[test]]
@@ -49,8 +38,6 @@ print(hasattr(obj, 'added_by_meta'))
 print(obj.added_by_meta)
 """
 rust = """
-// In Rust, we use derive macros or traits for similar behavior
-// The #[derive(AddMeta)] macro would add the attribute
 
 struct MyClass {
     added_by_meta: bool,
@@ -65,7 +52,7 @@ impl Default for MyClass {
 }
 
 let obj = MyClass::default();
-log::info!("{}", true); // hasattr equivalent
+log::info!("{}", true);
 log::info!("{}", obj.added_by_meta);"""
 expected_output = """true
 true"""
@@ -90,15 +77,13 @@ print(hasattr(MyClass, 'X'))
 print(MyClass.X)
 """
 rust = """
-// In Rust, attribute transformation happens at compile-time via macros
-// We simulate with explicit uppercase constant
 struct MyClass;
 
 impl MyClass {
-    const X: i32 = 10; // Uppercase by convention
+    const X: i32 = 10;
 }
 
-log::info!("{}", true); // MyClass has X
+log::info!("{}", true);
 log::info!("{}", MyClass::X);"""
 expected_output = """true
 10"""
@@ -129,7 +114,6 @@ class B(metaclass=TrackedMeta):
 print(TrackedMeta._classes)
 """
 rust = """
-// In Rust, we use a static registry for class tracking
 use std::sync::Mutex;
 
 static TRACKED_CLASSES: Mutex<Vec<&str>> = Mutex::new(Vec::new());
@@ -163,7 +147,6 @@ class MyClass(metaclass=InitMeta):
 print(MyClass.initialized)
 """
 rust = """
-// In Rust, initialization happens at compile time
 struct MyClass;
 
 impl MyClass {
@@ -195,7 +178,6 @@ obj = MyClass(42)
 print(obj.x)
 """
 rust = """
-// In Rust, we control instantiation via factory functions
 struct MyClass {
     x: i32,
 }
@@ -240,7 +222,6 @@ class MyClass(metaclass=OrderedMeta):
 print([k for k in MyClass._ordered_keys if not k.startswith('__')])
 """
 rust = """
-// In Rust, field order is guaranteed in structs
 struct MyClass;
 
 impl MyClass {
@@ -280,7 +261,6 @@ print(db1 is db2)
 print(db1.connection)
 """
 rust = """
-// In Rust, we use OnceCell or lazy_static for singleton
 use std::sync::OnceLock;
 
 static DATABASE: OnceLock<Database> = OnceLock::new();
@@ -330,7 +310,6 @@ class PluginB(Base):
 print(sorted(RegistryMeta.registry.keys()))
 """
 rust = """
-// In Rust, we use the inventory crate or a manual registry
 use std::collections::HashMap;
 use std::sync::Mutex;
 
@@ -374,7 +353,6 @@ print(obj.required_method())
 #     pass
 """
 rust = """
-// In Rust, we use traits to enforce required methods
 trait HasRequiredMethod {
     fn required_method(&self) -> &'static str;
 }
@@ -415,7 +393,6 @@ print(obj.to_dict())
 print(obj.__class_name__)
 """
 rust = """
-// In Rust, we use traits or derive macros for attribute injection
 use std::collections::HashMap;
 
 struct MyClass {
@@ -468,7 +445,6 @@ print(hasattr(Derived, 'from_meta'))
 print(Derived.from_meta)
 """
 rust = """
-// In Rust, we use traits which are inherited through trait bounds
 trait FromMeta {
     const FROM_META: bool = true;
 }
@@ -479,7 +455,7 @@ impl FromMeta for Base {}
 struct Derived;
 impl FromMeta for Derived {}
 
-log::info!("{}", true); // hasattr equivalent
+log::info!("{}", true);
 log::info!("{}", Derived::FROM_META);"""
 expected_output = """true
 true"""
@@ -508,8 +484,6 @@ class B(metaclass=Meta2):
 print("Metaclass conflict handled")
 """
 rust = """
-// In Rust, there's no metaclass concept
-// Traits provide clean composition without conflicts
 trait TraitA {}
 trait TraitB {}
 
@@ -519,7 +493,6 @@ impl TraitA for A {}
 struct B;
 impl TraitB for B {}
 
-// C can implement both traits without conflict
 struct C;
 impl TraitA for C {}
 impl TraitB for C {}
@@ -551,7 +524,6 @@ obj = Other()
 print(isinstance(obj, MyClass))
 """
 rust = """
-// In Rust, we use traits for type checking
 trait HasSpecialAttr {
     fn has_special_attr() -> bool {
         true
@@ -594,7 +566,6 @@ class Implementation:
 print(issubclass(Implementation, Interface))
 """
 rust = """
-// In Rust, trait bounds serve as interface checks
 trait Interface {
     fn required_method(&self) -> &'static str;
 }

@@ -25,9 +25,6 @@ result = f()
 '''
 
 rust = '''
-// Rust procedural macro
-// #[decorator]
-// fn f() -> i32 { 42 }
 '''
 
 
@@ -50,9 +47,6 @@ result = f()
 '''
 
 rust = '''
-// Rust procedural macro
-// #[decorator]
-// fn f() -> i32 { 42 }
 '''
 
 
@@ -75,9 +69,6 @@ result = f()
 '''
 
 rust = '''
-// Rust procedural macro
-// #[decorator]
-// fn f() -> i32 { 42 }
 '''
 
 
@@ -100,9 +91,6 @@ result = f()
 '''
 
 rust = '''
-// Rust procedural macro
-// #[decorator]
-// fn f() -> i32 { 42 }
 '''
 
 
@@ -129,9 +117,6 @@ result = f()
 '''
 
 rust = '''
-// Rust procedural macro
-// #[decorator]
-// fn f() -> i32 { 42 }
 '''
 
 
@@ -154,9 +139,6 @@ result = f()
 '''
 
 rust = '''
-// Rust procedural macro
-// #[decorator]
-// fn f() -> i32 { 42 }
 '''
 
 
@@ -179,9 +161,6 @@ result = f()
 '''
 
 rust = '''
-// Rust procedural macro
-// #[decorator]
-// fn f() -> i32 { 42 }
 '''
 
 
@@ -204,9 +183,6 @@ result = f()
 '''
 
 rust = '''
-// Rust procedural macro
-// #[decorator]
-// fn f() -> i32 { 42 }
 '''
 
 
@@ -233,9 +209,6 @@ result = f()
 '''
 
 rust = '''
-// Rust procedural macro
-// #[decorator]
-// fn f() -> i32 { 42 }
 '''
 
 
@@ -258,9 +231,6 @@ result = f()
 '''
 
 rust = '''
-// Rust procedural macro
-// #[decorator]
-// fn f() -> i32 { 42 }
 '''
 
 
@@ -286,9 +256,6 @@ result = f()
 '''
 
 rust = '''
-// Rust macros with arguments
-// #[decorator(arg)]
-// fn f() -> i32 { 42 }
 '''
 
 
@@ -315,9 +282,6 @@ result = f()
 '''
 
 rust = '''
-// Rust procedural macro
-// #[decorator]
-// fn f() -> i32 { 42 }
 '''
 
 
@@ -340,9 +304,6 @@ result = f()
 '''
 
 rust = '''
-// Rust procedural macro
-// #[decorator]
-// fn f() -> i32 { 42 }
 '''
 
 
@@ -365,9 +326,6 @@ result = f()
 '''
 
 rust = '''
-// Rust procedural macro
-// #[decorator]
-// fn f() -> i32 { 42 }
 '''
 
 
@@ -394,9 +352,6 @@ result = f()
 '''
 
 rust = '''
-// Rust procedural macro
-// #[decorator]
-// fn f() -> i32 { 42 }
 '''
 
 
@@ -419,9 +374,6 @@ result = f()
 '''
 
 rust = '''
-// Rust procedural macro
-// #[decorator]
-// fn f() -> i32 { 42 }
 '''
 
 
@@ -448,9 +400,6 @@ result = f()
 '''
 
 rust = '''
-// Rust procedural macro
-// #[decorator]
-// fn f() -> i32 { 42 }
 '''
 
 
@@ -473,9 +422,6 @@ result = f()
 '''
 
 rust = '''
-// Rust procedural macro
-// #[decorator]
-// fn f() -> i32 { 42 }
 '''
 
 
@@ -498,8 +444,5 @@ result = f()
 '''
 
 rust = '''
-// Rust procedural macro
-// #[decorator]
-// fn f() -> i32 { 42 }
 '''
 

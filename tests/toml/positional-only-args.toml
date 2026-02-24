@@ -286,7 +286,6 @@ python = """
 #     pass
 """
 rust = """
-// N/A - syntax error
 """
 
 [[test]]

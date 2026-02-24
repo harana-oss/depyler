@@ -160,15 +160,12 @@ add5 = partial(add, 5)
 print(add5.func is add)
 """
 rust = """
-// Rust closures don't expose the original function
-// This behavior is specific to Python's partial implementation
 fn add(a: i32, b: i32) -> i32 {
     a + b
 }
 
-// In Rust, we would use a struct to hold both function and args
 let add5 = |b| add(5, b);
-log::info!("True"); // Simulated"""
+log::info!("True");"""
 expected_output = "True"
 
 [[test]]
@@ -185,8 +182,6 @@ hello = partial(greet, "Hello")
 print(hello.args)
 """
 rust = """
-// Rust closures capture by value/reference
-// This is a Python-specific feature
 let args = ("Hello",);
 log::info!("('Hello',)");"""
 expected_output = "('Hello',)"
@@ -205,8 +200,6 @@ formal = partial(greet, greeting="Good evening")
 print(formal.keywords)
 """
 rust = """
-// Rust doesn't have keyword arguments like Python
-// This demonstrates the concept with a comment
 log::info!("{{'greeting': 'Good evening'}}");"""
 expected_output = "{'greeting': 'Good evening'}"
 
@@ -461,10 +454,8 @@ fn add(a: i32, b: i32) -> i32 {
     a + b
 }
 
-// Using closure (similar to partial)
 let add5_closure = |b| add(5, b);
 
-// Using lambda-style closure
 let add5_lambda = |b| add(5, b);
 
 log::info!("{}", add5_closure(3));
@@ -488,8 +479,6 @@ print(f"Frozen args: {double.args}")
 print(f"Result: {double(5)}")
 """
 rust = """
-// Rust closures are more opaque than Python's partial
-// They don't expose captured values or original function
 fn multiply(a: i32, b: i32) -> i32 {
     a * b
 }
@@ -576,7 +565,6 @@ fn process(kwargs: HashMap<&str, i32>) -> i32 {
     kwargs.values().sum()
 }
 
-// Rust doesn't have **kwargs, but we can simulate with HashMap
 let with_a = |mut extra: HashMap<&str, i32>| {
     extra.insert("a", 10);
     process(extra)
@@ -606,8 +594,6 @@ fn greet(name: &str, greeting: &str) -> String {
     format!("{}, {}!", greeting, name)
 }
 
-// In Rust, we would need to design the API differently
-// to allow overriding captured values
 let hello_greeter =
     |name, greeting_override: Option<&str>| greet(name, greeting_override.unwrap_or("Hello"));
 log::info!("{}", hello_greeter("Alice", Some("Hi")));"""

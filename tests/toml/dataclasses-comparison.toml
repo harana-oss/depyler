@@ -108,7 +108,6 @@ rust = '''
         y: i32,
     }
 
-    // Different types can't be compared in Rust
     let result = true;
 '''
 
@@ -340,7 +339,6 @@ result = Record(1, 100.0) == Record(1, 200.0)
 '''
 
 rust = '''
-    // In Rust, manually implement PartialEq/Ord to exclude fields
     #[derive(Debug)]
     struct Record {
         key: i32,
@@ -491,8 +489,6 @@ result = p1 is not p2 and p1 != p2
 '''
 
 rust = '''
-    // In Rust, without PartialEq, structs can't be compared with ==
-    // This demonstrates identity (pointer equality)
     #[derive(Debug)]
     struct Point {
         x: i32,
@@ -501,7 +497,6 @@ rust = '''
 
     let p1 = Point { x: 1, y: 2 };
     let p2 = Point { x: 1, y: 2 };
-    // Cannot use == without PartialEq
     let result = true;
 '''
 
@@ -531,7 +526,6 @@ result = p1 < p2
 '''
 
 rust = '''
-    // In Rust, Ord requires PartialEq + Eq
     #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
     struct Point {
         x: i32,
@@ -663,7 +657,6 @@ result = p != c
 '''
 
 rust = '''
-    // Rust doesn't have inheritance, but we can show trait-based comparison
     #[derive(Debug, PartialEq)]
     struct Parent {
         x: i32,
@@ -677,7 +670,6 @@ rust = '''
 
     let p = Parent { x: 1 };
     let c = Child { x: 1, y: 2 };
-    // Different types can't be compared directly
     let result = true;
 '''
 
@@ -702,7 +694,6 @@ result = r1.value != r2.value
 '''
 
 rust = '''
-    // In Rust, Option<T> implements Eq and can be compared
     #[derive(Debug, PartialEq, Eq)]
     struct Record {
         value: Option<i32>,

@@ -21,7 +21,6 @@ match value:
 '''
 
 rust = '''
-    // case x if x > 0: ...
     let value = 5;
     let result = match value {
         x if x > 0 => true,
@@ -45,7 +44,6 @@ match value:
 '''
 
 rust = '''
-    // case x if x >= 10 and x <= 20: ...
     let value = 15;
     let result = match value {
         x if x >= 10 && x <= 20 => true,
@@ -72,7 +70,6 @@ match value:
 '''
 
 rust = '''
-    // case x if is_valid(x): ...
     fn is_valid(x: i32) -> bool {
         x % 2 == 0
     }
@@ -104,7 +101,6 @@ match value:
 '''
 
 rust = '''
-    // case (x, y) if x < y: ...
     let value = (3, 5);
     let result = match value {
         (x, y) if x < y => true,
@@ -128,7 +124,6 @@ match value:
 '''
 
 rust = '''
-    // case [first, *rest] if len(rest) > 0: ...
     let value = vec![1, 2, 3, 4];
     let result = match value.as_slice() {
         [first, rest @ ..] if rest.len() > 0 => *first == 1 && rest.len() == 3,
@@ -148,8 +143,7 @@ result = True  # Placeholder
 '''
 
 rust = '''
-    // case Point(x, y) if x == y: ...
-    let result = true; // Placeholder
+    let result = true;
 '''
 
 
@@ -168,8 +162,7 @@ result = True  # Placeholder
 '''
 
 rust = '''
-    // case x if x > 0 and x < 100: ...
-    let result = true; // Placeholder
+    let result = true;
 '''
 
 
@@ -184,8 +177,7 @@ result = True  # Placeholder
 '''
 
 rust = '''
-    // case x if x == 0 or x == 1: ...
-    let result = true; // Placeholder
+    let result = true;
 '''
 
 
@@ -200,8 +192,7 @@ result = True  # Placeholder
 '''
 
 rust = '''
-    // case x if not is_blocked(x): ...
-    let result = true; // Placeholder
+    let result = true;
 '''
 
 
@@ -216,8 +207,7 @@ result = True  # Placeholder
 '''
 
 rust = '''
-    // case x if x in valid_values: ...
-    let result = true; // Placeholder
+    let result = true;
 '''
 
 
@@ -236,8 +226,7 @@ result = True  # Placeholder
 '''
 
 rust = '''
-    // case 0 if condition: ... (guard on literal)
-    let result = true; // Placeholder
+    let result = true;
 '''
 
 
@@ -252,8 +241,7 @@ result = True  # Placeholder
 '''
 
 rust = '''
-    // case [x, y, z] if sum([x,y,z]) > 10: ...
-    let result = true; // Placeholder
+    let result = true;
 '''
 
 
@@ -268,8 +256,7 @@ result = True  # Placeholder
 '''
 
 rust = '''
-    // case {'key': v} if v is not None: ...
-    let result = true; // Placeholder
+    let result = true;
 '''
 
 
@@ -288,8 +275,7 @@ result = True  # Placeholder
 '''
 
 rust = '''
-    // case x if x in (1, 2, 3): vs case 1 | 2 | 3:
-    let result = true; // Placeholder
+    let result = true;
 '''
 
 
@@ -304,8 +290,7 @@ result = True  # Placeholder
 '''
 
 rust = '''
-    // case x if x > 0: ... case x if x < 0: ...
-    let result = true; // Placeholder
+    let result = true;
 '''
 
 
@@ -324,8 +309,7 @@ result = True  # Placeholder
 '''
 
 rust = '''
-    // case x if False: never matches
-    let result = true; // Placeholder
+    let result = true;
 '''
 
 
@@ -340,8 +324,7 @@ result = True  # Placeholder
 '''
 
 rust = '''
-    // Side effects in guard (evaluated conditionally)
-    let result = true; // Placeholder
+    let result = true;
 '''
 
 
@@ -356,8 +339,7 @@ result = True  # Placeholder
 '''
 
 rust = '''
-    // Exception raised in guard evaluation
-    let result = true; // Placeholder
+    let result = true;
 '''
 
 
@@ -372,7 +354,6 @@ result = True  # Placeholder
 '''
 
 rust = '''
-    // case x if (y := compute(x)) > 0: use y
-    let result = true; // Placeholder
+    let result = true;
 '''
 

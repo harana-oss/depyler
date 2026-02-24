@@ -112,9 +112,7 @@ impl MyClass {
 }
 
 let instance = MyClass;
-// Method accessed via instance
 log::info!("{}", instance.method());
-// Method accessed via type
 log::info!("{}", MyClass::method(&instance));"""
 expected_output = """method called
 method called"""
@@ -272,8 +270,6 @@ instance.__dict__['x'] = "dict value"
 print(instance.x)  # Data descriptor wins
 """
 rust = """
-// In Rust, this concept is handled through trait implementations
-// and ownership rules rather than runtime attribute lookup
 
 struct DataDescriptor;
 
@@ -288,7 +284,6 @@ struct MyClass {
 }
 
 let instance = MyClass { x: DataDescriptor };
-// In Rust, field access is direct and type-safe
 log::info!("{}", instance.x.get());"""
 expected_output = "descriptor value"
 
@@ -319,8 +314,6 @@ print(instance.x)
 print(instance.y)
 """
 rust = """
-// In Rust, this is typically handled at compile time with macros
-// or by explicitly naming descriptors
 
 struct Descriptor {
     name: &'static str,
@@ -480,7 +473,6 @@ let mut instance = MyClass {
 };
 instance.age.set(25);
 log::info!("{}", instance.age.get().unwrap());
-// Rust's type system prevents type errors at compile time
 log::info!("Error: age must be int");"""
 expected_output = """25
 Error: age must be int"""
@@ -739,8 +731,6 @@ print(instance.data)      # Data descriptor wins
 print(instance.nondata)   # Instance value wins
 """
 rust = """
-// Rust handles this through its type system and ownership model
-// The resolution is determined at compile time
 
 struct DataDescriptor;
 impl DataDescriptor {
@@ -784,8 +774,6 @@ result = instance.x
 print(result)
 """
 rust = """
-// Rust doesn't have __getattribute__, but we can demonstrate
-// custom access patterns through traits
 
 trait GetAttribute {
     fn get_attribute(&self, name: &str) -> String;
@@ -846,8 +834,6 @@ instance.x = 42
 print(instance.x)
 """
 rust = """
-// Rust doesn't have __slots__, but similar memory efficiency
-// is achieved through careful struct design
 
 struct Descriptor {
     value: Option<i32>,

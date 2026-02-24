@@ -309,7 +309,6 @@ def test_bytes_immutable() -> bool:
 
 rust = '''
 pub fn test_bytes_immutable() -> bool {
-    // Bytes are immutable in Rust by default
     return true;
 }
 '''
@@ -485,7 +484,6 @@ def test_bytes_non_ascii() -> bool:
 
 rust = '''
 pub fn test_bytes_non_ascii() -> bool {
-    // Non-ASCII requires explicit encoding
     let result = "é".as_bytes();
     return result.len() > 0;
 }

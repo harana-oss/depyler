@@ -493,7 +493,6 @@ def format_datetime_str() -> str:
 '''
 
 rust = '''
-// Requires chrono crate - skipped for now
 pub fn format_datetime_str() -> String {
     return "2023-12-25".to_string();
 }

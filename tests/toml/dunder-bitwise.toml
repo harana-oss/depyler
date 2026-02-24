@@ -352,7 +352,7 @@ rust = """
 const READ: i32 = 1;
 const WRITE: i32 = 2;
 
-let permissions = 3; // READ | WRITE
+let permissions = 3;
 let has_read = (permissions & READ) != 0;
 let has_write = (permissions & WRITE) != 0;
 
@@ -383,10 +383,10 @@ const WRITE: i32 = 2;
 let mut flags = READ;
 log::info!("Initial: {}", flags);
 
-flags = flags ^ WRITE; // Add WRITE
+flags = flags ^ WRITE;
 log::info!("After adding WRITE: {}", flags);
 
-flags = flags ^ WRITE; // Remove WRITE
+flags = flags ^ WRITE;
 log::info!("After removing WRITE: {}", flags);"""
 
 # =============================================================================
@@ -517,8 +517,6 @@ except ValueError as e:
     print(f"ValueError: {e}")
 """
 rust = """
-// In Rust, negative shifts panic in debug mode
-// This would panic, so we simulate the error
 log::info!("ValueError: negative shift count");"""
 
 [[test]]

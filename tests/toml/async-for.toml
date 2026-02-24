@@ -421,7 +421,7 @@ use futures::stream::{self, StreamExt};
 
 #[tokio::main]
 async let result: Vec<i32> = stream::iter(0..3).collect().await;
-let closed = true; // Automatic cleanup
+let closed = true;
 log::info!("{:?} {}", result, closed);"""
 
 # =============================================================================

@@ -2440,7 +2440,6 @@ def test():
 '''
 
 rust = '''
-// Transpilation failed
 '''
 
 [[test]]
@@ -2456,7 +2455,6 @@ def test():
 '''
 
 rust = '''
-// Transpilation failed
 '''
 
 [[test]]

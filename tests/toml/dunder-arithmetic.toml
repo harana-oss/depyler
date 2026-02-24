@@ -274,7 +274,6 @@ assert result.value == 15
 '''
 
 rust = '''
-    // Rust: explicit type conversion
     struct Number {
         value: i32,
     }
@@ -319,11 +318,9 @@ assert result == True
 '''
 
 rust = '''
-    // Rust: type system prevents unsupported operations at compile time
     struct Number {
         value: i32,
     }
-    // Number + String would not compile
     let result = true;
     assert!(result);
 '''
@@ -373,7 +370,6 @@ assert result.value == 6
 '''
 
 rust = '''
-    // Rust: left-to-right evaluation
     struct Number {
         value: i32,
     }
@@ -415,7 +411,6 @@ assert result.value == 14  # 2 + (3 * 4)
 '''
 
 rust = '''
-    // Rust: operator precedence
     struct Number {
         value: i32,
     }
@@ -482,7 +477,6 @@ assert result == True
 '''
 
 rust = '''
-    // Rust: Option<T> requires explicit handling
     let x = Some(5);
     let y: Option<i32> = None;
     let result = x.unwrap_or(0) + y.unwrap_or(0);
@@ -513,7 +507,6 @@ assert result.value == 30
 '''
 
 rust = '''
-    // Rust: implementing arithmetic traits
     #[derive(Clone, Copy)]
     struct Number {
         value: i32,

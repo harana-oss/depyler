@@ -163,7 +163,7 @@ thread_local! {
 }
 
 fn outer() {
-    let x = 50; // Local to outer
+    let x = 50;
 
     fn inner() {
         X.with(|x| x.set(200));
@@ -236,7 +236,7 @@ fn outer() {
     let x = 42;
 
     let inner = || {
-        x // Captures x from enclosing scope
+        x
     };
 
     let result = inner();
@@ -537,7 +537,7 @@ rust = """
 const GLOBAL_X: i32 = 100;
 
 fn shadow() {
-    let x = 50; // Local variable
+    let x = 50;
     log::info!("Local x: {}", x);
 }
 
@@ -600,13 +600,11 @@ result = outer()
 print(result)
 """
 rust = """
-// Rust uses closures with move or borrow semantics
 let mut x = 5;
 {
     let inner = || {
         x = 10;
     };
-    // inner() would need x to be mutable
 }
 log::info!("{}", 10);"""
 expected_output = "10"

@@ -414,9 +414,7 @@ result = True
 '''
 
 rust = '''
-// Rust has debug_assert! for debug-only checks
 debug_assert!(true);
-// Regular assert! is always checked
 assert!(true);
 let result = true;
 '''

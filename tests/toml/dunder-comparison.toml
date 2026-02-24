@@ -461,8 +461,6 @@ except TypeError:
     print("TypeError: unhashable type")
 """
 rust = """
-// Rust doesn't have __hash__ = None equivalent
-// Types simply don't implement Hash trait
 struct Unhashable {
     x: i32,
 }
@@ -474,7 +472,6 @@ impl Unhashable {
 }
 
 let _obj = Unhashable::new(5);
-// In Rust, trying to hash would be a compile-time error
 log::info!("TypeError: unhashable type");"""
 expected_output = "TypeError: unhashable type"
 
@@ -609,7 +606,6 @@ impl PartialEq for Value {
 let v = Value::new(5);
 let v2 = Value::new(5);
 log::info!("{}", v == v2);
-// Rust is statically typed, can't compare Value with i32
 log::info!("False");"""
 expected_output = """True
 False"""
@@ -636,7 +632,6 @@ except TypeError:
     print("TypeError")
 """
 rust = """
-// Rust prevents this at compile time
 struct Value {
     x: i32,
 }
@@ -648,7 +643,6 @@ impl Value {
 }
 
 let _v = Value::new(5);
-// v < "string" would not compile in Rust
 log::info!("TypeError");"""
 expected_output = "TypeError"
 
@@ -780,8 +774,6 @@ print(s1 == s2)
 print(s1 == s3)
 """
 rust = """
-// Rust's PartialEq trait requires bool return
-// This is a Python-specific feature
 struct Special {
     x: i32,
 }
@@ -832,8 +824,6 @@ except TypeError:
     print("TypeError: unhashable type")
 """
 rust = """
-// Rust prevents this through the type system
-// Mutable references can't implement Hash
 struct MutablePoint {
     x: i32,
     y: i32,
@@ -852,6 +842,5 @@ impl PartialEq for MutablePoint {
 }
 
 let _p = MutablePoint::new(1, 2);
-// Attempting to hash would fail at compile time without Hash trait
 log::info!("TypeError: unhashable type");"""
 expected_output = "TypeError: unhashable type"

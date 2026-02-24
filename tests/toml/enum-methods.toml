@@ -240,7 +240,6 @@ class Suit(Enum):
 print(Suit.count())
 """
 rust = """
-// In Rust, we use strum or implement manually
 #[derive(Debug, Clone, Copy)]
 enum Suit {
     Hearts = 1,
@@ -540,13 +539,11 @@ print(Power.SECOND.value)
 print(Power.THIRD.value)
 """
 rust = """
-// In Rust, we define enum values explicitly
-// We can use a const fn for power-of-2 generation
 #[derive(Debug, Clone, Copy)]
 enum Power {
-    First = 1,  // 2^0
-    Second = 2, // 2^1
-    Third = 4,  // 2^2
+    First = 1,
+    Second = 2,
+    Third = 4,
 }
 
 log::info!("{}", Power::First as i32);
@@ -574,7 +571,6 @@ print(Id.FIRST.value)
 print(Id.SECOND.value)
 """
 rust = """
-// In Rust, we use string values explicitly or via const fn
 #[derive(Debug, Clone, Copy)]
 enum Id {
     First,
@@ -619,7 +615,6 @@ print(ErrorCode(0).name)
 print(ErrorCode(100).name)  # Returns UNKNOWN
 """
 rust = """
-// In Rust, we implement a from_value method with fallback
 #[derive(Debug, Clone, Copy)]
 enum ErrorCode {
     Success = 0,
@@ -669,7 +664,6 @@ print(Grade(95).name)
 print(Grade(85).name)
 """
 rust = """
-// In Rust, we implement the fallback logic in a from_value method
 #[derive(Debug, Clone, Copy)]
 enum Grade {
     A,
@@ -722,7 +716,6 @@ print(list(Animal.__members__.keys()))
 print(Animal.helper())
 """
 rust = """
-// In Rust, non-variant items are naturally separate from enum variants
 #[derive(Debug, Clone, Copy)]
 enum Animal {
     Cat = 1,
@@ -764,7 +757,6 @@ class Status(JsonMixin, Enum):
 print(Status.PENDING.to_json())
 """
 rust = """
-// In Rust, we use traits instead of mixins
 use std::collections::HashMap;
 
 trait ToJson {
@@ -818,7 +810,6 @@ print(Priority.LOW < Priority.HIGH)
 print(sorted([Priority.HIGH, Priority.LOW, Priority.MEDIUM]))
 """
 rust = """
-// In Rust, we derive Ord and PartialOrd
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 enum Priority {
     Low = 1,
@@ -859,7 +850,6 @@ print(Planet.EARTH.mass)
 print(Planet.EARTH.radius)
 """
 rust = """
-// In Rust, we use a struct-like enum or associated constants
 struct Planet {
     mass: f64,
     radius: i32,
@@ -894,7 +884,6 @@ print(Month.JANUARY.number)
 print(Month.JANUARY.days)
 """
 rust = """
-// In Rust, we use a struct variant or associated data
 #[derive(Debug, Clone, Copy)]
 struct Month {
     number: i32,
@@ -930,7 +919,6 @@ print(HttpStatus.OK.code)
 print(HttpStatus.OK.description)
 """
 rust = """
-// In Rust, use struct-based enum variants or associated data
 struct HttpStatus {
     code: i32,
     description: &'static str,

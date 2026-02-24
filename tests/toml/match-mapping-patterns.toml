@@ -595,8 +595,7 @@ result = True  # Placeholder
 '''
 
 rust = '''
-    // case {'a': x, 'a': y}: syntax error
-    let result = true; // Placeholder
+    let result = true;
 '''
 
 

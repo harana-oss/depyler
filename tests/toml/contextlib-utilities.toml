@@ -157,7 +157,6 @@ pub fn test_closing_exception() -> bool {
     let mut res = Resource::new();
     {
         let _r = &mut res;
-        // Exception would happen here
     }
     res.closed
 }
@@ -403,7 +402,6 @@ rust = '''
 pub fn test_nullcontext_conditional() -> bool {
     let threaded = false;
     if threaded {
-        // would use mutex here
     }
     true
 }
@@ -509,9 +507,7 @@ rust = '''
 pub fn test_exitstack_callback() -> usize {
     let mut called = Vec::new();
     {
-        // callbacks would be registered here
     }
-    // callbacks would be called in LIFO order
     called.push(2);
     called.push(1);
     called.len()
@@ -542,9 +538,7 @@ rust = '''
 pub fn test_exitstack_push() -> bool {
     let mut called = Vec::new();
     {
-        // cleanup function would be pushed here
     }
-    // cleanup would be called on exit
     called.push(true);
     called.len() == 1
 }
@@ -578,15 +572,12 @@ pub fn test_exitstack_pop_all() -> bool {
     let mut called = Vec::new();
     let mut transferred_cleanup = Vec::new();
     {
-        // stack1 scope
         transferred_cleanup.push(1);
     }
-    // Nothing called yet
     if !called.is_empty() {
         return false;
     }
     {
-        // stack2 scope
         called.extend(transferred_cleanup);
     }
     called.len() == 1
@@ -659,7 +650,6 @@ impl AsyncResource {
 
 impl Drop for AsyncResource {
     fn drop(&mut self) {
-        // In real async code, would need async drop
     }
 }
 
@@ -720,7 +710,6 @@ impl AsyncIterable {
 pub async fn test_aclosing() -> bool {
     let mut gen = AsyncIterable::new();
     {
-        // use generator
     }
     gen.aclose().await;
     gen.closed
@@ -826,9 +815,7 @@ rust = '''
 pub fn test_exitstack_order() -> Vec<i32> {
     let mut order = Vec::new();
     {
-        // callbacks registered: 1, 2, 3
     }
-    // cleanup in LIFO order: 3, 2, 1
     order.push(3);
     order.push(2);
     order.push(1);

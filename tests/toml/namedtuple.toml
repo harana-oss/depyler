@@ -208,7 +208,6 @@ result = p._asdict()
 '''
 
 rust = '''
-// Rust would use serde for serialization
 '''
 
 
@@ -343,7 +342,6 @@ rust = '''
     }
 
     let p = Point { x: 1, y: 2 };
-    // In Rust, create new struct for immutability
     let p2 = Point { x: 5, ..p };
     let result = p2.x == 5 && p.x == 1;
 '''

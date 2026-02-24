@@ -299,7 +299,6 @@ Hint: int for variable 'low' [Medium] (usage patterns suggest this type)
 Type inference hints:
 Hint: int for variable 'pi' [Medium] (usage patterns suggest this type)
 
-
 Performance Warnings
 ══════════════════════════════════════════════════
 
@@ -322,7 +321,6 @@ Performance Warnings
    Fix: Consider passing by reference (&) or using Box/Arc for large types
 
 Summary: Found 3 warnings (0 critical, 0 high severity)
-
 
 Profiling Report
 ══════════════════════════════════════════════════

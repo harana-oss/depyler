@@ -394,7 +394,6 @@ def test_await_context() -> bool:
 '''
 
 rust = '''
-// Rust also requires await inside async context
 fn test_await_context() -> bool {
     true
 }
@@ -451,7 +450,6 @@ result = f()  # Returns coroutine
 
 rust = '''
 async fn f() {
-    // Async function
 }
 '''
 
@@ -583,7 +581,6 @@ async def test_await_none() -> bool:
 
 rust = '''
 async fn returns_none() {
-    // Returns ()
 }
 
 async fn test_await_none() -> bool {
@@ -657,7 +654,6 @@ async def test_await_non_awaitable() -> bool:
 '''
 
 rust = '''
-// Rust prevents awaiting non-futures at compile time
 async fn test_await_non_awaitable() -> bool {
     true
 }

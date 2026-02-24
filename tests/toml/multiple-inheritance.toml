@@ -27,7 +27,6 @@ result = Combined()
 '''
 
 rust = '''
-// Rust uses traits for composition
 trait Mixin1 {
     fn method1(&self) -> i32 {
         1
@@ -62,7 +61,6 @@ result = Child().shared_method() == "from_parent1"
 '''
 
 rust = '''
-    // Method resolution picks first parent
     trait Parent1 {
         fn shared_method(&self) -> &str {
             "from_parent1"
@@ -110,7 +108,6 @@ result = Child().method2() == "parent2_method"
 '''
 
 rust = '''
-    // Method from second parent when first doesn't have it
     trait Parent1 {
         fn method1(&self) -> &str {
             "parent1_method"
@@ -184,8 +181,6 @@ result = len(mro_list) > 0 and mro_list[0] == D
 '''
 
 rust = '''
-    // Class.mro() returns list
-    // Rust doesn't have runtime MRO, but we can verify trait bounds
     trait A {}
     trait B: A {}
     trait C: A {}
@@ -196,7 +191,6 @@ rust = '''
     impl C for D {}
 
     pub fn test_mro() -> bool {
-        // Verify D implements all traits
         let _d: &dyn A = &D;
         true
     }
@@ -238,8 +232,6 @@ result = mro.index(B) < mro.index(O) and mro.index(A) < mro.index(O)
 '''
 
 rust = '''
-    // MRO follows C3 algorithm
-    // Rust uses trait bounds for hierarchies
     trait O {}
     trait A: O {}
     trait B: O {}
@@ -253,7 +245,6 @@ rust = '''
     impl C for F {}
 
     pub fn test_c3() -> bool {
-        // Verify F implements all traits in hierarchy
         let f = F;
         let _o: &dyn O = &f;
         true
@@ -291,7 +282,6 @@ result = d.method() == "A"
 '''
 
 rust = '''
-    // D inherits from B, C which both inherit from A
     trait A {
         fn method(&self) -> &str {
             "A"
@@ -342,7 +332,6 @@ result = d.method() == "B"  # MRO picks first parent
 '''
 
 rust = '''
-    // Which implementation is used in diamond
     trait A {
         fn method(&self) -> &str {
             "A"
@@ -366,7 +355,7 @@ rust = '''
     impl A for D {
         fn method(&self) -> &str {
             "B"
-        } // Explicit implementation
+        }
     }
 
     impl B for D {}
@@ -408,8 +397,6 @@ result = d.method() == "DBCA"  # super() follows MRO: D -> B -> C -> A
 '''
 
 rust = '''
-    // super() in diamond follows MRO
-    // Rust doesn't have super() but we can simulate the behavior
     pub fn test_diamond_super() -> bool {
         fn method_a() -> String {
             "A".to_string()
@@ -453,7 +440,6 @@ result = Child().method() == "parent_child"
 '''
 
 rust = '''
-    // super().method() calls parent
     trait Parent {
         fn method(&self) -> String {
             "parent".to_string()
@@ -501,8 +487,6 @@ result = C().method() == "B"
 '''
 
 rust = '''
-    // super(Class, self).method()
-    // Rust doesn't have super() with args, but we can explicitly call parent methods
     trait A {
         fn method(&self) -> &str {
             "A"
@@ -564,7 +548,6 @@ result = hasattr(d, 'a') and hasattr(d, 'b') and hasattr(d, 'c') and hasattr(d, 
 '''
 
 rust = '''
-    // All classes in hierarchy use super()
     struct D {
         a: String,
         b: String,
@@ -612,7 +595,6 @@ result = child.value == 10 and child.extra == 20
 '''
 
 rust = '''
-    // Proper initialization with super()
     struct Child {
         value: i32,
         extra: i32,
@@ -663,7 +645,6 @@ result = obj.feature1() == "feature1" and obj.feature2() == "feature2" and obj.b
 '''
 
 rust = '''
-    // class MyClass(Mixin1, Mixin2, Base): ...
     trait Mixin1 {
         fn feature1(&self) -> &str {
             "feature1"
@@ -722,7 +703,6 @@ result = calc.add(2, 3) == 5 and calc.log("test") == "LOG: test"
 '''
 
 rust = '''
-    // Mixin adds functionality to class
     trait LogMixin {
         fn log(&self, message: &str) -> String {
             format!("LOG: {}", message)
@@ -774,7 +754,6 @@ result = WithMixinFirst().method() == "mixin" and WithBaseFirst().method() == "b
 '''
 
 rust = '''
-    // Mixin before base class in inheritance
     trait Base {
         fn method(&self) -> &str {
             "base"
@@ -824,8 +803,7 @@ result = True  # Placeholder
 '''
 
 rust = '''
-    // Invalid inheritance that breaks C3
-    let result = true; // Placeholder
+    let result = true;
 '''
 
 
@@ -871,7 +849,6 @@ result = Child().name == "parent1"
 '''
 
 rust = '''
-    // Same attribute name in multiple parents
     struct Child {
         name: String,
     }
@@ -913,8 +890,6 @@ result = isinstance(c, A) and isinstance(c, B) and isinstance(c, C)
 '''
 
 rust = '''
-    // isinstance() checks all bases
-    // Rust uses traits for type checking
     trait A {}
     trait B {}
 
@@ -924,7 +899,6 @@ rust = '''
 
     pub fn test_mi_isinstance() -> bool {
         let c = C;
-        // Type checking at compile time
         let _a: &dyn A = &c;
         let _b: &dyn B = &c;
         true

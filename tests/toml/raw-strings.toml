@@ -237,7 +237,6 @@ result = True
 '''
 
 rust = '''
-    // Similar limitation in Rust
     let result = true;
 '''
 
@@ -253,7 +252,6 @@ result = True
 '''
 
 rust = '''
-    // Cannot escape quotes in raw strings
     let result = true;
 '''
 

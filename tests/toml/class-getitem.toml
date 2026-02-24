@@ -20,8 +20,6 @@ result = MyClass[int]
 print(result)
 """
 rust = """
-// In Rust, __class_getitem__ is typically replaced with generics
-// For runtime type information, we use std::any::type_name
 struct MyClass<T> {
     _marker: std::marker::PhantomData<T>,
 }
@@ -53,7 +51,6 @@ print(Container[int])
 print(Container[str])
 """
 rust = """
-// Rust uses generic type parameters instead of runtime subscripting
 struct Container<T> {
     _marker: std::marker::PhantomData<T>,
 }
@@ -85,17 +82,14 @@ IntBox = Box[int]
 print(IntBox.item_type)
 """
 rust = """
-// In Rust, this pattern is handled by type aliases with PhantomData
 use std::marker::PhantomData;
 
 struct Box<T> {
     _marker: PhantomData<T>,
 }
 
-// Type alias for Box<i32>
 type IntBox = Box<i32>;
 
-// Type information is compile-time; for runtime we use type_name
 log::info!("{}", std::any::type_name::<i32>());"""
 expected_output = "i32"
 
@@ -224,8 +218,6 @@ print(c1.value)
 print(c2.value)
 """
 rust = """
-// In Rust, TypeVar constraints are handled via trait bounds or enums
-// For int|str constraint, we use an enum to represent the allowed types
 
 enum IntOrStr {
     Int(i32),
@@ -341,7 +333,6 @@ print(b1.value)
 print(b2.value)
 """
 rust = """
-// In Rust, type aliases are defined with `type`
 struct Box<T> {
     value: T,
 }
@@ -393,7 +384,7 @@ impl<T> Container<T> {
 
 let c = Container::new(42);
 log::info!("{}", c.value);
-log::info!("i32"); // Type is known at compile time"""
+log::info!("i32");"""
 expected_output = """42
 int"""
 
@@ -421,7 +412,6 @@ print(Base[int])
 print(Derived[str])
 """
 rust = """
-// In Rust, generic inheritance is expressed through traits and generic structs
 struct Base<T> {
     _marker: std::marker::PhantomData<T>,
 }
@@ -430,7 +420,6 @@ struct Derived<T> {
     _marker: std::marker::PhantomData<T>,
 }
 
-// Type names are compile-time only; we print equivalent representations
 log::info!("Base[int]");
 log::info!("Derived[str]");"""
 expected_output = """Base[int]
@@ -455,7 +444,6 @@ print(Base[int])
 print(Derived[int])
 """
 rust = """
-// In Rust, we can achieve similar behavior with trait methods
 trait ClassGetItem {
     fn class_getitem(type_name: &str) -> String;
 }
@@ -500,8 +488,6 @@ print(MyClass[1:10])
 print(MyClass[5])
 """
 rust = """
-// Rust handles index/slice patterns differently via Index/SliceIndex traits
-// For demonstration, we simulate the behavior
 enum Subscript {
     Slice { start: i32, stop: i32 },
     Item(i32),
@@ -535,7 +521,6 @@ print(MyClass[int, str])
 print(MyClass[int])
 """
 rust = """
-// In Rust, multiple generic parameters are expressed as MyClass<T, U>
 struct MyClass<T, U = ()> {
     _marker: std::marker::PhantomData<(T, U)>,
 }
@@ -577,8 +562,6 @@ type2 = MyClass[int]
 print(type1 is type2)
 """
 rust = """
-// In Rust, generic types are monomorphized at compile time
-// Two uses of the same type are always identical
 use std::any::TypeId;
 
 struct MyClass<T> {
@@ -604,7 +587,6 @@ print(CustomDict[str])
 print(CustomDict[int])
 """
 rust = """
-// In Rust, we achieve similar pattern with generic impls
 struct CustomDict<T> {
     _marker: std::marker::PhantomData<T>,
 }

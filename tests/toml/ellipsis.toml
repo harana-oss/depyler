@@ -20,7 +20,6 @@ print("Function with ellipsis works")
 """
 rust = """
 fn func() {
-    // Ellipsis maps to empty function body
 }
 
 func();
@@ -97,11 +96,9 @@ print("Both pass and ellipsis work")
 """
 rust = """
 fn with_pass() {
-    // pass equivalent
 }
 
 fn with_ellipsis() {
-    // ellipsis equivalent
 }
 
 with_pass();
@@ -129,7 +126,6 @@ result = accepts_any_callable(my_func)
 print(f"Result: {result}")
 """
 rust = """
-// Callable with ellipsis maps to trait objects with arbitrary args
 type AnyCallable = Box<dyn Fn(&[i32]) -> i32>;
 
 fn accepts_any_callable(func: AnyCallable) -> i32 {
@@ -155,7 +151,6 @@ result2 = process_ints((1, 2, 3, 4, 5))
 print(f"Results: {result1}, {result2}")
 """
 rust = """
-// Tuple[int, ...] maps to Vec<i32> or slice
 fn process_ints(items: &[i32]) -> i32 {
     items.iter().sum()
 }
@@ -185,8 +180,6 @@ result = arr[..., 0]
 print(result)
 """
 rust = """
-// Ellipsis in slicing is typically handled by array libraries
-// In Rust, this would be part of ndarray or similar
 struct Array;
 
 impl Array {
@@ -242,7 +235,6 @@ print(f"Ellipsis assigned: {x}")
 print(f"Type: {type(x).__name__}")
 """
 rust = """
-// Ellipsis as a value maps to unit type ()
 let x = ();
 log::info!("Ellipsis assigned: ()");
 log::info!("Type: ()");"""
@@ -256,7 +248,6 @@ print(f"Type of ellipsis: {type(...)}")
 print(f"Is ellipsis type: {type(...).__name__ == 'ellipsis'}")
 """
 rust = """
-// In Rust, () is the unit type
 log::info!("Type of ellipsis: ()");
 log::info!("Is ellipsis type: true");"""
 
@@ -271,7 +262,6 @@ print(f"Same object: {a is b}")
 print(f"Equal: {a == b}")
 """
 rust = """
-// Unit type is always the same
 let a = ();
 let b = ();
 log::info!("Same object: true");
@@ -314,10 +304,7 @@ else:
     print("Ellipsis is falsy")
 """
 rust = """
-// Unit type () doesn't have boolean context in Rust
-// But ellipsis in Python is truthy
 if true {
-    // Ellipsis is always truthy in Python
     log::info!("Ellipsis is truthy");
 } else {
     log::info!("Ellipsis is falsy");
@@ -353,7 +340,6 @@ print(func(None))
 print(func(42))
 """
 rust = """
-// Use Option<Option<T>> or a custom sentinel type
 enum Arg {
     NotProvided,
     Null,

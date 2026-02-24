@@ -23,7 +23,6 @@ with simple():
 '''
 
 rust = '''
-    // Rust uses closures for context management
     fn simple<F, R>(f: F) -> R
     where
         F: FnOnce() -> R,
@@ -391,7 +390,6 @@ result = "chdir implemented"
 '''
 
 rust = '''
-    // Directory operations are OS-specific
     use std::env;
     use std::path::Path;
 
@@ -472,7 +470,6 @@ result = "must yield once"
 '''
 
 rust = '''
-    // Rust's type system enforces single invocation
     let result = "must yield once";
 '''
 
@@ -496,7 +493,6 @@ except RuntimeError:
 '''
 
 rust = '''
-    // Rust type system prevents this at compile time
     let result = "error caught";
 '''
 
@@ -521,7 +517,6 @@ except RuntimeError:
 '''
 
 rust = '''
-    // Rust type system prevents this pattern
     let result = "error caught";
 '''
 
@@ -558,7 +553,6 @@ result = "both work the same"
 '''
 
 rust = '''
-    // Rust uses RAII and Drop trait for cleanup
     struct ClassCM {
         value: i32,
     }
@@ -601,10 +595,6 @@ result = "choose appropriate pattern"
 '''
 
 rust = '''
-    // In Rust, choose between:
-    // - Closures for simple cases
-    // - Structs with Drop for complex state
-    // - RAII patterns for resource management
 
     let result = "choose appropriate pattern";
 '''

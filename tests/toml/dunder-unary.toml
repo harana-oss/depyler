@@ -53,7 +53,6 @@ result = (+n).value
 '''
 
 rust = '''
-// Rust doesn't have unary + operator trait
 '''
 
 
@@ -377,7 +376,6 @@ struct Complex {
 
 impl Complex {
     fn abs(&self) -> f64 {
-        // Magnitude of complex number
         (self.real * self.real + self.imag * self.imag).sqrt()
     }
 }
@@ -430,7 +428,6 @@ impl Not for BitMask {
     type Output = BitMask;
 
     fn not(self) -> BitMask {
-        // Inverting a bitmask class (bitwise NOT)
         BitMask { value: !self.value }
     }
 }
@@ -473,9 +470,6 @@ print(f"Original: {v.x}, After +: {pos_v.x}, result: {result}")
 '''
 
 rust = '''
-// Rust doesn't have unary + operator trait
-// The + operator on numbers is typically identity
-// For custom types, you could implement Clone or Copy
 
 #[derive(Clone, Debug)]
 struct Value {
@@ -484,7 +478,6 @@ struct Value {
 
 fn main() {
     let v = Value { x: 42 };
-    // In Rust, "+" would just clone
     let pos_v = v.clone();
     let result = pos_v.x == 42 && v.x == 42;
     log::info!("Original: {}, Cloned: {}, result: {}", v.x, pos_v.x, result);

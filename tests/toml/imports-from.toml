@@ -20,7 +20,6 @@ assert result == True
 '''
 
 rust = '''
-    // Rust: import specific function
     use std::env::current_dir;
     let cwd = current_dir().unwrap();
     let result = cwd.to_str().is_some();
@@ -41,7 +40,6 @@ assert isinstance(result, str)
 '''
 
 rust = '''
-    // Rust: use brings name into scope
     use std::env::current_dir;
     let result = current_dir().is_ok();
     assert!(result);
@@ -63,7 +61,6 @@ assert result == True
 '''
 
 rust = '''
-    // Rust: import multiple items
     use std::env::current_dir;
     use std::fs::read_dir;
     let cwd = current_dir().is_ok();
@@ -90,7 +87,6 @@ assert isinstance(result, str)
 '''
 
 rust = '''
-    // Rust: import with alias
     use std::env::current_dir as cwd;
     let result = cwd().is_ok();
     assert!(result);
@@ -112,7 +108,6 @@ assert result == True
 '''
 
 rust = '''
-    // Rust: multiple imports with aliases
     use std::env::current_dir as cwd;
     use std::fs::read_dir as ls;
     let current = cwd().is_ok();
@@ -139,7 +134,6 @@ assert result == 'a/b' or result == 'a\\b'
 '''
 
 rust = '''
-    // Rust: glob import (discouraged)
     use std::path::*;
     let result = Path::new("a").join("b");
     assert!(result.to_str().is_some());
@@ -180,7 +174,6 @@ assert result == True
 '''
 
 rust = '''
-    // Rust: glob imports bring all public items
     use std::collections::*;
     let map: HashMap<i32, i32> = HashMap::new();
     let result = map.len() == 0;
@@ -207,7 +200,6 @@ assert result == True
 '''
 
 rust = '''
-    // Rust: use with braces for multiple items
     use std::env::{current_dir, var};
     let result = current_dir().is_ok();
     assert!(result);
@@ -232,7 +224,6 @@ assert result == True
 '''
 
 rust = '''
-    // Rust: multiline use statement
     use std::env::{current_dir, var};
     let result = current_dir().is_ok();
     assert!(result);
@@ -256,7 +247,6 @@ assert 'a' in result and 'b' in result and 'c' in result
 '''
 
 rust = '''
-    // Rust: import from nested module
     use std::path::PathBuf;
     let result = PathBuf::from("a").join("b").join("c");
     assert!(result.to_str().is_some());
@@ -277,7 +267,6 @@ assert result == True
 '''
 
 rust = '''
-    // Rust: deep nested module import
     use std::collections::hash_map::HashMap;
     let map: HashMap<i32, i32> = HashMap::new();
     let result = map.len() == 0;
@@ -303,7 +292,6 @@ assert result == ['a', 'b']
 '''
 
 rust = '''
-    // Rust: import type/struct
     use std::collections::BTreeMap;
     let mut map = BTreeMap::new();
     map.insert("a", 1);
@@ -326,7 +314,6 @@ assert result == 10
 '''
 
 rust = '''
-    // Rust: import function (fold is like reduce)
     let result = vec![1, 2, 3, 4].iter().fold(0, |acc, x| acc + x);
     assert_eq!(result, 10);
 '''
@@ -345,7 +332,6 @@ assert result == True
 '''
 
 rust = '''
-    // Rust: import constant
     use std::f64::consts::PI;
     let result = PI > 3.14 && PI < 3.15;
     assert!(result);
@@ -371,7 +357,6 @@ assert result == {'count': 3}
 '''
 
 rust = '''
-    // Rust: types are imported from std
     use std::collections::HashMap;
     fn func(items: Vec<i32>) -> HashMap<String, i32> {
         let mut map = HashMap::new();
@@ -398,7 +383,6 @@ assert result == True
 '''
 
 rust = '''
-    // Rust: conditional compilation for types
     #[cfg(test)]
     use std::collections::HashMap;
     let result = true;
@@ -426,8 +410,6 @@ assert result
 '''
 
 rust = '''
-    // Rust: compile-time error for non-existent imports
-    // use std::env::nonexistent; // Would not compile
     let result = true;
 '''
 
@@ -446,9 +428,6 @@ result = True
 '''
 
 rust = '''
-    // Circular from imports
-    // Rust prevents circular module dependencies at compile time
-    // Must use traits, enums, or restructure to break cycles
     let result = true;
 '''
 
@@ -467,10 +446,7 @@ result = builtin_open is not None
 '''
 
 rust = '''
-    // from mymod import open
-    // Rust prevents shadowing across scopes without explicit imports
     use std::fs::File;
-    // use mymod::open; // Would shadow File::open
     let result = true;
 '''
 

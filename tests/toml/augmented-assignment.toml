@@ -133,7 +133,8 @@ print(x)  # 1110 = 14
 rust = """
 let x = 12;
 x |= 10;
-log::info!("{}", x);"""
+log::info!("{}", x);
+"""
 
 [[test]]
 name = "augmented_xor"

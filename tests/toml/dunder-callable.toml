@@ -143,8 +143,6 @@ print(callable(obj))
 print(obj())
 """
 rust = """
-// Rust doesn't have a built-in callable() check
-// Use traits to make objects callable
 struct MyCallable;
 
 impl MyCallable {
@@ -154,7 +152,7 @@ impl MyCallable {
 }
 
 let obj = MyCallable;
-log::info!("true"); // Would be callable in Python
+log::info!("true");
 log::info!("{}", obj.call());"""
 
 [[test]]
@@ -173,8 +171,8 @@ rust = """
 struct NotCallable;
 
 let _obj = NotCallable;
-log::info!("false"); // No __call__ method
-log::info!("false"); // Integers aren't callable"""
+log::info!("false");
+log::info!("false");"""
 
 [[test]]
 name = "callable_function"
@@ -192,8 +190,8 @@ fn my_function() -> &'static str {
     "hello"
 }
 
-log::info!("true"); // Functions are callable
-log::info!("true"); // Closures are callable"""
+log::info!("true");
+log::info!("true");"""
 
 # =============================================================================
 # Use Cases
@@ -294,7 +292,6 @@ def add_five(x):
 print(add_five(3))
 """
 rust = """
-// Rust doesn't have decorators, but we can wrap functions
 struct TimesTwo<F> {
     func: F,
 }

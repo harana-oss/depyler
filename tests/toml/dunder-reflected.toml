@@ -738,7 +738,6 @@ except TypeError as e:
     print(f"TypeError: unsupported operand types")
 """
 rust = """
-// Rust's type system prevents this at compile time
 log::info!("TypeError: unsupported operand types");"""
 
 # =============================================================================
@@ -908,5 +907,4 @@ obj = Custom()
 # result = None + obj
 """
 rust = """
-// N/A - skip test
 """

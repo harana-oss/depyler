@@ -24,7 +24,6 @@ assert result == "resource"
 '''
 
 rust = '''
-    // Rust: RAII pattern with explicit scope
     {
         let cm = String::from("resource");
         let result = cm;
@@ -56,7 +55,6 @@ assert result == ("a", "b")
 '''
 
 rust = '''
-    // Rust: multiple bindings in scope
     {
         let a = String::from("a");
         let b = String::from("b");
@@ -86,7 +84,6 @@ assert result == 3
 '''
 
 rust = '''
-    // Rust: multiple bindings with trailing comma style
     {
         let a = 1;
         let b = 2;
@@ -120,7 +117,6 @@ assert result == ("content1", "content2")
 '''
 
 rust = '''
-    // Rust: RAII file handles
     use std::io::Cursor;
     use std::io::Read;
 
@@ -161,7 +157,6 @@ assert result == 10
 '''
 
 rust = '''
-    // Rust: many bindings in scope
     {
         let a = 1;
         let b = 2;
@@ -197,7 +192,6 @@ assert result == ("a", "c")
 '''
 
 rust = '''
-    // Rust: mixed binding pattern
     {
         let x = String::from("a");
         let _b = String::from("b");
@@ -236,7 +230,6 @@ assert result > 0
 '''
 
 rust = '''
-    // Rust: long variable names formatted across lines
     {
         let ctx1 = String::from("very_long_context_manager_name_1");
         let ctx2 = String::from("very_long_context_manager_name_2");
@@ -263,8 +256,6 @@ with (CM() as a):
 '''
 
 rust = '''
-// Rust RAII pattern
-// Resources cleaned up automatically
 '''
 
 
@@ -291,10 +282,9 @@ assert result == 3
 '''
 
 rust = '''
-    // Rust: commented bindings
     {
-        let a = 1; // first
-        let b = 2; // second
+        let a = 1;
+        let b = 2;
         let result = a + b;
         assert_eq!(result, 3);
     }
@@ -326,7 +316,6 @@ assert result == 3
 '''
 
 rust = '''
-    // Rust: line continuation not needed
     {
         let a = 1;
         let b = 2;
@@ -357,7 +346,6 @@ assert result == 3
 '''
 
 rust = '''
-    // Rust: nested scopes
     {
         let a = 1;
         {
@@ -392,7 +380,6 @@ assert result == 6
 '''
 
 rust = '''
-    // Rust: Vec of resources
     {
         let items: Vec<i32> = vec![1, 2, 3];
         let result: i32 = items.iter().sum();
@@ -436,7 +423,6 @@ assert result == 142
 '''
 
 rust = '''
-    // Rust: expressions in bindings
     fn get_cm() -> i32 {
         42
     }
@@ -473,8 +459,6 @@ with (CM() as a):
 '''
 
 rust = '''
-// Rust RAII pattern
-// Resources cleaned up automatically
 '''
 
 
@@ -502,7 +486,6 @@ with CM() as x:
 '''
 
 rust = '''
-    // Rust: valid block with resource
     {
         let x = 42;
         let result = x == 42;
@@ -528,7 +511,6 @@ assert result == 99
 '''
 
 rust = '''
-    // Rust: single binding
     {
         let cm = 99;
         let result = cm;
@@ -555,7 +537,6 @@ assert result == 77
 '''
 
 rust = '''
-    // Rust: nested parentheses
     {
         let cm = 77;
         let result = cm;
@@ -580,7 +561,6 @@ result = sys.version_info >= (3, 10)
 '''
 
 rust = '''
-    // Rust: no version requirements for this pattern
     let result = true;
 '''
 
@@ -608,7 +588,6 @@ assert result == 30
 '''
 
 rust = '''
-    // Rust: same pattern works at any version
     {
         let a = 10;
         let b = 20;

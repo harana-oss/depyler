@@ -929,7 +929,6 @@ def format_str(template: str, value: int) -> str:
 '''
 
 rust = '''
-// Transpilation failed
 '''
 
 [[test]]

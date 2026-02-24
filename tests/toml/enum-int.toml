@@ -508,8 +508,6 @@ assert Color.RED in flags
 assert Color.BLUE in flags
 '''
 rust = '''
-    // Rust doesn't have built-in flag iteration
-    // Would need custom implementation
     use std::ops::BitOr;
 
     #[repr(i32)]
@@ -782,7 +780,6 @@ rust = '''
     mapping.insert(Priority::Low, "can wait");
 
     assert_eq!(mapping[&Priority::High], "important");
-    // Rust: can't mix enum and int as keys
 '''
 
 [[test]]

@@ -45,11 +45,7 @@ print("Package __init__.py executes on import")
 '''
 
 rust = '''
-    // In Rust, mod.rs or lib.rs code runs on first use
-    // Example lib.rs:
-    // const VERSION: &str = "1.0.0";
 
-    // Code at module level runs when module is loaded
     const VERSION: &str = "1.0.0";
     let result = true;
     log::info!("Rust module initialization happens on first use");
@@ -142,14 +138,6 @@ print("Python submodules load on demand, not automatically")
 '''
 
 rust = '''
-    // Rust modules must be explicitly declared with mod keyword
-    // File structure:
-    //   src/
-    //     lib.rs
-    //     submodule.rs
-    //
-    // In lib.rs: mod submodule;  // Explicitly declares module
-    // Submodules are not automatically included
     let result = true;
     log::info!("Rust modules must be explicitly declared");
 '''
@@ -258,15 +246,6 @@ print("import pkg.sub makes submodule available")
 '''
 
 rust = '''
-    // In Rust: use pkg::sub;
-    // Or: use pkg::sub::*; for all public items
-    // Example:
-    // mod pkg {
-    //     pub mod sub {
-    //         pub fn function() {}
-    //     }
-    // }
-    // use pkg::sub;
     let result = true;
     log::info!("Rust uses 'use pkg::sub' for imports");
 '''
@@ -288,11 +267,6 @@ print("from pkg.sub import item imports specific items")
 '''
 
 rust = '''
-    // In Rust: use pkg::sub::item;
-    // Brings item into current scope
-    // Example:
-    // use std::collections::HashMap;
-    // let map = HashMap::new();  // No std::collections:: prefix needed
     let result = true;
     log::info!("Rust uses 'use pkg::sub::item' for specific imports");
 '''

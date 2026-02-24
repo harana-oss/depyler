@@ -50,7 +50,6 @@ impl fmt::Display for Point {
 
 let p = Point::new(3.0, 4.0);
 log::info!("{}", p);
-// Polar format would require custom implementation
 let r = (p.x.powi(2) + p.y.powi(2)).sqrt();
 let theta = p.y.atan2(p.x);
 log::info!("({:.2}, {:.2})", r, theta);"""
@@ -316,21 +315,16 @@ print(f"{label:-<10}")
 """
 rust = """
 let label = "Hi";
-// Rust's formatting doesn't support custom fill characters as easily
-// Manual implementation:
 let width = 10;
 let len = label.len();
 let padding = width.saturating_sub(len);
 
-// Center with *
 let left = padding / 2;
 let right = padding - left;
 log::info!("{}{}{}", "*".repeat(left), label, "*".repeat(right));
 
-// Right align with =
 log::info!("{}{}", "=".repeat(padding), label);
 
-// Left align with -
 log::info!("{}{}", label, "-".repeat(padding));"""
 expected_output = """****Hi****
 ========Hi
@@ -676,8 +670,6 @@ impl Thing {
 }
 
 let thing = Thing::new(42);
-// In Rust, we need to explicitly define what "truthy" means
-// Python objects without __bool__ or __len__ are always True
 log::info!("True");
 
 let thing2 = Thing::new(0);
@@ -706,8 +698,6 @@ obj = CustomObject([1, 2, 3, 4, 5])
 print(f"Size: {obj.__sizeof__()} bytes")
 """
 rust = """
-// In Rust, we use std::mem::size_of for compile-time size
-// and can implement a sizeof method for runtime estimation
 struct CustomObject {
     data: Vec<i32>,
 }
@@ -744,7 +734,6 @@ buf = Buffer(1024)
 print(f"Buffer size: {sys.getsizeof(buf)} bytes")
 """
 rust = """
-// In Rust, we estimate size similarly
 struct Buffer {
     data: Vec<u8>,
 }
@@ -934,9 +923,6 @@ except TypeError as e:
     print(f"TypeError: {e}")
 """
 rust = """
-// In Rust, the Display trait's fmt method must return fmt::Result
-// Returning wrong type is a compile-time error, not runtime
-// We simulate the error message for compatibility
 log::info!("TypeError: __format__ must return a str, not int");"""
 expected_output = "TypeError: __format__ must return a str, not int"
 
@@ -955,8 +941,6 @@ except TypeError as e:
     print(f"TypeError: {e}")
 """
 rust = """
-// In Rust, a method returning bool cannot return anything else
-// This would be caught at compile time
 log::info!("TypeError: __bool__ should return bool, returned str");"""
 expected_output = "TypeError: __bool__ should return bool, returned str"
 
@@ -1003,7 +987,6 @@ impl Styled {
         } else if spec.contains('l') {
             self.text.to_lowercase()
         } else if spec.contains('t') {
-            // Title case approximation
             self.text
                 .split_whitespace()
                 .map(|word| {

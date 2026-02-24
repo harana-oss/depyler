@@ -24,7 +24,6 @@ with MyContext() as ctx:
     print("Inside")
 """
 rust = """
-// Rust uses RAII pattern with Drop trait
 struct MyContext;
 
 impl MyContext {
@@ -41,8 +40,7 @@ impl Drop for MyContext {
 
 let ctx = MyContext;
 ctx.enter();
-log::info!("Inside");
-// Drop called automatically"""
+log::info!("Inside");"""
 
 [[test]]
 name = "dunder_exit"
@@ -293,8 +291,6 @@ except ValueError:
     print("Propagated")
 """
 rust = """
-// Rust doesn't have context managers that catch exceptions
-// Use Result types and ? operator instead
 struct ErrorHandler;
 
 impl ErrorHandler {
@@ -373,8 +369,6 @@ with Suppressor():
 print("Continued")
 """
 rust = """
-// Rust doesn't suppress exceptions in Drop
-// Use Result and error handling instead
 struct Suppressor;
 
 impl Drop for Suppressor {
@@ -438,13 +432,10 @@ except RuntimeError as e:
     print(f"Got: {e}")
 """
 rust = """
-// In Rust, Drop can't change exception propagation
-// Use explicit error handling
 struct Reraiser;
 
 impl Drop for Reraiser {
     fn drop(&mut self) {
-        // Can't raise in Drop
     }
 }
 
@@ -516,7 +507,6 @@ with Lock():
     print("Critical section")
 """
 rust = """
-// Rust uses MutexGuard which implements Drop
 struct Lock;
 
 impl Lock {
@@ -572,7 +562,7 @@ impl Drop for Transaction {
         if self.committed {
             log::info!("COMMIT");
         } else {
-            log::info!("COMMIT"); // For this example
+            log::info!("COMMIT");
         }
     }
 }
@@ -894,8 +884,6 @@ except RuntimeError as e:
     print(f"Caught: {e}")
 """
 rust = """
-// Rust Drop can't raise exceptions
-// Panics in Drop will abort
 struct FailExit;
 
 impl FailExit {
@@ -906,7 +894,6 @@ impl FailExit {
 
 impl Drop for FailExit {
     fn drop(&mut self) {
-        // Can't raise, would panic
     }
 }
 
@@ -938,8 +925,6 @@ with cm:
     print("Second use")
 """
 rust = """
-// Rust types can't be reused after Drop
-// Need to create new instances
 struct Reusable {
     name: String,
 }
@@ -992,8 +977,6 @@ with cm:
         print("Nested")
 """
 rust = """
-// Rust can't have multiple mutable borrows
-// Need different approach
 struct Counter {
     level: i32,
 }

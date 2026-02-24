@@ -17,8 +17,7 @@ result = True  # Placeholder
 '''
 
 rust = '''
-    // async with manager as ctx: ...
-    let result = true; // Placeholder
+    let result = true;
 '''
 
 
@@ -33,8 +32,7 @@ result = True  # Placeholder
 '''
 
 rust = '''
-    // async with manager: ...
-    let result = true; // Placeholder
+    let result = true;
 '''
 
 
@@ -49,8 +47,7 @@ result = True  # Placeholder
 '''
 
 rust = '''
-    // Execute body with async context
-    let result = true; // Placeholder
+    let result = true;
 '''
 
 
@@ -72,7 +69,6 @@ result = f()  # Returns coroutine
 
 rust = '''
 async fn f() {
-    // Async function
 }
 '''
 
@@ -91,7 +87,6 @@ result = f()  # Returns coroutine
 
 rust = '''
 async fn f() {
-    // Async function
 }
 '''
 
@@ -107,8 +102,7 @@ result = True  # Placeholder
 '''
 
 rust = '''
-    // Return value bound to as target
-    let result = true; // Placeholder
+    let result = true;
 '''
 
 
@@ -147,8 +141,7 @@ result = True  # Placeholder
 '''
 
 rust = '''
-    // from contextlib import asynccontextmanager
-    let result = true; // Placeholder
+    let result = true;
 '''
 
 
@@ -207,8 +200,7 @@ result = True  # Placeholder
 '''
 
 rust = '''
-    // Return True to suppress exception
-    let result = true; // Placeholder
+    let result = true;
 '''
 
 
@@ -227,8 +219,7 @@ result = True  # Placeholder
 '''
 
 rust = '''
-    // async with a, b, c: ...
-    let result = true; // Placeholder
+    let result = true;
 '''
 
 
@@ -243,8 +234,7 @@ result = True  # Placeholder
 '''
 
 rust = '''
-    // async with a: async with b: ...
-    let result = true; // Placeholder
+    let result = true;
 '''
 
 
@@ -263,8 +253,7 @@ result = True  # Placeholder
 '''
 
 rust = '''
-    // async with aiofiles.open() as f: ...
-    let result = true; // Placeholder
+    let result = true;
 '''
 
 
@@ -279,8 +268,7 @@ result = True  # Placeholder
 '''
 
 rust = '''
-    // async with asyncio.Lock(): ...
-    let result = true; // Placeholder
+    let result = true;
 '''
 
 
@@ -295,8 +283,7 @@ result = True  # Placeholder
 '''
 
 rust = '''
-    // async with pool.acquire() as conn: ...
-    let result = true; // Placeholder
+    let result = true;
 '''
 
 
@@ -311,8 +298,7 @@ result = True  # Placeholder
 '''
 
 rust = '''
-    // async with aiohttp.ClientSession() as session: ...
-    let result = true; // Placeholder
+    let result = true;
 '''
 
 
@@ -371,7 +357,6 @@ result = True  # Placeholder
 '''
 
 rust = '''
-    // async with outside async is error
-    let result = true; // Placeholder
+    let result = true;
 '''
 
