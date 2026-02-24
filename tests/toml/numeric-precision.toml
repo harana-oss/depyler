@@ -323,16 +323,9 @@ def floor_div(a: int, b: int) -> int:
 rust = '''
 pub fn floor_div(a: i32, b: i32) -> i32 {
     return {
-        let a = a;
-        let b = b;
-        let q = a / b;
+        let d = a / b;
         let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment { q - 1 } else { q }
+        if r != 0 && (a ^ b) < 0 { d - 1 } else { d }
     }
 '''
 
@@ -349,16 +342,9 @@ def floor_div_positive(a: int, b: int) -> int:
 rust = '''
 pub fn floor_div_positive(a: i32, b: i32) -> i32 {
     return {
-        let a = a;
-        let b = b;
-        let q = a / b;
+        let d = a / b;
         let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment { q - 1 } else { q }
+        if r != 0 && (a ^ b) < 0 { d - 1 } else { d }
     }
 '''
 
@@ -393,16 +379,9 @@ def python_divmod(a: int, b: int) -> tuple[int, int]:
 rust = '''
 pub fn python_divmod(a: i32, b: i32) -> (i32, i32) {
     let q = {
-        let a = a;
-        let b = b;
-        let q = a / b;
+        let d = a / b;
         let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment { q - 1 } else { q }
+        if r != 0 && (a ^ b) < 0 { d - 1 } else { d }
     };
     let r = ((a % b) + b) % b;
     return (q, r);

@@ -1987,7 +1987,7 @@ def test_counter():
 '''
 
 rust = '''
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct Counter {
     pub value: i32,
 }
@@ -2265,16 +2265,9 @@ pub fn find_prime_factors(mut n: i32) -> Result<Vec<i32>, ZeroDivisionError> {
         while n % d == 0 {
             factors.push(d);
             n = {
-                let a = n;
-                let b = d;
-                let q = a / b;
-                let r = a % b;
-                let r_negative = r < 0;
-                let b_negative = b < 0;
-                let r_nonzero = r != 0;
-                let signs_differ = r_negative != b_negative;
-                let needs_adjustment = r_nonzero && signs_differ;
-                if needs_adjustment { q - 1 } else { q }
+                let d = n / d;
+                let r = n % d;
+                if r != 0 && (n ^ d) < 0 { d - 1 } else { d }
             };
         }
         d += 1;
@@ -2293,14 +2286,9 @@ pub fn binary_search(arr: &Vec<i32>, target: i32) -> Result<i32, Box<dyn std::er
         let mid = {
             let a = left + right;
             let b = 2;
-            let q = a / b;
+            let d = a / b;
             let r = a % b;
-            let r_negative = r < 0;
-            let b_negative = b < 0;
-            let r_nonzero = r != 0;
-            let signs_differ = r_negative != b_negative;
-            let needs_adjustment = r_nonzero && signs_differ;
-            if needs_adjustment { q - 1 } else { q }
+            if r != 0 && (a ^ b) < 0 { d - 1 } else { d }
         };
         if arr.get(mid as usize).cloned().unwrap_or_default() == target {
             return Ok(mid);
@@ -2502,7 +2490,7 @@ impl IndexError {
         }
     }
 }
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct MathUtils {
     pub precision: i32,
 }
@@ -2818,14 +2806,9 @@ pub fn binary_search(arr: &Vec<i32>, target: i32) -> Result<i32, Box<dyn std::er
         let mid = {
             let a = left + right;
             let b = 2;
-            let q = a / b;
+            let d = a / b;
             let r = a % b;
-            let r_negative = r < 0;
-            let b_negative = b < 0;
-            let r_nonzero = r != 0;
-            let signs_differ = r_negative != b_negative;
-            let needs_adjustment = r_nonzero && signs_differ;
-            if needs_adjustment { q - 1 } else { q }
+            if r != 0 && (a ^ b) < 0 { d - 1 } else { d }
         };
         if arr.get(mid as usize).cloned().unwrap_or_default() == target {
             return Ok(mid);

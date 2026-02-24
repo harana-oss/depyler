@@ -499,7 +499,7 @@ result = True
 '''
 
 rust = '''
-#[derive(Debug, Copy, Clone] pub struct Example {
+#[derive(Debug, Copy, Clone)] pub struct Example {
     pub value: i32
 }
 impl Example {

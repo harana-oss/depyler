@@ -22,7 +22,7 @@ def create_point() -> Point:
 '''
 
 rust = '''
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct Point {
     pub x: i32,
     pub y: i32,
@@ -52,7 +52,7 @@ def create_counter() -> Counter:
 '''
 
 rust = '''
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct Counter {
     pub value: i32,
 }
@@ -291,7 +291,7 @@ def create() -> Ordered:
 '''
 
 rust = '''
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct Ordered {
     pub value: i32,
 }
@@ -324,7 +324,7 @@ def create():
 '''
 
 rust = '''
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct WeirdClass {
     pub value: i32,
 }
@@ -358,7 +358,7 @@ def create() -> ArgsClass:
 '''
 
 rust = '''
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct ArgsClass {
     pub x: i32,
     pub y: i32,

@@ -179,11 +179,19 @@ pub fn apply_rules(module: &HirModule, type_mapper: &TypeMapper) -> Result<syn::
         }
     }
 
-    // Convert non-ABC classes to structs
+    // Convert non-ABC classes to structs or enums
     for class in &module.classes {
         if !class.is_abc {
-            let struct_items = convert_class_to_struct(class, type_mapper, &abc_classes)?;
-            items.extend(struct_items);
+            if class.is_intflag {
+                let intflag_items = convert_class_to_intflag(class)?;
+                items.extend(intflag_items);
+            } else if class.is_enum {
+                let enum_items = convert_class_to_enum(class)?;
+                items.extend(enum_items);
+            } else {
+                let struct_items = convert_class_to_struct(class, type_mapper, &abc_classes)?;
+                items.extend(struct_items);
+            }
         }
     }
 
@@ -279,7 +287,10 @@ fn convert_protocol_to_trait(protocol: &Protocol, type_mapper: &TypeMapper) -> R
     }))
 }
 
-pub(crate) fn convert_abc_to_trait(class: &HirClass, type_mapper: &TypeMapper) -> Result<syn::Item> {
+pub(crate) fn convert_abc_to_trait(
+    class: &HirClass,
+    type_mapper: &TypeMapper,
+) -> Result<syn::Item> {
     let trait_name = syn::Ident::new(&class.name, proc_macro2::Span::call_site());
 
     // Convert ABC methods to trait methods (excluding __init__ and other special methods)
@@ -322,7 +333,7 @@ fn convert_abc_method_to_trait_method(
 
     // Convert parameters (skip 'self')
     let mut params: Vec<syn::FnArg> = Vec::new();
-    
+
     // Add self parameter if needed
     if !method.is_static {
         params.push(parse_quote! { &self });
@@ -4044,27 +4055,28 @@ impl<'a> ExprConverter<'a> {
                 }
             }
             BinOp::FloorDiv => {
-                // Python floor division semantics differ from Rust integer division
-                // Python: rounds towards negative infinity (floor)
-                // Rust: truncates towards zero
-                // Note: This implementation works for integers with proper floor semantics.
-                // Type-based dispatch for float division (using .floor()) would be ideal
-                // but requires full type inference integration. This is a known limitation.
-
-                Ok(parse_quote! {
-                    {
-                        let a = #left_expr;
-                        let b = #right_expr;
-                        let q = a / b;
-                        let r = a % b;
-                        let r_negative = r < 0;
-                        let b_negative = b < 0;
-                        let r_nonzero = r != 0;
-                        let signs_differ = r_negative != b_negative;
-                        let needs_adjustment = r_nonzero && signs_differ;
-                        if needs_adjustment { q - 1 } else { q }
-                    }
-                })
+                // Python floor division: rounds towards negative infinity
+                if matches!(left, HirExpr::Var(_) | HirExpr::Literal(_))
+                    && matches!(right, HirExpr::Var(_) | HirExpr::Literal(_))
+                {
+                    Ok(parse_quote! {
+                        {
+                            let d = #left_expr / #right_expr;
+                            let r = #left_expr % #right_expr;
+                            if r != 0 && (#left_expr ^ #right_expr) < 0 { d - 1 } else { d }
+                        }
+                    })
+                } else {
+                    Ok(parse_quote! {
+                        {
+                            let a = #left_expr;
+                            let b = #right_expr;
+                            let d = a / b;
+                            let r = a % b;
+                            if r != 0 && (a ^ b) < 0 { d - 1 } else { d }
+                        }
+                    })
+                }
             }
             BinOp::Mul => {
                 // Special case: [value] * n or n * [value] creates an array
@@ -5287,6 +5299,14 @@ impl<'a> ExprConverter<'a> {
             if var_name == "cls" && self.is_classmethod {
                 let attr_ident = syn::Ident::new(attr, proc_macro2::Span::call_site());
                 return Ok(parse_quote! { Self::#attr_ident });
+            }
+
+            // Handle Type.Variant → Type::Variant for enum/type access
+            // If the base is a PascalCase name, use path syntax (::)
+            if var_name.chars().next().map_or(false, |c| c.is_uppercase()) {
+                let type_ident = syn::Ident::new(var_name, proc_macro2::Span::call_site());
+                let attr_ident = syn::Ident::new(attr, proc_macro2::Span::call_site());
+                return Ok(parse_quote! { #type_ident::#attr_ident });
             }
         }
 

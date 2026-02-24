@@ -187,7 +187,6 @@ pub fn index_dict(items: Vec<String>) -> HashMap<i32, String> {
         .map(|(i, x)| (i as i32, x.clone()))
         .iter()
         .cloned()
-        .map(|(i, item)| (i, item))
         .collect::<HashMap<_, _>>();
 }
 '''

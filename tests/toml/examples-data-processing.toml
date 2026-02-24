@@ -456,19 +456,12 @@ pub fn calculate_statistics(
     }
     let _cse_temp_5 = sorted_data.len() as i32;
     let _cse_temp_6 = {
-        let a = _cse_temp_5;
-        let b = 2;
-        let q = a / b;
-        let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment {
-            q - 1
+        let d = _cse_temp_5 / 2;
+        let r = _cse_temp_5 % 2;
+        if r != 0 && (_cse_temp_5 ^ 2) < 0 {
+            d - 1
         } else {
-            q
+            d
         }
     };
     let mid: i32 = _cse_temp_6;
@@ -526,19 +519,12 @@ pub fn calculate_percentiles(
     };
     let _cse_temp_2 = sorted_data.len() as i32;
     let _cse_temp_3 = {
-        let a = _cse_temp_2;
-        let b = 4;
-        let q = a / b;
-        let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment {
-            q - 1
+        let d = _cse_temp_2 / 4;
+        let r = _cse_temp_2 % 4;
+        if r != 0 && (_cse_temp_2 ^ 4) < 0 {
+            d - 1
         } else {
-            q
+            d
         }
     };
     let q1_idx: i32 = _cse_temp_3;
@@ -550,19 +536,12 @@ pub fn calculate_percentiles(
             .unwrap_or_default(),
     );
     let _cse_temp_4 = {
-        let a = _cse_temp_2;
-        let b = 2;
-        let q = a / b;
-        let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment {
-            q - 1
+        let d = _cse_temp_2 / 2;
+        let r = _cse_temp_2 % 2;
+        if r != 0 && (_cse_temp_2 ^ 2) < 0 {
+            d - 1
         } else {
-            q
+            d
         }
     };
     let q2_idx: i32 = _cse_temp_4;
@@ -575,19 +554,12 @@ pub fn calculate_percentiles(
     );
     let _cse_temp_5 = 3 * _cse_temp_2;
     let _cse_temp_6 = {
-        let a = _cse_temp_5;
-        let b = 4;
-        let q = a / b;
-        let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment {
-            q - 1
+        let d = _cse_temp_5 / 4;
+        let r = _cse_temp_5 % 4;
+        if r != 0 && (_cse_temp_5 ^ 4) < 0 {
+            d - 1
         } else {
-            q
+            d
         }
     };
     let q3_idx: i32 = _cse_temp_6;

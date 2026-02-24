@@ -28,9 +28,11 @@ use format::format_rust_code;
 use import_gen::process_module_imports;
 #[cfg(test)]
 use stmt_gen::{
-    assign::{codegen_assign_attribute, codegen_assign_index, codegen_assign_symbol, codegen_assign_tuple},
-    control_flow::{codegen_break_stmt, codegen_continue_stmt, codegen_while_stmt},
+    assign::{
+        codegen_assign_attribute, codegen_assign_index, codegen_assign_symbol, codegen_assign_tuple,
+    },
     context_mgr::codegen_with_stmt,
+    control_flow::{codegen_break_stmt, codegen_continue_stmt, codegen_while_stmt},
     exception::{codegen_raise_stmt, codegen_try_stmt},
     return_stmt::codegen_return_stmt,
     simple::{codegen_expr_stmt, codegen_pass_stmt},
@@ -869,14 +871,25 @@ fn convert_classes_to_rust(
             abc_classes.insert(class.name.clone(), class);
         }
     }
-    
+
     let mut class_items = Vec::new();
     for class in classes {
         if class.is_abc {
             let trait_item = crate::direct_rules::convert_abc_to_trait(class, type_mapper)?;
             class_items.push(trait_item.to_token_stream());
+        } else if class.is_intflag {
+            let items = crate::direct_rules::convert_class_to_intflag(class)?;
+            for item in items {
+                class_items.push(item.to_token_stream());
+            }
+        } else if class.is_enum {
+            let items = crate::direct_rules::convert_class_to_enum(class)?;
+            for item in items {
+                class_items.push(item.to_token_stream());
+            }
         } else {
-            let items = crate::direct_rules::convert_class_to_struct(class, type_mapper, &abc_classes)?;
+            let items =
+                crate::direct_rules::convert_class_to_struct(class, type_mapper, &abc_classes)?;
             for item in items {
                 let tokens = item.to_token_stream();
                 class_items.push(tokens);
@@ -1337,6 +1350,24 @@ pub fn generate_rust_file(
         }
     }
 
+    // Populate enum_names so expression generation uses :: instead of . for enum access
+    for class in &module.classes {
+        if class.is_enum || class.is_intflag {
+            ctx.enum_names.insert(class.name.clone());
+        }
+    }
+
+    // Populate class_field_types so field_needs_clone() can determine when .clone() is needed
+    for class in &module.classes {
+        if !class.is_enum && !class.is_intflag {
+            let mut field_map = HashMap::new();
+            for field in &class.fields {
+                field_map.insert(field.name.clone(), field.field_type.clone());
+            }
+            ctx.class_field_types.insert(class.name.clone(), field_map);
+        }
+    }
+
     // PRE-POPULATE function_param_borrows for ALL functions BEFORE code generation
     // This ensures that when function A calls function B, it knows B's parameter signature
     // even if B hasn't been generated yet. Fixes issue where call sites default to
@@ -1437,14 +1468,14 @@ fn generate_main_from_statements(
     ctx: &mut CodeGenContext,
 ) -> Result<proc_macro2::TokenStream> {
     use crate::rust_gen::context::RustCodeGen;
-    
+
     // Generate Rust code for each statement
     let mut body_tokens = Vec::new();
     for stmt in statements {
         let stmt_tokens = stmt.to_rust_tokens(ctx)?;
         body_tokens.push(stmt_tokens);
     }
-    
+
     // Wrap in a main() function
     Ok(quote! {
         fn main() {
@@ -1787,10 +1818,7 @@ mod tests {
         let exc = Some(HirExpr::Literal(Literal::String("Error".to_string())));
 
         let result = codegen_raise_stmt(&exc, &mut ctx).unwrap();
-        assert_eq!(
-            result.to_string(),
-            "return Err (\"Error\") ;"
-        );
+        assert_eq!(result.to_string(), "return Err (\"Error\") ;");
     }
 
     #[test]
@@ -1926,7 +1954,7 @@ mod tests {
     #[test]
     fn test_codegen_try_stmt_with_finally() {
         use crate::hir::Literal;
-        
+
         let mut ctx = create_test_context();
         // Use an actual statement in try block (not just pass)
         let body = vec![HirStmt::Expr(HirExpr::Literal(Literal::Int(1)))];
@@ -1938,7 +1966,10 @@ mod tests {
         let result_str = result.to_string();
         // Should contain both the try expression and finally expression
         assert!(result_str.contains("1"), "Should contain try block code");
-        assert!(result_str.contains("2"), "Should contain finally block code");
+        assert!(
+            result_str.contains("2"),
+            "Should contain finally block code"
+        );
     }
 
     #[test]

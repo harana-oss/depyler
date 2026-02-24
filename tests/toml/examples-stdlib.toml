@@ -783,17 +783,12 @@ pub fn binary_search_left(arr: &Vec<i32>, target: i32) -> Result<i32, Box<dyn st
         let mid: i32 = {
             let a = left + right;
             let b = 2;
-            let q = a / b;
+            let d = a / b;
             let r = a % b;
-            let r_negative = r < 0;
-            let b_negative = b < 0;
-            let r_nonzero = r != 0;
-            let signs_differ = r_negative != b_negative;
-            let needs_adjustment = r_nonzero && signs_differ;
-            if needs_adjustment {
-                q - 1
+            if r != 0 && (a ^ b) < 0 {
+                d - 1
             } else {
-                q
+                d
             }
         };
         if arr.get(mid as usize).cloned().unwrap_or_default() < target {
@@ -813,17 +808,12 @@ pub fn binary_search_right(arr: &Vec<i32>, target: i32) -> Result<i32, Box<dyn s
         let mid: i32 = {
             let a = left + right;
             let b = 2;
-            let q = a / b;
+            let d = a / b;
             let r = a % b;
-            let r_negative = r < 0;
-            let b_negative = b < 0;
-            let r_nonzero = r != 0;
-            let signs_differ = r_negative != b_negative;
-            let needs_adjustment = r_nonzero && signs_differ;
-            if needs_adjustment {
-                q - 1
+            if r != 0 && (a ^ b) < 0 {
+                d - 1
             } else {
-                q
+                d
             }
         };
         if arr.get(mid as usize).cloned().unwrap_or_default() <= target {
@@ -3675,14 +3665,9 @@ pub fn calculate_age<'b, 'a>(
     let _cse_temp_0 = {
         let a = diff.num_days() as i32;
         let b = 365;
-        let q = a / b;
+        let d = a / b;
         let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment { q - 1 } else { q }
+        if r != 0 && (a ^ b) < 0 { d - 1 } else { d }
     };
     let age_in_years: i32 = _cse_temp_0;
     Ok(age_in_years)
@@ -3789,16 +3774,9 @@ pub fn working_days_between<'b, 'a>(
     let total_days: i32 = diff.num_days() as i32;
     let _cse_temp_1 = total_days * 5;
     let _cse_temp_2 = {
-        let a = _cse_temp_1;
-        let b = 7;
-        let q = a / b;
-        let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment { q - 1 } else { q }
+        let d = _cse_temp_1 / 7;
+        let r = _cse_temp_1 % 7;
+        if r != 0 && (_cse_temp_1 ^ 7) < 0 { d - 1 } else { d }
     };
     let working_days: i32 = _cse_temp_2;
     Ok(working_days)
@@ -3807,16 +3785,9 @@ pub fn working_days_between<'b, 'a>(
 pub fn add_business_days(start_date: &date, num_days: i32) -> Result<date, ZeroDivisionError> {
     let _cse_temp_0 = num_days * 7;
     let _cse_temp_1 = {
-        let a = _cse_temp_0;
-        let b = 5;
-        let q = a / b;
-        let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment { q - 1 } else { q }
+        let d = _cse_temp_0 / 5;
+        let r = _cse_temp_0 % 5;
+        if r != 0 && (_cse_temp_0 ^ 5) < 0 { d - 1 } else { d }
     };
     let calendar_days: i32 = _cse_temp_1;
     let _cse_temp_2 = start_date + chrono::Duration::zero();
@@ -3858,16 +3829,9 @@ pub fn test_time_arithmetic() -> Result<i32, ZeroDivisionError> {
     let duration_minutes: i32 = 150;
     let end_minutes: i32 = start_minutes + duration_minutes;
     let _cse_temp_2 = {
-        let a = end_minutes;
-        let b = 60;
-        let q = a / b;
-        let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment { q - 1 } else { q }
+        let d = end_minutes / 60;
+        let r = end_minutes % 60;
+        if r != 0 && (end_minutes ^ 60) < 0 { d - 1 } else { d }
     };
     let end_hour: i32 = _cse_temp_2;
     Ok(end_hour)
@@ -6337,17 +6301,12 @@ pub fn manual_heap_insert(
         let parent: i32 = {
             let a = index - 1;
             let b = 2;
-            let q = a / b;
+            let d = a / b;
             let r = a % b;
-            let r_negative = r < 0;
-            let b_negative = b < 0;
-            let r_nonzero = r != 0;
-            let signs_differ = r_negative != b_negative;
-            let needs_adjustment = r_nonzero && signs_differ;
-            if needs_adjustment {
-                q - 1
+            if r != 0 && (a ^ b) < 0 {
+                d - 1
             } else {
-                q
+                d
             }
         };
         if new_heap.get(index as usize).cloned().unwrap_or_default()
@@ -6542,19 +6501,12 @@ pub fn find_median_using_heaps(data: &Vec<i32>) -> Result<f64, Box<dyn std::erro
         let _cse_temp_3 = ({
             let base = &sorted_data;
             let idx: i32 = {
-                let a = n;
-                let b = 2;
-                let q = a / b;
-                let r = a % b;
-                let r_negative = r < 0;
-                let b_negative = b < 0;
-                let r_nonzero = r != 0;
-                let signs_differ = r_negative != b_negative;
-                let needs_adjustment = r_nonzero && signs_differ;
-                if needs_adjustment {
-                    q - 1
+                let d = n / 2;
+                let r = n % 2;
+                if r != 0 && (n ^ 2) < 0 {
+                    d - 1
                 } else {
-                    q
+                    d
                 }
             };
             let actual_idx = if idx < 0 {
@@ -6569,19 +6521,12 @@ pub fn find_median_using_heaps(data: &Vec<i32>) -> Result<f64, Box<dyn std::erro
         let mid1: i32 = {
             let base = &sorted_data;
             let idx: i32 = {
-                let a = n;
-                let b = 2;
-                let q = a / b;
-                let r = a % b;
-                let r_negative = r < 0;
-                let b_negative = b < 0;
-                let r_nonzero = r != 0;
-                let signs_differ = r_negative != b_negative;
-                let needs_adjustment = r_nonzero && signs_differ;
-                if needs_adjustment {
-                    q - 1
+                let d = n / 2;
+                let r = n % 2;
+                if r != 0 && (n ^ 2) < 0 {
+                    d - 1
                 } else {
-                    q
+                    d
                 }
             } - 1;
             let actual_idx = if idx < 0 {
@@ -6594,19 +6539,12 @@ pub fn find_median_using_heaps(data: &Vec<i32>) -> Result<f64, Box<dyn std::erro
         let mid2: i32 = {
             let base = &sorted_data;
             let idx: i32 = {
-                let a = n;
-                let b = 2;
-                let q = a / b;
-                let r = a % b;
-                let r_negative = r < 0;
-                let b_negative = b < 0;
-                let r_nonzero = r != 0;
-                let signs_differ = r_negative != b_negative;
-                let needs_adjustment = r_nonzero && signs_differ;
-                if needs_adjustment {
-                    q - 1
+                let d = n / 2;
+                let r = n % 2;
+                if r != 0 && (n ^ 2) < 0 {
+                    d - 1
                 } else {
-                    q
+                    d
                 }
             };
             let actual_idx = if idx < 0 {
@@ -8264,14 +8202,9 @@ pub fn test_integer_operations() -> Result<i32, ZeroDivisionError> {
             }
             a as i32
         };
-        let q = a / b;
+        let d = a / b;
         let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment { q - 1 } else { q }
+        if r != 0 && (a ^ b) < 0 { d - 1 } else { d }
     };
     let lcm: i32 = _cse_temp_2;
     Ok(fact + gcd1 + gcd2 + lcm)
@@ -8746,19 +8679,12 @@ pub fn test_arithmetic_operators() -> Result<i32, ZeroDivisionError> {
     let _cse_temp_0 = a * b;
     let mul_result: i32 = _cse_temp_0;
     let _cse_temp_1 = {
-        let a = a;
-        let b = b;
-        let q = a / b;
+        let d = a / b;
         let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment {
-            q - 1
+        if r != 0 && (a ^ b) < 0 {
+            d - 1
         } else {
-            q
+            d
         }
     };
     let floordiv_result: i32 = _cse_temp_1;
@@ -8973,19 +8899,12 @@ pub fn apply_operation(a: i32, b: i32, op: &str) -> Result<i32, ZeroDivisionErro
                 let _cse_temp_3 = op == "div";
                 if _cse_temp_3 {
                     Ok({
-                        let a = a;
-                        let b = b;
-                        let q = a / b;
+                        let d = a / b;
                         let r = a % b;
-                        let r_negative = r < 0;
-                        let b_negative = b < 0;
-                        let r_nonzero = r != 0;
-                        let signs_differ = r_negative != b_negative;
-                        let needs_adjustment = r_nonzero && signs_differ;
-                        if needs_adjustment {
-                            q - 1
+                        if r != 0 && (a ^ b) < 0 {
+                            d - 1
                         } else {
-                            q
+                            d
                         }
                     })
                 } else {
@@ -12428,19 +12347,12 @@ pub fn test_median_odd() -> Result<f64, Box<dyn std::error::Error>> {
     }
     let _cse_temp_0 = sorted_data.len() as i32;
     let _cse_temp_1 = {
-        let a = _cse_temp_0;
-        let b = 2;
-        let q = a / b;
-        let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment {
-            q - 1
+        let d = _cse_temp_0 / 2;
+        let r = _cse_temp_0 % 2;
+        if r != 0 && (_cse_temp_0 ^ 2) < 0 {
+            d - 1
         } else {
-            q
+            d
         }
     };
     let mid: i32 = _cse_temp_1;
@@ -12467,19 +12379,12 @@ pub fn test_median_even() -> Result<f64, Box<dyn std::error::Error>> {
     }
     let _cse_temp_0 = sorted_data.len() as i32;
     let _cse_temp_1 = {
-        let a = _cse_temp_0;
-        let b = 2;
-        let q = a / b;
-        let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment {
-            q - 1
+        let d = _cse_temp_0 / 2;
+        let r = _cse_temp_0 % 2;
+        if r != 0 && (_cse_temp_0 ^ 2) < 0 {
+            d - 1
         } else {
-            q
+            d
         }
     };
     let mid: i32 = _cse_temp_1;
@@ -12630,19 +12535,12 @@ pub fn calculate_percentile(
     let _cse_temp_0 = sorted_data.len() as i32;
     let _cse_temp_1 = percentile * _cse_temp_0;
     let _cse_temp_2 = {
-        let a = _cse_temp_1;
-        let b = 100;
-        let q = a / b;
-        let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment {
-            q - 1
+        let d = _cse_temp_1 / 100;
+        let r = _cse_temp_1 % 100;
+        if r != 0 && (_cse_temp_1 ^ 100) < 0 {
+            d - 1
         } else {
-            q
+            d
         }
     };
     let mut index: i32 = _cse_temp_2;
@@ -15584,17 +15482,12 @@ pub fn binary_search_left(arr: &Vec<i32>, target: i32) -> Result<i32, Box<dyn st
         let mid: i32 = {
             let a = left + right;
             let b = 2;
-            let q = a / b;
+            let d = a / b;
             let r = a % b;
-            let r_negative = r < 0;
-            let b_negative = b < 0;
-            let r_nonzero = r != 0;
-            let signs_differ = r_negative != b_negative;
-            let needs_adjustment = r_nonzero && signs_differ;
-            if needs_adjustment {
-                q - 1
+            if r != 0 && (a ^ b) < 0 {
+                d - 1
             } else {
-                q
+                d
             }
         };
         if arr.get(mid as usize).cloned().unwrap_or_default() < target {
@@ -15614,17 +15507,12 @@ pub fn binary_search_right(arr: &Vec<i32>, target: i32) -> Result<i32, Box<dyn s
         let mid: i32 = {
             let a = left + right;
             let b = 2;
-            let q = a / b;
+            let d = a / b;
             let r = a % b;
-            let r_negative = r < 0;
-            let b_negative = b < 0;
-            let r_nonzero = r != 0;
-            let signs_differ = r_negative != b_negative;
-            let needs_adjustment = r_nonzero && signs_differ;
-            if needs_adjustment {
-                q - 1
+            if r != 0 && (a ^ b) < 0 {
+                d - 1
             } else {
-                q
+                d
             }
         };
         if arr.get(mid as usize).cloned().unwrap_or_default() <= target {
@@ -18476,14 +18364,9 @@ pub fn calculate_age<'b, 'a>(
     let _cse_temp_0 = {
         let a = diff.num_days() as i32;
         let b = 365;
-        let q = a / b;
+        let d = a / b;
         let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment { q - 1 } else { q }
+        if r != 0 && (a ^ b) < 0 { d - 1 } else { d }
     };
     let age_in_years: i32 = _cse_temp_0;
     Ok(age_in_years)
@@ -18590,16 +18473,9 @@ pub fn working_days_between<'b, 'a>(
     let total_days: i32 = diff.num_days() as i32;
     let _cse_temp_1 = total_days * 5;
     let _cse_temp_2 = {
-        let a = _cse_temp_1;
-        let b = 7;
-        let q = a / b;
-        let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment { q - 1 } else { q }
+        let d = _cse_temp_1 / 7;
+        let r = _cse_temp_1 % 7;
+        if r != 0 && (_cse_temp_1 ^ 7) < 0 { d - 1 } else { d }
     };
     let working_days: i32 = _cse_temp_2;
     Ok(working_days)
@@ -18608,16 +18484,9 @@ pub fn working_days_between<'b, 'a>(
 pub fn add_business_days(start_date: &date, num_days: i32) -> Result<date, ZeroDivisionError> {
     let _cse_temp_0 = num_days * 7;
     let _cse_temp_1 = {
-        let a = _cse_temp_0;
-        let b = 5;
-        let q = a / b;
-        let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment { q - 1 } else { q }
+        let d = _cse_temp_0 / 5;
+        let r = _cse_temp_0 % 5;
+        if r != 0 && (_cse_temp_0 ^ 5) < 0 { d - 1 } else { d }
     };
     let calendar_days: i32 = _cse_temp_1;
     let _cse_temp_2 = start_date + chrono::Duration::zero();
@@ -18659,16 +18528,9 @@ pub fn test_time_arithmetic() -> Result<i32, ZeroDivisionError> {
     let duration_minutes: i32 = 150;
     let end_minutes: i32 = start_minutes + duration_minutes;
     let _cse_temp_2 = {
-        let a = end_minutes;
-        let b = 60;
-        let q = a / b;
-        let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment { q - 1 } else { q }
+        let d = end_minutes / 60;
+        let r = end_minutes % 60;
+        if r != 0 && (end_minutes ^ 60) < 0 { d - 1 } else { d }
     };
     let end_hour: i32 = _cse_temp_2;
     Ok(end_hour)
@@ -21138,17 +21000,12 @@ pub fn manual_heap_insert(
         let parent: i32 = {
             let a = index - 1;
             let b = 2;
-            let q = a / b;
+            let d = a / b;
             let r = a % b;
-            let r_negative = r < 0;
-            let b_negative = b < 0;
-            let r_nonzero = r != 0;
-            let signs_differ = r_negative != b_negative;
-            let needs_adjustment = r_nonzero && signs_differ;
-            if needs_adjustment {
-                q - 1
+            if r != 0 && (a ^ b) < 0 {
+                d - 1
             } else {
-                q
+                d
             }
         };
         if new_heap.get(index as usize).cloned().unwrap_or_default()
@@ -21343,19 +21200,12 @@ pub fn find_median_using_heaps(data: &Vec<i32>) -> Result<f64, Box<dyn std::erro
         let _cse_temp_3 = ({
             let base = &sorted_data;
             let idx: i32 = {
-                let a = n;
-                let b = 2;
-                let q = a / b;
-                let r = a % b;
-                let r_negative = r < 0;
-                let b_negative = b < 0;
-                let r_nonzero = r != 0;
-                let signs_differ = r_negative != b_negative;
-                let needs_adjustment = r_nonzero && signs_differ;
-                if needs_adjustment {
-                    q - 1
+                let d = n / 2;
+                let r = n % 2;
+                if r != 0 && (n ^ 2) < 0 {
+                    d - 1
                 } else {
-                    q
+                    d
                 }
             };
             let actual_idx = if idx < 0 {
@@ -21370,19 +21220,12 @@ pub fn find_median_using_heaps(data: &Vec<i32>) -> Result<f64, Box<dyn std::erro
         let mid1: i32 = {
             let base = &sorted_data;
             let idx: i32 = {
-                let a = n;
-                let b = 2;
-                let q = a / b;
-                let r = a % b;
-                let r_negative = r < 0;
-                let b_negative = b < 0;
-                let r_nonzero = r != 0;
-                let signs_differ = r_negative != b_negative;
-                let needs_adjustment = r_nonzero && signs_differ;
-                if needs_adjustment {
-                    q - 1
+                let d = n / 2;
+                let r = n % 2;
+                if r != 0 && (n ^ 2) < 0 {
+                    d - 1
                 } else {
-                    q
+                    d
                 }
             } - 1;
             let actual_idx = if idx < 0 {
@@ -21395,19 +21238,12 @@ pub fn find_median_using_heaps(data: &Vec<i32>) -> Result<f64, Box<dyn std::erro
         let mid2: i32 = {
             let base = &sorted_data;
             let idx: i32 = {
-                let a = n;
-                let b = 2;
-                let q = a / b;
-                let r = a % b;
-                let r_negative = r < 0;
-                let b_negative = b < 0;
-                let r_nonzero = r != 0;
-                let signs_differ = r_negative != b_negative;
-                let needs_adjustment = r_nonzero && signs_differ;
-                if needs_adjustment {
-                    q - 1
+                let d = n / 2;
+                let r = n % 2;
+                if r != 0 && (n ^ 2) < 0 {
+                    d - 1
                 } else {
-                    q
+                    d
                 }
             };
             let actual_idx = if idx < 0 {
@@ -23065,14 +22901,9 @@ pub fn test_integer_operations() -> Result<i32, ZeroDivisionError> {
             }
             a as i32
         };
-        let q = a / b;
+        let d = a / b;
         let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment { q - 1 } else { q }
+        if r != 0 && (a ^ b) < 0 { d - 1 } else { d }
     };
     let lcm: i32 = _cse_temp_2;
     Ok(fact + gcd1 + gcd2 + lcm)
@@ -23547,19 +23378,12 @@ pub fn test_arithmetic_operators() -> Result<i32, ZeroDivisionError> {
     let _cse_temp_0 = a * b;
     let mul_result: i32 = _cse_temp_0;
     let _cse_temp_1 = {
-        let a = a;
-        let b = b;
-        let q = a / b;
+        let d = a / b;
         let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment {
-            q - 1
+        if r != 0 && (a ^ b) < 0 {
+            d - 1
         } else {
-            q
+            d
         }
     };
     let floordiv_result: i32 = _cse_temp_1;
@@ -23774,19 +23598,12 @@ pub fn apply_operation(a: i32, b: i32, op: &str) -> Result<i32, ZeroDivisionErro
                 let _cse_temp_3 = op == "div";
                 if _cse_temp_3 {
                     Ok({
-                        let a = a;
-                        let b = b;
-                        let q = a / b;
+                        let d = a / b;
                         let r = a % b;
-                        let r_negative = r < 0;
-                        let b_negative = b < 0;
-                        let r_nonzero = r != 0;
-                        let signs_differ = r_negative != b_negative;
-                        let needs_adjustment = r_nonzero && signs_differ;
-                        if needs_adjustment {
-                            q - 1
+                        if r != 0 && (a ^ b) < 0 {
+                            d - 1
                         } else {
-                            q
+                            d
                         }
                     })
                 } else {
@@ -27229,19 +27046,12 @@ pub fn test_median_odd() -> Result<f64, Box<dyn std::error::Error>> {
     }
     let _cse_temp_0 = sorted_data.len() as i32;
     let _cse_temp_1 = {
-        let a = _cse_temp_0;
-        let b = 2;
-        let q = a / b;
-        let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment {
-            q - 1
+        let d = _cse_temp_0 / 2;
+        let r = _cse_temp_0 % 2;
+        if r != 0 && (_cse_temp_0 ^ 2) < 0 {
+            d - 1
         } else {
-            q
+            d
         }
     };
     let mid: i32 = _cse_temp_1;
@@ -27268,19 +27078,12 @@ pub fn test_median_even() -> Result<f64, Box<dyn std::error::Error>> {
     }
     let _cse_temp_0 = sorted_data.len() as i32;
     let _cse_temp_1 = {
-        let a = _cse_temp_0;
-        let b = 2;
-        let q = a / b;
-        let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment {
-            q - 1
+        let d = _cse_temp_0 / 2;
+        let r = _cse_temp_0 % 2;
+        if r != 0 && (_cse_temp_0 ^ 2) < 0 {
+            d - 1
         } else {
-            q
+            d
         }
     };
     let mid: i32 = _cse_temp_1;
@@ -27431,19 +27234,12 @@ pub fn calculate_percentile(
     let _cse_temp_0 = sorted_data.len() as i32;
     let _cse_temp_1 = percentile * _cse_temp_0;
     let _cse_temp_2 = {
-        let a = _cse_temp_1;
-        let b = 100;
-        let q = a / b;
-        let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment {
-            q - 1
+        let d = _cse_temp_1 / 100;
+        let r = _cse_temp_1 % 100;
+        if r != 0 && (_cse_temp_1 ^ 100) < 0 {
+            d - 1
         } else {
-            q
+            d
         }
     };
     let mut index: i32 = _cse_temp_2;

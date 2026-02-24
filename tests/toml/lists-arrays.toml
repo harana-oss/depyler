@@ -1118,3 +1118,24 @@ pub fn test_zeros() -> Vec<i32> {
     return vec![0; 0 as usize];
 }
 '''
+
+[[test]]
+name = "inline_array_passed_to_function"
+description = "Inline array literal passed as argument to function taking list parameter"
+
+python = '''
+def sample(distribution: list[float], k: float) -> int:
+    return len(distribution) - 1
+
+def call_sample() -> int:
+    return sample([1.0, 2.0, 3.0], 0.5)
+'''
+
+rust = '''
+pub fn sample(distribution: &Vec<f64>, k: f64) -> i32 {
+    return (distribution.len() as i32).saturating_sub(1) as i32;
+}
+pub fn call_sample() -> i32 {
+    return sample(&vec![1.0, 2.0, 3.0], 0.5);
+}
+'''

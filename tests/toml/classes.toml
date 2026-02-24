@@ -99,7 +99,7 @@ class Rectangle:
 '''
 
 rust = '''
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct Rectangle {
     pub width: i32,
     pub height: i32,
@@ -129,7 +129,7 @@ class Calculator:
 '''
 
 rust = '''
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct Calculator {
     pub value: i32,
 }
@@ -158,7 +158,7 @@ class Counter:
 '''
 
 rust = '''
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct Counter {
     pub count: i32,
 }
@@ -361,7 +361,7 @@ class Counter:
 '''
 
 rust = '''
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct Counter {
     pub value: i32,
 }
@@ -431,7 +431,7 @@ def set_config_value(c: Config) -> None:
 '''
 
 rust = '''
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct Config {
     pub value: i32,
 }
@@ -486,7 +486,7 @@ def set_count(c: Counter, new_count: int) -> None:
 '''
 
 rust = '''
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct Counter {
     pub count: i32,
 }
@@ -541,7 +541,7 @@ def get_config_value(c: Config) -> int:
 '''
 
 rust = '''
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct Config {
     pub value: i32,
 }
@@ -595,7 +595,7 @@ def update_state(s: State) -> None:
 '''
 
 rust = '''
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct State {
     pub temp: i32,
     pub result: i32,
@@ -628,7 +628,7 @@ class Rectangle:
 '''
 
 rust = '''
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct Rectangle {
     pub width: i32,
     pub height: i32,
@@ -692,7 +692,7 @@ class Circle:
 '''
 
 rust = '''
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct Circle {
     pub radius: f64,
 }
@@ -766,7 +766,7 @@ class Calculator:
 '''
 
 rust = '''
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct Calculator {
     pub value: i32,
 }
@@ -805,7 +805,7 @@ class User:
 '''
 
 rust = '''
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct User {
     pub age: i32,
     pub premium: bool,
@@ -851,7 +851,7 @@ class Account:
 '''
 
 rust = '''
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct Account {
     pub balance: f64,
 }
@@ -895,7 +895,7 @@ class DataHolder:
 '''
 
 rust = '''
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct DataHolder {
     pub value: i32,
 }
@@ -1231,7 +1231,7 @@ impl Point {
         return 0;
     }
 }
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct Rectangle {
     pub width: i32,
     pub height: i32,
@@ -1657,7 +1657,7 @@ def test_counter():
 '''
 
 rust = '''
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct Counter {
     pub count: i32,
 }

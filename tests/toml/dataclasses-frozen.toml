@@ -26,7 +26,7 @@ result = (p.x, p.y)
 rust = '''
 pub const p: Point = Point::new(1, 2);
 pub const result: (i32, i32) = (p.x, p.y);
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct Point {
     pub x: i32,
     pub y: i32,
@@ -61,7 +61,7 @@ except:
 
 rust = '''
 pub const p: Point = Point::new(1, 2);
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct Point {
     pub x: i32,
     pub y: i32,
@@ -96,7 +96,7 @@ except:
 
 rust = '''
 pub const p: Point = Point::new(1, 2);
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct Point {
     pub x: i32,
     pub y: i32,
@@ -138,7 +138,7 @@ pub const result: i64 = {
     p.hash(&mut hasher);
     hasher.finish() as i64
 };
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct Point {
     pub x: i32,
     pub y: i32,
@@ -179,7 +179,7 @@ lazy_static! {
 }
 use lazy_static::lazy_static;
 use std::collections::HashMap;
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct Point {
     pub x: i32,
     pub y: i32,
@@ -224,7 +224,7 @@ lazy_static! {
 }
 use lazy_static::lazy_static;
 use std::collections::HashSet;
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct Point {
     pub x: i32,
     pub y: i32,
@@ -270,7 +270,7 @@ pub const result: bool = {
     p2.hash(&mut hasher);
     hasher.finish() as i64
 };
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct Point {
     pub x: i32,
     pub y: i32,
@@ -308,7 +308,7 @@ rust = '''
 pub const p: Point = Point::new(1, 2);
 pub const p2: Point = replace(p, 10);
 pub const result: (i32, i32) = (p2.x, p2.y);
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct Point {
     pub x: i32,
     pub y: i32,
@@ -342,7 +342,7 @@ rust = '''
 pub const p: Point = Point::new(1, 2);
 pub const p2: Point = replace(p, 10);
 pub const result: (i32, i32) = (p.x, p2.x);
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct Point {
     pub x: i32,
     pub y: i32,
@@ -376,7 +376,7 @@ rust = '''
 pub const p: Point = Point::new(0, 0);
 pub const p2: Point = replace(replace(p, 1), 2);
 pub const result: (i32, i32) = (p2.x, p2.y);
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct Point {
     pub x: i32,
     pub y: i32,
@@ -446,7 +446,7 @@ result = o.inner.value
 rust = '''
 pub const o: Outer = Outer::new(Inner::new(42));
 pub const result: i32 = o.inner.value;
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct Inner {
     pub value: i32,
 }
@@ -524,7 +524,7 @@ result = (p.x, p.y, p.z)
 rust = '''
 pub const p: Point3D = Point3D::new(1, 2, 3);
 pub const result: (i32, i32, i32) = (p.x, p.y, p.z);
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct Point2D {
     pub x: i32,
     pub y: i32,
@@ -534,7 +534,7 @@ impl Point2D {
         Self { x, y }
     }
 }
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct Point3D {
     pub z: i32,
 }
@@ -604,7 +604,7 @@ result = (p.x, p.y, p.z)
 rust = '''
 pub const p: Point3D = Point3D::new(1, 2, 3);
 pub const result: (i32, i32, i32) = (p.x, p.y, p.z);
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct Point2D {
     pub x: i32,
     pub y: i32,
@@ -652,7 +652,7 @@ result = p.x
 rust = '''
 pub const p: Point = Point::new(5, 10);
 pub const result: i32 = p.x;
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct Point {
     pub x: i32,
     pub y: i32,
@@ -688,7 +688,7 @@ result = r.area
 rust = '''
 pub const r: Rectangle = Rectangle::new(3, 4);
 pub const result: i32 = r.area;
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct Rectangle {
     pub width: i32,
     pub height: i32,
@@ -726,7 +726,7 @@ result = Point.count
 
 rust = '''
 pub const result: i32 = Point::count;
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct Point {
     pub x: i32,
     pub y: i32,
@@ -761,7 +761,7 @@ rust = '''
 pub const p1: Point = Point::new(1, 2);
 pub const p2: Point = Point::new(1, 2);
 pub const result: bool = p1 == p2;
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct Point {
     pub x: i32,
     pub y: i32,
@@ -793,7 +793,7 @@ result = repr(p)
 rust = '''
 pub const p: Point = Point::new(1, 2);
 pub const result: String = format!("{:?}", p);
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct Point {
     pub x: i32,
     pub y: i32,

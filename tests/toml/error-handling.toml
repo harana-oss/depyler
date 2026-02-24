@@ -41,16 +41,9 @@ pub fn safe_divide(a: i32, b: i32) -> i32 {
         return 0;
     } else {
         return {
-            let a = a;
-            let b = b;
-            let q = a / b;
+            let d = a / b;
             let r = a % b;
-            let r_negative = r < 0;
-            let b_negative = b < 0;
-            let r_nonzero = r != 0;
-            let signs_differ = r_negative != b_negative;
-            let needs_adjustment = r_nonzero && signs_differ;
-            if needs_adjustment { q - 1 } else { q }
+            if r != 0 && (a ^ b) < 0 { d - 1 } else { d }
         };
     }
 }
@@ -347,16 +340,9 @@ pub fn divide_safe(a: i32, b: i32) -> i32 {
         panic!("{}", "division by zero");
     }
     return {
-        let a = a;
-        let b = b;
-        let q = a / b;
+        let d = a / b;
         let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment { q - 1 } else { q }
+        if r != 0 && (a ^ b) < 0 { d - 1 } else { d }
     };
 }
 '''
@@ -455,16 +441,9 @@ pub fn safe_divide(a: i32, b: i32) -> i32 {
         return 0;
     } else {
         return {
-            let a = a;
-            let b = b;
-            let q = a / b;
+            let d = a / b;
             let r = a % b;
-            let r_negative = r < 0;
-            let b_negative = b < 0;
-            let r_nonzero = r != 0;
-            let signs_differ = r_negative != b_negative;
-            let needs_adjustment = r_nonzero && signs_differ;
-            if needs_adjustment { q - 1 } else { q }
+            if r != 0 && (a ^ b) < 0 { d - 1 } else { d }
         };
     }
 }
@@ -528,16 +507,9 @@ pub fn nested_operations(data: &Vec<i32>) -> i32 {
             return -1;
         } else {
             return {
-                let a = 100;
-                let b = value;
-                let q = a / b;
-                let r = a % b;
-                let r_negative = r < 0;
-                let b_negative = b < 0;
-                let r_nonzero = r != 0;
-                let signs_differ = r_negative != b_negative;
-                let needs_adjustment = r_nonzero && signs_differ;
-                if needs_adjustment { q - 1 } else { q }
+                let d = 100 / value;
+                let r = 100 % value;
+                if r != 0 && (100 ^ value) < 0 { d - 1 } else { d }
             };
         }
         return -2;
@@ -584,16 +556,9 @@ pub fn with_finally(x: i32) -> i32 {
     let mut result = 0;
     {
         result = {
-            let a = 10;
-            let b = x;
-            let q = a / b;
-            let r = a % b;
-            let r_negative = r < 0;
-            let b_negative = b < 0;
-            let r_nonzero = r != 0;
-            let signs_differ = r_negative != b_negative;
-            let needs_adjustment = r_nonzero && signs_differ;
-            if needs_adjustment { q - 1 } else { q }
+            let d = 10 / x;
+            let r = 10 % x;
+            if r != 0 && (10 ^ x) < 0 { d - 1 } else { d }
         };
         result = -1;
         result += 1;
@@ -951,16 +916,9 @@ pub fn process_data(value: i32, divisor: i32) -> i32 {
             panic!("{}", "division by zero");
         }
         return {
-            let a = value;
-            let b = divisor;
-            let q = a / b;
-            let r = a % b;
-            let r_negative = r < 0;
-            let b_negative = b < 0;
-            let r_nonzero = r != 0;
-            let signs_differ = r_negative != b_negative;
-            let needs_adjustment = r_nonzero && signs_differ;
-            if needs_adjustment { q - 1 } else { q }
+            let d = value / divisor;
+            let r = value % divisor;
+            if r != 0 && (value ^ divisor) < 0 { d - 1 } else { d }
         };
         return -1;
         return -2;
@@ -1003,16 +961,9 @@ pub fn divide(a: i32, b: i32) -> i32 {
         panic!("{}", "division by zero");
     }
     return {
-        let a = a;
-        let b = b;
-        let q = a / b;
+        let d = a / b;
         let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment { q - 1 } else { q }
+        if r != 0 && (a ^ b) < 0 { d - 1 } else { d }
     };
 }
 '''
@@ -1047,16 +998,9 @@ impl ZeroDivisionError {
 }
 pub fn compute(x: i32) -> i32 {
     return {
-        let a = 100;
-        let b = x;
-        let q = a / b;
-        let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment { q - 1 } else { q }
+        let d = 100 / x;
+        let r = 100 % x;
+        if r != 0 && (100 ^ x) < 0 { d - 1 } else { d }
     };
 }
 '''
@@ -1292,16 +1236,9 @@ pub fn complex_operation(a: i32, b: i32, items: &Vec<serde_json::Value>) -> i32 
         panic!("{}", "index out of range");
     }
     return {
-        let a = a;
-        let b = b;
-        let q = a / b;
+        let d = a / b;
         let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment { q - 1 } else { q }
+        if r != 0 && (a ^ b) < 0 { d - 1 } else { d }
     } + items.get(b as usize).cloned().unwrap();
 }
 '''
@@ -1422,16 +1359,9 @@ pub fn nested(x: i32, y: i32) -> i32 {
         panic!("{}", "x is zero");
     }
     return {
-        let a = 100;
-        let b = x;
-        let q = a / b;
-        let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment { q - 1 } else { q }
+        let d = 100 / x;
+        let r = 100 % x;
+        if r != 0 && (100 ^ x) < 0 { d - 1 } else { d }
     };
 }
 '''

@@ -1387,6 +1387,25 @@ impl AstBridge {
 
         // Look for self.field assignments in __init__
         for stmt in &init.body {
+            // Handle annotated assignments: self.field: type = value
+            if let ast::Stmt::AnnAssign(ann_assign) = stmt {
+                if let ast::Expr::Attribute(attr) = ann_assign.target.as_ref() {
+                    if let ast::Expr::Name(name) = attr.value.as_ref() {
+                        if name.id.as_str() == "self" {
+                            let field_name = attr.attr.to_string();
+                            let field_type = TypeExtractor::extract_type(&ann_assign.annotation)?;
+                            fields.push(HirField {
+                                name: field_name,
+                                field_type,
+                                default_value: ann_assign.value.as_ref().and_then(|v| {
+                                    ExprConverter::convert(v.as_ref().clone()).ok()
+                                }),
+                                is_class_var: false,
+                            });
+                        }
+                    }
+                }
+            }
             if let ast::Stmt::Assign(assign) = stmt {
                 // Check if it's a self.field assignment
                 if assign.targets.len() == 1 {

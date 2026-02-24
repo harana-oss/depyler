@@ -190,7 +190,7 @@ class Point:
 '''
 
 rust = '''
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct Point {
     pub x: i32,
     pub y: i32,
@@ -218,7 +218,7 @@ class Calculator:
 '''
 
 rust = '''
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct Calculator {
     pub value: i32,
 }
@@ -324,16 +324,9 @@ pub fn safe_divide(a: i32, b: i32) -> i32 {
         panic!("{}", "Division by zero");
     }
     return {
-        let a = a;
-        let b = b;
-        let q = a / b;
+        let d = a / b;
         let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment { q - 1 } else { q }
+        if r != 0 && (a ^ b) < 0 { d - 1 } else { d }
     }
 '''
 
@@ -1873,14 +1866,9 @@ pub fn generate_number(min_val: i32, max_val: i32) -> Result<i32, ZeroDivisionEr
     Ok({
         let a = min_val + max_val;
         let b = 2;
-        let q = a / b;
+        let d = a / b;
         let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment { q - 1 } else { q }
+        if r != 0 && (a ^ b) < 0 { d - 1 } else { d }
     })
 }
 #[doc = "Provide a hint based on the guess."]

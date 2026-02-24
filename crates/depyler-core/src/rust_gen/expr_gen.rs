@@ -545,68 +545,37 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 // If one operand is float and the other is int, cast the int to f64
                 if left_is_float && right_is_int_type {
                     // Left is float, right is int - cast right to f64
-                    Ok(parse_quote! {
-                        {
-                            let a = #left_expr;
-                            let b = #right_expr as f64;
-                            let q = a / b;
-                            let r = a % b;
-                            let r_negative = r < 0.0;
-                            let b_negative = b < 0.0;
-                            let r_nonzero = r != 0.0;
-                            let signs_differ = r_negative != b_negative;
-                            let needs_adjustment = r_nonzero && signs_differ;
-                            if needs_adjustment { q - 1.0 } else { q }
-                        }
-                    })
+                    Ok(parse_quote! { (#left_expr / (#right_expr as f64)).floor() })
                 } else if left_is_int_type && right_is_float {
                     // Left is int, right is float - cast left to f64
-                    Ok(parse_quote! {
-                        {
-                            let a = #left_expr as f64;
-                            let b = #right_expr;
-                            let q = a / b;
-                            let r = a % b;
-                            let r_negative = r < 0.0;
-                            let b_negative = b < 0.0;
-                            let r_nonzero = r != 0.0;
-                            let signs_differ = r_negative != b_negative;
-                            let needs_adjustment = r_nonzero && signs_differ;
-                            if needs_adjustment { q - 1.0 } else { q }
-                        }
-                    })
+                    Ok(parse_quote! { ((#left_expr as f64) / #right_expr).floor() })
                 } else if left_is_float && right_is_float {
                     // Both are floats
-                    Ok(parse_quote! {
-                        {
-                            let a = #left_expr;
-                            let b = #right_expr;
-                            let q = a / b;
-                            let r = a % b;
-                            let r_negative = r < 0.0;
-                            let b_negative = b < 0.0;
-                            let r_nonzero = r != 0.0;
-                            let signs_differ = r_negative != b_negative;
-                            let needs_adjustment = r_nonzero && signs_differ;
-                            if needs_adjustment { q - 1.0 } else { q }
-                        }
-                    })
+                    Ok(parse_quote! { (#left_expr / #right_expr).floor() })
                 } else {
                     // Both are integers (or default case)
-                    Ok(parse_quote! {
-                        {
-                            let a = #left_expr;
-                            let b = #right_expr;
-                            let q = a / b;
-                            let r = a % b;
-                            let r_negative = r < 0;
-                            let b_negative = b < 0;
-                            let r_nonzero = r != 0;
-                            let signs_differ = r_negative != b_negative;
-                            let needs_adjustment = r_nonzero && signs_differ;
-                            if needs_adjustment { q - 1 } else { q }
-                        }
-                    })
+                    // Skip temp bindings when operands are simple vars/literals
+                    if matches!(left, HirExpr::Var(_) | HirExpr::Literal(_))
+                        && matches!(right, HirExpr::Var(_) | HirExpr::Literal(_))
+                    {
+                        Ok(parse_quote! {
+                            {
+                                let d = #left_expr / #right_expr;
+                                let r = #left_expr % #right_expr;
+                                if r != 0 && (#left_expr ^ #right_expr) < 0 { d - 1 } else { d }
+                            }
+                        })
+                    } else {
+                        Ok(parse_quote! {
+                            {
+                                let a = #left_expr;
+                                let b = #right_expr;
+                                let d = a / b;
+                                let r = a % b;
+                                if r != 0 && (a ^ b) < 0 { d - 1 } else { d }
+                            }
+                        })
+                    }
                 }
             }
             // Python 3.9+ supports d1 | d2 for dictionary merge
@@ -3558,10 +3527,14 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                                         .unwrap_or(false)
                             }
                         }
-                        // List literal [1, 2, 3] should be passed as vec![1, 2, 3] (owned)
+                        // List/Dict/Set literal: borrow if callee expects a reference parameter
                         HirExpr::List(_) | HirExpr::Dict(_) | HirExpr::Set(_) => {
-                            // Pass list literals as owned values, not borrowed
-                            false
+                            self.ctx
+                                .function_param_borrows
+                                .get(func)
+                                .and_then(|borrows| borrows.get(param_idx))
+                                .map(|info| info.should_borrow)
+                                .unwrap_or(false)
                         }
                         // Check if string literal needs .to_string()
                         // String literals are &str, but if function expects String (owned),
@@ -13973,8 +13946,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         let element_expr = element.to_rust_expr(self.ctx)?;
 
         // Check if this is an identity map (element is just the target variable)
-        // Skip .map(|x| x) which is a no-op (only for simple targets)
-        let is_identity_map = matches!(element, HirExpr::Var(var_name) if var_name == target);
+        // Skip .map(|x| x) or .map(|(x, y)| (x, y)) which are no-ops
+        let is_identity_map = Self::is_identity_element(element, target);
 
         // Check if the iterator is an Optional type (e.g., Optional[List[int]])
         let iter_is_optional = self.expr_is_optional(iter);
@@ -14216,7 +14189,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         let element_expr = element.to_rust_expr(self.ctx)?;
 
         // Check if element is just the inner target variable (identity mapping)
-        let is_identity_map = matches!(element, HirExpr::Var(var) if var == &inner_gen.target);
+        let is_identity_map = Self::is_identity_element(element, &inner_gen.target);
 
         // Build the result
         if is_outer_range {
@@ -14338,7 +14311,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         let cond_with_deref = self.add_deref_to_var_uses(condition, target)?;
 
         // Check if element is just the target variable (identity mapping)
-        let is_identity_map = matches!(element, HirExpr::Var(var) if var == target);
+        let is_identity_map = Self::is_identity_element(element, target);
 
         if is_identity_map {
             // Simple case: [x for x in iter if cond][0] → iter.iter().find(|x| cond).cloned().unwrap()
@@ -15176,7 +15149,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         let is_range = self.is_range_expr(&iter_expr);
 
         // Check if this is an identity map (element is just the target variable)
-        let is_identity_map = matches!(element, HirExpr::Var(var_name) if var_name == target);
+        let is_identity_map = Self::is_identity_element(element, target);
 
         if let Some(cond) = condition {
             let cond_expr = cond.to_rust_expr(self.ctx)?;
@@ -16009,9 +15982,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             }
 
             // Add the map transformation only if it's not an identity map (element != target)
-            // Skip .map(|x| x) which is a no-op
-            let is_identity_map =
-                matches!(element, HirExpr::Var(var_name) if var_name == &generator.target);
+            // Skip .map(|x| x) or .map(|(x, y)| (x, y)) which are no-ops
+            let is_identity_map = Self::is_identity_element(element, &generator.target);
             if !is_identity_map {
                 chain = parse_quote! { #chain.map(|#target_pat| #element_expr) };
             }
@@ -16102,6 +16074,25 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
 
         Ok(chain)
+    }
+
+    /// Check if a generator/comprehension element is an identity transformation.
+    /// Returns true for `.map(|x| x)` and `.map(|(x, y)| (x, y))` patterns.
+    fn is_identity_element(element: &HirExpr, target: &str) -> bool {
+        match element {
+            HirExpr::Var(var_name) => var_name == target,
+            HirExpr::Tuple(elts) if target.starts_with('(') && target.ends_with(')') => {
+                let inner = &target[1..target.len() - 1];
+                let parts: Vec<&str> = inner.split(',').map(|s| s.trim()).collect();
+                if parts.len() != elts.len() {
+                    return false;
+                }
+                elts.iter().zip(parts.iter()).all(|(elt, part)| {
+                    matches!(elt, HirExpr::Var(name) if name == part)
+                })
+            }
+            _ => false,
+        }
     }
 
     fn parse_target_pattern(&self, target: &str) -> Result<syn::Pat> {

@@ -305,7 +305,6 @@ pub fn sum_items(items: &Vec<i32>) -> i32 {
 
 [[test]]
 name = "clone_string_used_twice"
-skip = true
 description = "String param used twice needs clone"
 
 python = '''
@@ -325,7 +324,6 @@ pub fn use_string_twice(s: String) -> String {
 
 [[test]]
 name = "clone_list_field_returned"
-skip = true
 description = "List field returned needs clone"
 
 python = '''
@@ -356,7 +354,6 @@ pub fn get_items(state: &State) -> Vec<i32> {
 
 [[test]]
 name = "clone_dict_field_returned"
-skip = true
 description = "Dict field returned needs clone"
 
 python = '''
@@ -407,7 +404,6 @@ pub fn double_use(x: f64, y: f64) -> f64 {
 
 [[test]]
 name = "no_clone_last_use"
-skip = true
 description = "Last use moves, no clone needed"
 
 python = '''
@@ -418,12 +414,11 @@ def identity(items: list[int]) -> list[int]:
 rust = '''
 pub fn identity(items: Vec<i32>) -> Vec<i32> {
     return items;
-};
+}
 '''
 
 [[test]]
 name = "clone_in_loop"
-skip = true
 description = "Clone string in loop append"
 
 python = '''
@@ -461,8 +456,7 @@ pub fn build_list(state: &State, n: i32) -> Vec<String> {
 
 [[test]]
 name = "clone_struct_from_function_used_twice"
-skip = true
-description = "Struct returned from function and used twice needs clone"
+description = "Struct with Copy fields gets Copy derive, no clone needed"
 compile_check = true
 
 python = '''
@@ -489,7 +483,7 @@ def setup_player() -> list[Statistics]:
 '''
 
 rust = '''
-#[derive(Debug, Clone, PartialEq, Default)]
+#[derive(Debug, Copy, Clone, PartialEq, Default)]
 pub struct Statistics {
     pub value: i32,
 }
@@ -514,7 +508,7 @@ pub fn setup_player() -> Vec<Statistics> {
     let mut items: Vec<Statistics> = vec![];
     let mut player = Player::new(Statistics::new(0));
     let total_statistics = create_statistics();
-    player.total_statistics = total_statistics.clone();
+    player.total_statistics = total_statistics;
     items.push(total_statistics);
     return items;
 }
@@ -522,7 +516,6 @@ pub fn setup_player() -> Vec<Statistics> {
 
 [[test]]
 name = "struct_field_passed_to_fn_borrows"
-skip = true
 description = "Struct String field passed to function should borrow"
 
 python = '''
@@ -593,7 +586,6 @@ pub fn take_str(s: String) {}
 
 [[test]]
 name = "nested_field_passed_to_fn_borrows"
-skip = true
 description = "Nested struct field passed to function should borrow"
 
 python = '''
@@ -647,7 +639,6 @@ pub fn main() {
 
 [[test]]
 name = "next_with_generator_filtering_dataclass"
-skip = true
 description = "next() with generator filtering on dataclass"
 
 python = '''
@@ -677,15 +668,13 @@ impl Incident {
 pub fn find_away_incident(try_incidents: &Vec<Incident>) -> Option<Incident> {
     return try_incidents
         .iter()
-        .cloned()
-        .filter(|incident| incident.points_scored_team == "Away")
-        .next();
+        .find(|incident| incident.points_scored_team == "Away")
+        .cloned();
 }
 '''
 
 [[test]]
 name = "enumerate_next_dataclass_field_assignment"
-skip = true
 description = "enumerate with next() and assignment to dataclass field via index"
 
 python = '''
@@ -699,7 +688,24 @@ def main(items: list[Item]):
 '''
 
 rust = '''
-#[derive(Debug, Clone, PartialEq, Default)]
+#[derive(Debug, Clone)]
+pub struct IndexError {
+    message: String,
+}
+impl std::fmt::Display for IndexError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "index out of range: {}", self.message)
+    }
+}
+impl std::error::Error for IndexError {}
+impl IndexError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[derive(Debug, Copy, Clone, PartialEq, Default)]
 pub struct Item {
     pub val: i32,
 }
@@ -756,7 +762,6 @@ pub fn process_string(s: String) -> String {
 
 [[test]]
 name = "field_access_no_double_clone_string"
-skip = true
 description = "Accessing string field should not clone the base struct"
 
 python = '''
@@ -813,7 +818,6 @@ pub fn is_home_team(state: &GameState) -> bool {
 
 [[test]]
 name = "field_access_vec_no_double_clone"
-skip = true
 description = "Accessing Vec field should not clone the base struct"
 
 python = '''

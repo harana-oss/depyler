@@ -1,0 +1,219 @@
+[metadata]
+name = "Struct, Enum, and Ownership Pattern Tests"
+category = "struct-enum-ownership"
+
+# =============================================================================
+# Pattern 1: Enum definition with integer discriminants
+# =============================================================================
+
+[[test]]
+name = "enum_basic_definition"
+description = "Python Enum class maps to Rust enum with discriminants"
+
+python = '''
+from enum import Enum
+
+class Team(Enum):
+    Home = 0
+    Away = 1
+'''
+
+rust = '''
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum Team {
+    #[default]
+    Home = 0,
+    Away = 1,
+}
+impl Team {
+    pub fn from_i32(value: i32) -> Option<Self> {
+        match value {
+            0 => Some(Self::Home),
+            1 => Some(Self::Away),
+            _ => None,
+        }
+    }
+    pub fn from_i32_or_default(value: i32) -> Self {
+        Self::from_i32(value).unwrap_or(Self::Home)
+    }
+}
+'''
+
+# =============================================================================
+# Pattern 2: Struct with default-initialized fields from __init__(self)
+# =============================================================================
+
+[[test]]
+name = "struct_default_init_fields"
+description = "Annotated self-assignments in __init__(self) become struct fields"
+
+python = '''
+class State:
+    def __init__(self):
+        self.score_home: int = 0
+        self.score_away: int = 0
+        self.turn: int = 0
+        self.active: bool = True
+'''
+
+rust = '''
+#[derive(Debug, Copy, Clone)]
+pub struct State {
+    pub score_home: i32,
+    pub score_away: i32,
+    pub turn: i32,
+    pub active: bool,
+}
+impl State {
+    pub fn new() -> Self {
+        Self {
+            score_home: 0,
+            score_away: 0,
+            turn: 0,
+            active: true,
+        }
+    }
+}
+'''
+
+# =============================================================================
+# Pattern 3: Reading Copy-type struct fields (no clone needed)
+# =============================================================================
+
+[[test]]
+name = "struct_copy_field_read"
+description = "Reading Copy-type fields from a struct parameter"
+
+python = '''
+class Point:
+    def __init__(self, x: int, y: int):
+        self.x = x
+        self.y = y
+
+def get_x(pos: Point) -> int:
+    return pos.x
+'''
+
+rust = '''
+#[derive(Debug, Copy, Clone)]
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+impl Point {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+}
+pub fn get_x(pos: &Point) -> i32 {
+    return pos.x;
+}
+'''
+
+# =============================================================================
+# Pattern 4: Mutating struct field via function
+# =============================================================================
+
+[[test]]
+name = "struct_mutating_field"
+description = "Function that mutates struct fields gets &mut parameter"
+
+python = '''
+class Counter:
+    def __init__(self, value: int):
+        self.value = value
+
+def increment(c: Counter):
+    c.value += 1
+'''
+
+rust = '''
+#[derive(Debug, Copy, Clone)]
+pub struct Counter {
+    pub value: i32,
+}
+impl Counter {
+    pub fn new(value: i32) -> Self {
+        Self { value }
+    }
+}
+pub fn increment(c: &mut Counter) {
+    c.value += 1;
+}
+'''
+
+# =============================================================================
+# Pattern 5: Passing &mut param to another function that takes &mut
+# =============================================================================
+
+[[test]]
+name = "pass_mut_ref_to_callee"
+description = "Forwarding mutable reference to callee without extra &"
+
+python = '''
+class Counter:
+    def __init__(self, value: int):
+        self.value = value
+
+def increment(c: Counter):
+    c.value += 1
+
+def double_increment(c: Counter):
+    increment(c)
+    increment(c)
+'''
+
+rust = '''
+#[derive(Debug, Copy, Clone)]
+pub struct Counter {
+    pub value: i32,
+}
+impl Counter {
+    pub fn new(value: i32) -> Self {
+        Self { value }
+    }
+}
+pub fn increment(c: &mut Counter) {
+    c.value += 1;
+}
+pub fn double_increment(c: &mut Counter) {
+    increment(c);
+    increment(c);
+}
+'''
+
+# =============================================================================
+# Pattern 6: Iterating with enumerate on a borrowed list
+# =============================================================================
+
+[[test]]
+name = "enumerate_borrowed_list"
+description = "Enumerate over borrowed list parameter"
+
+python = '''
+def sample(values: list[float], k: float) -> int:
+    cumulative = 0.0
+    for i, p in enumerate(values):
+        cumulative += p
+        if cumulative >= k:
+            return i
+    return len(values) - 1
+'''
+
+rust = '''
+pub fn sample(values: &Vec<f64>, k: f64) -> i32 {
+    let mut cumulative = 0.0;
+    for (i, p) in values
+        .iter()
+        .enumerate()
+        .map(|(i, x)| (i as i32, x.clone()))
+    {
+        let i = i as i32;
+        cumulative += p;
+        if cumulative >= k {
+            return i;
+        }
+    }
+    return (values.len() as i32).saturating_sub(1) as i32;
+}
+'''

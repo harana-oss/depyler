@@ -162,16 +162,9 @@ pub fn power(mut base: i32, mut exponent: i32) -> Result<i32, ZeroDivisionError>
         }
         base *= base;
         exponent = {
-            let a = exponent;
-            let b = 2;
-            let q = a / b;
-            let r = a % b;
-            let r_negative = r < 0;
-            let b_negative = b < 0;
-            let r_nonzero = r != 0;
-            let signs_differ = r_negative != b_negative;
-            let needs_adjustment = r_nonzero && signs_differ;
-            if needs_adjustment { q - 1 } else { q }
+            let d = exponent / 2;
+            let r = exponent % 2;
+            if r != 0 && (exponent ^ 2) < 0 { d - 1 } else { d }
         };
     }
     Ok(result)
@@ -255,16 +248,9 @@ pub fn test_floor_division_positive() -> Result<i32, ZeroDivisionError> {
     let a = 7;
     let b = 3;
     let _cse_temp_0 = {
-        let a = a;
-        let b = b;
-        let q = a / b;
+        let d = a / b;
         let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment { q - 1 } else { q }
+        if r != 0 && (a ^ b) < 0 { d - 1 } else { d }
     };
     let result = _cse_temp_0;
     Ok(result)
@@ -274,16 +260,9 @@ pub fn test_floor_division_negative() -> Result<i32, ZeroDivisionError> {
     let a = -7;
     let b = 3;
     let _cse_temp_0 = {
-        let a = a;
-        let b = b;
-        let q = a / b;
+        let d = a / b;
         let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment { q - 1 } else { q }
+        if r != 0 && (a ^ b) < 0 { d - 1 } else { d }
     };
     let result = _cse_temp_0;
     Ok(result)
@@ -293,16 +272,9 @@ pub fn test_floor_division_negative_divisor() -> Result<i32, ZeroDivisionError> 
     let a = 7;
     let b = -3;
     let _cse_temp_0 = {
-        let a = a;
-        let b = b;
-        let q = a / b;
+        let d = a / b;
         let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment { q - 1 } else { q }
+        if r != 0 && (a ^ b) < 0 { d - 1 } else { d }
     };
     let result = _cse_temp_0;
     Ok(result)
@@ -312,16 +284,9 @@ pub fn test_floor_division_both_negative() -> Result<i32, ZeroDivisionError> {
     let a = -7;
     let b = -3;
     let _cse_temp_0 = {
-        let a = a;
-        let b = b;
-        let q = a / b;
+        let d = a / b;
         let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment { q - 1 } else { q }
+        if r != 0 && (a ^ b) < 0 { d - 1 } else { d }
     };
     let result = _cse_temp_0;
     Ok(result)
@@ -331,16 +296,9 @@ pub fn test_floor_division_exact() -> Result<i32, ZeroDivisionError> {
     let a = 9;
     let b = 3;
     let _cse_temp_0 = {
-        let a = a;
-        let b = b;
-        let q = a / b;
+        let d = a / b;
         let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment { q - 1 } else { q }
+        if r != 0 && (a ^ b) < 0 { d - 1 } else { d }
     };
     let result = _cse_temp_0;
     Ok(result)
@@ -350,16 +308,9 @@ pub fn test_floor_division_zero_remainder() -> Result<i32, ZeroDivisionError> {
     let a = -9;
     let b = 3;
     let _cse_temp_0 = {
-        let a = a;
-        let b = b;
-        let q = a / b;
+        let d = a / b;
         let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment { q - 1 } else { q }
+        if r != 0 && (a ^ b) < 0 { d - 1 } else { d }
     };
     let result = _cse_temp_0;
     Ok(result)
@@ -611,68 +562,33 @@ pub fn power_examples(base: i32, exponent: i32) -> i32 {
 #[doc = "Demonstrate floor division with Python semantics"]
 pub fn floor_division_examples(dividend: i32, divisor: i32) -> Result<i32, ZeroDivisionError> {
     let _cse_temp_0 = {
-        let a = 17;
-        let b = 5;
-        let q = a / b;
-        let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment { q - 1 } else { q }
+        let d = 17 / 5;
+        let r = 17 % 5;
+        if r != 0 && (17 ^ 5) < 0 { d - 1 } else { d }
     };
     let result1 = _cse_temp_0;
     let _cse_temp_1 = {
-        let a = -17;
-        let b = 5;
-        let q = a / b;
-        let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment { q - 1 } else { q }
+        let d = -17 / 5;
+        let r = -17 % 5;
+        if r != 0 && (-17 ^ 5) < 0 { d - 1 } else { d }
     };
     let result2 = _cse_temp_1;
     let _cse_temp_2 = {
-        let a = 17;
-        let b = -5;
-        let q = a / b;
-        let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment { q - 1 } else { q }
+        let d = 17 / -5;
+        let r = 17 % -5;
+        if r != 0 && (17 ^ -5) < 0 { d - 1 } else { d }
     };
     let result3 = _cse_temp_2;
     let _cse_temp_3 = {
-        let a = -17;
-        let b = -5;
-        let q = a / b;
-        let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment { q - 1 } else { q }
+        let d = -17 / -5;
+        let r = -17 % -5;
+        if r != 0 && (-17 ^ -5) < 0 { d - 1 } else { d }
     };
     let result4 = _cse_temp_3;
     let _cse_temp_4 = {
-        let a = dividend;
-        let b = divisor;
-        let q = a / b;
-        let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment { q - 1 } else { q }
+        let d = dividend / divisor;
+        let r = dividend % divisor;
+        if r != 0 && (dividend ^ divisor) < 0 { d - 1 } else { d }
     };
     let result5 = _cse_temp_4;
     Ok(result1 + result2 + result3 + result4 + result5)
@@ -690,29 +606,15 @@ pub fn combined_operations(a: i32, b: i32) -> Result<i32, ZeroDivisionError> {
     };
     let step1 = _cse_temp_0;
     let _cse_temp_1 = {
-        let a = step1;
-        let b = b;
-        let q = a / b;
-        let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment { q - 1 } else { q }
+        let d = step1 / b;
+        let r = step1 % b;
+        if r != 0 && (step1 ^ b) < 0 { d - 1 } else { d }
     };
     let result1 = _cse_temp_1;
     let _cse_temp_2 = {
-        let a = a;
-        let b = b;
-        let q = a / b;
+        let d = a / b;
         let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment { q - 1 } else { q }
+        if r != 0 && (a ^ b) < 0 { d - 1 } else { d }
     };
     let step2 = _cse_temp_2;
     let _cse_temp_3 = {
@@ -742,16 +644,9 @@ pub fn mathematical_sequence(n: i32) -> Result<i32, ZeroDivisionError> {
             }
         };
         let contribution = {
-            let a = square;
-            let b = 1;
-            let q = a / b;
-            let r = a % b;
-            let r_negative = r < 0;
-            let b_negative = b < 0;
-            let r_nonzero = r != 0;
-            let signs_differ = r_negative != b_negative;
-            let needs_adjustment = r_nonzero && signs_differ;
-            if needs_adjustment { q - 1 } else { q }
+            let d = square / 1;
+            let r = square % 1;
+            if r != 0 && (square ^ 1) < 0 { d - 1 } else { d }
         };
         total += contribution;
         i += 1;
@@ -982,16 +877,9 @@ pub fn test_power(x: i32) -> i32 {
 }
 pub fn test_floor_div(x: i32, y: i32) -> Result<i32, ZeroDivisionError> {
     Ok({
-        let a = x;
-        let b = y;
-        let q = a / b;
-        let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment { q - 1 } else { q }
+        let d = x / y;
+        let r = x % y;
+        if r != 0 && (x ^ y) < 0 { d - 1 } else { d }
     })
 }
 '''
@@ -1170,16 +1058,9 @@ pub fn median(numbers: Vec<f64>) -> Result<f64, Box<dyn std::error::Error>> {
         Ok(({
             let base = &sorted_nums;
             let idx: i32 = {
-                let a = n;
-                let b = 2;
-                let q = a / b;
-                let r = a % b;
-                let r_negative = r < 0;
-                let b_negative = b < 0;
-                let r_nonzero = r != 0;
-                let signs_differ = r_negative != b_negative;
-                let needs_adjustment = r_nonzero && signs_differ;
-                if needs_adjustment { q - 1 } else { q }
+                let d = n / 2;
+                let r = n % 2;
+                if r != 0 && (n ^ 2) < 0 { d - 1 } else { d }
             } - 1;
             let actual_idx = if idx < 0 {
                 base.len().saturating_sub(idx.abs() as usize)
@@ -1190,16 +1071,9 @@ pub fn median(numbers: Vec<f64>) -> Result<f64, Box<dyn std::error::Error>> {
         } + {
             let base = &sorted_nums;
             let idx: i32 = {
-                let a = n;
-                let b = 2;
-                let q = a / b;
-                let r = a % b;
-                let r_negative = r < 0;
-                let b_negative = b < 0;
-                let r_nonzero = r != 0;
-                let signs_differ = r_negative != b_negative;
-                let needs_adjustment = r_nonzero && signs_differ;
-                if needs_adjustment { q - 1 } else { q }
+                let d = n / 2;
+                let r = n % 2;
+                if r != 0 && (n ^ 2) < 0 { d - 1 } else { d }
             };
             let actual_idx = if idx < 0 {
                 base.len().saturating_sub(idx.abs() as usize)
@@ -1213,16 +1087,9 @@ pub fn median(numbers: Vec<f64>) -> Result<f64, Box<dyn std::error::Error>> {
         Ok({
             let base = &sorted_nums;
             let idx: i32 = {
-                let a = n;
-                let b = 2;
-                let q = a / b;
-                let r = a % b;
-                let r_negative = r < 0;
-                let b_negative = b < 0;
-                let r_nonzero = r != 0;
-                let signs_differ = r_negative != b_negative;
-                let needs_adjustment = r_nonzero && signs_differ;
-                if needs_adjustment { q - 1 } else { q }
+                let d = n / 2;
+                let r = n % 2;
+                if r != 0 && (n ^ 2) < 0 { d - 1 } else { d }
             };
             let actual_idx = if idx < 0 {
                 base.len().saturating_sub(idx.abs() as usize)

@@ -330,6 +330,15 @@ fn codegen_single_param(
             ctx,
         )?;
 
+        // Track which params are borrowed so call-site generation avoids double-referencing
+        if inferred_with_mut.should_borrow {
+            if inferred_with_mut.needs_mut {
+                ctx.current_func_mut_ref_params.insert(param.name.clone());
+            } else {
+                ctx.current_func_ref_params.insert(param.name.clone());
+            }
+        }
+
         Ok(if is_param_mutated {
             quote! { mut #param_ident: #ty }
         } else {
@@ -1384,6 +1393,10 @@ impl RustCodeGen for HirFunction {
         // DEPYLER-0312: Analyze mutability BEFORE generating parameters
         // This populates ctx.mutable_vars which codegen_single_param uses to determine `mut` keyword
         analyze_mutable_vars(&self.body, ctx, &self.params);
+
+        // Clear per-function ref param tracking
+        ctx.current_func_mut_ref_params.clear();
+        ctx.current_func_ref_params.clear();
 
         // Populate current function's parameter ownership map for zip/enumerate iterator decisions
         // Maps parameter name -> whether it takes ownership (true) or borrows (false)

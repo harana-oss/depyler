@@ -415,7 +415,7 @@ rust = '''
 pub const p: Point = Point::new(1, 2);
 pub const result: (i32, i32) = (p.x, p.y);
 use serde_json;
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct Point {
     pub x: i32,
     pub y: i32,
@@ -450,7 +450,7 @@ pub const p1: Point = Point::new(1, 2);
 pub const p2: Point = Point::new(2, 3);
 pub const result: bool = p1 < p2;
 use serde_json;
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct Point {
     pub x: i32,
     pub y: i32,
@@ -485,7 +485,7 @@ pub const p1: Point = Point::new(1, 2);
 pub const p2: Point = Point::new(1, 2);
 pub const result: bool = p1 == p2;
 use serde_json;
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct Point {
     pub x: i32,
     pub y: i32,
@@ -518,7 +518,7 @@ rust = '''
 pub const p: Point = Point::new(1, 2);
 pub const result: bool = !format!("{:?}", p).contains(&"Point");
 use serde_json;
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct Point {
     pub x: i32,
     pub y: i32,
@@ -555,7 +555,7 @@ rust = '''
 pub const p: Point = Point::new();
 pub const result: (i32, i32) = (p.x, p.y);
 use serde_json;
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct Point {
     pub x: i32,
     pub y: i32,
@@ -906,7 +906,7 @@ rust = '''
 pub const p: Point = Point::new(1, 2);
 pub const result: (i32, i32) = (p.x, p.y);
 use serde_json;
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct Point {
     pub x: i32,
     pub y: i32,

@@ -384,16 +384,9 @@ pub fn safe_divide(a: i32, b: i32) -> i32 {
         return 0;
     } else {
         return {
-            let a = a;
-            let b = b;
-            let q = a / b;
+            let d = a / b;
             let r = a % b;
-            let r_negative = r < 0;
-            let b_negative = b < 0;
-            let r_nonzero = r != 0;
-            let signs_differ = r_negative != b_negative;
-            let needs_adjustment = r_nonzero && signs_differ;
-            if needs_adjustment { q - 1 } else { q }
+            if r != 0 && (a ^ b) < 0 { d - 1 } else { d }
         };
     }
 }
@@ -2563,16 +2556,9 @@ impl ZeroDivisionError {
 pub fn test() -> i32 {
     let mut x = 10;
     let _cse_temp_0 = {
-        let a = x;
-        let b = 3;
-        let q = a / b;
-        let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment { q - 1 } else { q }
+        let d = x / 3;
+        let r = x % 3;
+        if r != 0 && (x ^ 3) < 0 { d - 1 } else { d }
     };
     x = _cse_temp_0;
     return x;
@@ -3733,7 +3719,7 @@ def test_for_with_iterator():
 '''
 
 rust = '''
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct Range {
     pub start: i32,
     pub stop: i32,

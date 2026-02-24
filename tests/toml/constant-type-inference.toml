@@ -123,16 +123,9 @@ def floor_divide() -> int:
 rust = '''
 pub fn floor_divide() -> i32 {
     return {
-        let a = 5;
-        let b = 2;
-        let q = a / b;
-        let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment { q - 1 } else { q }
+        let d = 5 / 2;
+        let r = 5 % 2;
+        if r != 0 && (5 ^ 2) < 0 { d - 1 } else { d }
     };
 }
 '''

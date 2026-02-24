@@ -1447,7 +1447,7 @@ def print_config() -> None:
 '''
 
 rust = '''
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct Config {
     pub timeout: i32,
     pub retries: i32,
@@ -1780,7 +1780,7 @@ def test_optional_access(opt: Outer | None) -> int:
 '''
 
 rust = '''
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct Inner {
     pub value: i32,
 }
@@ -1845,7 +1845,7 @@ impl IndexError {
         }
     }
 }
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct Scores {
     pub total: i32,
     pub tries: i32,
@@ -1961,7 +1961,7 @@ def get_value(obj: Outer) -> int:
 '''
 
 rust = '''
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct Inner {
     pub value: i32,
 }

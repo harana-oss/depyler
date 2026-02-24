@@ -530,7 +530,7 @@ impl IndexError {
         }
     }
 }
-#[derive(Debug, Copy, Clone]
+#[derive(Debug, Copy, Clone)]
 pub struct VerifiedStack {
     pub capacity: i32,
 }

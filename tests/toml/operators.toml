@@ -126,16 +126,9 @@ impl ZeroDivisionError {
 }
 pub fn floor_div(a: i32, b: i32) -> i32 {
     return {
-        let a = a;
-        let b = b;
-        let q = a / b;
+        let d = a / b;
         let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment { q - 1 } else { q }
+        if r != 0 && (a ^ b) < 0 { d - 1 } else { d }
     };
 }
 '''
@@ -776,16 +769,9 @@ impl ZeroDivisionError {
 }
 pub fn test_floordiv(a: i32, b: i32) -> i32 {
     return {
-        let a = a;
-        let b = b;
-        let q = a / b;
+        let d = a / b;
         let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment { q - 1 } else { q }
+        if r != 0 && (a ^ b) < 0 { d - 1 } else { d }
     };
 }
 '''
@@ -820,16 +806,9 @@ impl ZeroDivisionError {
 }
 pub fn test_floordiv() -> i32 {
     return {
-        let a = -7;
-        let b = 3;
-        let q = a / b;
-        let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment { q - 1 } else { q }
+        let d = -7 / 3;
+        let r = -7 % 3;
+        if r != 0 && (-7 ^ 3) < 0 { d - 1 } else { d }
     };
 }
 '''
@@ -864,16 +843,9 @@ impl ZeroDivisionError {
 }
 pub fn test_floordiv() -> i32 {
     return {
-        let a = 7;
-        let b = -3;
-        let q = a / b;
-        let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment { q - 1 } else { q }
+        let d = 7 / -3;
+        let r = 7 % -3;
+        if r != 0 && (7 ^ -3) < 0 { d - 1 } else { d }
     };
 }
 '''
@@ -908,16 +880,9 @@ impl ZeroDivisionError {
 }
 pub fn test_floordiv() -> i32 {
     return {
-        let a = -7;
-        let b = -3;
-        let q = a / b;
-        let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment { q - 1 } else { q }
+        let d = -7 / -3;
+        let r = -7 % -3;
+        if r != 0 && (-7 ^ -3) < 0 { d - 1 } else { d }
     };
 }
 '''
@@ -952,16 +917,9 @@ impl ZeroDivisionError {
 }
 pub fn test_floordiv(a: i32, b: i32) -> i32 {
     return {
-        let a = a;
-        let b = b;
-        let q = a / b;
+        let d = a / b;
         let r = a % b;
-        let r_negative = r < 0;
-        let b_negative = b < 0;
-        let r_nonzero = r != 0;
-        let signs_differ = r_negative != b_negative;
-        let needs_adjustment = r_nonzero && signs_differ;
-        if needs_adjustment { q - 1 } else { q }
+        if r != 0 && (a ^ b) < 0 { d - 1 } else { d }
     };
 }
 '''

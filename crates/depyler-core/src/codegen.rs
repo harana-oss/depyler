@@ -914,22 +914,28 @@ fn binary_expr_to_rust_tokens(
             Ok(quote! { #left_tokens.saturating_sub(#right_tokens) })
         }
         BinOp::FloorDiv => {
-            // Python floor division semantics
-            // For now, assume numeric types and use the integer floor division formula
-            Ok(quote! {
-                {
-                    let a = #left_tokens;
-                    let b = #right_tokens;
-                    let q = a / b;
-                    let r = a % b;
-                    let r_negative = r < 0;
-                    let b_negative = b < 0;
-                    let r_nonzero = r != 0;
-                    let signs_differ = r_negative != b_negative;
-                    let needs_adjustment = r_nonzero && signs_differ;
-                    if needs_adjustment { q - 1 } else { q }
-                }
-            })
+            // Python floor division: rounds towards negative infinity
+            if matches!(left, HirExpr::Var(_) | HirExpr::Literal(_))
+                && matches!(right, HirExpr::Var(_) | HirExpr::Literal(_))
+            {
+                Ok(quote! {
+                    {
+                        let d = #left_tokens / #right_tokens;
+                        let r = #left_tokens % #right_tokens;
+                        if r != 0 && (#left_tokens ^ #right_tokens) < 0 { d - 1 } else { d }
+                    }
+                })
+            } else {
+                Ok(quote! {
+                    {
+                        let a = #left_tokens;
+                        let b = #right_tokens;
+                        let d = a / b;
+                        let r = a % b;
+                        if r != 0 && (a ^ b) < 0 { d - 1 } else { d }
+                    }
+                })
+            }
         }
         _ => {
             let op_tokens = binop_to_rust_tokens(op);
