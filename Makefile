@@ -218,10 +218,6 @@ test-watch: ## Continuous testing during development
 test-debug: ## Enhanced debugging and error reporting
 	@echo "Running debug tests..."
 	RUST_BACKTRACE=1 $(CARGO) test $(TEST_FLAGS) -- --nocapture
-test-generate: ## Automatic test generation and updates
-	@echo "Running test generation..."
-	$(CARGO) test --test automated_test_generation $(TEST_FLAGS)
-	./scripts/generate_test_cases.sh
 test-report: ## Comprehensive quality reporting
 	@echo "Generating test reports..."
 	./scripts/run_performance_suite.sh

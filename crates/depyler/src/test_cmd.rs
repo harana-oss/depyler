@@ -382,12 +382,7 @@ fn run_tests_parallel(
     let results: Vec<TestResult> = all_tests
         .into_par_iter()
         .map(|(file_name, test)| {
-            // PLAN2: Disable test generation for TOML test framework
-            let config = depyler_core::Config {
-                enable_test_generation: false,
-                ..Default::default()
-            };
-            let pipeline = DepylerPipeline::new_with_config(config);
+            let pipeline = DepylerPipeline::new();
             let result = run_single_test(&pipeline, &test, &file_name, compile);
 
             total.fetch_add(1, Ordering::Relaxed);
@@ -481,12 +476,7 @@ fn run_tests_from_file(
     }
 
     let mut results = Vec::new();
-    // PLAN2: Disable test generation for TOML test framework
-    let config = depyler_core::Config {
-        enable_test_generation: false,
-        ..Default::default()
-    };
-    let pipeline = DepylerPipeline::new_with_config(config);
+    let pipeline = DepylerPipeline::new();
 
     for test in test_file.test {
         if test.skip.0 || test.skip_reason.is_some() {

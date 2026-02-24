@@ -85,7 +85,6 @@ pub mod rust_gen;
 pub mod simplified_hir;
 pub mod stdlib_mappings;
 pub mod string_optimization;
-pub mod test_generation;
 pub mod type_hints;
 pub mod type_mapper;
 pub mod union_enum_gen;
@@ -496,7 +495,7 @@ impl DepylerPipeline {
         };
 
         // Generate Rust code with dependencies
-        rust_gen::generate_rust_file(&optimized_hir, &self.transpiler.type_mapper, self.config.enable_test_generation)
+        rust_gen::generate_rust_file(&optimized_hir, &self.transpiler.type_mapper)
     }
 
     pub fn transpile(&self, python_source: &str) -> Result<String> {
@@ -636,7 +635,7 @@ impl DepylerPipeline {
 
         // Generate Rust code using the unified generation system
         let (rust_code, _dependencies) =
-            rust_gen::generate_rust_file(&optimized_hir, &self.transpiler.type_mapper, self.config.enable_test_generation)?;
+            rust_gen::generate_rust_file(&optimized_hir, &self.transpiler.type_mapper)?;
 
         Ok(rust_code)
     }
@@ -692,7 +691,6 @@ impl DepylerPipeline {
 pub struct Config {
     pub enable_verification: bool,
     pub enable_metrics: bool,
-    pub enable_test_generation: bool,
     pub optimization_level: OptimizationLevel,
 }
 
@@ -701,7 +699,6 @@ impl Default for Config {
         Self {
             enable_verification: false,
             enable_metrics: false,
-            enable_test_generation: true, // Default to true for backward compatibility
             optimization_level: OptimizationLevel::default(),
         }
     }

@@ -1190,7 +1190,6 @@ fn generate_constant_tokens(
 pub fn generate_rust_file(
     module: &HirModule,
     type_mapper: &crate::type_mapper::TypeMapper,
-    enable_test_generation: bool,
 ) -> Result<(String, Vec<cargo_toml_gen::Dependency>)> {
     let module_mapper = crate::module_mapper::ModuleMapper::new();
 
@@ -1420,16 +1419,6 @@ pub fn generate_rust_file(
 
     // Add all functions
     items.extend(functions);
-
-    // Generate tests for all functions in a single test module
-    // DEPYLER-0280 FIX: Use generate_tests_module() to create a single `mod tests {}` block
-    // instead of one per function, which caused "the name `tests` is defined multiple times" errors
-    if enable_test_generation {
-        let test_gen = crate::test_generation::TestGenerator::new(Default::default());
-        if let Some(test_module) = test_gen.generate_tests_module(&module.functions)? {
-            items.push(test_module);
-        }
-    }
 
     let file = quote! {
         #(#items)*
