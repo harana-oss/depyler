@@ -1066,6 +1066,24 @@ fn generate_interned_string_tokens(_optimizer: &StringOptimizer) -> Vec<proc_mac
     vec![]
 }
 
+/// Infer the Rust element type for a list constant from its elements.
+///
+/// Inspects the first element to determine the homogeneous type.
+/// Falls back to `serde_json::Value` for empty or heterogeneous lists.
+fn infer_list_element_type(elts: &[HirExpr]) -> proc_macro2::TokenStream {
+    match elts.first() {
+        Some(HirExpr::Literal(Literal::Int(_))) => quote! { i32 },
+        Some(HirExpr::Literal(Literal::Float(_))) => quote! { f64 },
+        Some(HirExpr::Literal(Literal::String(_))) => quote! { String },
+        Some(HirExpr::Literal(Literal::Bool(_))) => quote! { bool },
+        Some(HirExpr::List(inner)) => {
+            let inner_type = infer_list_element_type(inner);
+            quote! { Vec<#inner_type> }
+        }
+        _ => quote! { serde_json::Value },
+    }
+}
+
 /// Generate module-level constant tokens
 ///
 /// Generates `pub const` declarations for module-level constants.
@@ -1162,10 +1180,10 @@ fn generate_constant_tokens(
                     quote! { : serde_json::Value }
                 }
 
-                // DEPYLER-0448: List types → serde_json::Value (safe fallback)
-                HirExpr::List { .. } => {
-                    ctx.needs_serde_json = true;
-                    quote! { : serde_json::Value }
+                // Infer Vec<T> element type from list contents
+                HirExpr::List(elts) => {
+                    let elem_type = infer_list_element_type(elts);
+                    quote! { : Vec<#elem_type> }
                 }
 
                 // DEPYLER-0448: Default fallback → serde_json::Value (NOT i32)
