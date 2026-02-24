@@ -1140,13 +1140,15 @@ pub const TACKLES_PER_SET: i32 = 6;
 pub const MAX_INTERCHANGES: i32 = 8;
 pub const GAME_LENGTH_IN_SECONDS: i32 = 4800;
 pub const HALF_LENGTH_IN_SECONDS: i32 = 2400;
-pub const PLAYER_POSITIONS: Vec<String> = vec![
+lazy_static::lazy_static! {
+    pub static ref PLAYER_POSITIONS: Vec<String> = vec![
     "FullBack".to_string(),
     "WingerOne".to_string(),
     "CentreOne".to_string(),
     "CentreTwo".to_string(),
     "WingerTwo".to_string(),
 ];
+}
 pub const PLAYING_FIELD_WIDTH: i32 = 1000;
 pub const PLAYING_FIELD_HEIGHT: i32 = 700;
 '''

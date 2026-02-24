@@ -1101,11 +1101,23 @@ fn infer_list_element_type(elts: &[HirExpr]) -> proc_macro2::TokenStream {
     }
 }
 
+/// Check if a RustType requires heap allocation (cannot be `const`).
+fn is_heap_allocated_rust_type(ty: &crate::type_mapper::RustType) -> bool {
+    use crate::type_mapper::RustType;
+    matches!(
+        ty,
+        RustType::String
+            | RustType::Vec(_)
+            | RustType::HashMap(_, _)
+            | RustType::HashSet(_)
+            | RustType::Custom(_)
+    )
+}
+
 /// Generate module-level constant tokens
 ///
-/// Generates `pub const` declarations for module-level constants.
-/// For simple literal values (int, float, string, bool), generates const.
-/// For complex expressions, may need to use static or lazy_static.
+/// Generates `pub const` for primitive types (i32, f64, bool, &str).
+/// Uses `lazy_static!` for heap-allocated types (Vec, String, HashMap, etc.).
 fn generate_constant_tokens(
     constants: &[HirConstant],
     ctx: &mut CodeGenContext,
@@ -1120,21 +1132,22 @@ fn generate_constant_tokens(
         // Generate the value expression
         let value_expr = constant.value.to_rust_expr(ctx)?;
 
-        // Generate type annotation - required for Rust const
-        let type_annotation = if let Some(ref ty) = constant.type_annotation {
+        // Determine type annotation and whether it needs lazy_static
+        let (type_annotation, needs_lazy) = if let Some(ref ty) = constant.type_annotation {
             let rust_type = ctx.type_mapper.map_type(ty);
+            let needs_lazy = is_heap_allocated_rust_type(&rust_type);
             let syn_type = type_gen::rust_type_to_syn(&rust_type)?;
-            quote! { : #syn_type }
+            (quote! { : #syn_type }, needs_lazy)
         } else {
             // DEPYLER-0448: Infer type from expression (not just literals)
             match &constant.value {
-                // Literal types
-                HirExpr::Literal(Literal::Int(_)) => quote! { : i32 },
-                HirExpr::Literal(Literal::Float(_)) => quote! { : f64 },
-                HirExpr::Literal(Literal::String(_)) => quote! { : &str },
-                HirExpr::Literal(Literal::Bool(_)) => quote! { : bool },
+                // Literal types - const-safe
+                HirExpr::Literal(Literal::Int(_)) => (quote! { : i32 }, false),
+                HirExpr::Literal(Literal::Float(_)) => (quote! { : f64 }, false),
+                HirExpr::Literal(Literal::String(_)) => (quote! { : &str }, false),
+                HirExpr::Literal(Literal::Bool(_)) => (quote! { : bool }, false),
 
-                // String method calls return String
+                // String method calls return String - needs lazy_static
                 HirExpr::MethodCall { object, method, .. }
                     if matches!(object.as_ref(), HirExpr::Literal(Literal::String(_)))
                         && matches!(
@@ -1156,10 +1169,10 @@ fn generate_constant_tokens(
                                 | "join"
                         ) =>
                 {
-                    quote! { : String }
+                    (quote! { : String }, true)
                 }
 
-                // String method calls that return i32
+                // String method calls that return i32 - const-safe
                 HirExpr::MethodCall { object, method, .. }
                     if matches!(object.as_ref(), HirExpr::Literal(Literal::String(_)))
                         && matches!(
@@ -1167,10 +1180,10 @@ fn generate_constant_tokens(
                             "find" | "rfind" | "index" | "rindex" | "count"
                         ) =>
                 {
-                    quote! { : i32 }
+                    (quote! { : i32 }, false)
                 }
 
-                // String method calls that return bool
+                // String method calls that return bool - const-safe
                 HirExpr::MethodCall { object, method, .. }
                     if matches!(object.as_ref(), HirExpr::Literal(Literal::String(_)))
                         && matches!(
@@ -1188,34 +1201,42 @@ fn generate_constant_tokens(
                                 | "isprintable"
                         ) =>
                 {
-                    quote! { : bool }
+                    (quote! { : bool }, false)
                 }
 
-                // DEPYLER-0448: Dict types → serde_json::Value (safe fallback)
+                // DEPYLER-0448: Dict types → serde_json::Value - needs lazy_static
                 HirExpr::Dict { .. } => {
                     ctx.needs_serde_json = true;
-                    quote! { : serde_json::Value }
+                    (quote! { : serde_json::Value }, true)
                 }
 
-                // Infer Vec<T> element type from list contents
+                // Infer Vec<T> element type from list contents - needs lazy_static
                 HirExpr::List(elts) => {
                     let elem_type = infer_list_element_type(elts);
-                    quote! { : Vec<#elem_type> }
+                    (quote! { : Vec<#elem_type> }, true)
                 }
 
-                // DEPYLER-0448: Default fallback → serde_json::Value (NOT i32)
+                // DEPYLER-0448: Default fallback → serde_json::Value - needs lazy_static
                 _ => {
                     ctx.needs_serde_json = true;
-                    quote! { : serde_json::Value }
+                    (quote! { : serde_json::Value }, true)
                 }
             }
         };
 
-        // Generate the constant declaration
-        // Use pub const for module-level visibility
-        items.push(quote! {
-            pub const #name_ident #type_annotation = #value_expr;
-        });
+        if needs_lazy {
+            ctx.needs_lazy_static = true;
+            ctx.lazy_static_constants.insert(constant.name.clone());
+            items.push(quote! {
+                lazy_static::lazy_static! {
+                    pub static ref #name_ident #type_annotation = #value_expr;
+                }
+            });
+        } else {
+            items.push(quote! {
+                pub const #name_ident #type_annotation = #value_expr;
+            });
+        }
     }
 
     Ok(items)

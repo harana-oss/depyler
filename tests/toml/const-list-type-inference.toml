@@ -12,7 +12,9 @@ KICKOFF_RESULTS = ["A1KickAway", "A1Retain"]
 '''
 
 rust = '''
-pub const KICKOFF_RESULTS: Vec<String> = vec!["A1KickAway".to_string(), "A1Retain".to_string()];
+lazy_static::lazy_static! {
+    pub static ref KICKOFF_RESULTS: Vec<String> = vec!["A1KickAway".to_string(), "A1Retain".to_string()];
+}
 '''
 
 [[test]]
@@ -24,7 +26,9 @@ SCORES = [10, 20, 30]
 '''
 
 rust = '''
-pub const SCORES: Vec<i32> = vec![10, 20, 30];
+lazy_static::lazy_static! {
+    pub static ref SCORES: Vec<i32> = vec![10, 20, 30];
+}
 '''
 
 [[test]]
@@ -36,7 +40,9 @@ RATES = [1.5, 2.5, 3.5]
 '''
 
 rust = '''
-pub const RATES: Vec<f64> = vec![1.5, 2.5, 3.5];
+lazy_static::lazy_static! {
+    pub static ref RATES: Vec<f64> = vec![1.5, 2.5, 3.5];
+}
 '''
 
 [[test]]
@@ -48,5 +54,7 @@ FLAGS = [True, False, True]
 '''
 
 rust = '''
-pub const FLAGS: Vec<bool> = vec![true, false, true];
+lazy_static::lazy_static! {
+    pub static ref FLAGS: Vec<bool> = vec![true, false, true];
+}
 '''

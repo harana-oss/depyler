@@ -528,7 +528,9 @@ API_KEY: Final[str] = "secret_key_123"
 '''
 
 rust = '''
-pub const API_KEY: String = "secret_key_123";
+lazy_static::lazy_static! {
+    pub static ref API_KEY: String = "secret_key_123";
+}
 '''
 
 [[test]]
@@ -560,7 +562,9 @@ DEFAULT_NAME: Final[str] = "unnamed"
 rust = '''
 pub const MAX_CONNECTIONS: i32 = 100;
 pub const TIMEOUT_MS: i32 = 5000;
-pub const DEFAULT_NAME: String = "unnamed";
+lazy_static::lazy_static! {
+    pub static ref DEFAULT_NAME: String = "unnamed";
+}
 '''
 
 [[test]]

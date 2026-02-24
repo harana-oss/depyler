@@ -16,7 +16,9 @@ result = 'hello'.upper()
 '''
 
 rust = '''
-pub const result: String = "hello".to_uppercase();
+lazy_static::lazy_static! {
+    pub static ref result: String = "hello".to_uppercase();
+}
 '''
 
 [[test]]
@@ -29,7 +31,9 @@ result = 'HELLO'.lower()
 '''
 
 rust = '''
-pub const result: String = "HELLO".to_lowercase();
+lazy_static::lazy_static! {
+    pub static ref result: String = "HELLO".to_lowercase();
+}
 '''
 
 [[test]]
@@ -42,7 +46,8 @@ result = 'hello world'.capitalize()
 '''
 
 rust = '''
-pub const result: String = {
+lazy_static::lazy_static! {
+    pub static ref result: String = {
     let s = "hello world";
     let mut chars = s.chars();
     match chars.next() {
@@ -50,6 +55,7 @@ pub const result: String = {
         Some(first) => first.to_uppercase().collect::<String>() + &chars.as_str().to_lowercase(),
     }
 };
+}
 '''
 
 [[test]]
@@ -62,7 +68,8 @@ result = 'hello world'.title()
 '''
 
 rust = '''
-pub const result: String = "hello world"
+lazy_static::lazy_static! {
+    pub static ref result: String = "hello world"
     .split_whitespace()
     .map(|word| {
         let mut chars = word.chars();
@@ -73,6 +80,7 @@ pub const result: String = "hello world"
     })
     .collect::<Vec<_>>()
     .join(" ");
+}
 '''
 
 [[test]]
@@ -85,7 +93,8 @@ result = 'Hello'.swapcase()
 '''
 
 rust = '''
-pub const result: String = "Hello"
+lazy_static::lazy_static! {
+    pub static ref result: String = "Hello"
     .chars()
     .map(|c| {
         if c.is_uppercase() {
@@ -95,6 +104,7 @@ pub const result: String = "Hello"
         }
     })
     .collect::<String>();
+}
 '''
 
 [[test]]
