@@ -1006,7 +1006,7 @@ fn generate_conditional_imports(ctx: &CodeGenContext) -> Vec<proc_macro2::TokenS
         imports.push(quote! {
             thread_local! {
                 static DEPYLER_RNG: std::cell::RefCell<SmallRng> =
-                    std::cell::RefCell::new(SmallRng::from_os_rng());
+                    std::cell::RefCell::new(SmallRng::from_entropy());
             }
         });
     }

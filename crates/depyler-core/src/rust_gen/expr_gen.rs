@@ -8749,7 +8749,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             "Random" => {
                 if arg_exprs.is_empty() {
                     // No seed - use OS entropy
-                    parse_quote! { SmallRng::from_os_rng() }
+                    parse_quote! { SmallRng::from_entropy() }
                 } else if arg_exprs.len() == 1 {
                     let seed = &arg_exprs[0];
                     parse_quote! { SmallRng::seed_from_u64(#seed as u64) }
@@ -8968,7 +8968,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 if arg_exprs.is_empty() {
                     // seed() with no args - use OS entropy
                     parse_quote! {
-                        DEPYLER_RNG.with(|rng| *rng.borrow_mut() = SmallRng::from_os_rng())
+                        DEPYLER_RNG.with(|rng| *rng.borrow_mut() = SmallRng::from_entropy())
                     }
                 } else {
                     let seed_val = &arg_exprs[0];
