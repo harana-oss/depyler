@@ -58,3 +58,66 @@ lazy_static::lazy_static! {
     pub static ref FLAGS: Vec<bool> = vec![true, false, true];
 }
 '''
+
+[[test]]
+name = "heterogeneous_int_string_list"
+description = "List mixing ints and strings should fall back to Vec<serde_json::Value>"
+
+python = '''
+MIXED = [1, "hello", 3]
+'''
+
+rust = '''
+use serde_json;
+lazy_static::lazy_static! {
+    pub static ref MIXED: Vec<serde_json::Value>= vec![1, "hello".to_string(), 3];
+}
+'''
+
+[[test]]
+name = "heterogeneous_int_float_list"
+description = "List mixing ints and floats should fall back to Vec<serde_json::Value>"
+
+python = '''
+NUMS = [1, 2.5, 3]
+'''
+
+rust = '''
+use serde_json;
+lazy_static::lazy_static! {
+    pub static ref NUMS: Vec<serde_json::Value>= vec![1, 2.5, 3];
+}
+'''
+
+[[test]]
+name = "homogeneous_all_ints_verified"
+description = "All elements checked - list of ints remains Vec<i32>"
+
+python = '''
+PRIMES = [2, 3, 5, 7, 11, 13]
+'''
+
+rust = '''
+lazy_static::lazy_static! {
+    pub static ref PRIMES: Vec<i32> = vec![2, 3, 5, 7, 11, 13];
+}
+'''
+
+[[test]]
+name = "homogeneous_all_strings_verified"
+description = "All elements checked - list of strings remains Vec<String>"
+
+python = '''
+COLORS = ["red", "green", "blue", "yellow"]
+'''
+
+rust = '''
+lazy_static::lazy_static! {
+    pub static ref COLORS: Vec<String> = vec![
+    "red".to_string(),
+    "green".to_string(),
+    "blue".to_string(),
+    "yellow".to_string(),
+];
+}
+'''

@@ -1083,23 +1083,45 @@ fn generate_interned_string_tokens(_optimizer: &StringOptimizer) -> Vec<proc_mac
     vec![]
 }
 
-/// Infer the Rust element type for a list constant from its elements.
-///
-/// Inspects the first element to determine the homogeneous type.
-/// Falls back to `serde_json::Value` for empty or heterogeneous lists.
-fn infer_list_element_type(elts: &[HirExpr]) -> proc_macro2::TokenStream {
-    match elts.first() {
-        Some(HirExpr::Literal(Literal::Int(_))) => quote! { i32 },
-        Some(HirExpr::Literal(Literal::Float(_))) => quote! { f64 },
-        Some(HirExpr::Literal(Literal::String(_))) => quote! { String },
-        Some(HirExpr::Literal(Literal::Bool(_))) => quote! { bool },
-        Some(HirExpr::Unary { op, operand }) => infer_unary_type(op, operand),
-        Some(HirExpr::List(inner)) => {
+/// Infer the Rust type for a single HIR expression.
+fn infer_single_expr_type(expr: &HirExpr) -> proc_macro2::TokenStream {
+    match expr {
+        HirExpr::Literal(Literal::Int(_)) => quote! { i32 },
+        HirExpr::Literal(Literal::Float(_)) => quote! { f64 },
+        HirExpr::Literal(Literal::String(_)) => quote! { String },
+        HirExpr::Literal(Literal::Bool(_)) => quote! { bool },
+        HirExpr::Unary { op, operand } => infer_unary_type(op, operand),
+        HirExpr::List(inner) => {
             let inner_type = infer_list_element_type(inner);
             quote! { Vec<#inner_type> }
         }
+        HirExpr::Tuple(elems) => infer_tuple_type(elems),
         _ => quote! { serde_json::Value },
     }
+}
+
+/// Infer the Rust element type for a list constant from its elements.
+///
+/// Checks all elements for type consistency. Falls back to `serde_json::Value`
+/// for empty or heterogeneous lists.
+fn infer_list_element_type(elts: &[HirExpr]) -> proc_macro2::TokenStream {
+    let first = match elts.first() {
+        Some(expr) => infer_single_expr_type(expr),
+        None => return quote! { serde_json::Value },
+    };
+    let first_str = first.to_string();
+    for expr in &elts[1..] {
+        if infer_single_expr_type(expr).to_string() != first_str {
+            return quote! { serde_json::Value };
+        }
+    }
+    first
+}
+
+/// Infer the Rust tuple type from its elements, e.g. `(i32, i32)` or `(String, f64)`.
+fn infer_tuple_type(elems: &[HirExpr]) -> proc_macro2::TokenStream {
+    let types: Vec<proc_macro2::TokenStream> = elems.iter().map(infer_single_expr_type).collect();
+    quote! { (#(#types),*) }
 }
 
 /// Infer the Rust type for a unary expression based on the operator and operand.
@@ -1110,6 +1132,14 @@ fn infer_unary_type(op: &UnaryOp, operand: &HirExpr) -> proc_macro2::TokenStream
         (UnaryOp::Not, HirExpr::Literal(Literal::Bool(_))) => quote! { bool },
         _ => quote! { serde_json::Value },
     }
+}
+
+/// Check if a tuple element expression requires heap allocation.
+fn tuple_element_needs_heap(expr: &HirExpr) -> bool {
+    matches!(
+        expr,
+        HirExpr::Literal(Literal::String(_)) | HirExpr::List(_) | HirExpr::Dict(_)
+    )
 }
 
 /// Check if a RustType requires heap allocation (cannot be `const`).
@@ -1231,6 +1261,13 @@ fn generate_constant_tokens(
                 HirExpr::List(elts) => {
                     let elem_type = infer_list_element_type(elts);
                     (quote! { : Vec<#elem_type> }, true)
+                }
+
+                // Tuple constants - const-safe if all elements are primitive
+                HirExpr::Tuple(elems) => {
+                    let tuple_type = infer_tuple_type(elems);
+                    let needs_lazy = elems.iter().any(tuple_element_needs_heap);
+                    (quote! { : #tuple_type }, needs_lazy)
                 }
 
                 // DEPYLER-0448: Default fallback → serde_json::Value - needs lazy_static
