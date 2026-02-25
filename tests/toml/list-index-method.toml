@@ -1,0 +1,77 @@
+[metadata]
+name = "List index() Method Tests"
+category = "codegen"
+description = "Tests for Python list.index() method transpilation to Rust"
+
+[[test]]
+name = "list_index_basic"
+description = "Basic list.index() on local variable"
+
+python = '''
+def find_index(items: list, target: str) -> int:
+    return items.index(target)
+'''
+
+[test.assertions]
+contains = [".iter()", ".position("]
+not_contains = [".index(target)"]
+
+[[test]]
+name = "list_index_with_modulo"
+description = "list.index() result used in arithmetic"
+
+python = '''
+def find_position(items: list, target: str) -> int:
+    return items.index(target) % 6
+'''
+
+[test.assertions]
+contains = [".iter()", ".position(", "% 6"]
+
+[[test]]
+name = "constant_list_index"
+description = "Module-level constant list with .index() call uses iter().position()"
+
+python = '''
+GRID_RESULT = ["A1", "A2", "A3", "A4"]
+
+def get_y_position(grid_result: str) -> int:
+    y_position = GRID_RESULT.index(grid_result) % 6
+    return y_position
+'''
+
+[test.assertions]
+contains = ["lazy_static", "GRID_RESULT", ".iter()", ".position(", "% 6"]
+not_contains = ["GRID_RESULT::index", "GRID_RESULT.index("]
+
+[[test]]
+name = "constant_list_index_compiles"
+description = "Module-level constant list .index() produces compilable Rust"
+
+python = '''
+GRID_RESULT = ["A1", "A2", "A3", "A4"]
+
+def get_y_position(grid_result: str) -> int:
+    y_position = GRID_RESULT.index(grid_result) % 6
+    return y_position
+'''
+
+rust = '''
+lazy_static::lazy_static! {
+    pub static ref GRID_RESULT: Vec<String> = vec![
+        "A1".to_string(),
+        "A2".to_string(),
+        "A3".to_string(),
+        "A4".to_string(),
+    ];
+}
+pub fn get_y_position(grid_result: String) -> i32 {
+    let y_position = GRID_RESULT
+        .iter()
+        .position(|x| x == &grid_result)
+        .map(|i| i as i32)
+        .expect("ValueError: value is not in list")
+        % 6;
+    return y_position;
+}
+'''
