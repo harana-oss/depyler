@@ -309,6 +309,10 @@ pub(crate) fn codegen_assign_stmt(
     if !skip_compound_for_generator {
         if let Some(op) = is_augassign_pattern(target, value) {
             if let HirExpr::Binary { right, .. } = value {
+                // Set assignment target flag to prevent .clone() on struct field access
+                let was_assignment_target = ctx.is_assignment_target;
+                ctx.is_assignment_target = true;
+
                 let target_expr = match target {
                     AssignTarget::Symbol(var_name) => {
                         let ident = safe_ident(var_name);
@@ -322,7 +326,7 @@ pub(crate) fn codegen_assign_stmt(
                     AssignTarget::Index { base, index } => {
                         let base_expr = base.to_rust_expr(ctx)?;
                         let index_expr = index.to_rust_expr(ctx)?;
-                        parse_quote! { #base_expr[#index_expr] }
+                        parse_quote! { #base_expr[#index_expr as usize] }
                     }
                     _ => {
                         // For other target types, fall through to normal assignment
@@ -330,6 +334,8 @@ pub(crate) fn codegen_assign_stmt(
                         syn::Expr::Verbatim(quote! {})
                     }
                 };
+
+                ctx.is_assignment_target = was_assignment_target;
 
                 // Only proceed if we successfully generated a target expression
                 if !matches!(target_expr, syn::Expr::Verbatim(_)) {

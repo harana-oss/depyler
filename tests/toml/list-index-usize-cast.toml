@@ -1,0 +1,94 @@
+[metadata]
+name = "List Index usize Cast Tests"
+category = "codegen"
+description = "Tests that variables used as list indices get cast to usize in Rust"
+
+[[test]]
+name = "indexed_list_concat_extend_usize"
+description = "List concat on indexed target casts variable index to usize"
+
+python = '''
+def append_to_period(scorers: list[list[int]], period_idx: int, player: int) -> None:
+    scorers[period_idx] = scorers[period_idx] + [player]
+'''
+
+[test.assertions]
+compiles = true
+contains = ["as usize", ".extend("]
+
+[[test]]
+name = "simple_indexed_assign_usize"
+description = "Simple assignment to indexed target casts variable index to usize"
+
+python = '''
+def set_value(items: list[int], idx: int, val: int) -> None:
+    items[idx] = val
+'''
+
+[test.assertions]
+compiles = true
+contains = ["as usize"]
+
+[[test]]
+name = "augmented_add_indexed_usize"
+description = "Augmented addition on indexed target casts variable index to usize"
+
+python = '''
+def increment_at(items: list[int], idx: int) -> None:
+    items[idx] = items[idx] + 1
+'''
+
+[test.assertions]
+compiles = true
+contains = ["as usize"]
+
+[[test]]
+name = "struct_field_indexed_list_concat_usize"
+description = "Struct field indexed list concat casts variable index to usize without clone"
+
+python = '''
+class State:
+    period_try_scorers: list[list[int]]
+
+    def __init__(self) -> None:
+        self.period_try_scorers = [[], []]
+
+def assign_try(state: State, player_list_idx: int) -> None:
+    period_idx: int = 0
+    state.period_try_scorers[period_idx] = state.period_try_scorers[period_idx] + [player_list_idx]
+'''
+
+[test.assertions]
+compiles = true
+contains = ["as usize", ".extend("]
+not_contains = [".clone()"]
+
+[[test]]
+name = "struct_field_reassigned_index_usize"
+description = "Reassigned variable used as index still gets as usize without clone"
+
+python = '''
+class Period:
+    number: int
+
+    def __init__(self) -> None:
+        self.number = 1
+
+class State:
+    period: Period
+    period_try_scorers: list[list[int]]
+
+    def __init__(self) -> None:
+        self.period = Period()
+        self.period_try_scorers = [[], []]
+
+def assign_try(state: State, player_list_idx: int) -> None:
+    period_idx: int = 0
+    period_idx = state.period.number - 1
+    state.period_try_scorers[period_idx] = state.period_try_scorers[period_idx] + [player_list_idx]
+'''
+
+[test.assertions]
+compiles = true
+contains = ["as usize", ".extend("]
+not_contains = [".clone()"]
