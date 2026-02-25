@@ -1431,8 +1431,7 @@ def compute_weight(a: int, b: int, c: int, d: int, e: int) -> int:
 rust = '''
 pub fn compute_weight(a: i32, b: i32, c: i32, d: i32, e: i32) -> i32 {
     let _cse_temp_0 = a + b * c;
-    let _cse_temp_1 = (_cse_temp_0 + d) * e;
-    let x: i32 = _cse_temp_1;
+    let x: i32 = (_cse_temp_0 + d) * e;
     return x;
 }
 '''

@@ -481,7 +481,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     let right_is_int_type = self.ctx.is_expr_int_type(right);
 
                     // If neither side is known to be numeric, it might be string concatenation
-                    // Use format! as a safe fallback for unknown types that could be strings
                     // BUT: if either side involves arithmetic operators (*, /, -, etc.), it's numeric
                     let left_involves_arithmetic = self.involves_arithmetic_op(left);
                     let right_involves_arithmetic = self.involves_arithmetic_op(right);
@@ -493,26 +492,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         || right_involves_arithmetic;
 
                     if !any_is_numeric {
-                        // Unknown type - default to + operator (numeric addition)
-                        // Numbers are more common than string concatenation
-                        let rust_op = convert_binop(op)?;
-                        Ok(syn::Expr::Binary(syn::ExprBinary {
-                            attrs: vec![],
-                            left: Box::new(left_expr),
-                            op: rust_op,
-                            right: Box::new(right_expr),
-                        }))
-                    } else if left_is_float && right_is_int_type {
-                        // float + int: cast int to f64
-                        // Wrap right_expr in parentheses to handle precedence with `as`
-                        Ok(parse_quote! { #left_expr + ((#right_expr) as f64) })
-                    } else if left_is_int_type && right_is_float {
-                        // int + float: cast int to f64
-                        // Wrap left_expr in parentheses to handle precedence with `as`
-                        // e.g., 5 * A as f64 would be 5 * (A as f64), we want (5 * A) as f64
-                        Ok(parse_quote! { ((#left_expr) as f64) + #right_expr })
-                    } else if left_is_int_type && right_is_int_type {
-                        // Both are int - normal addition
                         let rust_op = convert_binop(op)?;
                         Ok(syn::Expr::Binary(syn::ExprBinary {
                             attrs: vec![],
@@ -521,14 +500,9 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                             right: Box::new(right_expr),
                         }))
                     } else {
-                        // At least one side is numeric but not both, use normal addition
-                        let rust_op = convert_binop(op)?;
-                        Ok(syn::Expr::Binary(syn::ExprBinary {
-                            attrs: vec![],
-                            left: Box::new(left_expr),
-                            op: rust_op,
-                            right: Box::new(right_expr),
-                        }))
+                        self.emit_arithmetic_with_mixed_cast(
+                            op, left, right, left_expr, right_expr,
+                        )
                     }
                 }
             }
@@ -608,13 +582,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     // Without parens, Rust parses "as i32.saturating_sub" incorrectly
                     Ok(parse_quote! { (#left_expr).saturating_sub(#right_expr) })
                 } else {
-                    let rust_op = convert_binop(op)?;
-                    Ok(syn::Expr::Binary(syn::ExprBinary {
-                        attrs: vec![],
-                        left: Box::new(left_expr),
-                        op: rust_op,
-                        right: Box::new(right_expr),
-                    }))
+                    self.emit_arithmetic_with_mixed_cast(op, left, right, left_expr, right_expr)
                 }
             }
             BinOp::Mul => {
@@ -693,30 +661,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                             Ok(parse_quote! { vec![#elem; #size_lit] })
                         }
                     }
-                    // Default multiplication - handle mixed int/float types
                     _ => {
-                        let left_is_float = self.ctx.is_expr_float_type(left);
-                        let right_is_float = self.ctx.is_expr_float_type(right);
-                        let left_is_int_type = self.ctx.is_expr_int_type(left);
-                        let right_is_int_type = self.ctx.is_expr_int_type(right);
-
-                        // Mixed float/int multiplication needs cast
-                        // Wrap expressions in parentheses to handle `as` precedence
-                        if left_is_float && right_is_int_type {
-                            // float * int: cast int to f64
-                            Ok(parse_quote! { #left_expr * ((#right_expr) as f64) })
-                        } else if left_is_int_type && right_is_float {
-                            // int * float: cast int to f64
-                            Ok(parse_quote! { ((#left_expr) as f64) * #right_expr })
-                        } else {
-                            let rust_op = convert_binop(op)?;
-                            Ok(syn::Expr::Binary(syn::ExprBinary {
-                                attrs: vec![],
-                                left: Box::new(left_expr),
-                                op: rust_op,
-                                right: Box::new(right_expr),
-                            }))
-                        }
+                        self.emit_arithmetic_with_mixed_cast(op, left, right, left_expr, right_expr)
                     }
                 }
             }
@@ -974,6 +920,9 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     right: Box::new(final_right),
                 }))
             }
+            BinOp::Mod => {
+                self.emit_arithmetic_with_mixed_cast(op, left, right, left_expr, right_expr)
+            }
             _ => {
                 let rust_op = convert_binop(op)?;
                 Ok(syn::Expr::Binary(syn::ExprBinary {
@@ -983,6 +932,49 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     right: Box::new(right_expr),
                 }))
             }
+        }
+    }
+
+    /// Emit an arithmetic binary expression, casting the int operand to f64 when mixed.
+    fn emit_arithmetic_with_mixed_cast(
+        &self,
+        op: BinOp,
+        left: &HirExpr,
+        right: &HirExpr,
+        left_expr: syn::Expr,
+        right_expr: syn::Expr,
+    ) -> Result<syn::Expr> {
+        let left_is_float = self.ctx.is_expr_float_type(left);
+        let right_is_float = self.ctx.is_expr_float_type(right);
+        let left_is_int = self.ctx.is_expr_int_type(left);
+        let right_is_int = self.ctx.is_expr_int_type(right);
+
+        if left_is_float && right_is_int {
+            let rust_op = convert_binop(op)?;
+            let cast_right: syn::Expr = parse_quote! { ((#right_expr) as f64) };
+            Ok(syn::Expr::Binary(syn::ExprBinary {
+                attrs: vec![],
+                left: Box::new(left_expr),
+                op: rust_op,
+                right: Box::new(cast_right),
+            }))
+        } else if left_is_int && right_is_float {
+            let rust_op = convert_binop(op)?;
+            let cast_left: syn::Expr = parse_quote! { ((#left_expr) as f64) };
+            Ok(syn::Expr::Binary(syn::ExprBinary {
+                attrs: vec![],
+                left: Box::new(cast_left),
+                op: rust_op,
+                right: Box::new(right_expr),
+            }))
+        } else {
+            let rust_op = convert_binop(op)?;
+            Ok(syn::Expr::Binary(syn::ExprBinary {
+                attrs: vec![],
+                left: Box::new(left_expr),
+                op: rust_op,
+                right: Box::new(right_expr),
+            }))
         }
     }
 

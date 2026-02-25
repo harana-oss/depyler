@@ -1,0 +1,136 @@
+[metadata]
+name = "CSE Fold and Mixed Type Cast Tests"
+category = "cse-optimization"
+
+# =============================================================================
+# CSE should fold temp variables when immediately assigned to a named variable
+# =============================================================================
+
+[[test]]
+name = "cse_fold_simple_assign"
+description = "CSE temp should be folded when immediately assigned to a named variable"
+
+python = '''
+def compute(a: int, b: int) -> int:
+    result = a - b * 4
+    return result
+'''
+
+rust = '''
+pub fn compute(a: i32, b: i32) -> i32 {
+    let result = a - b * 4;
+    return result;
+}
+'''
+
+[[test]]
+name = "cse_fold_mixed_float_int_multiply"
+description = "Mixed float*int in CSE expression should cast int to f64"
+
+python = '''
+def scale(value: int, factor: float) -> float:
+    adjusted = value - 10 * 2
+    result = factor * adjusted - 1.75
+    return result
+'''
+
+rust = '''
+pub fn scale(value: i32, factor: f64) -> f64 {
+    let adjusted = value - 20;
+    let result = factor * ((adjusted) as f64) - 1.75;
+    return result;
+}
+'''
+
+[[test]]
+name = "cse_fold_pom_chance_pattern"
+description = "Complex expression with mixed types matching the POM chance pattern"
+
+python = '''
+MIN_POM_WEIGHT: float = 0.1
+
+def calculate_chance(
+    match_tries: int,
+    match_score: int,
+    pom_percentage: float,
+    team_won: bool,
+) -> float:
+    win_factor = 500 if team_won else 0
+    points_scored = match_score - match_tries * 4
+    points_factor = max(1.0, 0.3357 * points_scored - 1.75)
+    pom_weight = (pom_percentage + pom_percentage * win_factor) * points_factor
+    return max(pom_weight, MIN_POM_WEIGHT)
+'''
+
+rust = '''
+pub const MIN_POM_WEIGHT: f64 = 0.1;
+pub fn calculate_chance(match_tries: i32, match_score: i32, pom_percentage: f64, team_won: bool) -> f64 {
+    let win_factor = if team_won { 500 } else { 0 };
+    let points_scored = match_score - match_tries * 4;
+    let _cse_temp_1 = 0.3357 * ((points_scored) as f64) - 1.75;
+    let points_factor = f64::max(1.0, _cse_temp_1);
+    let _cse_temp_2 = pom_percentage + pom_percentage * ((win_factor) as f64);
+    let pom_weight = _cse_temp_2 * points_factor;
+    return f64::max(pom_weight, (MIN_POM_WEIGHT) as f64);
+}
+'''
+
+[[test]]
+name = "cse_fold_sub_mixed_int_float"
+description = "Subtraction with mixed int/float should cast int to f64"
+
+python = '''
+def adjust(x: int) -> float:
+    return x - 1.75
+'''
+
+rust = '''
+pub fn adjust(x: i32) -> f64 {
+    return ((x) as f64) - 1.75;
+}
+'''
+
+[[test]]
+name = "mod_mixed_int_float"
+description = "Modulo with mixed int/float should cast int to f64"
+
+python = '''
+def remainder(x: int, y: float) -> float:
+    return x % y
+'''
+
+rust = '''
+pub fn remainder(x: i32, y: f64) -> f64 {
+    return ((x) as f64) % y;
+}
+'''
+
+[[test]]
+name = "mod_mixed_float_int"
+description = "Modulo float % int should cast int to f64"
+
+python = '''
+def remainder(x: float, y: int) -> float:
+    return x % y
+'''
+
+rust = '''
+pub fn remainder(x: f64, y: i32) -> f64 {
+    return x % ((y) as f64);
+}
+'''
+
+[[test]]
+name = "add_mixed_int_float"
+description = "Addition with mixed int/float should cast int to f64"
+
+python = '''
+def offset(x: int, y: float) -> float:
+    return x + y
+'''
+
+rust = '''
+pub fn offset(x: i32, y: f64) -> f64 {
+    return ((x) as f64) + y;
+}
+'''

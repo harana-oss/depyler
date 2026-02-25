@@ -713,12 +713,33 @@ impl Optimizer {
                     value,
                     type_annotation,
                 } => {
-                    let (new_value, extra_stmts) =
+                    let (new_value, mut extra_stmts) =
                         self.process_expr_for_cse(value, cse_map, temp_counter);
+                    // Fold CSE temps that are immediately assigned to a named variable.
+                    // Transforms: `let _cse_temp_0 = expr; let x = _cse_temp_0;`
+                    // Into:       `let x = expr;`
+                    let final_value =
+                        if let (HirExpr::Var(temp_name), AssignTarget::Symbol(target_name)) =
+                            (&new_value, target)
+                        {
+                            if temp_name.starts_with("_cse_temp_") {
+                                self.try_fold_cse_temp(
+                                    temp_name,
+                                    target_name,
+                                    &mut extra_stmts,
+                                    cse_map,
+                                )
+                                .unwrap_or(new_value)
+                            } else {
+                                new_value
+                            }
+                        } else {
+                            new_value
+                        };
                     new_body.extend(extra_stmts);
                     new_body.push(HirStmt::Assign {
                         target: target.clone(),
-                        value: new_value,
+                        value: final_value,
                         type_annotation: type_annotation.clone(),
                     });
                 }
@@ -978,6 +999,36 @@ impl Optimizer {
             HirExpr::Call { .. } => false,
             _ => false,
         }
+    }
+
+    /// Fold a CSE temp into a named variable assignment when the temp is
+    /// only used once and immediately assigned.
+    fn try_fold_cse_temp(
+        &self,
+        temp_name: &str,
+        target_name: &str,
+        extra_stmts: &mut Vec<HirStmt>,
+        cse_map: &mut HashMap<u64, (HirExpr, String)>,
+    ) -> Option<HirExpr> {
+        if let Some(HirStmt::Assign {
+            target: AssignTarget::Symbol(assign_target),
+            value: actual_value,
+            ..
+        }) = extra_stmts.last()
+        {
+            if assign_target == temp_name {
+                let actual = actual_value.clone();
+                extra_stmts.pop();
+                for (_, (_, var_name)) in cse_map.iter_mut() {
+                    if var_name == temp_name {
+                        *var_name = target_name.to_string();
+                        break;
+                    }
+                }
+                return Some(actual);
+            }
+        }
+        None
     }
 
     fn has_expensive_operand(&self, left: &HirExpr, right: &HirExpr) -> bool {
