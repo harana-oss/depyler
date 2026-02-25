@@ -949,23 +949,55 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         let left_is_int = self.ctx.is_expr_int_type(left);
         let right_is_int = self.ctx.is_expr_int_type(right);
 
-        if left_is_float && right_is_int {
+        // Strip .clone() from constants in mixed arithmetic expressions
+        fn strip_clone(expr: &syn::Expr) -> syn::Expr {
+            match expr {
+                syn::Expr::MethodCall(mc) if mc.method == "clone" && mc.args.is_empty() => {
+                    if let syn::Expr::Path(ref path) = *mc.receiver {
+                        syn::Expr::Path(path.clone())
+                    } else {
+                        strip_clone(&mc.receiver)
+                    }
+                }
+                syn::Expr::Binary(bin) => syn::Expr::Binary(syn::ExprBinary {
+                    left: Box::new(strip_clone(&bin.left)),
+                    right: Box::new(strip_clone(&bin.right)),
+                    attrs: bin.attrs.clone(),
+                    op: bin.op.clone(),
+                }),
+                _ => expr.clone(),
+            }
+        }
+
+        // Cast int operand to f64 when mixed with float
+        if (left_is_float && right_is_int) || (left_is_int && right_is_float) {
             let rust_op = convert_binop(op)?;
-            let cast_right: syn::Expr = parse_quote! { ((#right_expr) as f64) };
-            Ok(syn::Expr::Binary(syn::ExprBinary {
-                attrs: vec![],
-                left: Box::new(left_expr),
-                op: rust_op,
-                right: Box::new(cast_right),
-            }))
-        } else if left_is_int && right_is_float {
-            let rust_op = convert_binop(op)?;
-            let cast_left: syn::Expr = parse_quote! { ((#left_expr) as f64) };
+            let cast_to_f64 = |expr: &syn::Expr, is_float: bool| {
+                let expr = strip_clone(expr);
+                if is_float {
+                    expr
+                } else {
+                    parse_quote! { ((#expr) as f64) }
+                }
+            };
+            let cast_left = cast_to_f64(&left_expr, left_is_float);
+            let cast_right = cast_to_f64(&right_expr, right_is_float);
             Ok(syn::Expr::Binary(syn::ExprBinary {
                 attrs: vec![],
                 left: Box::new(cast_left),
                 op: rust_op,
-                right: Box::new(right_expr),
+                right: Box::new(cast_right),
+            }))
+        } else if left_is_float || right_is_float {
+            // Both float or one float + unknown: strip .clone() but no cast needed
+            let rust_op = convert_binop(op)?;
+            let clean_left = strip_clone(&left_expr);
+            let clean_right = strip_clone(&right_expr);
+            Ok(syn::Expr::Binary(syn::ExprBinary {
+                attrs: vec![],
+                left: Box::new(clean_left),
+                op: rust_op,
+                right: Box::new(clean_right),
             }))
         } else {
             let rust_op = convert_binop(op)?;
