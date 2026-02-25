@@ -1,0 +1,122 @@
+[metadata]
+name = "Dict Constant Get Method Tests"
+category = "dictionaries"
+description = "Tests for .get() on module-level dict constants (SCREAMING_SNAKE_CASE)"
+
+[[test]]
+name = "dict_constant_get_with_default"
+description = "Module-level dict constant .get() with string default"
+
+python = '''
+GRID_MAP = {"A1Retain": "A1", "A1KickAway": "A1", "A2Retain": "A2"}
+
+def lookup(key: str) -> str:
+    return GRID_MAP.get(key, "A1")
+'''
+
+rust = '''
+use std::collections::HashMap;
+lazy_static::lazy_static! {
+    pub static ref GRID_MAP: HashMap<String, String> = {
+        let mut map = HashMap::new();
+        map.insert("A1Retain".to_string(), "A1".to_string());
+        map.insert("A1KickAway".to_string(), "A1".to_string());
+        map.insert("A2Retain".to_string(), "A2".to_string());
+        map
+    };
+}
+pub fn lookup(key: String) -> String {
+    return GRID_MAP
+        .get(&key)
+        .cloned()
+        .unwrap_or_else(|| "A1".to_string());
+}
+'''
+
+[[test]]
+name = "dict_constant_get_no_default"
+description = "Module-level dict constant .get() without default"
+
+python = '''
+STATUS_MAP = {"ok": 200, "error": 500}
+
+def get_status(name: str) -> int:
+    result = STATUS_MAP.get(name)
+    if result is None:
+        return 0
+    return result
+'''
+
+rust = '''
+use std::collections::HashMap;
+lazy_static::lazy_static! {
+    pub static ref STATUS_MAP: HashMap<String, i32> = {
+        let mut map = HashMap::new();
+        map.insert("ok".to_string(), 200);
+        map.insert("error".to_string(), 500);
+        map
+    };
+}
+pub fn get_status(name: String) -> i32 {
+    let result = STATUS_MAP.get(&name).cloned();
+    if result.is_none() {
+        return 0;
+    }
+    return result;
+}
+'''
+
+[[test]]
+name = "dict_constant_get_with_str_call"
+description = "Module-level dict constant .get() with str() conversion on key"
+
+python = '''
+RESULT_MAP = {"win": "W", "loss": "L"}
+
+def classify(outcome: str) -> str:
+    return RESULT_MAP.get(str(outcome), "D")
+'''
+
+rust = '''
+use std::collections::HashMap;
+lazy_static::lazy_static! {
+    pub static ref RESULT_MAP: HashMap<String, String> = {
+        let mut map = HashMap::new();
+        map.insert("win".to_string(), "W".to_string());
+        map.insert("loss".to_string(), "L".to_string());
+        map
+    };
+}
+pub fn classify(outcome: String) -> String {
+    return RESULT_MAP
+        .get(&outcome.to_string())
+        .cloned()
+        .unwrap_or_else(|| "D".to_string());
+}
+'''
+
+[[test]]
+name = "dict_constant_get_with_int_default"
+description = "Module-level dict constant .get() with integer default (Copy type)"
+
+python = '''
+SCORES = {"alice": 10, "bob": 20}
+
+def get_score(name: str) -> int:
+    return SCORES.get(name, 0)
+'''
+
+rust = '''
+use std::collections::HashMap;
+lazy_static::lazy_static! {
+    pub static ref SCORES: HashMap<String, i32> = {
+        let mut map = HashMap::new();
+        map.insert("alice".to_string(), 10);
+        map.insert("bob".to_string(), 20);
+        map
+    };
+}
+pub fn get_score(name: String) -> i32 {
+    return *SCORES.get(&name).unwrap_or(&0);
+}
+'''

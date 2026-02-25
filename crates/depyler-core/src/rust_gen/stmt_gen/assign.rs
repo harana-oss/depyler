@@ -333,6 +333,17 @@ pub(crate) fn codegen_assign_stmt(
 
                 // Only proceed if we successfully generated a target expression
                 if !matches!(target_expr, syn::Expr::Verbatim(_)) {
+                    // List concatenation: x = x + [elem] => x.extend(vec![elem])
+                    // Vec doesn't implement AddAssign, so use .extend() instead
+                    if matches!(op, BinOp::Add)
+                        && is_list_concat_augassign(target, right, ctx)
+                    {
+                        let right_expr = right.to_rust_expr(ctx)?;
+                        return Ok(quote! {
+                            #target_expr.extend(#right_expr);
+                        });
+                    }
+
                     let right_expr = right.to_rust_expr(ctx)?;
                     let op_token = match op {
                         BinOp::Add => quote! { += },
@@ -372,7 +383,8 @@ pub(crate) fn codegen_assign_stmt(
         // Also track Optional types for proper Some() wrapping in reassignments
         if let Some(annot_type) = type_annotation {
             match annot_type {
-                Type::List(_) | Type::Dict(_, _) | Type::Set(_) | Type::Optional(_) => {
+                Type::List(_) | Type::Dict(_, _) | Type::Set(_) | Type::Optional(_)
+                | Type::Tuple(_) => {
                     ctx.var_types.insert(var_name.clone(), annot_type.clone());
                     // Track variables declared as Option<T> for proper unwrapping in field access
                     if matches!(annot_type, Type::Optional(_)) {
@@ -411,6 +423,7 @@ pub(crate) fn codegen_assign_stmt(
                         Type::List(_)
                             | Type::Dict(_, _)
                             | Type::Set(_)
+                            | Type::Tuple(_)
                             | Type::Int
                             | Type::Float
                             | Type::Bool
@@ -477,6 +490,14 @@ pub(crate) fn codegen_assign_stmt(
                     }
                     // next(iter) without default uses .expect() and returns T directly (not Optional)
                 }
+            }
+            HirExpr::Tuple(elements) => {
+                let elem_types: Vec<Type> = elements
+                    .iter()
+                    .map(|e| infer_expr_type_with_env(e, &ctx.var_types))
+                    .collect();
+                ctx.var_types
+                    .insert(var_name.clone(), Type::Tuple(elem_types));
             }
             HirExpr::List(elements) => {
                 // When v = [1, 2], mark v as List(Int) so it gets borrowed when calling f(&v)
@@ -1742,6 +1763,40 @@ pub(crate) fn is_optional_var_augassign_pattern(
         }
     }
     false
+}
+
+/// Detect if an augmented assignment involves list concatenation.
+/// Vec doesn't implement AddAssign, so we need .extend() instead of +=.
+fn is_list_concat_augassign(
+    target: &AssignTarget,
+    right: &HirExpr,
+    ctx: &CodeGenContext,
+) -> bool {
+    if matches!(right, HirExpr::List(_)) {
+        return true;
+    }
+    if let HirExpr::Var(name) = right {
+        if matches!(ctx.var_types.get(name), Some(Type::List(_))) {
+            return true;
+        }
+    }
+    match target {
+        AssignTarget::Symbol(var_name) => {
+            matches!(ctx.var_types.get(var_name), Some(Type::List(_)))
+        }
+        AssignTarget::Attribute { value, attr } => {
+            if let HirExpr::Var(base_var) = value.as_ref() {
+                if base_var == "self" {
+                    matches!(ctx.get_self_field_type(attr), Some(Type::List(_)))
+                } else {
+                    false
+                }
+            } else {
+                false
+            }
+        }
+        _ => false,
+    }
 }
 
 pub(crate) fn is_augassign_pattern(target: &AssignTarget, value: &HirExpr) -> Option<BinOp> {

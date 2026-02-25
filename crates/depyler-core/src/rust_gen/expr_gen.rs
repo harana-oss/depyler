@@ -11729,12 +11729,19 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
 
         // Convert to ClassName::method(args) for static method calls
         // But NOT for module-level constants (lazy_static), which should use regular method calls
+        // Also NOT for SCREAMING_SNAKE_CASE names which are constants, not classes
         if let HirExpr::Var(class_name) = object {
-            if class_name
+            let starts_upper = class_name
                 .chars()
                 .next()
                 .map(|c| c.is_uppercase())
-                .unwrap_or(false)
+                .unwrap_or(false);
+            let is_screaming_snake = starts_upper
+                && class_name
+                    .chars()
+                    .all(|c| c.is_uppercase() || c == '_' || c.is_ascii_digit());
+            if starts_upper
+                && !is_screaming_snake
                 && !self.ctx.lazy_static_constants.contains(class_name)
             {
                 // This is likely a static method call - convert to ClassName::method(args)
@@ -11780,9 +11787,21 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
 
         // Methods that only need to borrow the object (use .iter() internally)
         // These don't need clone because they only take &self
+        // Dict methods like get/keys/values/items borrow via &self;
+        // .get().cloned() already handles element cloning.
         let is_reference_method = matches!(
             method,
-            "is_none" | "is_some" | "as_ref" | "len" | "is_empty" | "index" | "count"
+            "is_none"
+                | "is_some"
+                | "as_ref"
+                | "len"
+                | "is_empty"
+                | "index"
+                | "count"
+                | "get"
+                | "keys"
+                | "values"
+                | "items"
         );
 
         // For mutating/reference methods, don't add .clone()
@@ -12055,17 +12074,15 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         // Also handles chained indexing: list_of_tuples[i][j] → list_of_tuples.get(i).0
         let should_use_tuple_syntax = if let HirExpr::Literal(Literal::Int(idx)) = index {
             if *idx >= 0 {
-                if let HirExpr::Var(var_name) = base {
-                    // Case 1: Direct variable access (e.g., position[0] where position: Tuple)
-                    if let Some(var_type) = self.ctx.var_types.get(var_name) {
-                        matches!(var_type, Type::Tuple(_))
-                    } else {
-                        // Fallback heuristic: variable names suggesting tuple iteration
-                        matches!(
-                            var_name.as_str(),
-                            "pair" | "entry" | "item" | "elem" | "tuple" | "row"
-                        )
-                    }
+                // Use get_expr_type for broad coverage (Var, Attribute, etc.)
+                if let Some(base_type) = self.ctx.get_expr_type(base) {
+                    matches!(base_type, Type::Tuple(_))
+                } else if let HirExpr::Var(var_name) = base {
+                    // Fallback heuristic: variable names suggesting tuple iteration
+                    matches!(
+                        var_name.as_str(),
+                        "pair" | "entry" | "item" | "elem" | "tuple" | "row"
+                    )
                 } else if let HirExpr::Index {
                     base: inner_base, ..
                 } = base
@@ -12073,7 +12090,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     // Check if we're indexing into a List[Tuple]
                     if let HirExpr::Var(var_name) = &**inner_base {
                         if let Some(Type::List(element_type)) = self.ctx.var_types.get(var_name) {
-                            // If the list contains tuples, second index is tuple field access
                             matches!(**element_type, Type::Tuple(_))
                         } else {
                             false

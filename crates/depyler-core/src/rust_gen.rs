@@ -1229,55 +1229,6 @@ fn infer_constant_hir_type(expr: &HirExpr) -> Type {
     }
 }
 
-/// Pre-populate lazy_static_constants so function bodies know which uppercase
-/// names are module-level constants rather than class names.
-fn pre_populate_lazy_static_constants(constants: &[HirConstant], ctx: &mut CodeGenContext) {
-    for constant in constants {
-        let needs_lazy = if let Some(ref ty) = constant.type_annotation {
-            let rust_type = ctx.type_mapper.map_type(ty);
-            is_heap_allocated_rust_type(&rust_type)
-        } else {
-            match &constant.value {
-                HirExpr::Literal(Literal::Int(_))
-                | HirExpr::Literal(Literal::Float(_))
-                | HirExpr::Literal(Literal::String(_))
-                | HirExpr::Literal(Literal::Bool(_)) => false,
-                HirExpr::MethodCall { object, method, .. }
-                    if matches!(object.as_ref(), HirExpr::Literal(Literal::String(_))) =>
-                {
-                    matches!(
-                        method.as_str(),
-                        "upper"
-                            | "lower"
-                            | "strip"
-                            | "lstrip"
-                            | "rstrip"
-                            | "replace"
-                            | "title"
-                            | "capitalize"
-                            | "swapcase"
-                            | "center"
-                            | "ljust"
-                            | "rjust"
-                            | "zfill"
-                            | "expandtabs"
-                            | "join"
-                    )
-                }
-                HirExpr::Unary { .. } => false,
-                HirExpr::Tuple(elems) => elems.iter().any(tuple_element_needs_heap),
-                HirExpr::List(_) | HirExpr::Dict(_) | HirExpr::Set(_) | HirExpr::FrozenSet(_) => {
-                    true
-                }
-                _ => true,
-            }
-        };
-        if needs_lazy {
-            ctx.lazy_static_constants.insert(constant.name.clone());
-        }
-    }
-}
-
 /// Generate module-level constant tokens
 ///
 /// Generates `pub const` for primitive types (i32, f64, bool, &str).
@@ -1621,7 +1572,11 @@ pub fn generate_rust_file(
 
     // Pre-populate lazy_static_constants so function code generation knows which
     // uppercase names are constants (not class names for static method dispatch).
-    pre_populate_lazy_static_constants(&module.constants, &mut ctx);
+    for constant in &module.constants {
+        if constant.name.chars().next().map_or(false, |c| c.is_uppercase()) {
+            ctx.lazy_static_constants.insert(constant.name.clone());
+        }
+    }
 
     // PRE-POPULATE function_param_borrows for ALL functions BEFORE code generation
     // This ensures that when function A calls function B, it knows B's parameter signature

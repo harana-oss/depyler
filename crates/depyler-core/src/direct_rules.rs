@@ -2858,6 +2858,22 @@ fn replace_self_field_in_stmt(stmt: &HirStmt, field_name: &str, binding_name: &s
     }
 }
 
+fn is_list_concat_in_direct_rules(
+    target: &AssignTarget,
+    right: &HirExpr,
+    field_types: &HashMap<String, Type>,
+) -> bool {
+    if matches!(right, HirExpr::List(_)) {
+        return true;
+    }
+    if let AssignTarget::Attribute { attr, .. } = target {
+        if matches!(field_types.get(attr.as_str()), Some(Type::List(_))) {
+            return true;
+        }
+    }
+    false
+}
+
 fn convert_stmt_with_context(
     stmt: &HirStmt,
     type_mapper: &TypeMapper,
@@ -3036,6 +3052,19 @@ fn convert_stmt_with_context(
 
                         // Only proceed if we successfully generated a target expression
                         if !matches!(target_expr, syn::Expr::Verbatim(_)) {
+                            // List concatenation: Vec doesn't implement AddAssign
+                            if matches!(op, BinOp::Add)
+                                && is_list_concat_in_direct_rules(target, right, field_types)
+                            {
+                                let extend_expr: syn::Expr = parse_quote! {
+                                    #target_expr.extend(#right_expr)
+                                };
+                                return Ok(syn::Stmt::Expr(
+                                    extend_expr,
+                                    Some(Default::default()),
+                                ));
+                            }
+
                             let assign_expr = parse_quote! {
                                 #target_expr #op_token #right_expr
                             };
