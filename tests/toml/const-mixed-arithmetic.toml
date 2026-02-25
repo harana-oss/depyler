@@ -105,9 +105,8 @@ rust = '''
 pub const PLAYING_FIELD_WIDTH: i32 = 1050;
 pub const GOAL_LINE_X_WIDTH: i32 = 100;
 pub fn compute_x(goal_line_index: i32) -> f64 {
-    let _cse_temp_0 = goal_line_index % 5 * GOAL_LINE_X_WIDTH.clone();
-    let x = ((PLAYING_FIELD_WIDTH + _cse_temp_0) as f64)
-        + (GOAL_LINE_X_WIDTH.clone() as f64) / (2 as f64);
+    let _cse_temp_0 = goal_line_index % 5 * GOAL_LINE_X_WIDTH;
+    let x = ((PLAYING_FIELD_WIDTH + _cse_temp_0) as f64) + (GOAL_LINE_X_WIDTH as f64) / (2 as f64);
     return x;
 }
 '''

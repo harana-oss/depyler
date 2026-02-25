@@ -560,15 +560,36 @@ pub(crate) fn codegen_assign_stmt(
                     .insert(var_name.clone(), Type::List(Box::new(elem_type)));
             }
             // E.g., value_str = data.get(...) where data: Vec<String> → value_str: String
-            HirExpr::MethodCall { object, method, .. } => {
-                // Track .get() on Vec<String> returning String
+            HirExpr::MethodCall { object, method, args, .. } => {
+                // Track .get() return type: Option for 1-arg, unwrapped for 2-arg
                 if method == "get" {
                     if let HirExpr::Var(obj_var) = object.as_ref() {
                         if let Some(Type::List(elem_type)) = ctx.var_types.get(obj_var) {
-                            // .get() returns Option<&T>, but after .cloned().unwrap_or_default()
-                            // it becomes T, so track the element type
-                            ctx.var_types
-                                .insert(var_name.clone(), elem_type.as_ref().clone());
+                            if args.len() == 1 {
+                                // 1-arg .get() returns Option<&T> → Option<T> after .cloned()
+                                ctx.var_types.insert(
+                                    var_name.clone(),
+                                    Type::Optional(Box::new(elem_type.as_ref().clone())),
+                                );
+                                ctx.optional_vars.insert(var_name.clone());
+                            } else {
+                                // 2-arg .get() uses unwrap_or → returns T directly
+                                ctx.var_types
+                                    .insert(var_name.clone(), elem_type.as_ref().clone());
+                            }
+                        } else if let Some(Type::Dict(_, val_type)) = ctx.var_types.get(obj_var) {
+                            if args.len() == 1 {
+                                // dict.get(key) returns Option<&V> → Option<V> after .cloned()
+                                ctx.var_types.insert(
+                                    var_name.clone(),
+                                    Type::Optional(Box::new(val_type.as_ref().clone())),
+                                );
+                                ctx.optional_vars.insert(var_name.clone());
+                            } else {
+                                // dict.get(key, default) returns V directly
+                                ctx.var_types
+                                    .insert(var_name.clone(), val_type.as_ref().clone());
+                            }
                         }
                     }
                 }

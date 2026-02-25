@@ -1,0 +1,157 @@
+[metadata]
+name = "Optional Field Access Unwrap Tests"
+category = "optional-types"
+description = "Tests that field access on Option types automatically adds unwrap()"
+
+[[test]]
+name = "dict_get_field_access"
+description = "Field access on dict.get() result adds unwrap"
+
+python = '''
+class Person:
+    name: str
+    age: int
+
+def get_person_name(people: dict[str, Person]) -> str:
+    person = people.get("alice")
+    return person.name
+'''
+
+rust = '''
+use std::collections::HashMap;
+#[derive(Debug, Clone)]
+pub struct Person {
+    pub name: String,
+    pub age: i32,
+}
+pub fn get_person_name(people: &HashMap<String, Person>) -> String {
+    let person = people.get("alice").cloned();
+    return person.as_ref().unwrap().name;
+}
+'''
+
+[[test]]
+name = "dict_get_int_field_access"
+description = "Int field access on dict.get() result adds unwrap"
+
+python = '''
+class Person:
+    name: str
+    age: int
+
+def get_person_age(people: dict[str, Person]) -> int:
+    person = people.get("alice")
+    return person.age
+'''
+
+rust = '''
+use std::collections::HashMap;
+#[derive(Debug, Clone)]
+pub struct Person {
+    pub name: String,
+    pub age: i32,
+}
+pub fn get_person_age(people: &HashMap<String, Person>) -> i32 {
+    let person = people.get("alice").cloned();
+    return person.as_ref().unwrap().age;
+}
+'''
+
+[[test]]
+name = "optional_param_field_access"
+description = "Field access on Optional parameter adds unwrap"
+
+python = '''
+from typing import Optional
+
+class Config:
+    host: str
+    port: int
+
+def get_host(config: Optional[Config]) -> str:
+    return config.host
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Config {
+    pub host: String,
+    pub port: i32,
+}
+pub fn get_host(config: Option<Config>) -> String {
+    return config.as_ref().unwrap().host;
+}
+'''
+
+[[test]]
+name = "optional_local_var_field_access"
+description = "Field access on Optional local variable adds unwrap"
+
+python = '''
+from typing import Optional
+
+class Result:
+    score: int
+
+def get_result() -> Optional[Result]:
+    return None
+
+def process() -> int:
+    result: Optional[Result] = get_result()
+    return result.score
+'''
+
+rust = '''
+#[derive(Debug, Copy, Clone)]
+pub struct Result {
+    pub score: i32,
+}
+impl Result {
+    pub fn new(score: i32) -> Self {
+        Self { score }
+    }
+}
+pub fn get_result() -> Option<Result> {
+    return None;
+}
+pub fn process() -> i32 {
+    let result: Option<Result> = Some(get_result());
+    return result.as_ref().unwrap().score;
+}
+'''
+
+[[test]]
+name = "optional_class_field_chain_access"
+description = "Chained field access through Optional class field adds unwrap"
+
+python = '''
+from typing import Optional
+
+class Inner:
+    value: int
+
+class Outer:
+    inner: Optional[Inner]
+
+def get_inner_value(obj: Outer) -> int:
+    return obj.inner.value
+'''
+
+rust = '''
+#[derive(Debug, Copy, Clone)]
+pub struct Inner {
+    pub value: i32,
+}
+impl Inner {
+    pub fn new(value: i32) -> Self {
+        Self { value }
+    }
+}
+#[derive(Debug, Clone)]
+pub struct Outer {
+    pub inner: Option<Inner>,
+}
+pub fn get_inner_value(obj: &Outer) -> i32 {
+    return obj.inner.as_ref().unwrap().value;
+}
+'''

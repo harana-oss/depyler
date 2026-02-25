@@ -849,7 +849,7 @@ pub fn get_without_default(d: &HashMap<String, i32>, key: String) -> Option<i32>
     if result.is_none() {
         return None;
     }
-    return Some(result);
+    return result;
 }
 '''
 
@@ -888,7 +888,7 @@ pub fn get_or_zero(d: &HashMap<String, i32>, key: String) -> i32 {
     if result.is_none() {
         return 0;
     }
-    return result;
+    return result.unwrap();
 }
 '''
 

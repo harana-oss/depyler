@@ -970,9 +970,15 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
 
         // Cast non-float operand to f64 when mixed with float.
-        // This covers both known-int + float AND unknown-type + float cases,
-        // since Python's `/` always returns float and mixing with int would fail in Rust.
-        if (left_is_float || right_is_float) && !(left_is_float && right_is_float) {
+        // Handles known-int + float, and also unknown-but-likely-int + float cases
+        // (e.g., CSE temps from integer arithmetic, unregistered constants).
+        let left_likely_int = left_is_int || (!left_is_float && self.involves_arithmetic_op(left));
+        let right_likely_int =
+            right_is_int || (!right_is_float && self.involves_arithmetic_op(right));
+
+        if (left_is_float && (right_is_int || right_likely_int))
+            || ((left_is_int || left_likely_int) && right_is_float)
+        {
             let rust_op = convert_binop(op)?;
             let cast_to_f64 = |expr: &syn::Expr, is_float: bool| {
                 let expr = strip_clone(expr);
@@ -13501,8 +13507,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
 
         // If the base variable itself is Optional<T>, unwrap it before accessing the field
         // Use as_mut() for assignment targets to allow mutation
+        // Check both var_types (resolved type) and optional_vars (declared Optional tracking)
         if let HirExpr::Var(var_name) = value {
-            if let Some(Type::Optional(_)) = self.ctx.var_types.get(var_name) {
+            let is_optional = matches!(self.ctx.var_types.get(var_name), Some(Type::Optional(_)))
+                || self.ctx.optional_vars.contains(var_name);
+            if is_optional {
                 if self.ctx.is_assignment_target {
                     value_expr = parse_quote! { #value_expr.as_mut().unwrap() };
                 } else {
@@ -13676,8 +13685,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
 
             // If the base variable itself is Optional<T>, unwrap it before accessing the field
             // Use as_mut() for assignment targets to allow mutation
+            // Check both var_types (resolved type) and optional_vars (declared Optional tracking)
             if let HirExpr::Var(var_name) = value.as_ref() {
-                if let Some(Type::Optional(_)) = self.ctx.var_types.get(var_name) {
+                let is_optional = matches!(self.ctx.var_types.get(var_name), Some(Type::Optional(_)))
+                    || self.ctx.optional_vars.contains(var_name);
+                if is_optional {
                     if self.ctx.is_assignment_target {
                         value_expr = parse_quote! { #value_expr.as_mut().unwrap() };
                     } else {
