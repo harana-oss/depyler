@@ -1151,72 +1151,12 @@ pub(crate) fn codegen_return_type(
     // Update import needs based on return type
     update_import_needs(ctx, &rust_ret_type);
 
-    // Check if function can fail and needs Result wrapper
-    let can_fail = func.properties.can_fail;
-    let mut error_type_str = if can_fail && !func.properties.error_types.is_empty() {
-        // Use first error type or generic for mixed types
-        if func.properties.error_types.len() == 1 {
-            func.properties.error_types[0].clone()
-        } else {
-            "Box<dyn std::error::Error>".to_string()
-        }
-    } else {
-        "Box<dyn std::error::Error>".to_string()
-    };
-
-    // DEPYLER-0447: Validators always use Box<dyn Error> for compatibility with clap
-    if ctx.validator_functions.contains(&func.name) {
-        error_type_str = "Box<dyn std::error::Error>".to_string();
-    }
-
-    // DEPYLER-0310: Determine ErrorType for raise statement wrapping
-    // If Box<dyn Error>, we need to wrap exceptions with Box::new()
-    // If concrete type, no wrapping needed
-    let error_type = if can_fail {
-        Some(if error_type_str.contains("Box<dyn") {
-            crate::rust_gen::context::ErrorType::DynBox
-        } else {
-            crate::rust_gen::context::ErrorType::Concrete(error_type_str.clone())
-        })
-    } else {
-        None
-    };
-
-    // DEPYLER-0327 Fix #5: Mark error types as needed for type generation
-    // Check BOTH error_type_str (for functions that return Result) AND
-    // func.properties.error_types (for types used in try/except blocks)
-    if error_type_str.contains("ZeroDivisionError") {
-        ctx.needs_zerodivisionerror = true;
-    }
-    if error_type_str.contains("IndexError") {
-        ctx.needs_indexerror = true;
-    }
-    if error_type_str.contains("ValueError") {
-        ctx.needs_valueerror = true;
-    }
-
-    // Also check all error_types from properties (even if can_fail=false)
-    // This ensures types used in try/except blocks are generated
-    for err_type in &func.properties.error_types {
-        if err_type.contains("ZeroDivisionError") {
-            ctx.needs_zerodivisionerror = true;
-        }
-        if err_type.contains("IndexError") {
-            ctx.needs_indexerror = true;
-        }
-        if err_type.contains("ValueError") {
-            ctx.needs_valueerror = true;
-        }
-    }
+    // can_fail is always false — no Result wrapping
+    let can_fail = false;
+    let error_type: Option<crate::rust_gen::context::ErrorType> = None;
 
     let return_type = if matches!(rust_ret_type, crate::type_mapper::RustType::Unit) {
-        if can_fail {
-            let error_type: syn::Type = syn::parse_str(&error_type_str)
-                .unwrap_or_else(|_| parse_quote! { Box<dyn std::error::Error> });
-            quote! { -> Result<(), #error_type> }
-        } else {
-            quote! {}
-        }
+        quote! {}
     } else {
         let mut ty = rust_type_to_syn(&rust_ret_type)?;
 
@@ -1293,13 +1233,7 @@ pub(crate) fn codegen_return_type(
             // If returns_owned_string is true, keep ty as String (already set from rust_type_to_syn)
         }
 
-        if can_fail {
-            let error_type: syn::Type = syn::parse_str(&error_type_str)
-                .unwrap_or_else(|_| parse_quote! { Box<dyn std::error::Error> });
-            quote! { -> Result<#ty, #error_type> }
-        } else {
-            quote! { -> #ty }
-        }
+        quote! { -> #ty }
     };
 
     Ok((return_type, rust_ret_type, can_fail, error_type))
@@ -1511,28 +1445,6 @@ impl RustCodeGen for HirFunction {
                     &fields,
                     args_param_name,
                 );
-            }
-        }
-
-        // DEPYLER-0270: Add Ok(()) for functions with Result<(), E> return type
-        // When Python function has `-> None` but uses fallible operations (e.g., indexing),
-        // the Rust return type becomes `Result<(), IndexError>` and needs Ok(()) at the end
-        // Only add Ok(()) if the function doesn't already end with a return statement
-        //
-        // DEPYLER-0450: Extended to handle all Result return types, not just Type::None
-        // This fixes functions with side effects that use error handling (raise/try/except)
-        // Also handles Type::Unknown (functions without type annotations that don't explicitly return)
-        if can_fail {
-            let needs_ok = self
-                .body
-                .last()
-                .is_none_or(|stmt| !matches!(stmt, HirStmt::Return(_)));
-            if needs_ok {
-                // For functions returning unit type (or Unknown which defaults to unit), add Ok(())
-                // For functions returning values with explicit returns, they already have Ok() wrapping
-                if matches!(self.ret_type, Type::None | Type::Unknown) {
-                    body_stmts.push(parse_quote! { Ok(()) });
-                }
             }
         }
 

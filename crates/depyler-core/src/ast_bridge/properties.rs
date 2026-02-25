@@ -129,24 +129,8 @@ impl FunctionAnalyzer {
         }
     }
 
-    fn check_can_fail(body: &[HirStmt]) -> (bool, Vec<String>) {
-        let mut error_types = Vec::new();
-        let mut can_fail = false;
-
-        for stmt in body {
-            let (stmt_can_fail, mut stmt_errors) = Self::stmt_can_fail(stmt);
-            if stmt_can_fail {
-                can_fail = true;
-            }
-            // This ensures exception types used in try/except blocks are generated
-            error_types.append(&mut stmt_errors);
-        }
-
-        // Remove duplicates
-        error_types.sort();
-        error_types.dedup();
-
-        (can_fail, error_types)
+    fn check_can_fail(_body: &[HirStmt]) -> (bool, Vec<String>) {
+        (false, vec![])
     }
 
     fn stmt_can_fail(stmt: &HirStmt) -> (bool, Vec<String>) {
@@ -268,71 +252,12 @@ impl FunctionAnalyzer {
         }
     }
 
-    fn expr_can_fail(expr: &HirExpr) -> (bool, Vec<String>) {
-        match expr {
-            HirExpr::Index { .. } => (true, vec!["IndexError".to_string()]),
-            HirExpr::Binary {
-                op: BinOp::Div | BinOp::FloorDiv | BinOp::Mod,
-                ..
-            } => (true, vec!["ZeroDivisionError".to_string()]),
-            HirExpr::Call { func, args, .. } => {
-                // int() only fails when parsing strings, not when casting typed values
-                let func_errors = match func.as_str() {
-                    "int" => {
-                        // Only mark as failable if parsing a string argument
-                        // int(typed_value) → (value) as i32 (safe cast, cannot fail)
-                        // int("123") → can fail with ValueError (parsing)
-                        if args.len() == 1 {
-                            match &args[0] {
-                                // String literals being parsed can fail
-                                HirExpr::Literal(crate::hir::Literal::String(_)) => {
-                                    vec!["ValueError".to_string()]
-                                }
-                                // Variables or other expressions - safe cast, cannot fail
-                                _ => Vec::new(),
-                            }
-                        } else if args.len() == 2 {
-                            // int(string, base) - always can fail
-                            vec!["ValueError".to_string()]
-                        } else {
-                            Vec::new()
-                        }
-                    }
-                    _ => Vec::new(),
-                };
-
-                let (args_fail, mut args_errors) = Self::check_exprs_can_fail(args);
-                let mut all_errors = func_errors.clone();
-                all_errors.append(&mut args_errors);
-
-                (!func_errors.is_empty() || args_fail, all_errors)
-            }
-            HirExpr::Binary { left, right, .. } => {
-                let (left_fail, left_errors) = Self::expr_can_fail(left);
-                let (right_fail, mut right_errors) = Self::expr_can_fail(right);
-
-                let mut all_errors = left_errors;
-                all_errors.append(&mut right_errors);
-
-                (left_fail || right_fail, all_errors)
-            }
-            _ => (false, Vec::new()),
-        }
+    fn expr_can_fail(_expr: &HirExpr) -> (bool, Vec<String>) {
+        (false, vec![])
     }
 
-    fn check_exprs_can_fail(exprs: &[HirExpr]) -> (bool, Vec<String>) {
-        let mut can_fail = false;
-        let mut all_errors = Vec::new();
-
-        for expr in exprs {
-            let (expr_fail, mut expr_errors) = Self::expr_can_fail(expr);
-            if expr_fail {
-                can_fail = true;
-                all_errors.append(&mut expr_errors);
-            }
-        }
-
-        (can_fail, all_errors)
+    fn check_exprs_can_fail(_exprs: &[HirExpr]) -> (bool, Vec<String>) {
+        (false, vec![])
     }
 
     fn extract_exception_type(exception: &Option<HirExpr>) -> String {

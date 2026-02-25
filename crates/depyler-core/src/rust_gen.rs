@@ -1522,22 +1522,6 @@ pub fn generate_rust_file(
     // Must run BEFORE function conversion so validator parameter types are correct
     analyze_validators(&mut ctx, &module.functions, &module.constants);
 
-    // DEPYLER-0270: Populate Result-returning functions map
-    // All functions that can_fail return Result<T, E> and need unwrapping at call sites
-    for func in &module.functions {
-        if func.properties.can_fail {
-            ctx.result_returning_functions.insert(func.name.clone());
-        }
-    }
-
-    // DEPYLER-0308: Populate Result<bool> functions map
-    // Functions that can_fail and return Bool need unwrapping in boolean contexts
-    for func in &module.functions {
-        if func.properties.can_fail && matches!(func.ret_type, Type::Bool) {
-            ctx.result_bool_functions.insert(func.name.clone());
-        }
-    }
-
     // Populate enum_names so expression generation uses :: instead of . for enum access
     for class in &module.classes {
         if class.is_enum || class.is_intflag {
@@ -1995,22 +1979,20 @@ mod tests {
         use crate::hir::Literal;
 
         let mut ctx = create_test_context();
-        ctx.current_function_can_fail = true; // Function returns Result, so raise becomes return Err
         let exc = Some(HirExpr::Literal(Literal::String("Error".to_string())));
 
         let result = codegen_raise_stmt(&exc, &mut ctx).unwrap();
-        assert_eq!(result.to_string(), "return Err (\"Error\") ;");
+        assert_eq!(result.to_string(), "panic ! (\"{}\" , \"Error\") ;");
     }
 
     #[test]
     fn test_codegen_raise_stmt_bare() {
         let mut ctx = create_test_context();
-        ctx.current_function_can_fail = true; // Function returns Result, so raise becomes return Err
 
         let result = codegen_raise_stmt(&None, &mut ctx).unwrap();
         assert_eq!(
             result.to_string(),
-            "return Err (\"Exception raised\" . into ()) ;"
+            "panic ! (\"Exception raised\") ;"
         );
     }
 

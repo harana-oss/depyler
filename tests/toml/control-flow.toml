@@ -362,23 +362,6 @@ def safe_divide(a: int, b: int) -> int:
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
-pub struct ZeroDivisionError {
-    message: String,
-}
-impl std::fmt::Display for ZeroDivisionError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "division by zero: {}", self.message)
-    }
-}
-impl std::error::Error for ZeroDivisionError {}
-impl ZeroDivisionError {
-    pub fn new(message: impl Into<String>) -> Self {
-        Self {
-            message: message.into(),
-        }
-    }
-}
 pub fn safe_divide(a: i32, b: i32) -> i32 {
     if b == 0 {
         return 0;
@@ -386,10 +369,15 @@ pub fn safe_divide(a: i32, b: i32) -> i32 {
         return {
             let d = a / b;
             let r = a % b;
-            if r != 0 && (a ^ b) < 0 { d - 1 } else { d }
+            if r != 0 && (a ^ b) < 0 {
+                d - 1
+            } else {
+                d
+            }
         };
     }
 }
+
 '''
 
 [[test]]
@@ -1116,23 +1104,6 @@ def handle_errors():
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
-pub struct ValueError {
-    message: String,
-}
-impl std::fmt::Display for ValueError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "value error: {}", self.message)
-    }
-}
-impl std::error::Error for ValueError {}
-impl ValueError {
-    pub fn new(message: impl Into<String>) -> Self {
-        Self {
-            message: message.into(),
-        }
-    }
-}
 pub fn handle_errors() -> i32 {
     {
         let x = "not a number".parse::<i32>().unwrap();
@@ -1140,6 +1111,7 @@ pub fn handle_errors() -> i32 {
         return -2;
     }
 }
+
 '''
 
 [[test]]
@@ -2495,23 +2467,6 @@ def test():
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
-pub struct ValueError {
-    message: String,
-}
-impl std::fmt::Display for ValueError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "value error: {}", self.message)
-    }
-}
-impl std::error::Error for ValueError {}
-impl ValueError {
-    pub fn new(message: impl Into<String>) -> Self {
-        Self {
-            message: message.into(),
-        }
-    }
-}
 pub fn test() -> String {
     {
         panic!("{}", "error");
@@ -2519,6 +2474,7 @@ pub fn test() -> String {
     }
     return "not reached".to_string();
 }
+
 '''
 
 [[test]]

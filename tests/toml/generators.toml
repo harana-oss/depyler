@@ -193,23 +193,6 @@ def even_numbers(n: int):
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
-pub struct ZeroDivisionError {
-    message: String,
-}
-impl std::fmt::Display for ZeroDivisionError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "division by zero: {}", self.message)
-    }
-}
-impl std::error::Error for ZeroDivisionError {}
-impl ZeroDivisionError {
-    pub fn new(message: impl Into<String>) -> Self {
-        Self {
-            message: message.into(),
-        }
-    }
-}
 #[doc = " Generator state struct"]
 #[derive(Debug)]
 struct EvenNumbersState {
@@ -237,6 +220,7 @@ impl Iterator for EvenNumbersState {
         }
     }
 }
+
 '''
 
 [[test]]

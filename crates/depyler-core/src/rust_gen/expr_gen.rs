@@ -12059,15 +12059,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             }
         }
 
-        // When base is a function call that returns Result<HashMap/Vec, E>,
-        // we need to unwrap it with ? before calling .get() or indexing
-        // Example: get_config()["name"] → get_config()?.get("name")...
-        if let HirExpr::Call { func, .. } = base {
-            if self.ctx.result_returning_functions.contains(func) {
-                base_expr = parse_quote! { #base_expr? };
-            }
-        }
-
         // Python: tuple[0], tuple[1] → Rust: tuple.0, tuple.1
         // Also handles chained indexing: list_of_tuples[i][j] → list_of_tuples.get(i).0
         let should_use_tuple_syntax = if let HirExpr::Literal(Literal::Int(idx)) = index {

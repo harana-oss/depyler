@@ -19,23 +19,6 @@ def safe_divide(a: int, b: int) -> int:
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
-pub struct ZeroDivisionError {
-    message: String,
-}
-impl std::fmt::Display for ZeroDivisionError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "division by zero: {}", self.message)
-    }
-}
-impl std::error::Error for ZeroDivisionError {}
-impl ZeroDivisionError {
-    pub fn new(message: impl Into<String>) -> Self {
-        Self {
-            message: message.into(),
-        }
-    }
-}
 pub fn safe_divide(a: i32, b: i32) -> i32 {
     if b == 0 {
         return 0;
@@ -43,10 +26,15 @@ pub fn safe_divide(a: i32, b: i32) -> i32 {
         return {
             let d = a / b;
             let r = a % b;
-            if r != 0 && (a ^ b) < 0 { d - 1 } else { d }
+            if r != 0 && (a ^ b) < 0 {
+                d - 1
+            } else {
+                d
+            }
         };
     }
 }
+
 '''
 
 [[test]]
@@ -85,23 +73,6 @@ def parse_safely(s: str) -> int:
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
-pub struct ValueError {
-    message: String,
-}
-impl std::fmt::Display for ValueError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "value error: {}", self.message)
-    }
-}
-impl std::error::Error for ValueError {}
-impl ValueError {
-    pub fn new(message: impl Into<String>) -> Self {
-        Self {
-            message: message.into(),
-        }
-    }
-}
 pub fn parse_safely(s: String) -> i32 {
     {
         if let Ok(__parse_result) = s.parse::<i32>() {
@@ -112,6 +83,7 @@ pub fn parse_safely(s: String) -> i32 {
         }
     }
 }
+
 '''
 
 [[test]]
@@ -129,29 +101,13 @@ def safe_parse(s: str) -> str:
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
-pub struct ValueError {
-    message: String,
-}
-impl std::fmt::Display for ValueError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "value error: {}", self.message)
-    }
-}
-impl std::error::Error for ValueError {}
-impl ValueError {
-    pub fn new(message: impl Into<String>) -> Self {
-        Self {
-            message: message.into(),
-        }
-    }
-}
 pub fn safe_parse(s: String) -> String {
     {
         let value = s.parse::<i32>().unwrap();
         return "invalid".to_string();
     }
 }
+
 '''
 
 [[test]]
@@ -419,23 +375,6 @@ def safe_divide(a: int, b: int) -> int:
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
-pub struct ZeroDivisionError {
-    message: String,
-}
-impl std::fmt::Display for ZeroDivisionError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "division by zero: {}", self.message)
-    }
-}
-impl std::error::Error for ZeroDivisionError {}
-impl ZeroDivisionError {
-    pub fn new(message: impl Into<String>) -> Self {
-        Self {
-            message: message.into(),
-        }
-    }
-}
 pub fn safe_divide(a: i32, b: i32) -> i32 {
     if b == 0 {
         return 0;
@@ -443,10 +382,15 @@ pub fn safe_divide(a: i32, b: i32) -> i32 {
         return {
             let d = a / b;
             let r = a % b;
-            if r != 0 && (a ^ b) < 0 { d - 1 } else { d }
+            if r != 0 && (a ^ b) < 0 {
+                d - 1
+            } else {
+                d
+            }
         };
     }
 }
+
 '''
 
 [[test]]
@@ -466,40 +410,6 @@ def nested_operations(data: list[int]) -> int:
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
-pub struct ZeroDivisionError {
-    message: String,
-}
-impl std::fmt::Display for ZeroDivisionError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "division by zero: {}", self.message)
-    }
-}
-impl std::error::Error for ZeroDivisionError {}
-impl ZeroDivisionError {
-    pub fn new(message: impl Into<String>) -> Self {
-        Self {
-            message: message.into(),
-        }
-    }
-}
-#[derive(Debug, Clone)]
-pub struct IndexError {
-    message: String,
-}
-impl std::fmt::Display for IndexError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "index out of range: {}", self.message)
-    }
-}
-impl std::error::Error for IndexError {}
-impl IndexError {
-    pub fn new(message: impl Into<String>) -> Self {
-        Self {
-            message: message.into(),
-        }
-    }
-}
 pub fn nested_operations(data: &Vec<i32>) -> i32 {
     {
         let value = data.get(0usize).cloned().unwrap();
@@ -509,12 +419,17 @@ pub fn nested_operations(data: &Vec<i32>) -> i32 {
             return {
                 let d = 100 / value;
                 let r = 100 % value;
-                if r != 0 && (100 ^ value) < 0 { d - 1 } else { d }
+                if r != 0 && (100 ^ value) < 0 {
+                    d - 1
+                } else {
+                    d
+                }
             };
         }
         return -2;
     }
 }
+
 '''
 
 [[test]]
@@ -662,29 +577,13 @@ def check_positive(x: int) -> int:
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
-pub struct ValueError {
-    message: String,
-}
-impl std::fmt::Display for ValueError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "value error: {}", self.message)
+pub fn check_positive(x: i32) -> i32 {
+    if x < 0 {
+        panic!("{}", "negative value");
     }
+    return x;
 }
-impl std::error::Error for ValueError {}
-impl ValueError {
-    pub fn new(message: impl Into<String>) -> Self {
-        Self {
-            message: message.into(),
-        }
-    }
-}
-pub fn check_positive(x: i32) -> Result<i32, ValueError> {
-        if x < 0 {
-        return Err(ValueError::new("negative value"));
-    }
-    return Ok(x);
-}
+
 '''
 
 [[test]]
@@ -743,23 +642,6 @@ def parse_int(value: str) -> int:
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
-pub struct ValueError {
-    message: String,
-}
-impl std::fmt::Display for ValueError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "value error: {}", self.message)
-    }
-}
-impl std::error::Error for ValueError {}
-impl ValueError {
-    pub fn new(message: impl Into<String>) -> Self {
-        Self {
-            message: message.into(),
-        }
-    }
-}
 pub fn parse_int(value: String) -> i32 {
     {
         let num = value.parse::<i32>().unwrap();
@@ -767,6 +649,7 @@ pub fn parse_int(value: String) -> i32 {
         return -1;
     }
 }
+
 '''
 
 [[test]]
@@ -783,23 +666,6 @@ def validator(value: str) -> int:
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
-pub struct ValueError {
-    message: String,
-}
-impl std::fmt::Display for ValueError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "value error: {}", self.message)
-    }
-}
-impl std::error::Error for ValueError {}
-impl ValueError {
-    pub fn new(message: impl Into<String>) -> Self {
-        Self {
-            message: message.into(),
-        }
-    }
-}
 pub fn validator(value: String) -> i32 {
     {
         let num = value.parse::<i32>().unwrap();
@@ -807,6 +673,7 @@ pub fn validator(value: String) -> i32 {
         return -1;
     }
 }
+
 '''
 
 [[test]]
@@ -1605,23 +1472,6 @@ def multi_stmt_except(x: int) -> int:
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
-pub struct ValueError {
-    message: String,
-}
-impl std::fmt::Display for ValueError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "value error: {}", self.message)
-    }
-}
-impl std::error::Error for ValueError {}
-impl ValueError {
-    pub fn new(message: impl Into<String>) -> Self {
-        Self {
-            message: message.into(),
-        }
-    }
-}
 pub fn multi_stmt_except(x: i32) -> i32 {
     {
         if x < 0 {
@@ -1633,6 +1483,7 @@ pub fn multi_stmt_except(x: i32) -> i32 {
         return result;
     }
 }
+
 '''
 
 [[test]]

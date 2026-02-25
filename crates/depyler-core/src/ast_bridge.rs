@@ -276,9 +276,6 @@ impl AstBridge {
             }
         }
 
-        // If a function calls another function that can fail, mark it as can_fail too
-        propagate_can_fail_through_calls(&mut functions);
-
         // Post-process: Infer parameter types from class names
         infer_parameter_types_from_classes(&mut classes);
 

@@ -791,27 +791,11 @@ def floor_div_float(total_seconds: float) -> float:
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
-pub struct ZeroDivisionError {
-    message: String,
-}
-impl std::fmt::Display for ZeroDivisionError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "division by zero: {}", self.message)
-    }
-}
-impl std::error::Error for ZeroDivisionError {}
-impl ZeroDivisionError {
-    pub fn new(message: impl Into<String>) -> Self {
-        Self {
-            message: message.into(),
-        }
-    }
-}
-pub fn floor_div_float(total_seconds: f64) -> Result<f64, ZeroDivisionError> {
+pub fn floor_div_float(total_seconds: f64) -> f64 {
     let minutes = (total_seconds / (60 as f64)).floor();
-    return Ok(minutes);
+    return minutes;
 }
+
 '''
 
 [[test]]
@@ -825,24 +809,7 @@ def floor_div_int(total_seconds: int) -> int:
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
-pub struct ZeroDivisionError {
-    message: String,
-}
-impl std::fmt::Display for ZeroDivisionError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "division by zero: {}", self.message)
-    }
-}
-impl std::error::Error for ZeroDivisionError {}
-impl ZeroDivisionError {
-    pub fn new(message: impl Into<String>) -> Self {
-        Self {
-            message: message.into(),
-        }
-    }
-}
-pub fn floor_div_int(total_seconds: i32) -> Result<i32, ZeroDivisionError> {
+pub fn floor_div_int(total_seconds: i32) -> i32 {
     let minutes = {
         let d = total_seconds / 60;
         let r = total_seconds % 60;
@@ -852,6 +819,7 @@ pub fn floor_div_int(total_seconds: i32) -> Result<i32, ZeroDivisionError> {
             d
         }
     };
-    return Ok(minutes);
+    return minutes;
 }
+
 '''

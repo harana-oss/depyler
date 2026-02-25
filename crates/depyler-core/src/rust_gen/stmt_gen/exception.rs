@@ -13,15 +13,9 @@ pub(crate) fn codegen_raise_stmt(
     exception: &Option<HirExpr>,
     ctx: &mut CodeGenContext,
 ) -> Result<proc_macro2::TokenStream> {
-    // For V1, we'll implement basic error handling
     if let Some(exc) = exception {
-        // Pattern: raise argparse.ArgumentTypeError("message")
-        // Extract message and use directly in panic!/error
-
-        // Pattern: raise ValueError("message")
-        // Extract the message to avoid double-wrapping ValueError::new(ValueError::new(...))
+        // Extract the message from known exception constructors
         let exc_expr = match exc {
-            // Pattern 1: argparse.ArgumentTypeError(msg)
             HirExpr::MethodCall {
                 object,
                 method,
@@ -31,86 +25,24 @@ pub(crate) fn codegen_raise_stmt(
                 && method == "ArgumentTypeError"
                 && !args.is_empty() =>
             {
-                // Extract the message argument and use it directly
                 args[0].to_rust_expr(ctx)?
             }
-            // Pattern 2: ArgumentTypeError(msg) - if imported
-            HirExpr::Call { func, args, .. } if func == "ArgumentTypeError" && !args.is_empty() => {
-                args[0].to_rust_expr(ctx)?
-            }
-            // Pattern 3: ValueError(msg), TypeError(msg), etc. - extract message to avoid double-wrapping
-            HirExpr::Call { func, args, .. }
-                if (func == "ValueError"
-                    || func == "TypeError"
-                    || func == "KeyError"
-                    || func == "IndexError"
-                    || func == "ZeroDivisionError")
-                    && !args.is_empty() =>
+            HirExpr::Call { func, args, .. } if (func == "ArgumentTypeError"
+                || func == "ValueError"
+                || func == "TypeError"
+                || func == "KeyError"
+                || func == "IndexError"
+                || func == "ZeroDivisionError")
+                && !args.is_empty() =>
             {
                 args[0].to_rust_expr(ctx)?
             }
-            // Default: use exception as-is
             _ => exc.to_rust_expr(ctx)?,
         };
 
-        let exception_type = extract_exception_type(exc);
-
-        match exception_type.as_str() {
-            "ValueError" => ctx.needs_valueerror = true,
-            "ArgumentTypeError" => ctx.needs_argumenttypeerror = true,
-            "ZeroDivisionError" => ctx.needs_zerodivisionerror = true,
-            "IndexError" => ctx.needs_indexerror = true,
-            _ => {}
-        }
-
-        if ctx.is_exception_handled(&exception_type) {
-            // Exception is caught - for now use panic! (control flow jump is complex)
-            // NOTE: Implement proper exception control flow to jump to handler ()
-            Ok(quote! { panic!("{}", #exc_expr); })
-        } else if ctx.current_function_can_fail {
-            // Exception propagates to caller - use return Err
-            let needs_boxing = matches!(
-                ctx.current_error_type,
-                Some(crate::rust_gen::context::ErrorType::DynBox)
-            );
-
-            if needs_boxing {
-                // format!() returns String which doesn't implement std::error::Error
-                // Need to wrap in ValueError::new(), ArgumentTypeError::new(), etc.
-                if exception_type == "ValueError"
-                    || exception_type == "ArgumentTypeError"
-                    || exception_type == "TypeError"
-                    || exception_type == "KeyError"
-                    || exception_type == "IndexError"
-                    || exception_type == "ZeroDivisionError"
-                {
-                    let exc_type = safe_ident(&exception_type);
-                    Ok(quote! { return Err(Box::new(#exc_type::new(#exc_expr))); })
-                } else {
-                    Ok(quote! { return Err(Box::new(#exc_expr)); })
-                }
-            } else {
-                // Without this, `return Err(format!(...))` returns String instead of ExceptionType
-                if exception_type == "ValueError"
-                    || exception_type == "ArgumentTypeError"
-                    || exception_type == "TypeError"
-                    || exception_type == "KeyError"
-                    || exception_type == "IndexError"
-                    || exception_type == "ZeroDivisionError"
-                {
-                    let exc_type = safe_ident(&exception_type);
-                    Ok(quote! { return Err(#exc_type::new(#exc_expr)); })
-                } else {
-                    Ok(quote! { return Err(#exc_expr); })
-                }
-            }
-        } else {
-            // Function doesn't return Result - use panic!
-            Ok(quote! { panic!("{}", #exc_expr); })
-        }
+        Ok(quote! { panic!("{}", #exc_expr); })
     } else {
-        // Re-raise or bare raise - use generic error
-        Ok(quote! { return Err("Exception raised".into()); })
+        Ok(quote! { panic!("Exception raised"); })
     }
 }
 

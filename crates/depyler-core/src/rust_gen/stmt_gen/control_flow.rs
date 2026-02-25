@@ -48,17 +48,6 @@ pub(crate) fn codegen_if_stmt(
 
     let mut cond = modified_condition.to_rust_expr(ctx)?;
 
-    // When a function returns Result<bool, E> (like is_even with modulo),
-    // we need to unwrap it for use in boolean context
-    // Check if the condition is a Call to a function that returns Result<bool>
-    if let HirExpr::Call { func, .. } = condition {
-        if ctx.result_bool_functions.contains(func) {
-            // This function returns Result<bool>, so unwrap it
-            // Use .unwrap_or(false) to handle potential errors gracefully
-            cond = parse_quote! { #cond.unwrap_or(false) };
-        }
-    }
-
     // Convert non-boolean expressions to boolean (e.g., `if val` where val: String)
     cond = apply_truthiness_conversion(condition, cond, ctx);
 

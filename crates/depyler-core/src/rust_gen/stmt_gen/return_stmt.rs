@@ -93,69 +93,17 @@ pub(crate) fn codegen_return_stmt(
         // Python `-> None` maps to Rust `()`, not `Option<T>`
         let is_void_return = matches!(ctx.current_return_type.as_ref(), Some(Type::None));
 
-        if ctx.current_function_can_fail {
-            if is_void_return && is_none_literal {
-                // Void function with can_fail: return Ok(()) for `return None`
-                if use_return_keyword {
-                    Ok(quote! { return Ok(()); })
-                } else {
-                    Ok(quote! { Ok(()) })
-                }
-            } else if is_optional_return && !is_none_literal {
-                // Check if expression is already Optional to avoid double-wrapping
-                let expr_already_optional = expr_is_optional(e, ctx);
-                if expr_already_optional {
-                    // Expression is already Option<T>, don't wrap in Some()
-                    if use_return_keyword {
-                        if is_block_expr(&expr_tokens) {
-                            Ok(quote! { return Ok(#expr_tokens) })
-                        } else {
-                            Ok(quote! { return Ok(#expr_tokens); })
-                        }
-                    } else {
-                        Ok(quote! { Ok(#expr_tokens) })
-                    }
-                } else {
-                    // Wrap value in Some() for Optional return types
-                    if use_return_keyword {
-                        if is_block_expr(&expr_tokens) {
-                            Ok(quote! { return Ok(Some(#expr_tokens)) })
-                        } else {
-                            Ok(quote! { return Ok(Some(#expr_tokens)); })
-                        }
-                    } else {
-                        Ok(quote! { Ok(Some(#expr_tokens)) })
-                    }
-                }
-            } else if is_optional_return && is_none_literal {
-                if use_return_keyword {
-                    Ok(quote! { return Ok(None); })
-                } else {
-                    Ok(quote! { Ok(None) })
-                }
-            } else if use_return_keyword {
-                if is_block_expr(&expr_tokens) {
-                    Ok(quote! { return Ok(#expr_tokens) })
-                } else {
-                    Ok(quote! { return Ok(#expr_tokens); })
-                }
-            } else {
-                Ok(quote! { Ok(#expr_tokens) })
-            }
-        } else if is_void_return {
-            // Void functions (Python -> None): no return value (non-fallible)
+        if is_void_return {
+            // Void functions (Python -> None): no return value
             if use_return_keyword {
-                // Early return from void function: use empty return
                 Ok(quote! { return; })
             } else {
-                // Final statement in void function: use unit value ()
                 Ok(quote! { () })
             }
         } else if is_optional_return && !is_none_literal {
             // Check if expression is already Optional to avoid double-wrapping
             let expr_already_optional = expr_is_optional(e, ctx);
             if expr_already_optional {
-                // Expression is already Option<T>, don't wrap in Some()
                 if use_return_keyword {
                     if is_block_expr(&expr_tokens) {
                         Ok(quote! { return #expr_tokens })
@@ -166,7 +114,6 @@ pub(crate) fn codegen_return_stmt(
                     Ok(quote! { #expr_tokens })
                 }
             } else {
-                // Wrap value in Some() for Optional return types
                 if use_return_keyword {
                     if is_block_expr(&expr_tokens) {
                         Ok(quote! { return Some(#expr_tokens) })
@@ -192,31 +139,12 @@ pub(crate) fn codegen_return_stmt(
         } else {
             Ok(quote! { #expr_tokens })
         }
-    } else if ctx.current_function_can_fail {
-        // No expression - check if return type is Optional
-        let is_optional_return =
-            matches!(ctx.current_return_type.as_ref(), Some(Type::Optional(_)));
-        // Always use explicit return keyword
-        let use_return_keyword = true;
-
-        if is_optional_return {
-            if use_return_keyword {
-                Ok(quote! { return Ok(None); })
-            } else {
-                Ok(quote! { Ok(None) })
-            }
-        } else if use_return_keyword {
-            Ok(quote! { return Ok(()); })
-        } else {
-            Ok(quote! { Ok(()) })
-        }
     } else {
         // Always use explicit return keyword
         let use_return_keyword = true;
         if use_return_keyword {
             Ok(quote! { return; })
         } else {
-            // Final bare return becomes unit value (implicit)
             Ok(quote! {})
         }
     }

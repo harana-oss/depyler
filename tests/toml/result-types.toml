@@ -216,29 +216,13 @@ def parse_with_context(s: str) -> int:
 '''
 
 rust = '''
-#[derive(Debug, Clone)]
-pub struct ValueError {
-    message: String,
-}
-impl std::fmt::Display for ValueError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "value error: {}", self.message)
-    }
-}
-impl std::error::Error for ValueError {}
-impl ValueError {
-    pub fn new(message: impl Into<String>) -> Self {
-        Self {
-            message: message.into(),
-        }
-    }
-}
 pub fn parse_with_context(s: String) -> i32 {
     {
         return s.parse::<i32>().unwrap();
         panic!("{}", format!("Failed to parse: {}", s));
     }
 }
+
 '''
 
 [[test]]
