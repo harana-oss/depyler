@@ -182,9 +182,13 @@ fn populate_function_param_borrows(
                                         param_has_mutations || callee_info.needs_mut;
 
                                     if should_upgrade_to_borrow {
-                                        // The parameter is being passed to a function, so it must be borrowed
-                                        // If it's mutated locally or callee needs &mut, use &mut
-                                        if let Some(caller_borrows) =
+                                        // Skip borrowing upgrade for Copy types (i32, f64, bool, etc.)
+                                        // Copy types are cheap to pass by value — no need for references
+                                        let param_type = &func.params[param_idx].ty;
+                                        let rust_type = ctx.type_mapper.map_type(param_type);
+                                        if is_copy_rust_type(&rust_type) {
+                                            // Copy type: leave as TakeOwnership (pass by value)
+                                        } else if let Some(caller_borrows) =
                                             ctx.function_param_borrows.get_mut(&func.name)
                                         {
                                             if let Some(caller_info) =
@@ -200,33 +204,43 @@ fn populate_function_param_borrows(
                                             }
                                         }
                                     } else if callee_info.needs_mut {
-                                        // Already borrowed, but need to upgrade to &mut
-                                        if let Some(caller_borrows) =
-                                            ctx.function_param_borrows.get_mut(&func.name)
-                                        {
-                                            if let Some(caller_info) =
-                                                caller_borrows.get_mut(param_idx)
+                                        // Skip for Copy types — they don't need &mut
+                                        let param_type = &func.params[param_idx].ty;
+                                        let rust_type = ctx.type_mapper.map_type(param_type);
+                                        if !is_copy_rust_type(&rust_type) {
+                                            // Already borrowed, but need to upgrade to &mut
+                                            if let Some(caller_borrows) =
+                                                ctx.function_param_borrows.get_mut(&func.name)
                                             {
-                                                if !caller_info.needs_mut {
-                                                    caller_info.needs_mut = true;
-                                                    changed = true;
+                                                if let Some(caller_info) =
+                                                    caller_borrows.get_mut(param_idx)
+                                                {
+                                                    if !caller_info.needs_mut {
+                                                        caller_info.needs_mut = true;
+                                                        changed = true;
+                                                    }
                                                 }
                                             }
                                         }
                                     } else if callee_info.should_borrow
                                         && !callee_info.takes_ownership
                                     {
-                                        // The callee needs at least &, ensure we provide a borrow
-                                        if let Some(caller_borrows) =
-                                            ctx.function_param_borrows.get_mut(&func.name)
-                                        {
-                                            if let Some(caller_info) =
-                                                caller_borrows.get_mut(param_idx)
+                                        // Skip for Copy types — they don't need borrowing
+                                        let param_type = &func.params[param_idx].ty;
+                                        let rust_type = ctx.type_mapper.map_type(param_type);
+                                        if !is_copy_rust_type(&rust_type) {
+                                            // The callee needs at least &, ensure we provide a borrow
+                                            if let Some(caller_borrows) =
+                                                ctx.function_param_borrows.get_mut(&func.name)
                                             {
-                                                if !caller_info.should_borrow {
-                                                    caller_info.should_borrow = true;
-                                                    caller_info.takes_ownership = false; // Don't take ownership, borrow instead
-                                                    changed = true;
+                                                if let Some(caller_info) =
+                                                    caller_borrows.get_mut(param_idx)
+                                                {
+                                                    if !caller_info.should_borrow {
+                                                        caller_info.should_borrow = true;
+                                                        caller_info.takes_ownership = false;
+                                                        changed = true;
+                                                    }
                                                 }
                                             }
                                         }
@@ -241,6 +255,16 @@ fn populate_function_param_borrows(
     }
 
     Ok(())
+}
+
+/// Check if a RustType is Copy (primitives should not be borrowed).
+fn is_copy_rust_type(rust_type: &crate::type_mapper::RustType) -> bool {
+    use crate::type_mapper::RustType;
+    match rust_type {
+        RustType::Primitive(_) | RustType::Unit => true,
+        RustType::Tuple(types) => types.iter().all(is_copy_rust_type),
+        _ => false,
+    }
 }
 
 /// Helper: Check if a parameter is mutated in the function body

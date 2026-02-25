@@ -1,0 +1,139 @@
+[metadata]
+name = "Primitive Parameters Should Not Be Borrowed"
+category = "ownership-mutability"
+description = "Copy types (i32, f64, bool) must be passed by value, never as &i32 etc."
+
+[[test]]
+name = "primitive_int_params_by_value"
+description = "Integer parameters passed by value, not by reference"
+
+python = '''
+def add(a: int, b: int) -> int:
+    return a + b
+'''
+
+rust = '''
+pub fn add(a: i32, b: i32) -> i32 {
+    return a + b;
+}
+'''
+
+[[test]]
+name = "primitive_float_params_by_value"
+description = "Float parameters passed by value, not by reference"
+
+python = '''
+def multiply(x: float, y: float) -> float:
+    return x * y
+'''
+
+rust = '''
+pub fn multiply(x: f64, y: f64) -> f64 {
+    return x * y;
+}
+'''
+
+[[test]]
+name = "primitive_bool_param_by_value"
+description = "Boolean parameter passed by value, not by reference"
+
+python = '''
+def negate(flag: bool) -> bool:
+    return not flag
+'''
+
+rust = '''
+pub fn negate(flag: bool) -> bool {
+    return !flag;
+}
+'''
+
+[[test]]
+name = "mixed_primitive_and_struct_params"
+description = "Primitives by value, structs by reference"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Player:
+    name: str
+    score: int
+
+def calculate_bonus(player: Player, margin: int, total_points: int) -> float:
+    return (player.score + margin) / total_points
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct ZeroDivisionError {
+    message: String,
+}
+impl std::fmt::Display for ZeroDivisionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "division by zero: {}", self.message)
+    }
+}
+impl std::error::Error for ZeroDivisionError {}
+impl ZeroDivisionError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Player {
+    pub name: String,
+    pub score: i32,
+}
+impl Player {
+    pub fn new(name: String, score: i32) -> Self {
+        Self { name, score }
+    }
+}
+pub fn calculate_bonus(
+    player: &Player,
+    margin: i32,
+    total_points: i32,
+) -> Result<f64, ZeroDivisionError> {
+    return Ok((player.score + margin as f64) / (total_points as f64));
+}
+'''
+
+[[test]]
+name = "primitive_params_interprocedural"
+description = "Primitives stay by value even when passed to another function"
+
+python = '''
+def helper(x: int) -> int:
+    return x * 2
+
+def caller(a: int, b: int) -> int:
+    return helper(a) + helper(b)
+'''
+
+rust = '''
+pub fn helper(x: i32) -> i32 {
+    return x * 2;
+}
+pub fn caller(a: i32, b: i32) -> i32 {
+    return helper(a) + helper(b);
+}
+'''
+
+[[test]]
+name = "set_param_borrowed"
+description = "Set parameter should be borrowed (non-Copy type)"
+
+python = '''
+def count_items(items: set[int]) -> int:
+    return len(items)
+'''
+
+rust = '''
+use std::collections::HashSet;
+pub fn count_items(items: &HashSet<i32>) -> i32 {
+    return items.len() as i32 as i32;
+}
+'''

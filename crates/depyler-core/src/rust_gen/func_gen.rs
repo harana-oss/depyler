@@ -1348,9 +1348,16 @@ impl RustCodeGen for HirFunction {
 
         // INTERPROCEDURAL FIX: Apply mutability requirements from populate_function_param_borrows
         // The interprocedural analysis may have upgraded parameters to &mut based on callees
+        // Skip Copy types (i32, f64, bool, etc.) — they should always be passed by value
         if let Some(param_borrows) = ctx.function_param_borrows.get(&self.name) {
             for (param_idx, borrow_info) in param_borrows.iter().enumerate() {
                 if param_idx < self.params.len() {
+                    // Skip Copy types — primitives are cheap to pass by value
+                    let param_rust_type = ctx.type_mapper.map_type(&self.params[param_idx].ty);
+                    if super::is_copy_rust_type(&param_rust_type) {
+                        continue;
+                    }
+
                     let param_name = &self.params[param_idx].name;
                     if let Some(param_lifetime) =
                         lifetime_result.param_lifetimes.get_mut(param_name)
