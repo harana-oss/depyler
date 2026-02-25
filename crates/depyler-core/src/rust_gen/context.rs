@@ -72,6 +72,7 @@ pub struct CodeGenContext<'a> {
     pub needs_rand: bool,
     pub needs_small_rng: bool,
     pub needs_slice_random: bool,
+    pub needs_indexed_random: bool,
     pub needs_serde_json: bool,
     pub needs_regex: bool,
     pub needs_chrono: bool,

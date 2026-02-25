@@ -1006,13 +1006,17 @@ fn generate_conditional_imports(ctx: &CodeGenContext) -> Vec<proc_macro2::TokenS
         imports.push(quote! {
             thread_local! {
                 static DEPYLER_RNG: std::cell::RefCell<SmallRng> =
-                    std::cell::RefCell::new(SmallRng::from_entropy());
+                    std::cell::RefCell::new(SmallRng::from_os_rng());
             }
         });
     }
 
     if ctx.needs_slice_random {
         imports.push(quote! { use rand::seq::SliceRandom; });
+    }
+
+    if ctx.needs_indexed_random {
+        imports.push(quote! { use rand::seq::IndexedRandom; });
     }
 
     imports
@@ -1502,6 +1506,7 @@ pub fn generate_rust_file(
         needs_smallvec: false,
         needs_small_rng: false,
         needs_slice_random: false,
+        needs_indexed_random: false,
         needs_unicode_normalization: false,
         needs_lazy_static: false,
         needs_complex: false,
@@ -1756,6 +1761,7 @@ mod tests {
             needs_smallvec: false,
             needs_small_rng: false,
             needs_slice_random: false,
+            needs_indexed_random: false,
             needs_unicode_normalization: false,
             needs_lazy_static: false,
             needs_complex: false,

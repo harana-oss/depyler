@@ -124,11 +124,7 @@ pub fn extract_dependencies(ctx: &CodeGenContext) -> Vec<Dependency> {
     }
 
     if ctx.needs_rand {
-        let mut rand_dep = Dependency::new("rand", "0.8");
-        if ctx.needs_small_rng {
-            rand_dep = rand_dep.with_features(vec!["small_rng".to_string()]);
-        }
-        deps.push(rand_dep);
+        deps.push(Dependency::new("rand", "0.9"));
     }
 
     if ctx.needs_clap {

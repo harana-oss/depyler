@@ -5624,7 +5624,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     bail!("secrets.choice() requires exactly 1 argument");
                 }
                 let seq = &arg_exprs[0];
-                self.ctx.needs_slice_random = true;
+                self.ctx.needs_indexed_random = true;
 
                 // secrets.choice(seq) → seq.choose(&mut rand::thread_rng()).cloned().unwrap()
                 parse_quote! { #seq.choose(&mut rand::thread_rng()).cloned().unwrap() }
@@ -8749,7 +8749,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             "Random" => {
                 if arg_exprs.is_empty() {
                     // No seed - use OS entropy
-                    parse_quote! { SmallRng::from_entropy() }
+                    parse_quote! { SmallRng::from_os_rng() }
                 } else if arg_exprs.len() == 1 {
                     let seed = &arg_exprs[0];
                     parse_quote! { SmallRng::seed_from_u64(#seed as u64) }
@@ -8846,7 +8846,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     bail!("random.choice() requires exactly 1 argument");
                 }
                 let seq = &arg_exprs[0];
-                self.ctx.needs_slice_random = true;
+                self.ctx.needs_indexed_random = true;
                 parse_quote! {
                     DEPYLER_RNG.with(|rng| #seq.choose(&mut *rng.borrow_mut()).cloned().unwrap())
                 }
@@ -8869,7 +8869,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 }
                 let seq = &arg_exprs[0];
                 let k = &arg_exprs[1];
-                self.ctx.needs_slice_random = true;
+                self.ctx.needs_indexed_random = true;
                 parse_quote! {
                     DEPYLER_RNG.with(|rng| {
                         #seq.choose_multiple(&mut *rng.borrow_mut(), #k as usize)
@@ -8889,7 +8889,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 } else {
                     &parse_quote! { 1 }
                 };
-                self.ctx.needs_slice_random = true;
+                self.ctx.needs_indexed_random = true;
                 parse_quote! {
                     DEPYLER_RNG.with(|rng| {
                         let mut rng = rng.borrow_mut();
@@ -8968,7 +8968,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 if arg_exprs.is_empty() {
                     // seed() with no args - use OS entropy
                     parse_quote! {
-                        DEPYLER_RNG.with(|rng| *rng.borrow_mut() = SmallRng::from_entropy())
+                        DEPYLER_RNG.with(|rng| *rng.borrow_mut() = SmallRng::from_os_rng())
                     }
                 } else {
                     let seed_val = &arg_exprs[0];

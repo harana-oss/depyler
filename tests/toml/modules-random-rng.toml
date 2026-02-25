@@ -23,7 +23,7 @@ use rand::rngs::SmallRng;
 use rand::Rng;
 use rand::SeedableRng;
 thread_local! {
-    static DEPYLER_RNG: std::cell::RefCell<SmallRng>= std::cell::RefCell::new(SmallRng::from_entropy());
+    static DEPYLER_RNG: std::cell::RefCell<SmallRng>= std::cell::RefCell::new(SmallRng::from_os_rng());
 
 }
 pub fn get_random_float() -> f64 {
@@ -48,7 +48,7 @@ use rand::rngs::SmallRng;
 use rand::Rng;
 use rand::SeedableRng;
 thread_local! {
-    static DEPYLER_RNG: std::cell::RefCell<SmallRng>= std::cell::RefCell::new(SmallRng::from_entropy());
+    static DEPYLER_RNG: std::cell::RefCell<SmallRng>= std::cell::RefCell::new(SmallRng::from_os_rng());
 
 }
 pub fn roll_dice() -> i32 {
@@ -73,7 +73,7 @@ use rand::rngs::SmallRng;
 use rand::Rng;
 use rand::SeedableRng;
 thread_local! {
-    static DEPYLER_RNG: std::cell::RefCell<SmallRng>= std::cell::RefCell::new(SmallRng::from_entropy());
+    static DEPYLER_RNG: std::cell::RefCell<SmallRng>= std::cell::RefCell::new(SmallRng::from_os_rng());
 
 }
 pub fn get_random_below(n: i32) -> i32 {
@@ -98,7 +98,7 @@ use rand::rngs::SmallRng;
 use rand::Rng;
 use rand::SeedableRng;
 thread_local! {
-    static DEPYLER_RNG: std::cell::RefCell<SmallRng>= std::cell::RefCell::new(SmallRng::from_entropy());
+    static DEPYLER_RNG: std::cell::RefCell<SmallRng>= std::cell::RefCell::new(SmallRng::from_os_rng());
 
 }
 pub fn get_random_range(start: i32, stop: i32) -> i32 {
@@ -123,7 +123,7 @@ use rand::rngs::SmallRng;
 use rand::Rng;
 use rand::SeedableRng;
 thread_local! {
-    static DEPYLER_RNG: std::cell::RefCell<SmallRng>= std::cell::RefCell::new(SmallRng::from_entropy());
+    static DEPYLER_RNG: std::cell::RefCell<SmallRng>= std::cell::RefCell::new(SmallRng::from_os_rng());
 
 }
 pub fn random_in_range(low: f64, high: f64) -> f64 {
@@ -133,7 +133,7 @@ pub fn random_in_range(low: f64, high: f64) -> f64 {
 
 [[test]]
 name = "depyler_rng_choice"
-description = "random.choice() uses DEPYLER_RNG with SliceRandom"
+description = "random.choice() uses DEPYLER_RNG with IndexedRandom"
 
 python = '''
 import random
@@ -148,10 +148,10 @@ use rand::rngs::SmallRng;
 use rand::Rng;
 use rand::SeedableRng;
 thread_local! {
-    static DEPYLER_RNG: std::cell::RefCell<SmallRng>= std::cell::RefCell::new(SmallRng::from_entropy());
+    static DEPYLER_RNG: std::cell::RefCell<SmallRng>= std::cell::RefCell::new(SmallRng::from_os_rng());
 
 }
-use rand::seq::SliceRandom;
+use rand::seq::IndexedRandom;
 pub fn pick_one(items: &Vec<String>) -> String {
     return DEPYLER_RNG.with(|rng| items.choose(&mut *rng.borrow_mut()).cloned().unwrap());
 }
@@ -174,10 +174,10 @@ use rand::rngs::SmallRng;
 use rand::Rng;
 use rand::SeedableRng;
 thread_local! {
-    static DEPYLER_RNG: std::cell::RefCell<SmallRng>= std::cell::RefCell::new(SmallRng::from_entropy());
+    static DEPYLER_RNG: std::cell::RefCell<SmallRng>= std::cell::RefCell::new(SmallRng::from_os_rng());
 
 }
-use rand::seq::SliceRandom;
+use rand::seq::IndexedRandom;
 pub fn pick_float(available: &Vec<f64>) -> f64 {
     return DEPYLER_RNG.with(|rng| available.choose(&mut *rng.borrow_mut()).cloned().unwrap());
 }
@@ -200,10 +200,10 @@ use rand::rngs::SmallRng;
 use rand::Rng;
 use rand::SeedableRng;
 thread_local! {
-    static DEPYLER_RNG: std::cell::RefCell<SmallRng>= std::cell::RefCell::new(SmallRng::from_entropy());
+    static DEPYLER_RNG: std::cell::RefCell<SmallRng>= std::cell::RefCell::new(SmallRng::from_os_rng());
 
 }
-use rand::seq::SliceRandom;
+use rand::seq::IndexedRandom;
 pub fn pick_int(numbers: &Vec<i32>) -> i32 {
     return DEPYLER_RNG.with(|rng| numbers.choose(&mut *rng.borrow_mut()).cloned().unwrap());
 }
@@ -226,7 +226,7 @@ use rand::rngs::SmallRng;
 use rand::Rng;
 use rand::SeedableRng;
 thread_local! {
-    static DEPYLER_RNG: std::cell::RefCell<SmallRng>= std::cell::RefCell::new(SmallRng::from_entropy());
+    static DEPYLER_RNG: std::cell::RefCell<SmallRng>= std::cell::RefCell::new(SmallRng::from_os_rng());
 
 }
 use rand::seq::SliceRandom;
@@ -253,7 +253,7 @@ use rand::rngs::SmallRng;
 use rand::Rng;
 use rand::SeedableRng;
 thread_local! {
-    static DEPYLER_RNG: std::cell::RefCell<SmallRng>= std::cell::RefCell::new(SmallRng::from_entropy());
+    static DEPYLER_RNG: std::cell::RefCell<SmallRng>= std::cell::RefCell::new(SmallRng::from_os_rng());
 
 }
 pub fn set_seed_and_get(seed: i32) -> i32 {
@@ -279,7 +279,7 @@ use rand::rngs::SmallRng;
 use rand::Rng;
 use rand::SeedableRng;
 thread_local! {
-    static DEPYLER_RNG: std::cell::RefCell<SmallRng>= std::cell::RefCell::new(SmallRng::from_entropy());
+    static DEPYLER_RNG: std::cell::RefCell<SmallRng>= std::cell::RefCell::new(SmallRng::from_os_rng());
 
 }
 pub fn normal_random(mu: f64, sigma: f64) -> f64 {
@@ -309,10 +309,10 @@ use rand::rngs::SmallRng;
 use rand::Rng;
 use rand::SeedableRng;
 thread_local! {
-    static DEPYLER_RNG: std::cell::RefCell<SmallRng>= std::cell::RefCell::new(SmallRng::from_entropy());
+    static DEPYLER_RNG: std::cell::RefCell<SmallRng>= std::cell::RefCell::new(SmallRng::from_os_rng());
 
 }
-use rand::seq::SliceRandom;
+use rand::seq::IndexedRandom;
 pub fn pick_from_filtered(items: &Vec<i32>, threshold: i32) -> i32 {
     let available = items
         .iter()
