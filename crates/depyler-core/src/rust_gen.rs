@@ -1217,6 +1217,18 @@ fn is_heap_allocated_rust_type(ty: &crate::type_mapper::RustType) -> bool {
     )
 }
 
+/// Infer the HIR Type for a module-level constant from its value expression.
+fn infer_constant_hir_type(expr: &HirExpr) -> Type {
+    match expr {
+        HirExpr::Literal(Literal::Int(_)) => Type::Int,
+        HirExpr::Literal(Literal::Float(_)) => Type::Float,
+        HirExpr::Literal(Literal::String(_)) => Type::String,
+        HirExpr::Literal(Literal::Bool(_)) => Type::Bool,
+        HirExpr::Unary { operand, .. } => infer_constant_hir_type(operand),
+        _ => Type::Unknown,
+    }
+}
+
 /// Generate module-level constant tokens
 ///
 /// Generates `pub const` for primitive types (i32, f64, bool, &str).
@@ -1542,6 +1554,19 @@ pub fn generate_rust_file(
                 field_map.insert(field.name.clone(), field.field_type.clone());
             }
             ctx.class_field_types.insert(class.name.clone(), field_map);
+        }
+    }
+
+    // Register module-level constant types so is_expr_float_type/is_expr_int_type
+    // can recognize constants used inside function bodies for mixed-type arithmetic casts
+    for constant in &module.constants {
+        let const_type = if let Some(ref ty) = constant.type_annotation {
+            ty.clone()
+        } else {
+            infer_constant_hir_type(&constant.value)
+        };
+        if !matches!(const_type, Type::Unknown) {
+            ctx.var_types.insert(constant.name.clone(), const_type);
         }
     }
 

@@ -71,7 +71,7 @@ pub fn calculate_chance(match_tries: i32, match_score: i32, pom_percentage: f64,
     let points_factor = f64::max(1.0, _cse_temp_1);
     let _cse_temp_2 = pom_percentage + pom_percentage * ((win_factor) as f64);
     let pom_weight = _cse_temp_2 * points_factor;
-    return f64::max(pom_weight, (MIN_POM_WEIGHT) as f64);
+    return f64::max(pom_weight, MIN_POM_WEIGHT);
 }
 '''
 

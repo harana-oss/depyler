@@ -885,11 +885,39 @@ pub(crate) fn infer_expr_type_with_env(
             if matches!(object.as_ref(), HirExpr::Var(name) if name == "math")
                 && matches!(
                     method.as_str(),
-                    "exp" | "log" | "log2" | "log10" | "sqrt" | "sin" | "cos" | "tan"
-                        | "asin" | "acos" | "atan" | "atan2" | "sinh" | "cosh" | "tanh"
-                        | "asinh" | "acosh" | "atanh" | "ceil" | "floor" | "fabs"
-                        | "degrees" | "radians" | "hypot" | "pow" | "ldexp" | "fmod"
-                        | "copysign" | "remainder" | "erf" | "erfc" | "gamma" | "lgamma"
+                    "exp"
+                        | "log"
+                        | "log2"
+                        | "log10"
+                        | "sqrt"
+                        | "sin"
+                        | "cos"
+                        | "tan"
+                        | "asin"
+                        | "acos"
+                        | "atan"
+                        | "atan2"
+                        | "sinh"
+                        | "cosh"
+                        | "tanh"
+                        | "asinh"
+                        | "acosh"
+                        | "atanh"
+                        | "ceil"
+                        | "floor"
+                        | "fabs"
+                        | "degrees"
+                        | "radians"
+                        | "hypot"
+                        | "pow"
+                        | "ldexp"
+                        | "fmod"
+                        | "copysign"
+                        | "remainder"
+                        | "erf"
+                        | "erfc"
+                        | "gamma"
+                        | "lgamma"
                 )
             {
                 Type::Float
@@ -1083,11 +1111,11 @@ fn infer_expr_type_simple(expr: &HirExpr) -> Type {
                 "values" => Type::List(Box::new(Type::Unknown)),
                 "items" => Type::List(Box::new(Type::Tuple(vec![Type::Unknown, Type::Unknown]))),
                 // Math module functions (math.exp, math.sin, etc.) always return float
-                "exp" | "log" | "log2" | "log10" | "sqrt" | "sin" | "cos" | "tan"
-                | "asin" | "acos" | "atan" | "atan2" | "sinh" | "cosh" | "tanh"
-                | "asinh" | "acosh" | "atanh" | "ceil" | "floor" | "fabs"
-                | "degrees" | "radians" | "hypot" | "pow" | "ldexp" | "fmod"
-                | "copysign" | "remainder" | "erf" | "erfc" | "gamma" | "lgamma"
+                "exp" | "log" | "log2" | "log10" | "sqrt" | "sin" | "cos" | "tan" | "asin"
+                | "acos" | "atan" | "atan2" | "sinh" | "cosh" | "tanh" | "asinh" | "acosh"
+                | "atanh" | "ceil" | "floor" | "fabs" | "degrees" | "radians" | "hypot" | "pow"
+                | "ldexp" | "fmod" | "copysign" | "remainder" | "erf" | "erfc" | "gamma"
+                | "lgamma"
                     if matches!(object.as_ref(), HirExpr::Var(name) if name == "math") =>
                 {
                     Type::Float

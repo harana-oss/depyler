@@ -1,0 +1,89 @@
+[metadata]
+name = "Constant Mixed Arithmetic Tests"
+category = "codegen"
+description = "Tests for mixed int/float arithmetic with module-level constants"
+
+[[test]]
+name = "float_const_mul_int_expr"
+description = "Integer expression multiplied by float constant casts int to f64"
+
+python = '''
+GOAL_LINE_Y_WIDTH = 23.34
+
+def compute_y(goal_line_index: int) -> int:
+    y = int(goal_line_index // 5 * GOAL_LINE_Y_WIDTH + (GOAL_LINE_Y_WIDTH / 2))
+    return y
+'''
+
+rust = '''
+pub const GOAL_LINE_Y_WIDTH: f64 = 23.34;
+pub fn compute_y(goal_line_index: i32) -> i32 {
+    let _cse_temp_0 = (({
+        let d = goal_line_index / 5;
+        let r = goal_line_index % 5;
+        if r != 0 && (goal_line_index ^ 5) < 0 {
+            d - 1
+        } else {
+            d
+        }
+    }) as f64)
+        * GOAL_LINE_Y_WIDTH;
+    let _cse_temp_1 = _cse_temp_0 + GOAL_LINE_Y_WIDTH / (2 as f64);
+    let y = _cse_temp_1 as i32;
+    return y;
+}
+'''
+
+[[test]]
+name = "int_add_float_const"
+description = "Integer variable added to float constant casts int to f64"
+
+python = '''
+OFFSET = 1.5
+
+def add_offset(x: int) -> float:
+    return x + OFFSET
+'''
+
+rust = '''
+pub const OFFSET: f64 = 1.5;
+pub fn add_offset(x: i32) -> f64 {
+    return ((x) as f64) + OFFSET;
+}
+'''
+
+[[test]]
+name = "float_const_sub_int"
+description = "Float constant minus integer casts int to f64"
+
+python = '''
+BASE = 100.0
+
+def subtract(x: int) -> float:
+    return BASE - x
+'''
+
+rust = '''
+pub const BASE: f64 = 100.0;
+pub fn subtract(x: i32) -> f64 {
+    return BASE - ((x) as f64);
+}
+'''
+
+[[test]]
+name = "int_const_in_float_expr"
+description = "Integer constant used with float variable needs no cast"
+
+python = '''
+MULTIPLIER = 5
+
+def scale(x: float) -> float:
+    return x * MULTIPLIER
+'''
+
+rust = '''
+pub const MULTIPLIER: i32 = 5;
+pub fn scale(x: f64) -> f64 {
+    return x * ((MULTIPLIER) as f64);
+}
+'''
