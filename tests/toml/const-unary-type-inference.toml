@@ -1,0 +1,54 @@
+[metadata]
+name = "Constant Unary Expression Type Inference Tests"
+category = "codegen"
+description = "Module-level constants with unary operators should infer correct types, not serde_json::Value"
+
+[[test]]
+name = "negative_int_constant"
+description = "Negative integer constant should be i32"
+
+python = '''
+INITIAL_SOLVER_HANDICAP = -3
+'''
+
+rust = '''
+pub const INITIAL_SOLVER_HANDICAP: i32 = -3;
+'''
+
+[[test]]
+name = "negative_float_constant"
+description = "Negative float constant should be f64"
+
+python = '''
+TEMPERATURE_OFFSET = -1.5
+'''
+
+rust = '''
+pub const TEMPERATURE_OFFSET: f64 = -1.5;
+'''
+
+[[test]]
+name = "positive_unary_int_constant"
+description = "Positive unary int constant should be i32"
+
+python = '''
+POSITIVE_VALUE = +7
+'''
+
+rust = '''
+pub const POSITIVE_VALUE: i32 = 7;
+'''
+
+[[test]]
+name = "list_of_negative_ints"
+description = "List of negative integers should be Vec<i32>"
+
+python = '''
+PENALTIES = [-1, -2, -3]
+'''
+
+rust = '''
+lazy_static::lazy_static! {
+    pub static ref PENALTIES: Vec<i32> = vec![-1, -2, -3];
+}
+'''

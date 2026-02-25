@@ -1093,10 +1093,21 @@ fn infer_list_element_type(elts: &[HirExpr]) -> proc_macro2::TokenStream {
         Some(HirExpr::Literal(Literal::Float(_))) => quote! { f64 },
         Some(HirExpr::Literal(Literal::String(_))) => quote! { String },
         Some(HirExpr::Literal(Literal::Bool(_))) => quote! { bool },
+        Some(HirExpr::Unary { op, operand }) => infer_unary_type(op, operand),
         Some(HirExpr::List(inner)) => {
             let inner_type = infer_list_element_type(inner);
             quote! { Vec<#inner_type> }
         }
+        _ => quote! { serde_json::Value },
+    }
+}
+
+/// Infer the Rust type for a unary expression based on the operator and operand.
+fn infer_unary_type(op: &UnaryOp, operand: &HirExpr) -> proc_macro2::TokenStream {
+    match (op, operand) {
+        (UnaryOp::Neg | UnaryOp::Pos, HirExpr::Literal(Literal::Int(_))) => quote! { i32 },
+        (UnaryOp::Neg | UnaryOp::Pos, HirExpr::Literal(Literal::Float(_))) => quote! { f64 },
+        (UnaryOp::Not, HirExpr::Literal(Literal::Bool(_))) => quote! { bool },
         _ => quote! { serde_json::Value },
     }
 }
@@ -1202,6 +1213,12 @@ fn generate_constant_tokens(
                         ) =>
                 {
                     (quote! { : bool }, false)
+                }
+
+                // Unary expressions (e.g., -3, +5, not True) - infer from operand
+                HirExpr::Unary { op, operand } => {
+                    let ty = infer_unary_type(op, operand);
+                    (quote! { : #ty }, false)
                 }
 
                 // DEPYLER-0448: Dict types → serde_json::Value - needs lazy_static
