@@ -10718,7 +10718,7 @@ pub fn test_random_choice(items: &Vec<String>) -> String {
         if _cse_temp_0 == 0 {
         return "".to_string();
     }
-    let chosen: String = *items.choose(&mut rand::thread_rng()).unwrap();
+    let chosen: String = items.choose(&mut rand::thread_rng()).cloned().unwrap();
     chosen
 }
 #[doc = "Test random sampling without replacement"]
@@ -25417,7 +25417,7 @@ pub fn test_random_choice(items: &Vec<String>) -> String {
         if _cse_temp_0 == 0 {
         return "".to_string();
     }
-    let chosen: String = *items.choose(&mut rand::thread_rng()).unwrap();
+    let chosen: String = items.choose(&mut rand::thread_rng()).cloned().unwrap();
     chosen
 }
 #[doc = "Test random sampling without replacement"]

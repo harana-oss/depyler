@@ -115,7 +115,7 @@ use rand::Rng;
 use rand::prelude::*;
 use rand::seq::SliceRandom;
 pub fn pick_one(items: &Vec<String>) -> String {
-    return *items.choose(&mut rand::thread_rng()).unwrap();
+    return items.choose(&mut rand::thread_rng()).cloned().unwrap();
 }
 '''
 
@@ -278,7 +278,7 @@ use rand::Rng;
 use rand::prelude::*;
 use rand::seq::SliceRandom;
 pub fn secure_pick(items: &Vec<String>) -> String {
-    return *items.choose(&mut rand::thread_rng()).unwrap();
+    return items.choose(&mut rand::thread_rng()).cloned().unwrap();
 }
 '''
 

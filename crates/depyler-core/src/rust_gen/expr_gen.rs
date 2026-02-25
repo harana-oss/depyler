@@ -5634,8 +5634,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 let seq = &arg_exprs[0];
                 self.ctx.needs_slice_random = true;
 
-                // secrets.choice(seq) → seq.choose(&mut rand::thread_rng()).unwrap()
-                parse_quote! { *#seq.choose(&mut rand::thread_rng()).unwrap() }
+                // secrets.choice(seq) → seq.choose(&mut rand::thread_rng()).cloned().unwrap()
+                parse_quote! { #seq.choose(&mut rand::thread_rng()).cloned().unwrap() }
             }
 
             // Token generation
@@ -8856,7 +8856,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 let seq = &arg_exprs[0];
                 self.ctx.needs_slice_random = true;
                 parse_quote! {
-                    DEPYLER_RNG.with(|rng| *#seq.choose(&mut *rng.borrow_mut()).unwrap())
+                    DEPYLER_RNG.with(|rng| #seq.choose(&mut *rng.borrow_mut()).cloned().unwrap())
                 }
             }
 
@@ -14966,6 +14966,17 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     };
                 }
             }
+        }
+
+        // Check if it's a list comprehension - infer element type directly
+        if let HirExpr::ListComp { element, .. } = expr {
+            let elem_type =
+                crate::rust_gen::func_gen::infer_expr_type_with_env(element, &self.ctx.var_types);
+            return match elem_type {
+                Type::Int => Some(quote! { i32 }),
+                Type::Float => Some(quote! { f64 }),
+                _ => None,
+            };
         }
 
         // Fall back to current return type context

@@ -1,0 +1,111 @@
+[metadata]
+name = "Sum Float Inference Tests"
+category = "type-inference"
+
+# =============================================================================
+# sum() on list comprehensions with math module methods should use f64
+# =============================================================================
+
+[[test]]
+name = "sum_of_math_exp_list_comp"
+description = "sum() on list comprehension with math.exp() uses f64"
+
+python = '''
+import math
+
+def softmax(logits: list[float]) -> list[float]:
+    max_logit = max(logits)
+    exps = [math.exp(x - max_logit) for x in logits]
+    total = sum(exps)
+    return [e / total for e in exps]
+'''
+
+rust = '''
+use std::f64 as math;
+pub fn softmax(logits: Vec<f64>) -> Vec<f64> {
+    let max_logit = logits.iter().fold(f64::NEG_INFINITY, |a, &b| a.max(b));
+    let exps = logits
+        .iter()
+        .cloned()
+        .map(|x| (x - max_logit as f64).exp())
+        .collect::<Vec<_>>();
+    let total = exps.iter().sum::<f64>();
+    return exps
+        .iter()
+        .cloned()
+        .map(|e| (e as f64) / (total as f64))
+        .collect::<Vec<_>>();
+}
+'''
+
+[[test]]
+name = "sum_of_math_sqrt_list_comp"
+description = "sum() on list comprehension with math.sqrt() uses f64"
+
+python = '''
+import math
+
+def sum_sqrt(values: list[float]) -> float:
+    return sum([math.sqrt(x) for x in values])
+'''
+
+rust = '''
+use std::f64 as math;
+pub fn sum_sqrt(values: &Vec<f64>) -> f64 {
+    return values
+        .iter()
+        .cloned()
+        .map(|x| (x as f64).sqrt())
+        .collect::<Vec<_>>()
+        .iter()
+        .sum::<f64>();
+}
+'''
+
+[[test]]
+name = "sum_of_math_log_list_comp"
+description = "sum() on list comprehension with math.log() uses f64"
+
+python = '''
+import math
+
+def sum_log(values: list[float]) -> float:
+    return sum([math.log(x) for x in values])
+'''
+
+rust = '''
+use std::f64 as math;
+pub fn sum_log(values: &Vec<f64>) -> f64 {
+    return values
+        .iter()
+        .cloned()
+        .map(|x| (x as f64).ln())
+        .collect::<Vec<_>>()
+        .iter()
+        .sum::<f64>();
+}
+'''
+
+[[test]]
+name = "sum_of_math_sin_list_comp"
+description = "sum() on list comprehension with math.sin() uses f64"
+
+python = '''
+import math
+
+def sum_sin(angles: list[float]) -> float:
+    return sum([math.sin(x) for x in angles])
+'''
+
+rust = '''
+use std::f64 as math;
+pub fn sum_sin(angles: &Vec<f64>) -> f64 {
+    return angles
+        .iter()
+        .cloned()
+        .map(|x| (x as f64).sin())
+        .collect::<Vec<_>>()
+        .iter()
+        .sum::<f64>();
+}
+'''

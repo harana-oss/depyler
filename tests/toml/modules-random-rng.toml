@@ -153,7 +153,59 @@ thread_local! {
 }
 use rand::seq::SliceRandom;
 pub fn pick_one(items: &Vec<String>) -> String {
-    return DEPYLER_RNG.with(|rng| *items.choose(&mut *rng.borrow_mut()).unwrap());
+    return DEPYLER_RNG.with(|rng| items.choose(&mut *rng.borrow_mut()).cloned().unwrap());
+}
+'''
+
+[[test]]
+name = "depyler_rng_choice_float"
+description = "random.choice() on list[float] uses cloned().unwrap()"
+
+python = '''
+import random
+
+def pick_float(available: list[float]) -> float:
+    return random.choice(available)
+'''
+
+rust = '''
+use rand as random;
+use rand::rngs::SmallRng;
+use rand::Rng;
+use rand::SeedableRng;
+thread_local! {
+    static DEPYLER_RNG: std::cell::RefCell<SmallRng>= std::cell::RefCell::new(SmallRng::from_os_rng());
+
+}
+use rand::seq::SliceRandom;
+pub fn pick_float(available: &Vec<f64>) -> f64 {
+    return DEPYLER_RNG.with(|rng| available.choose(&mut *rng.borrow_mut()).cloned().unwrap());
+}
+'''
+
+[[test]]
+name = "depyler_rng_choice_int"
+description = "random.choice() on list[int] uses cloned().unwrap()"
+
+python = '''
+import random
+
+def pick_int(numbers: list[int]) -> int:
+    return random.choice(numbers)
+'''
+
+rust = '''
+use rand as random;
+use rand::rngs::SmallRng;
+use rand::Rng;
+use rand::SeedableRng;
+thread_local! {
+    static DEPYLER_RNG: std::cell::RefCell<SmallRng>= std::cell::RefCell::new(SmallRng::from_os_rng());
+
+}
+use rand::seq::SliceRandom;
+pub fn pick_int(numbers: &Vec<i32>) -> i32 {
+    return DEPYLER_RNG.with(|rng| numbers.choose(&mut *rng.borrow_mut()).cloned().unwrap());
 }
 '''
 
