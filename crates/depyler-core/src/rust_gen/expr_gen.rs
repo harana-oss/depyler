@@ -969,8 +969,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             }
         }
 
-        // Cast int operand to f64 when mixed with float
-        if (left_is_float && right_is_int) || (left_is_int && right_is_float) {
+        // Cast non-float operand to f64 when mixed with float.
+        // This covers both known-int + float AND unknown-type + float cases,
+        // since Python's `/` always returns float and mixing with int would fail in Rust.
+        if (left_is_float || right_is_float) && !(left_is_float && right_is_float) {
             let rust_op = convert_binop(op)?;
             let cast_to_f64 = |expr: &syn::Expr, is_float: bool| {
                 let expr = strip_clone(expr);
@@ -988,8 +990,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 op: rust_op,
                 right: Box::new(cast_right),
             }))
-        } else if left_is_float || right_is_float {
-            // Both float or one float + unknown: strip .clone() but no cast needed
+        } else if left_is_float && right_is_float {
+            // Both float: strip .clone() but no cast needed
             let rust_op = convert_binop(op)?;
             let clean_left = strip_clone(&left_expr);
             let clean_right = strip_clone(&right_expr);
@@ -16234,7 +16236,15 @@ impl ToRustExpr for HirExpr {
                 // lazy_static constants have unique wrapper types - clone to get actual type
                 // BUT: skip clone if prevent_clone is set (e.g., when used as base for .get())
                 // because .get().cloned() already handles element cloning
-                if ctx.lazy_static_constants.contains(name) && !ctx.prevent_clone {
+                // Also skip clone for primitive-type constants (i32, f64, bool) since they're Copy
+                let is_primitive_const = matches!(
+                    ctx.var_types.get(name),
+                    Some(Type::Int) | Some(Type::Float) | Some(Type::Bool)
+                );
+                if ctx.lazy_static_constants.contains(name)
+                    && !ctx.prevent_clone
+                    && !is_primitive_const
+                {
                     ctx.clone_already_applied = true;
                     Ok(parse_quote! { #base_expr.clone() })
                 } else if ctx.is_assignment_target || ctx.prevent_clone || ctx.clone_already_applied

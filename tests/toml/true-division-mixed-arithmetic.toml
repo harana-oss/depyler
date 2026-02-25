@@ -1,0 +1,84 @@
+[metadata]
+name = "True Division Mixed Arithmetic"
+category = "arithmetic"
+
+[[test]]
+name = "true_division_in_addition_chain"
+description = "True division result (f64) added to integer expressions requires type promotion"
+
+python = '''
+WIDTH: int = 100
+SPACING: int = 20
+
+def compute_position(index: int) -> int:
+    x = WIDTH + (index % 5) * SPACING + (SPACING / 2)
+    return int(x)
+'''
+
+rust = '''
+pub const WIDTH: i32 = 100;
+pub const SPACING: i32 = 20;
+pub fn compute_position(index: i32) -> i32 {
+    let _cse_temp_0 = index % 5 * SPACING;
+    let x = ((WIDTH + _cse_temp_0) as f64) + (SPACING as f64) / (2 as f64);
+    return x as i32;
+}
+'''
+
+[[test]]
+name = "true_division_in_complex_expression"
+description = "True division mixed with integer arithmetic in multi-term expression"
+
+python = '''
+FIELD_WIDTH: int = 800
+LINE_WIDTH: int = 50
+
+def line_position(line_index: int) -> float:
+    x = FIELD_WIDTH + (line_index % 5) * LINE_WIDTH + (LINE_WIDTH / 2)
+    return x
+'''
+
+rust = '''
+pub const FIELD_WIDTH: i32 = 800;
+pub const LINE_WIDTH: i32 = 50;
+pub fn line_position(line_index: i32) -> f64 {
+    let _cse_temp_0 = line_index % 5 * LINE_WIDTH;
+    let x = ((FIELD_WIDTH + _cse_temp_0) as f64) + (LINE_WIDTH as f64) / (2 as f64);
+    return x;
+}
+'''
+
+[[test]]
+name = "simple_int_plus_true_division"
+description = "Simple case of integer plus true division result"
+
+python = '''
+def add_half(a: int, b: int) -> float:
+    return a + b / 2
+'''
+
+rust = '''
+pub fn add_half(a: i32, b: i32) -> f64 {
+    return ((a) as f64) + (b as f64) / (2 as f64);
+}
+'''
+
+[[test]]
+name = "true_division_unknown_type_var"
+skip = true
+description = "True division added to variable with unknown type should still cast"
+
+python = '''
+def compute(data: list) -> float:
+    x = data[0] + data[1] / 2
+    return x
+'''
+
+rust = '''
+use serde_json;
+pub fn compute(data: &Vec<serde_json::Value>) -> f64 {
+    let x = ((data.get(0usize).cloned().unwrap()) as f64)
+        + (data.get(1usize).cloned().unwrap() as f64) / (2 as f64);
+    return x;
+}
+'''
