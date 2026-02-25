@@ -834,6 +834,11 @@ pub(crate) fn infer_expr_type_with_env(
                 }
             }
 
+            // Division always produces float in Python
+            if matches!(op, BinOp::Div | BinOp::Pow) {
+                return Type::Float;
+            }
+
             let left_type = infer_expr_type_with_env(left, var_types);
             let right_type = infer_expr_type_with_env(right, var_types);
             if matches!(left_type, Type::Float) || matches!(right_type, Type::Float) {
@@ -860,6 +865,21 @@ pub(crate) fn infer_expr_type_with_env(
                 .collect();
             Type::Tuple(elem_types)
         }
+        // Handle Call expressions with environment context for type-preserving builtins
+        HirExpr::Call { func, args, .. } => match func.as_str() {
+            "min" | "max" | "abs" | "sum" => {
+                if args
+                    .iter()
+                    .any(|arg| matches!(infer_expr_type_with_env(arg, var_types), Type::Float))
+                {
+                    Type::Float
+                } else {
+                    Type::Int
+                }
+            }
+            "float" => Type::Float,
+            _ => infer_expr_type_simple(expr),
+        },
         // Handle method calls with environment context for math module methods
         HirExpr::MethodCall { object, method, .. } => {
             if matches!(object.as_ref(), HirExpr::Var(name) if name == "math")

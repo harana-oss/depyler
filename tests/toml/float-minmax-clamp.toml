@@ -1,0 +1,62 @@
+[metadata]
+name = "Float Min/Max Clamp Tests"
+category = "float-minmax"
+
+# Test that min/max correctly uses f64 methods when arguments involve float division
+
+[[test]]
+name = "clamp_float_division_result"
+description = "max/min on variable assigned from float division uses f64 methods"
+
+python = '''
+def clamp_ratio(x: int, limit: int) -> float:
+    ratio = x / 10
+    ratio = max(0, min(ratio, limit))
+    return ratio
+'''
+
+rust = '''
+pub fn clamp_ratio(x: i32, limit: i32) -> f64 {
+    let mut ratio = (x as f64) / (10 as f64);
+    ratio = f64::max((0) as f64, f64::min(ratio, (limit) as f64));
+    return ratio;
+}
+'''
+
+[[test]]
+name = "nested_min_max_with_division"
+description = "min(var_from_division, int_expr) uses f64::min"
+
+python = '''
+def scale_and_clamp(value: int, divisor: int, upper: int) -> float:
+    scaled = value / divisor
+    clamped = min(scaled, upper)
+    return clamped
+'''
+
+rust = '''
+pub fn scale_and_clamp(value: i32, divisor: i32, upper: i32) -> f64 {
+    let scaled = (value as f64) / (divisor as f64);
+    let clamped = f64::min(scaled, (upper) as f64);
+    return clamped;
+}
+'''
+
+[[test]]
+name = "max_with_division_variable"
+description = "max(0, var_from_division) uses f64::max"
+
+python = '''
+def ensure_positive(x: int, y: int) -> float:
+    result = x / y
+    result = max(0, result)
+    return result
+'''
+
+rust = '''
+pub fn ensure_positive(x: i32, y: i32) -> f64 {
+    let mut result = (x as f64) / (y as f64);
+    result = f64::max((0) as f64, result);
+    return result;
+}
+'''
