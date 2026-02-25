@@ -1,0 +1,84 @@
+[metadata]
+name = "Constant Dict Type Inference Tests"
+category = "codegen"
+description = "Module-level dict constants should infer HashMap<K, V> from element types"
+
+[[test]]
+name = "string_string_dict_constant"
+description = "Dict with string keys and string values should be HashMap<String, String>"
+
+python = '''
+KICKOFF_TO_GRID_RESULT = {"A1Retain": "A1", "A1KickAway": "A1"}
+'''
+
+rust = '''
+use std::collections::HashMap;
+lazy_static::lazy_static! {
+    pub static ref KICKOFF_TO_GRID_RESULT: HashMap<String, String> = {
+        let mut map = HashMap::new();
+        map.insert("A1Retain".to_string(), "A1".to_string());
+        map.insert("A1KickAway".to_string(), "A1".to_string());
+        map
+    };
+}
+'''
+
+[[test]]
+name = "string_int_dict_constant"
+description = "Dict with string keys and int values should be HashMap<String, i32>"
+
+python = '''
+SCORES = {"alice": 100, "bob": 200}
+'''
+
+rust = '''
+use std::collections::HashMap;
+lazy_static::lazy_static! {
+    pub static ref SCORES: HashMap<String, i32> = {
+        let mut map = HashMap::new();
+        map.insert("alice".to_string(), 100);
+        map.insert("bob".to_string(), 200);
+        map
+    };
+}
+'''
+
+[[test]]
+name = "string_float_dict_constant"
+description = "Dict with string keys and float values should be HashMap<String, f64>"
+
+python = '''
+RATES = {"usd": 1.0, "eur": 0.85}
+'''
+
+rust = '''
+use std::collections::HashMap;
+lazy_static::lazy_static! {
+    pub static ref RATES: HashMap<String, f64> = {
+        let mut map = HashMap::new();
+        map.insert("usd".to_string(), 1.0);
+        map.insert("eur".to_string(), 0.85);
+        map
+    };
+}
+'''
+
+[[test]]
+name = "string_bool_dict_constant"
+description = "Dict with string keys and bool values should be HashMap<String, bool>"
+
+python = '''
+FLAGS = {"verbose": True, "debug": False}
+'''
+
+rust = '''
+use std::collections::HashMap;
+lazy_static::lazy_static! {
+    pub static ref FLAGS: HashMap<String, bool> = {
+        let mut map = HashMap::new();
+        map.insert("verbose".to_string(), true);
+        map.insert("debug".to_string(), false);
+        map
+    };
+}
+'''

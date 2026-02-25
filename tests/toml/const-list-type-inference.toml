@@ -114,10 +114,10 @@ COLORS = ["red", "green", "blue", "yellow"]
 rust = '''
 lazy_static::lazy_static! {
     pub static ref COLORS: Vec<String> = vec![
-    "red".to_string(),
-    "green".to_string(),
-    "blue".to_string(),
-    "yellow".to_string(),
-];
+        "red".to_string(),
+        "green".to_string(),
+        "blue".to_string(),
+        "yellow".to_string(),
+    ];
 }
 '''

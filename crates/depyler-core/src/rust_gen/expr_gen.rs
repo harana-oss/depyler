@@ -13184,7 +13184,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         self.ctx.needs_hashset = true;
         let mut insert_stmts = Vec::new();
         for elem in elts {
-            let elem_expr = elem.to_rust_expr(self.ctx)?;
+            let mut elem_expr = elem.to_rust_expr(self.ctx)?;
+            // String literals need .to_string() for HashSet<String>
+            if matches!(elem, HirExpr::Literal(Literal::String(_))) {
+                elem_expr = parse_quote! { #elem_expr.to_string() };
+            }
             insert_stmts.push(quote! { set.insert(#elem_expr); });
         }
         Ok(parse_quote! {

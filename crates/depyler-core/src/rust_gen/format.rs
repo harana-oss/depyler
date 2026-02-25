@@ -115,10 +115,35 @@ fn format_lazy_static_block(raw: &str) -> String {
                 // Extract the formatted "NAME: TYPE = VALUE" from "const NAME: TYPE = VALUE;"
                 let formatted = formatted.trim().trim_end_matches(';').trim();
                 if let Some(stripped) = formatted.strip_prefix("const ") {
-                    format!(
-                        "lazy_static::lazy_static! {{\n    pub static ref {};\n}}",
-                        stripped.trim()
-                    )
+                    // Re-indent multi-line values: rustfmt indents from column 0,
+                    // but inside lazy_static! the content needs 4 extra spaces
+                    let lines: Vec<&str> = stripped.trim().lines().collect();
+                    if lines.len() <= 1 {
+                        format!(
+                            "lazy_static::lazy_static! {{\n    pub static ref {};\n}}",
+                            stripped.trim()
+                        )
+                    } else {
+                        let mut result = String::from("lazy_static::lazy_static! {\n    pub static ref ");
+                        result.push_str(lines[0]);
+                        result.push('\n');
+                        let last_idx = lines.len() - 1;
+                        for (i, line) in lines[1..].iter().enumerate() {
+                            if line.is_empty() {
+                                result.push('\n');
+                            } else {
+                                result.push_str("    ");
+                                result.push_str(line);
+                                // Add semicolon after the closing brace of the value block
+                                if i == last_idx - 1 {
+                                    result.push(';');
+                                }
+                                result.push('\n');
+                            }
+                        }
+                        result.push_str("}");
+                        result
+                    }
                 } else {
                     fallback_format_lazy_static(inner)
                 }

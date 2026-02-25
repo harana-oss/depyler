@@ -1,0 +1,47 @@
+[metadata]
+name = "Constant Set Type Inference Tests"
+category = "codegen"
+description = "Module-level set constants should infer HashSet<T> from element types"
+
+[[test]]
+name = "string_set_constant"
+description = "Set of string literals should be HashSet<String>"
+
+python = '''
+VALID_COLORS = {"red", "green", "blue"}
+'''
+
+rust = '''
+use std::collections::HashSet;
+lazy_static::lazy_static! {
+    pub static ref VALID_COLORS: HashSet<String> = {
+        let mut set = HashSet::new();
+        set.insert("red".to_string());
+        set.insert("green".to_string());
+        set.insert("blue".to_string());
+        set
+    };
+}
+'''
+
+[[test]]
+name = "int_set_constant"
+description = "Set of int literals should be HashSet<i32>"
+
+python = '''
+PRIMES = {2, 3, 5, 7}
+'''
+
+rust = '''
+use std::collections::HashSet;
+lazy_static::lazy_static! {
+    pub static ref PRIMES: HashSet<i32> = {
+        let mut set = HashSet::new();
+        set.insert(2);
+        set.insert(3);
+        set.insert(5);
+        set.insert(7);
+        set
+    };
+}
+'''

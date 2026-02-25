@@ -1118,6 +1118,40 @@ fn infer_list_element_type(elts: &[HirExpr]) -> proc_macro2::TokenStream {
     first
 }
 
+/// Infer the Rust key and value types for a dict constant from its entries.
+///
+/// Returns `(key_type, value_type)`. Falls back to `serde_json::Value` for
+/// empty or heterogeneous dicts.
+fn infer_dict_kv_types(
+    pairs: &[(HirExpr, HirExpr)],
+) -> (proc_macro2::TokenStream, proc_macro2::TokenStream) {
+    let fallback = || {
+        (
+            quote! { serde_json::Value },
+            quote! { serde_json::Value },
+        )
+    };
+    let (first_k, first_v) = match pairs.first() {
+        Some((k, v)) => (infer_single_expr_type(k), infer_single_expr_type(v)),
+        None => return fallback(),
+    };
+    let k_str = first_k.to_string();
+    let v_str = first_v.to_string();
+    for (k, v) in &pairs[1..] {
+        if infer_single_expr_type(k).to_string() != k_str
+            || infer_single_expr_type(v).to_string() != v_str
+        {
+            return fallback();
+        }
+    }
+    (first_k, first_v)
+}
+
+/// Infer the Rust element type for a set constant from its elements.
+fn infer_set_element_type(elts: &[HirExpr]) -> proc_macro2::TokenStream {
+    infer_list_element_type(elts)
+}
+
 /// Infer the Rust tuple type from its elements, e.g. `(i32, i32)` or `(String, f64)`.
 fn infer_tuple_type(elems: &[HirExpr]) -> proc_macro2::TokenStream {
     let types: Vec<proc_macro2::TokenStream> = elems.iter().map(infer_single_expr_type).collect();
@@ -1251,10 +1285,31 @@ fn generate_constant_tokens(
                     (quote! { : #ty }, false)
                 }
 
-                // DEPYLER-0448: Dict types → serde_json::Value - needs lazy_static
-                HirExpr::Dict { .. } => {
-                    ctx.needs_serde_json = true;
-                    (quote! { : serde_json::Value }, true)
+                // Dict constants: infer HashMap<K, V> from entries
+                HirExpr::Dict(pairs) => {
+                    let (kt, vt) = infer_dict_kv_types(pairs);
+                    let kt_s = kt.to_string();
+                    let vt_s = vt.to_string();
+                    if kt_s.contains("serde_json") || vt_s.contains("serde_json") {
+                        ctx.needs_serde_json = true;
+                        (quote! { : serde_json::Value }, true)
+                    } else {
+                        ctx.needs_hashmap = true;
+                        (quote! { : HashMap<#kt, #vt> }, true)
+                    }
+                }
+
+                // Set constants: infer HashSet<T> from elements
+                HirExpr::Set(elts) | HirExpr::FrozenSet(elts) => {
+                    let elem_type = infer_set_element_type(elts);
+                    let elem_s = elem_type.to_string();
+                    if elem_s.contains("serde_json") {
+                        ctx.needs_serde_json = true;
+                        (quote! { : serde_json::Value }, true)
+                    } else {
+                        ctx.needs_hashset = true;
+                        (quote! { : HashSet<#elem_type> }, true)
+                    }
                 }
 
                 // Infer Vec<T> element type from list contents - needs lazy_static
@@ -1499,11 +1554,14 @@ pub fn generate_rust_file(
     // Add interned string constants
     items.extend(generate_interned_string_tokens(&ctx.string_optimizer));
 
-    // Add module-level constants
-    items.extend(generate_constant_tokens(&module.constants, &mut ctx)?);
+    // Generate module-level constants first (populates ctx.needs_hashmap, ctx.needs_hashset, etc.)
+    let constant_tokens = generate_constant_tokens(&module.constants, &mut ctx)?;
 
-    // Add collection imports if needed
+    // Add collection imports if needed (must come before constants in output)
     items.extend(generate_conditional_imports(&ctx));
+
+    // Now add the constants after their imports
+    items.extend(constant_tokens);
 
     // DEPYLER-0335 FIX #1: Deduplicate imports across all sources
     // Both generate_import_tokens and generate_conditional_imports can add HashMap
