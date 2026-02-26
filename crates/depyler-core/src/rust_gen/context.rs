@@ -177,6 +177,9 @@ pub struct CodeGenContext<'a> {
     /// Track module-level constants that use lazy_static (need dereferencing to get actual type)
     pub lazy_static_constants: HashSet<String>,
 
+    /// Track module-level constants that are static arrays (use direct indexing)
+    pub static_array_constants: HashSet<String>,
+
     /// Flag to indicate we're generating code for an assignment target (LHS)
     /// When true, use get_mut() for array access and as_mut() for Optional access
     pub is_assignment_target: bool,

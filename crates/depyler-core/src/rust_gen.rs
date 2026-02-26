@@ -1407,6 +1407,7 @@ fn generate_constant_tokens(
                 }
             });
         } else if use_static {
+            ctx.static_array_constants.insert(constant.name.clone());
             items.push(quote! {
                 pub static #name_ident #type_annotation = #value_expr;
             });
@@ -1533,6 +1534,7 @@ pub fn generate_rust_file(
         var_usage_current: HashMap::new(),
         optional_vars: HashSet::new(),
         lazy_static_constants: HashSet::new(),
+        static_array_constants: HashSet::new(),
         is_assignment_target: false,
         prevent_clone: false,
         returns_reference: false,
@@ -1599,8 +1601,8 @@ pub fn generate_rust_file(
         }
     }
 
-    // Pre-populate lazy_static_constants so function code generation knows which
-    // uppercase names are constants (not class names for static method dispatch).
+    // Pre-populate lazy_static_constants and static_array_constants so function
+    // code generation knows which uppercase names are constants.
     for constant in &module.constants {
         if constant
             .name
@@ -1608,6 +1610,17 @@ pub fn generate_rust_file(
             .next()
             .map_or(false, |c| c.is_uppercase())
         {
+            if let HirExpr::List(elts) = &constant.value {
+                let elem_type = infer_list_element_type(elts);
+                let elem_type_str = elem_type.to_string();
+                if !elts.is_empty()
+                    && !elem_type_str.contains("serde_json")
+                    && elts.iter().all(is_const_safe_list_element)
+                {
+                    ctx.static_array_constants.insert(constant.name.clone());
+                    continue;
+                }
+            }
             ctx.lazy_static_constants.insert(constant.name.clone());
         }
     }
@@ -1821,6 +1834,7 @@ mod tests {
             var_usage_current: HashMap::new(),
             optional_vars: HashSet::new(),
             lazy_static_constants: HashSet::new(),
+            static_array_constants: HashSet::new(),
             is_assignment_target: false,
             prevent_clone: false,
             returns_reference: false,

@@ -88,3 +88,33 @@ lazy_static::lazy_static! {
     pub static ref NAMES: Vec<String> = vec!["Alice".to_string(), "Bob".to_string()];
 }
 '''
+
+[[test]]
+name = "static_array_index_variable"
+description = "Indexing a static array constant with a variable uses direct bracket indexing"
+
+python = '''
+X_VALUES = [(0, 100), (100, 200), (200, 300)]
+
+def get_x_value(x_position: int) -> tuple:
+    return X_VALUES[x_position]
+'''
+
+[test.assertions]
+contains = ["X_VALUES[x_position as usize]"]
+not_contains = ["X_VALUES.get("]
+
+[[test]]
+name = "static_array_index_literal"
+description = "Indexing a static array constant with a literal uses direct bracket indexing"
+
+python = '''
+SCORES = [10, 20, 30]
+
+def get_first() -> int:
+    return SCORES[0]
+'''
+
+[test.assertions]
+contains = ["SCORES[0usize]"]
+not_contains = ["SCORES.get("]

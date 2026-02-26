@@ -11776,6 +11776,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             if starts_upper
                 && !is_screaming_snake
                 && !self.ctx.lazy_static_constants.contains(class_name)
+                && !self.ctx.static_array_constants.contains(class_name)
             {
                 // This is likely a static method call - convert to ClassName::method(args)
                 let class_ident = syn::Ident::new(class_name, proc_macro2::Span::call_site());
@@ -12148,6 +12149,18 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
 
         let is_string_base = self.is_string_base(base);
+
+        // Static array constants use direct indexing instead of .get().cloned()
+        if let HirExpr::Var(var_name) = base {
+            if self.ctx.static_array_constants.contains(var_name) {
+                let index_expr = index.to_rust_expr(self.ctx)?;
+                if let HirExpr::Literal(Literal::Int(n)) = index {
+                    let idx_value = *n as usize;
+                    return Ok(parse_quote! { #base_expr[#idx_value] });
+                }
+                return Ok(parse_quote! { #base_expr[#index_expr as usize] });
+            }
+        }
 
         // Discriminate between HashMap and Vec access based on base type or index type
         let is_string_key = self.is_string_index(base, index)?;
