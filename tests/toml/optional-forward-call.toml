@@ -83,3 +83,52 @@ pub fn lookup_config(configs: &Vec<Config>) -> Option<Config> {
     return None;
 }
 '''
+
+[[test]]
+name = "optional_struct_field_access_in_none_check"
+description = "Field access on Optional struct inside if-not-None uses if let Some (no AsRef needed)"
+compile_check = true
+
+python = '''
+from typing import Optional
+
+class Player:
+    name: str
+    jersey_number: int
+    on_field: bool
+
+def resolve_player(players: list[Player], index: int) -> Optional[Player]:
+    if index < len(players):
+        return players[index]
+    return None
+
+def record_player(players: list[Player], index: int) -> int:
+    player = resolve_player(players, index)
+    if player is not None:
+        player.on_field = False
+        return player.jersey_number
+    return -1
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Player {
+    pub name: String,
+    pub jersey_number: i32,
+    pub on_field: bool,
+}
+pub fn resolve_player(players: &Vec<Player>, index: i32) -> Option<Player> {
+    if index < players.len() as i32 {
+        return Some(players.get(index as usize).cloned().unwrap());
+    }
+    return None;
+}
+pub fn record_player(players: &Vec<Player>, index: i32) -> i32 {
+    let mut player = resolve_player(players, index);
+    if let Some(mut player) = player {
+        player.on_field = false;
+        return player.jersey_number;
+    }
+    return -1;
+}
+'''

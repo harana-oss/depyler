@@ -1380,8 +1380,8 @@ pub fn get_name() -> Option<String> {
 }
 pub fn process_name() -> String {
     let name = get_name();
-    if name.is_some() {
-        return name.as_ref().unwrap().to_uppercase();
+    if let Some(mut name) = name {
+        return name.to_uppercase();
     }
     return "default".to_string();
 }
@@ -1665,9 +1665,9 @@ pub fn get_value() -> Option<String> {
 }
 pub fn process_twice() -> String {
     let value = get_value();
-    if value.is_some() {
-        let first = value.as_ref().unwrap().to_uppercase();
-        let second = value.as_ref().unwrap().to_lowercase();
+    if let Some(mut value) = value {
+        let first = value.to_uppercase();
+        let second = value.to_lowercase();
         return format!("{}{}", first, second);
     }
     return "".to_string();
@@ -1720,8 +1720,8 @@ pub fn collect_items(names: &Vec<String>) -> Vec<Item> {
     let mut items: Vec<Item> = vec![];
     for name in names.iter().cloned() {
         let item = find_item(name);
-        if item.is_some() {
-            items.push(item.clone().unwrap());
+        if let Some(mut item) = item {
+            items.push(item);
         }
     }
     return items;
