@@ -1230,6 +1230,25 @@ fn infer_constant_hir_type(expr: &HirExpr) -> Type {
         HirExpr::Literal(Literal::String(_)) => Type::String,
         HirExpr::Literal(Literal::Bool(_)) => Type::Bool,
         HirExpr::Unary { operand, .. } => infer_constant_hir_type(operand),
+        HirExpr::Tuple(elems) => {
+            let elem_types: Vec<Type> = elems.iter().map(infer_constant_hir_type).collect();
+            if elem_types.iter().any(|t| matches!(t, Type::Unknown)) {
+                Type::Unknown
+            } else {
+                Type::Tuple(elem_types)
+            }
+        }
+        HirExpr::List(elems) => {
+            if elems.is_empty() {
+                return Type::Unknown;
+            }
+            let elem_type = infer_constant_hir_type(&elems[0]);
+            if matches!(elem_type, Type::Unknown) {
+                Type::Unknown
+            } else {
+                Type::List(Box::new(elem_type))
+            }
+        }
         _ => Type::Unknown,
     }
 }

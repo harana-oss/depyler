@@ -1,0 +1,74 @@
+[metadata]
+name = "Static Array Tuple Element Access"
+category = "codegen"
+description = "Indexing into a static array of tuples, then accessing tuple elements with literal index"
+
+[[test]]
+name = "static_array_tuple_field_access"
+description = "Variable assigned from static array of tuples uses tuple field syntax"
+
+python = '''
+RANGES = [(0, 100), (100, 200), (200, 300)]
+
+def get_start(i: int) -> int:
+    r = RANGES[i]
+    return r[0]
+'''
+
+rust = '''
+pub static RANGES: [(i32, i32); 3] = [(0, 100), (100, 200), (200, 300)];
+pub fn get_start(i: i32) -> i32 {
+    let r = RANGES[i as usize];
+    return r.0;
+}
+'''
+
+[[test]]
+name = "static_array_tuple_both_fields"
+description = "Accessing both fields of a tuple from a static array"
+
+python = '''
+RANGES = [(0, 100), (100, 200), (200, 300)]
+
+def get_span(i: int) -> int:
+    r = RANGES[i]
+    return r[1] - r[0]
+'''
+
+rust = '''
+pub static RANGES: [(i32, i32); 3] = [(0, 100), (100, 200), (200, 300)];
+pub fn get_span(i: i32) -> i32 {
+    let r = RANGES[i as usize];
+    return r.1 - r.0;
+}
+'''
+
+[[test]]
+name = "static_array_tuple_conditional_assign"
+description = "Tuple from static array assigned conditionally then field-accessed"
+
+python = '''
+X_VALUES = [(0, 100), (100, 200), (200, 300)]
+X_VALUES_ALT = [(200, 300), (100, 200), (0, 100)]
+
+def pick_range(i: int, use_alt: bool) -> int:
+    if use_alt:
+        x_range = X_VALUES_ALT[i]
+    else:
+        x_range = X_VALUES[i]
+    return x_range[1] - x_range[0]
+'''
+
+rust = '''
+pub static X_VALUES: [(i32, i32); 3] = [(0, 100), (100, 200), (200, 300)];
+pub static X_VALUES_ALT: [(i32, i32); 3] = [(200, 300), (100, 200), (0, 100)];
+pub fn pick_range(i: i32, use_alt: bool) -> i32 {
+    let mut x_range;
+    if use_alt {
+        x_range = X_VALUES_ALT[i as usize];
+    } else {
+        x_range = X_VALUES[i as usize];
+    }
+    return x_range.1 - x_range.0;
+}
+'''
