@@ -1153,12 +1153,7 @@ fn infer_list_element_type(elts: &[HirExpr]) -> proc_macro2::TokenStream {
 fn infer_dict_kv_types(
     pairs: &[(HirExpr, HirExpr)],
 ) -> (proc_macro2::TokenStream, proc_macro2::TokenStream) {
-    let fallback = || {
-        (
-            quote! { serde_json::Value },
-            quote! { serde_json::Value },
-        )
-    };
+    let fallback = || (quote! { serde_json::Value }, quote! { serde_json::Value });
     let (first_k, first_v) = match pairs.first() {
         Some((k, v)) => (infer_single_expr_type(k), infer_single_expr_type(v)),
         None => return fallback(),
@@ -1573,7 +1568,12 @@ pub fn generate_rust_file(
     // Pre-populate lazy_static_constants so function code generation knows which
     // uppercase names are constants (not class names for static method dispatch).
     for constant in &module.constants {
-        if constant.name.chars().next().map_or(false, |c| c.is_uppercase()) {
+        if constant
+            .name
+            .chars()
+            .next()
+            .map_or(false, |c| c.is_uppercase())
+        {
             ctx.lazy_static_constants.insert(constant.name.clone());
         }
     }
@@ -2036,10 +2036,7 @@ mod tests {
         let mut ctx = create_test_context();
 
         let result = codegen_raise_stmt(&None, &mut ctx).unwrap();
-        assert_eq!(
-            result.to_string(),
-            "panic ! (\"Exception raised\") ;"
-        );
+        assert_eq!(result.to_string(), "panic ! (\"Exception raised\") ;");
     }
 
     // NOTE: With statement with target incomplete - requires full implementation (tracked in DEPYLER-0424)

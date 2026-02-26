@@ -946,8 +946,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
     ) -> Result<syn::Expr> {
         let left_is_float = self.ctx.is_expr_float_type(left);
         let right_is_float = self.ctx.is_expr_float_type(right);
-        let left_is_int = self.ctx.is_expr_int_type(left);
-        let right_is_int = self.ctx.is_expr_int_type(right);
 
         // Strip .clone() from constants in mixed arithmetic expressions
         fn strip_clone(expr: &syn::Expr) -> syn::Expr {
@@ -970,15 +968,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
 
         // Cast non-float operand to f64 when mixed with float.
-        // Handles known-int + float, and also unknown-but-likely-int + float cases
-        // (e.g., CSE temps from integer arithmetic, unregistered constants).
-        let left_likely_int = left_is_int || (!left_is_float && self.involves_arithmetic_op(left));
-        let right_likely_int =
-            right_is_int || (!right_is_float && self.involves_arithmetic_op(right));
-
-        if (left_is_float && (right_is_int || right_likely_int))
-            || ((left_is_int || left_likely_int) && right_is_float)
-        {
+        // If exactly one side is float, always promote the other side to f64.
+        // This handles known-int, unknown-type, and nested expressions (e.g.,
+        // CSE temps, unregistered constants, Add-of-ints) uniformly.
+        if (left_is_float && !right_is_float) || (!left_is_float && right_is_float) {
             let rust_op = convert_binop(op)?;
             let cast_to_f64 = |expr: &syn::Expr, is_float: bool| {
                 let expr = strip_clone(expr);

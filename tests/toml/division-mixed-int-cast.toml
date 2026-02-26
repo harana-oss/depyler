@@ -1,0 +1,63 @@
+[metadata]
+name = "Division Mixed Arithmetic with int() Cast"
+category = "arithmetic"
+description = "When int(expr) wraps a mixed int+division expression, ensure proper f64 promotion"
+
+[[test]]
+name = "int_cast_wrapping_mixed_division_expr"
+description = "int(CONST + cse_temp + CONST/2) must promote int side to f64 before adding division result"
+
+python = '''
+PLAYING_FIELD_WIDTH = 1000
+GOAL_LINE_X_WIDTH = 20
+
+def compute_x(goal_line_index: int) -> int:
+    x = (
+        PLAYING_FIELD_WIDTH
+        + (goal_line_index % 5) * GOAL_LINE_X_WIDTH
+        + (GOAL_LINE_X_WIDTH / 2)
+    )
+    return int(x)
+'''
+
+rust = '''
+pub const PLAYING_FIELD_WIDTH: i32 = 1000;
+pub const GOAL_LINE_X_WIDTH: i32 = 20;
+pub fn compute_x(goal_line_index: i32) -> i32 {
+    let _cse_temp_0 = goal_line_index % 5 * GOAL_LINE_X_WIDTH;
+    let x = ((PLAYING_FIELD_WIDTH + _cse_temp_0) as f64) + (GOAL_LINE_X_WIDTH as f64) / (2 as f64);
+    return x as i32;
+}
+'''
+
+[[test]]
+name = "nested_add_plus_division"
+description = "Nested (a + b) + c/2 promotes int-Add to f64 when added to division result"
+
+python = '''
+def compute(a: int, b: int, c: int) -> float:
+    return (a + b) + c / 2
+'''
+
+rust = '''
+pub fn compute(a: i32, b: i32, c: i32) -> f64 {
+    return ((a + b) as f64) + (c as f64) / (2 as f64);
+}
+'''
+
+[[test]]
+name = "variable_plus_division_result"
+description = "Variable assigned from addition then added to division result"
+
+python = '''
+def compute(a: int, b: int, c: int) -> float:
+    total = a + b
+    return total + c / 2
+'''
+
+rust = '''
+pub fn compute(a: i32, b: i32, c: i32) -> f64 {
+    let total = a + b;
+    return ((total) as f64) + (c as f64) / (2 as f64);
+}
+'''
