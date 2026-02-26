@@ -1,0 +1,85 @@
+[metadata]
+name = "Optional Forward Call Tests"
+category = "optional-types"
+description = "Tests that Optional return types from forward-declared functions are properly tracked"
+
+[[test]]
+name = "forward_call_optional_if_let_some"
+description = "Forward call returning Optional triggers if let Some pattern"
+
+python = '''
+from typing import Optional
+
+class Player:
+    name: str
+    on_field: bool
+
+def process_player(players: list[Player], index: int) -> None:
+    player = find_player(players, index)
+    if player is not None:
+        player.on_field = False
+
+def find_player(players: list[Player], index: int) -> Optional[Player]:
+    if index < len(players):
+        return players[index]
+    return None
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Player {
+    pub name: String,
+    pub on_field: bool,
+}
+pub fn process_player(players: &Vec<Player>, index: i32) {
+    let mut player = find_player(players, index);
+    if let Some(mut player) = player {
+        player.on_field = false;
+    }
+}
+pub fn find_player(players: &Vec<Player>, index: i32) -> Option<Player> {
+    if index < players.len() as i32 {
+        return Some(players.get(index as usize).cloned().unwrap());
+    }
+    return None;
+}
+'''
+
+[[test]]
+name = "forward_call_optional_field_access"
+description = "Field access on forward-call Optional result adds unwrap"
+
+python = '''
+from typing import Optional
+
+class Config:
+    host: str
+    port: int
+
+def get_host_from_config(configs: list[Config]) -> str:
+    config = lookup_config(configs)
+    return config.host
+
+def lookup_config(configs: list[Config]) -> Optional[Config]:
+    if len(configs) > 0:
+        return configs[0]
+    return None
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Config {
+    pub host: String,
+    pub port: i32,
+}
+pub fn get_host_from_config(configs: &Vec<Config>) -> String {
+    let config = lookup_config(configs);
+    return config.as_ref().unwrap().host;
+}
+pub fn lookup_config(configs: &Vec<Config>) -> Option<Config> {
+    if configs.len() as i32 > 0 {
+        return Some(configs.get(0usize).cloned().unwrap());
+    }
+    return None;
+}
+'''

@@ -859,6 +859,17 @@ pub(crate) fn extract_none_check(condition: &HirExpr) -> Option<(String, bool)> 
             }
         }
     }
+    // Handle pre-transformed `var.is_some()` / `var.is_none()` method calls
+    if let HirExpr::MethodCall { object, method, .. } = condition {
+        if let HirExpr::Var(var_name) = object.as_ref() {
+            if method == "is_some" {
+                return Some((var_name.clone(), true));
+            }
+            if method == "is_none" {
+                return Some((var_name.clone(), false));
+            }
+        }
+    }
     None
 }
 
@@ -873,6 +884,12 @@ pub(crate) fn codegen_if_let_some(
     // Temporarily remove from optional_vars so inner code doesn't double-unwrap
     ctx.optional_vars.remove(&var_name);
 
+    // Also narrow var_types: Optional<T> → T so field access doesn't add unwrap
+    let saved_var_type = ctx.var_types.remove(&var_name);
+    if let Some(Type::Optional(inner)) = &saved_var_type {
+        ctx.var_types.insert(var_name.clone(), inner.as_ref().clone());
+    }
+
     ctx.enter_scope();
     // Declare the narrowed (unwrapped) variable in the inner scope
     ctx.declare_var(&var_name);
@@ -883,8 +900,11 @@ pub(crate) fn codegen_if_let_some(
         .collect::<Result<Vec<_>>>()?;
     ctx.exit_scope();
 
-    // Restore optional_vars status
+    // Restore optional_vars and var_types
     ctx.optional_vars.insert(var_name.clone());
+    if let Some(saved) = saved_var_type {
+        ctx.var_types.insert(var_name.clone(), saved);
+    }
 
     if let Some(else_stmts) = else_body {
         ctx.enter_scope();
