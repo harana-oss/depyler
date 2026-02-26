@@ -1,0 +1,90 @@
+[metadata]
+name = "Constant List Static Array Tests"
+category = "codegen"
+description = "Const-safe list constants should generate pub static fixed-size arrays"
+
+[[test]]
+name = "int_list_static_array"
+description = "List of integers generates pub static array"
+
+python = '''
+SCORES = [10, 20, 30]
+'''
+
+rust = '''
+pub static SCORES: [i32; 3] = [10, 20, 30];
+'''
+
+[[test]]
+name = "float_list_static_array"
+description = "List of floats generates pub static array"
+
+python = '''
+RATES = [1.5, 2.5, 3.5]
+'''
+
+rust = '''
+pub static RATES: [f64; 3] = [1.5, 2.5, 3.5];
+'''
+
+[[test]]
+name = "bool_list_static_array"
+description = "List of booleans generates pub static array"
+
+python = '''
+FLAGS = [True, False, True]
+'''
+
+rust = '''
+pub static FLAGS: [bool; 3] = [true, false, true];
+'''
+
+[[test]]
+name = "tuple_list_static_array"
+description = "List of tuples of ints generates pub static array"
+
+python = '''
+X_VALUES = [(0, 100), (100, 200), (200, 300)]
+'''
+
+rust = '''
+pub static X_VALUES: [(i32, i32); 3] = [(0, 100), (100, 200), (200, 300)];
+'''
+
+[[test]]
+name = "single_element_list"
+description = "Single element list generates pub static array with size 1"
+
+python = '''
+ITEMS = [42]
+'''
+
+rust = '''
+pub static ITEMS: [i32; 1] = [42];
+'''
+
+[[test]]
+name = "negative_int_list_static_array"
+description = "List with negative integers generates pub static array"
+
+python = '''
+OFFSETS = [-1, 0, 1]
+'''
+
+rust = '''
+pub static OFFSETS: [i32; 3] = [-1, 0, 1];
+'''
+
+[[test]]
+name = "string_list_still_lazy_static"
+description = "String lists still use lazy_static Vec since strings need heap"
+
+python = '''
+NAMES = ["Alice", "Bob"]
+'''
+
+rust = '''
+lazy_static::lazy_static! {
+    pub static ref NAMES: Vec<String> = vec!["Alice".to_string(), "Bob".to_string()];
+}
+'''

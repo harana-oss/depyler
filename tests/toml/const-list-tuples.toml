@@ -1,62 +1,54 @@
 [metadata]
 name = "Constant List of Tuples Type Inference Tests"
 category = "codegen"
-description = "Module-level list constants containing tuples should infer Vec<(T1, T2, ...)>"
+description = "Module-level list constants containing tuples should use static arrays"
 
 [[test]]
 name = "list_of_int_tuples"
-description = "List of int tuples should be Vec<(i32, i32)>"
+description = "List of int tuples should be static array [(i32, i32); N]"
 
 python = '''
 GOAL_LINE_Y_VALUES = [(0, 113), (113, 226)]
 '''
 
 rust = '''
-lazy_static::lazy_static! {
-    pub static ref GOAL_LINE_Y_VALUES: Vec<(i32, i32)> = vec![(0, 113), (113, 226)];
-}
+pub static GOAL_LINE_Y_VALUES: [(i32, i32); 2] = [(0, 113), (113, 226)];
 '''
 
 [[test]]
 name = "list_of_float_tuples"
-description = "List of float tuples should be Vec<(f64, f64)>"
+description = "List of float tuples should be static array [(f64, f64); N]"
 
 python = '''
 COORDINATES = [(1.0, 2.0), (3.0, 4.0)]
 '''
 
 rust = '''
-lazy_static::lazy_static! {
-    pub static ref COORDINATES: Vec<(f64, f64)> = vec![(1.0, 2.0), (3.0, 4.0)];
-}
+pub static COORDINATES: [(f64, f64); 2] = [(1.0, 2.0), (3.0, 4.0)];
 '''
 
 [[test]]
 name = "list_of_mixed_tuples"
-description = "List of mixed-type tuples should be Vec<(i32, f64)>"
+description = "List of mixed-type tuples should be static array [(i32, f64); N]"
 
 python = '''
 MIXED = [(1, 2.5), (3, 4.5)]
 '''
 
 rust = '''
-lazy_static::lazy_static! {
-    pub static ref MIXED: Vec<(i32, f64)> = vec![(1, 2.5), (3, 4.5)];
-}
+pub static MIXED: [(i32, f64); 2] = [(1, 2.5), (3, 4.5)];
 '''
 
 [[test]]
 name = "list_of_triple_tuples"
-description = "List of 3-element tuples should be Vec<(i32, i32, i32)>"
+description = "List of 3-element tuples should be static array [(i32, i32, i32); N]"
 
 python = '''
 RGB_VALUES = [(255, 0, 0), (0, 255, 0)]
 '''
 
 rust = '''
-lazy_static::lazy_static! {
-    pub static ref RGB_VALUES: Vec<(i32, i32, i32)> = vec![(255, 0, 0), (0, 255, 0)];
-}
+pub static RGB_VALUES: [(i32, i32, i32); 2] = [(255, 0, 0), (0, 255, 0)];
 '''
 
 [[test]]

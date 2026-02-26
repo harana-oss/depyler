@@ -1199,6 +1199,16 @@ fn tuple_element_needs_heap(expr: &HirExpr) -> bool {
     )
 }
 
+/// Check if a list element is const-safe (can live in a static array without heap allocation).
+fn is_const_safe_list_element(expr: &HirExpr) -> bool {
+    match expr {
+        HirExpr::Literal(Literal::Int(_) | Literal::Float(_) | Literal::Bool(_)) => true,
+        HirExpr::Unary { operand, .. } => is_const_safe_list_element(operand),
+        HirExpr::Tuple(elems) => elems.iter().all(is_const_safe_list_element),
+        _ => false,
+    }
+}
+
 /// Check if a RustType requires heap allocation (cannot be `const`).
 fn is_heap_allocated_rust_type(ty: &crate::type_mapper::RustType) -> bool {
     use crate::type_mapper::RustType;
@@ -1240,7 +1250,7 @@ fn generate_constant_tokens(
         let name_ident = syn::Ident::new(&constant.name, proc_macro2::Span::call_site());
 
         // Generate the value expression
-        let value_expr = constant.value.to_rust_expr(ctx)?;
+        let mut value_expr = constant.value.to_rust_expr(ctx)?;
 
         // Determine type annotation and whether it needs lazy_static
         let (type_annotation, needs_lazy) = if let Some(ref ty) = constant.type_annotation {
@@ -1347,10 +1357,27 @@ fn generate_constant_tokens(
                     }
                 }
 
-                // Infer Vec<T> element type from list contents - needs lazy_static
+                // Const-safe lists → pub static array; otherwise lazy_static Vec
                 HirExpr::List(elts) => {
                     let elem_type = infer_list_element_type(elts);
-                    (quote! { : Vec<#elem_type> }, true)
+                    let elem_type_str = elem_type.to_string();
+                    if !elts.is_empty()
+                        && !elem_type_str.contains("serde_json")
+                        && elts.iter().all(is_const_safe_list_element)
+                    {
+                        let len_lit = syn::LitInt::new(
+                            &elts.len().to_string(),
+                            proc_macro2::Span::call_site(),
+                        );
+                        let elem_exprs: Vec<syn::Expr> = elts
+                            .iter()
+                            .map(|e| e.to_rust_expr(ctx))
+                            .collect::<Result<Vec<_>>>()?;
+                        value_expr = syn::parse_quote! { [#(#elem_exprs),*] };
+                        (quote! { : [#elem_type; #len_lit] }, false)
+                    } else {
+                        (quote! { : Vec<#elem_type> }, true)
+                    }
                 }
 
                 // Tuple constants - const-safe if all elements are primitive
@@ -1368,6 +1395,9 @@ fn generate_constant_tokens(
             }
         };
 
+        let use_static = matches!(&constant.value, HirExpr::List(_))
+            && !needs_lazy;
+
         if needs_lazy {
             ctx.needs_lazy_static = true;
             ctx.lazy_static_constants.insert(constant.name.clone());
@@ -1375,6 +1405,10 @@ fn generate_constant_tokens(
                 lazy_static::lazy_static! {
                     pub static ref #name_ident #type_annotation = #value_expr;
                 }
+            });
+        } else if use_static {
+            items.push(quote! {
+                pub static #name_ident #type_annotation = #value_expr;
             });
         } else {
             items.push(quote! {

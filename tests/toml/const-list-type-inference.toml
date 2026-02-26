@@ -1,7 +1,7 @@
 [metadata]
 name = "Constant List Type Inference Tests"
 category = "codegen"
-description = "Module-level list constants should infer Vec<T> from element types"
+description = "Module-level list constants should use static arrays for primitives and Vec<T> for heap types"
 
 [[test]]
 name = "string_list_constant_type"
@@ -19,44 +19,38 @@ lazy_static::lazy_static! {
 
 [[test]]
 name = "int_list_constant_type"
-description = "List of int literals should be Vec<i32>"
+description = "List of int literals should be static array [i32; N]"
 
 python = '''
 SCORES = [10, 20, 30]
 '''
 
 rust = '''
-lazy_static::lazy_static! {
-    pub static ref SCORES: Vec<i32> = vec![10, 20, 30];
-}
+pub static SCORES: [i32; 3] = [10, 20, 30];
 '''
 
 [[test]]
 name = "float_list_constant_type"
-description = "List of float literals should be Vec<f64>"
+description = "List of float literals should be static array [f64; N]"
 
 python = '''
 RATES = [1.5, 2.5, 3.5]
 '''
 
 rust = '''
-lazy_static::lazy_static! {
-    pub static ref RATES: Vec<f64> = vec![1.5, 2.5, 3.5];
-}
+pub static RATES: [f64; 3] = [1.5, 2.5, 3.5];
 '''
 
 [[test]]
 name = "bool_list_constant_type"
-description = "List of bool literals should be Vec<bool>"
+description = "List of bool literals should be static array [bool; N]"
 
 python = '''
 FLAGS = [True, False, True]
 '''
 
 rust = '''
-lazy_static::lazy_static! {
-    pub static ref FLAGS: Vec<bool> = vec![true, false, true];
-}
+pub static FLAGS: [bool; 3] = [true, false, true];
 '''
 
 [[test]]
@@ -91,16 +85,14 @@ lazy_static::lazy_static! {
 
 [[test]]
 name = "homogeneous_all_ints_verified"
-description = "All elements checked - list of ints remains Vec<i32>"
+description = "All elements checked - list of ints uses static array [i32; N]"
 
 python = '''
 PRIMES = [2, 3, 5, 7, 11, 13]
 '''
 
 rust = '''
-lazy_static::lazy_static! {
-    pub static ref PRIMES: Vec<i32> = vec![2, 3, 5, 7, 11, 13];
-}
+pub static PRIMES: [i32; 6] = [2, 3, 5, 7, 11, 13];
 '''
 
 [[test]]
