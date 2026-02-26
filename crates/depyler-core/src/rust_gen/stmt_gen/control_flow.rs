@@ -557,7 +557,11 @@ pub(crate) fn codegen_for_stmt(
     match (target, element_type) {
         (AssignTarget::Symbol(name), Some(elem_type)) => {
             ctx.declare_var(name);
-            ctx.var_types.insert(name.clone(), elem_type);
+            ctx.var_types.insert(name.clone(), elem_type.clone());
+            // Clear stale optional status when loop variable overrides a previous Optional assignment
+            if !matches!(elem_type, Type::Optional(_)) {
+                ctx.optional_vars.remove(name);
+            }
             // Track if this for-loop variable shadows a ref param
             if ctx.current_func_ref_params.contains(name) {
                 ctx.shadowed_ref_params.insert(name.clone());
@@ -565,6 +569,8 @@ pub(crate) fn codegen_for_stmt(
         }
         (AssignTarget::Symbol(name), None) => {
             ctx.declare_var(name);
+            // Clear stale optional status - loop variable is the unwrapped element
+            ctx.optional_vars.remove(name);
             // Track if this for-loop variable shadows a ref param
             if ctx.current_func_ref_params.contains(name) {
                 ctx.shadowed_ref_params.insert(name.clone());
@@ -578,6 +584,9 @@ pub(crate) fn codegen_for_stmt(
                 if let AssignTarget::Symbol(s) = t {
                     ctx.declare_var(s);
                     ctx.var_types.insert(s.clone(), typ.clone());
+                    if !matches!(typ, Type::Optional(_)) {
+                        ctx.optional_vars.remove(s);
+                    }
                     // Track if this for-loop variable shadows a ref param
                     if ctx.current_func_ref_params.contains(s) {
                         ctx.shadowed_ref_params.insert(s.clone());
@@ -590,6 +599,7 @@ pub(crate) fn codegen_for_stmt(
             for t in targets {
                 if let AssignTarget::Symbol(s) = t {
                     ctx.declare_var(s);
+                    ctx.optional_vars.remove(s);
                     // Track if this for-loop variable shadows a ref param
                     if ctx.current_func_ref_params.contains(s) {
                         ctx.shadowed_ref_params.insert(s.clone());

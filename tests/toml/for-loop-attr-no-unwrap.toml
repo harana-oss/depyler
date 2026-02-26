@@ -1,0 +1,67 @@
+[metadata]
+name = "For Loop Variable Attribute Access Without Unwrap"
+category = "optional-types"
+description = "Ensures for-loop variables from list iteration don't get spurious as_ref().unwrap() from stale optional_vars"
+
+[[test]]
+name = "for_loop_var_overrides_optional_assignment"
+description = "Variable assigned from Optional-returning function then reused in for-loop should not unwrap"
+
+python = '''
+from dataclasses import dataclass
+from typing import Optional
+
+@dataclass
+class Player:
+    player_index: int
+    name: str
+    on_field: bool
+
+def resolve_player(players: list[Player], candidate_index: int) -> Optional[Player]:
+    for player in players:
+        if player.player_index == candidate_index:
+            return player
+    return None
+
+def find_player(players: list[Player]) -> Optional[Player]:
+    player = resolve_player(players, 0)
+    for player in players:
+        if player.player_index == 1:
+            return player
+    return None
+'''
+
+rust = '''
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Player {
+    pub player_index: i32,
+    pub name: String,
+    pub on_field: bool,
+}
+impl Player {
+    pub fn new(player_index: i32, name: String, on_field: bool) -> Self {
+        Self {
+            player_index,
+            name,
+            on_field,
+        }
+    }
+}
+pub fn resolve_player(players: &Vec<Player>, candidate_index: i32) -> Option<Player> {
+    for player in players.iter().cloned() {
+        if player.player_index == candidate_index {
+            return Some(player);
+        }
+    }
+    return None;
+}
+pub fn find_player(players: &Vec<Player>) -> Option<Player> {
+    let player = resolve_player(players, 0);
+    for player in players.iter().cloned() {
+        if player.player_index == 1 {
+            return Some(player);
+        }
+    }
+    return None;
+}
+'''
