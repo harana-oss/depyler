@@ -74,3 +74,81 @@ pub fn get_middle(t: &(i32, String, f64)) -> String {
     return t.1;
 }
 '''
+
+[[test]]
+name = "divmod_tuple_first"
+description = "divmod result indexed with literal uses tuple field access"
+
+python = '''
+def divmod_first(a: int, b: int) -> int:
+    result = divmod(a, b)
+    return result[0]
+'''
+
+rust = '''
+pub fn divmod_first(a: i32, b: i32) -> i32 {
+    let result = (a / b, a % b);
+    return result.0;
+}
+'''
+
+[[test]]
+name = "divmod_tuple_both"
+description = "divmod result both elements accessed with tuple field syntax"
+
+python = '''
+def divmod_both(a: int, b: int) -> int:
+    result = divmod(a, b)
+    return result[0] + result[1]
+'''
+
+rust = '''
+pub fn divmod_both(a: i32, b: i32) -> i32 {
+    let result = (a / b, a % b);
+    return result.0 + result.1;
+}
+'''
+
+[[test]]
+name = "tuple_from_list_iteration"
+description = "Tuple field access on loop variable from list of tuples"
+
+python = '''
+def sum_first_elements(pairs: list[tuple[int, int]]) -> int:
+    total = 0
+    for pair in pairs:
+        total += pair[0]
+    return total
+'''
+
+rust = '''
+pub fn sum_first_elements(pairs: &Vec<(i32, i32)>) -> i32 {
+    let mut total = 0;
+    for pair in pairs.iter().cloned() {
+        total += pair.0;
+    }
+    return total;
+}
+'''
+
+[[test]]
+name = "tuple_span_from_list"
+description = "Both tuple elements accessed on loop variable from list"
+
+python = '''
+def total_span(ranges: list[tuple[int, int]]) -> int:
+    total = 0
+    for r in ranges:
+        total += r[1] - r[0]
+    return total
+'''
+
+rust = '''
+pub fn total_span(ranges: &Vec<(i32, i32)>) -> i32 {
+    let mut total = 0;
+    for r in ranges.iter().cloned() {
+        total += r.1 - r.0;
+    }
+    return total;
+}
+'''

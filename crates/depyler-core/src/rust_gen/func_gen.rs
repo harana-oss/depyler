@@ -878,6 +878,7 @@ pub(crate) fn infer_expr_type_with_env(
                 }
             }
             "float" => Type::Float,
+            "divmod" => Type::Tuple(vec![Type::Int, Type::Int]),
             _ => infer_expr_type_simple(expr),
         },
         // Handle method calls with environment context for math module methods

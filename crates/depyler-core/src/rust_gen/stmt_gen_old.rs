@@ -3498,6 +3498,13 @@ pub(crate) fn codegen_assign_stmt(
                     }
                     // next(iter) without default uses .expect() and returns T directly (not Optional)
                 }
+                // Track divmod() as returning a tuple of (int, int)
+                else if func == "divmod" {
+                    ctx.var_types.insert(
+                        var_name.clone(),
+                        Type::Tuple(vec![Type::Int, Type::Int]),
+                    );
+                }
             }
             HirExpr::List(elements) => {
                 // When v = [1, 2], mark v as List(Int) so it gets borrowed when calling f(&v)
