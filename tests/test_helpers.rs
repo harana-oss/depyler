@@ -194,4 +194,97 @@ def greet(name: str) -> str:
         let rust_code = transpile_and_check(python, &["fn greet", "String"]);
         assert!(rust_code.contains("fn greet"));
     }
+
+    #[test]
+    fn test_mutable_vars_no_leak_between_functions() {
+        let python = r#"
+from dataclasses import dataclass
+
+@dataclass
+class Player:
+    jersey_number: int
+    score: int
+
+def mutate_player(player: Player) -> None:
+    player.score = player.score + 10
+
+def read_player(player: Player) -> int:
+    return player.jersey_number
+"#;
+        let rust_code = transpile(python);
+
+        assert!(
+            rust_code.contains("fn mutate_player(player: &mut Player)"),
+            "mutate_player should take &mut Player\n{rust_code}"
+        );
+        assert!(
+            rust_code.contains("fn read_player(player: &Player) -> i32"),
+            "read_player should take &Player (not &mut)\n{rust_code}"
+        );
+    }
+
+    #[test]
+    fn test_read_only_param_field_access_not_mut() {
+        let python = r#"
+from dataclasses import dataclass
+
+@dataclass
+class PlayerStatistics:
+    total_score: int
+
+@dataclass
+class Player:
+    jersey_number: int
+    player_index: int
+
+def _create_player_statistics(player: Player) -> PlayerStatistics:
+    return PlayerStatistics(total_score=player.jersey_number + player.player_index)
+"#;
+        let rust_code = transpile(python);
+
+        assert!(
+            rust_code.contains("fn _create_player_statistics(player: &Player)"),
+            "Read-only function should take &Player\n{rust_code}"
+        );
+    }
+
+    #[test]
+    fn test_interleaved_mut_and_immut_same_param_name() {
+        let python = r#"
+from dataclasses import dataclass
+
+@dataclass
+class Stats:
+    value: int
+
+@dataclass
+class Player:
+    score: int
+    name: str
+
+def reset_score(player: Player) -> None:
+    player.score = 0
+
+def get_name(player: Player) -> str:
+    return player.name
+
+def bump_score(player: Player) -> Stats:
+    player.score = player.score + 1
+    return Stats(value=player.score)
+"#;
+        let rust_code = transpile(python);
+
+        assert!(
+            rust_code.contains("fn reset_score(player: &mut Player)"),
+            "reset_score should take &mut Player\n{rust_code}"
+        );
+        assert!(
+            rust_code.contains("fn get_name(player: &Player) -> String"),
+            "get_name should take &Player (read-only)\n{rust_code}"
+        );
+        assert!(
+            rust_code.contains("fn bump_score(player: &mut Player) -> Stats"),
+            "bump_score should take &mut Player\n{rust_code}"
+        );
+    }
 }

@@ -785,3 +785,181 @@ pub fn process(players: &Vec<Player>) {
     }
 }
 '''
+# =============================================================================
+# Read-only param must NOT get &mut when a prior function mutates same-named param
+# =============================================================================
+
+[[test]]
+name = "call_site_no_mut_leak_between_functions"
+description = "Read-only param should be & even when a prior function mutates a same-named param"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class PlayerStatistics:
+    total_score: int
+
+@dataclass
+class Player:
+    jersey_number: int
+    score: int
+
+def mutate_player(player: Player) -> None:
+    player.score = player.score + 10
+
+def read_player(player: Player) -> PlayerStatistics:
+    return PlayerStatistics(total_score=player.jersey_number)
+'''
+
+rust = '''
+#[derive(Debug, Copy, Clone, PartialEq, Default)]
+pub struct PlayerStatistics {
+    pub total_score: i32,
+}
+impl PlayerStatistics {
+    pub fn new(total_score: i32) -> Self {
+        Self { total_score }
+    }
+}
+#[derive(Debug, Copy, Clone, PartialEq, Default)]
+pub struct Player {
+    pub jersey_number: i32,
+    pub score: i32,
+}
+impl Player {
+    pub fn new(jersey_number: i32, score: i32) -> Self {
+        Self {
+            jersey_number,
+            score,
+        }
+    }
+}
+pub fn mutate_player(player: &mut Player) {
+    player.score += 10;
+}
+pub fn read_player(player: &Player) -> PlayerStatistics {
+    return PlayerStatistics::new(player.jersey_number);
+}
+'''
+
+[[test]]
+name = "call_site_read_only_param_with_mutating_caller"
+description = "Function reading param stays & even when caller mutates the loop var"
+
+python = '''
+from dataclasses import dataclass
+
+NUM_PERIODS: int = 3
+
+@dataclass
+class PlayerStatistics:
+    total_score: int
+
+@dataclass
+class Player:
+    jersey_number: int
+    period_statistics: list[PlayerStatistics]
+
+def _create_player_statistics(player: Player) -> PlayerStatistics:
+    return PlayerStatistics(total_score=player.jersey_number)
+
+def init_players(players: list[Player]) -> None:
+    for player in players:
+        player.period_statistics = [_create_player_statistics(player) for _ in range(NUM_PERIODS)]
+'''
+
+rust = '''
+pub const NUM_PERIODS: i32 = 3;
+#[derive(Debug, Copy, Clone, PartialEq, Default)]
+pub struct PlayerStatistics {
+    pub total_score: i32,
+}
+impl PlayerStatistics {
+    pub fn new(total_score: i32) -> Self {
+        Self { total_score }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Player {
+    pub jersey_number: i32,
+    pub period_statistics: Vec<PlayerStatistics>,
+}
+impl Player {
+    pub fn new(jersey_number: i32, period_statistics: Vec<PlayerStatistics>) -> Self {
+        Self {
+            jersey_number,
+            period_statistics,
+        }
+    }
+}
+pub fn _create_player_statistics(player: &Player) -> PlayerStatistics {
+    return PlayerStatistics::new(player.jersey_number);
+}
+pub fn init_players(players: &Vec<Player>) {
+    for mut player in players.iter().cloned() {
+        player.period_statistics = (0..NUM_PERIODS)
+            .map(|_| _create_player_statistics(&player))
+            .collect::<Vec<_>>();
+    }
+}
+'''
+
+[[test]]
+name = "call_site_multiple_funcs_independent_mutability"
+description = "Each function gets correct mutability independent of others"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Stats:
+    value: int
+
+@dataclass
+class Player:
+    score: int
+    name: str
+
+def reset_score(player: Player) -> None:
+    player.score = 0
+
+def get_name(player: Player) -> str:
+    return player.name
+
+def bump_score(player: Player) -> Stats:
+    player.score = player.score + 1
+    return Stats(value=player.score)
+'''
+
+rust = '''
+#[derive(Debug, Copy, Clone, PartialEq, Default)]
+pub struct Stats {
+    pub value: i32,
+}
+impl Stats {
+    pub fn new(value: i32) -> Self {
+        Self { value }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Player {
+    pub score: i32,
+    pub name: String,
+}
+impl Player {
+    pub fn new(score: i32, name: String) -> Self {
+        Self { score, name }
+    }
+}
+pub fn reset_score(player: &mut Player) {
+    player.score = 0;
+}
+pub fn get_name(player: &Player) -> String {
+    return player.name.clone();
+}
+pub fn bump_score(player: &mut Player) -> Stats {
+    player.score += 1;
+    return Stats::new(player.score);
+}
+'''

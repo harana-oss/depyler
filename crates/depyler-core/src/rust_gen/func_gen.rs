@@ -1408,6 +1408,8 @@ impl RustCodeGen for HirFunction {
         let where_clause = codegen_where_clause(&lifetime_result.lifetime_bounds);
 
         // DEPYLER-0312: Analyze mutability BEFORE generating parameters
+        // Clear per-function mutable_vars to prevent leaking state from previous functions
+        ctx.mutable_vars.clear();
         // This populates ctx.mutable_vars which codegen_single_param uses to determine `mut` keyword
         analyze_mutable_vars(&self.body, ctx, &self.params);
 

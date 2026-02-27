@@ -962,6 +962,50 @@ fn mark_mut_ref_call_args_in_expr(
         HirExpr::Attribute { value, .. } => {
             mark_mut_ref_call_args_in_expr(value, mutable, function_param_borrows);
         }
+        HirExpr::ListComp {
+            element,
+            iter,
+            condition,
+            ..
+        } => {
+            mark_mut_ref_call_args_in_expr(element, mutable, function_param_borrows);
+            mark_mut_ref_call_args_in_expr(iter, mutable, function_param_borrows);
+            if let Some(cond) = condition {
+                mark_mut_ref_call_args_in_expr(cond, mutable, function_param_borrows);
+            }
+        }
+        HirExpr::FlattenedListComp {
+            element,
+            generators,
+        } => {
+            mark_mut_ref_call_args_in_expr(element, mutable, function_param_borrows);
+            for generator in generators {
+                mark_mut_ref_call_args_in_expr(&generator.iter, mutable, function_param_borrows);
+                for cond in &generator.conditions {
+                    mark_mut_ref_call_args_in_expr(cond, mutable, function_param_borrows);
+                }
+            }
+        }
+        HirExpr::Slice {
+            base,
+            start,
+            stop,
+            step,
+        } => {
+            mark_mut_ref_call_args_in_expr(base, mutable, function_param_borrows);
+            if let Some(s) = start {
+                mark_mut_ref_call_args_in_expr(s, mutable, function_param_borrows);
+            }
+            if let Some(s) = stop {
+                mark_mut_ref_call_args_in_expr(s, mutable, function_param_borrows);
+            }
+            if let Some(s) = step {
+                mark_mut_ref_call_args_in_expr(s, mutable, function_param_borrows);
+            }
+        }
+        HirExpr::Lambda { body, .. } => {
+            mark_mut_ref_call_args_in_expr(body, mutable, function_param_borrows);
+        }
         _ => {}
     }
 }
