@@ -844,10 +844,16 @@ fn analyze_mutable_vars(stmts: &[HirStmt], ctx: &mut CodeGenContext, params: &[H
                 }
             }
             HirStmt::For { target, iter, body } => {
-                // Track the origin of the loop variable
+                // Track the origin of the loop variable, but only for field access
+                // iteration (e.g., `for item in self.items`), which uses &/&mut borrowing.
+                // Simple variable iteration (e.g., `for item in items`) generates
+                // .iter().cloned(), so mutations to the loop variable don't affect
+                // the original collection.
                 if let AssignTarget::Symbol(loop_var) = target {
-                    if let Some(param_name) = extract_param_from_expr(iter, declared) {
-                        loop_var_origins.insert(loop_var.clone(), param_name);
+                    if !matches!(iter, HirExpr::Var(_)) {
+                        if let Some(param_name) = extract_param_from_expr(iter, declared) {
+                            loop_var_origins.insert(loop_var.clone(), param_name);
+                        }
                     }
                 }
 

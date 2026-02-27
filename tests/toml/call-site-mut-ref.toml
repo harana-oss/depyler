@@ -652,3 +652,136 @@ pub fn init_player(player: &mut Player, n: i32) {
     player.period_stats = (0..n).map(|_| make_stats(player)).collect::<Vec<_>>();
 }
 '''
+
+# =============================================================================
+# Loop variable mutation should NOT propagate &mut to the iterable parameter
+# Since .iter().cloned() produces copies, mutations don't affect the original
+# =============================================================================
+
+[[test]]
+name = "call_site_for_loop_var_no_propagate_to_iterable"
+description = "Mutating a cloned loop variable should not make the list parameter &mut"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Player:
+    score: int
+
+def add_bonus(player: Player) -> None:
+    player.score = player.score + 10
+
+def process(players: list[Player]) -> None:
+    for player in players:
+        add_bonus(player)
+'''
+
+rust = '''
+#[derive(Debug, Copy, Clone, PartialEq, Default)]
+pub struct Player {
+    pub score: i32,
+}
+impl Player {
+    pub fn new(score: i32) -> Self {
+        Self { score }
+    }
+}
+pub fn add_bonus(player: &mut Player) {
+    player.score += 10;
+}
+pub fn process(players: &Vec<Player>) {
+    for mut player in players.iter().cloned() {
+        add_bonus(&mut player);
+    }
+}
+'''
+
+[[test]]
+name = "call_site_for_loop_field_assign_no_propagate"
+description = "Direct field assignment on cloned loop var should not make list param &mut"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Player:
+    score: int
+
+def process(players: list[Player]) -> None:
+    for player in players:
+        player.score = 99
+'''
+
+rust = '''
+#[derive(Debug, Copy, Clone, PartialEq, Default)]
+pub struct Player {
+    pub score: i32,
+}
+impl Player {
+    pub fn new(score: i32) -> Self {
+        Self { score }
+    }
+}
+pub fn process(players: &Vec<Player>) {
+    for mut player in players.iter().cloned() {
+        player.score = 99;
+    }
+}
+'''
+
+[[test]]
+name = "call_site_for_loop_comprehension_no_propagate"
+description = "Loop var passed as &mut in comprehension should not propagate to iterable param"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Stats:
+    value: int
+
+@dataclass
+class Player:
+    score: int
+    stats: list[Stats]
+
+def make_stats(player: Player) -> Stats:
+    player.score = player.score + 1
+    return Stats(value=player.score)
+
+def process(players: list[Player]) -> None:
+    for player in players:
+        player.stats = [make_stats(player) for _ in range(3)]
+'''
+
+rust = '''
+#[derive(Debug, Copy, Clone, PartialEq, Default)]
+pub struct Stats {
+    pub value: i32,
+}
+impl Stats {
+    pub fn new(value: i32) -> Self {
+        Self { value }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Player {
+    pub score: i32,
+    pub stats: Vec<Stats>,
+}
+impl Player {
+    pub fn new(score: i32, stats: Vec<Stats>) -> Self {
+        Self { score, stats }
+    }
+}
+pub fn make_stats(player: &mut Player) -> Stats {
+    player.score += 1;
+    return Stats::new(player.score);
+}
+pub fn process(players: &Vec<Player>) {
+    for mut player in players.iter().cloned() {
+        player.stats = (0..3).map(|_| make_stats(&mut player)).collect::<Vec<_>>();
+    }
+}
+'''
