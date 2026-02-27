@@ -1,0 +1,126 @@
+[metadata]
+name = "Optional Unwrap at Call Site"
+category = "optional-types"
+description = "Tests that Option<T> variables are unwrapped when passed to functions expecting T"
+
+[[test]]
+name = "optional_custom_type_unwrap_at_call"
+description = "Variable with T | None annotation is unwrapped when passed to function expecting T"
+
+python = '''
+class Team:
+    name: str
+    def __init__(self, name: str) -> None:
+        self.name = name
+
+def convert_field_position(team: Team) -> str:
+    return team.name
+
+def main() -> str:
+    new_team: Team | None = None
+    result: str = convert_field_position(new_team)
+    return result
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Team {
+    pub name: String,
+}
+impl Team {
+    pub fn new(name: String) -> Self {
+        Self { name }
+    }
+}
+pub fn convert_field_position(team: &Team) -> String {
+    return team.name.clone();
+}
+pub fn main() -> String {
+    let new_team: Option<Team> = None;
+    let result: String = convert_field_position(&new_team.unwrap());
+    return result;
+}
+'''
+
+[[test]]
+name = "optional_int_unwrap_at_call"
+description = "Optional int is unwrapped when passed to function expecting int"
+
+python = '''
+def double(x: int) -> int:
+    return x * 2
+
+def main() -> int:
+    value: int | None = None
+    return double(value)
+'''
+
+rust = '''
+pub fn double(x: i32) -> i32 {
+    return x * 2;
+}
+pub fn main() -> i32 {
+    let value: Option<i32> = None;
+    return double(value.unwrap());
+}
+'''
+
+[[test]]
+name = "optional_string_unwrap_at_call"
+description = "Optional string is unwrapped when passed to function expecting string"
+
+python = '''
+def greet(name: str) -> str:
+    return "Hello " + name
+
+def main() -> str:
+    name: str | None = None
+    return greet(name)
+'''
+
+rust = '''
+pub fn greet(name: String) -> String {
+    return format!("{}{}", "Hello ", name);
+}
+pub fn main() -> String {
+    let name: Option<String> = None;
+    return greet(name.unwrap());
+}
+'''
+
+[[test]]
+name = "optional_unwrap_non_optional_passthrough"
+description = "Non-optional variable passed to non-optional param does not unwrap"
+
+python = '''
+class Player:
+    name: str
+    def __init__(self, name: str) -> None:
+        self.name = name
+
+def get_name(player: Player) -> str:
+    return player.name
+
+def main() -> str:
+    p: Player = Player("Alice")
+    return get_name(p)
+'''
+
+rust = '''
+#[derive(Debug, Clone)]
+pub struct Player {
+    pub name: String,
+}
+impl Player {
+    pub fn new(name: String) -> Self {
+        Self { name }
+    }
+}
+pub fn get_name(player: &Player) -> String {
+    return player.name.clone();
+}
+pub fn main() -> String {
+    let p: Player = Player::new("Alice".to_string());
+    return get_name(&p);
+}
+'''

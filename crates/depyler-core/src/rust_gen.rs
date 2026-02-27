@@ -1650,11 +1650,15 @@ pub fn generate_rust_file(
     // immutable borrow when they should use mutable borrow or pass by value.
     populate_function_param_borrows(&module.functions, &mut ctx)?;
 
-    // Pre-populate function_return_types so forward-declared functions' return
-    // types are available when earlier functions are generated (e.g. Optional tracking).
+    // Pre-populate function signatures so forward-declared functions' types
+    // are available when earlier functions are generated.
     for func in &module.functions {
         ctx.function_return_types
             .insert(func.name.clone(), func.ret_type.clone());
+        ctx.function_param_types.insert(
+            func.name.clone(),
+            func.params.iter().map(|p| p.ty.clone()).collect(),
+        );
     }
 
     // Convert classes first (they might be used by functions)
