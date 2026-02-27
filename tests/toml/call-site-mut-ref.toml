@@ -431,3 +431,122 @@ pub fn compute() -> i32 {
     return triple_and_double(&mut s);
 }
 '''
+
+# =============================================================================
+# Mutating call inside a list comprehension (maps to .map() closure)
+# =============================================================================
+
+[[test]]
+name = "call_site_mut_ref_in_list_comprehension"
+description = "Mutating function called in list comprehension requires &mut at call site"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Counter:
+    value: int
+
+def bump(c: Counter) -> int:
+    c.value = c.value + 1
+    return c.value
+
+def collect_bumps(n: int) -> list[int]:
+    c = Counter(value=0)
+    return [bump(c) for _ in range(n)]
+'''
+
+rust = '''
+#[derive(Debug, Copy, Clone, PartialEq, Default)]
+pub struct Counter {
+    pub value: i32,
+}
+impl Counter {
+    pub fn new(value: i32) -> Self {
+        Self { value }
+    }
+}
+pub fn bump(c: &mut Counter) -> i32 {
+    c.value += 1;
+    return c.value;
+}
+pub fn collect_bumps(n: i32) -> Vec<i32> {
+    let mut c = Counter::new(0);
+    return (0..n).map(|_| bump(&mut c)).collect::<Vec<_>>();
+}
+'''
+
+# =============================================================================
+# Mutating call inside comprehension assigned to struct field
+# =============================================================================
+
+[[test]]
+name = "call_site_mut_ref_comprehension_field_assign"
+description = "Mutating function in comprehension assigned to struct field"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class PlayerStatistics:
+    total_score: int
+
+@dataclass
+class Player:
+    score: int
+    bonus: int
+    period_statistics: list[PlayerStatistics]
+
+def _create_player_statistics(player: Player) -> PlayerStatistics:
+    player.score = player.score + player.bonus
+    return PlayerStatistics(total_score=player.score)
+
+def init_periods(player: Player, num_periods: int) -> None:
+    player.period_statistics = [_create_player_statistics(player) for _ in range(num_periods)]
+
+def setup_player() -> Player:
+    player = Player(score=10, bonus=5, period_statistics=[])
+    init_periods(player, 3)
+    return player
+'''
+
+rust = '''
+#[derive(Debug, Copy, Clone, PartialEq, Default)]
+pub struct PlayerStatistics {
+    pub total_score: i32,
+}
+impl PlayerStatistics {
+    pub fn new(total_score: i32) -> Self {
+        Self { total_score }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Player {
+    pub score: i32,
+    pub bonus: i32,
+    pub period_statistics: Vec<PlayerStatistics>,
+}
+impl Player {
+    pub fn new(score: i32, bonus: i32, period_statistics: Vec<PlayerStatistics>) -> Self {
+        Self {
+            score,
+            bonus,
+            period_statistics,
+        }
+    }
+}
+pub fn _create_player_statistics(player: &mut Player) -> PlayerStatistics {
+    player.score += player.bonus;
+    return PlayerStatistics::new(player.score);
+}
+pub fn init_periods(player: &mut Player, num_periods: i32) {
+    player.period_statistics = (0..num_periods)
+        .map(|_| _create_player_statistics(player))
+        .collect::<Vec<_>>();
+}
+pub fn setup_player() -> Player {
+    let mut player = Player::new(10, 5, vec![]);
+    init_periods(&mut player, 3);
+    return player;
+}
+'''
