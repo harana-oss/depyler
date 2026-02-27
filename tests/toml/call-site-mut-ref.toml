@@ -550,3 +550,105 @@ pub fn setup_player() -> Player {
     return player;
 }
 '''
+
+# =============================================================================
+# Loop variable needs `mut` when passed to function expecting &mut
+# =============================================================================
+
+[[test]]
+name = "call_site_for_loop_var_mut_for_mut_ref_call"
+description = "Loop variable from .iter().cloned() must be mut when passed to &mut function"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Player:
+    score: int
+
+def add_bonus(player: Player) -> None:
+    player.score = player.score + 10
+
+def process_players(players: list[Player]) -> int:
+    total: int = 0
+    for player in players:
+        add_bonus(player)
+        total = total + player.score
+    return total
+'''
+
+rust = '''
+#[derive(Debug, Copy, Clone, PartialEq, Default)]
+pub struct Player {
+    pub score: i32,
+}
+impl Player {
+    pub fn new(score: i32) -> Self {
+        Self { score }
+    }
+}
+pub fn add_bonus(player: &mut Player) {
+    player.score += 10;
+}
+pub fn process_players(players: &Vec<Player>) -> i32 {
+    let mut total: i32 = 0;
+    for mut player in players.iter().cloned() {
+        add_bonus(&mut player);
+        total += player.score;
+    }
+    return total;
+}
+'''
+
+[[test]]
+name = "call_site_for_loop_var_mut_ref_in_comprehension"
+description = "Loop variable mut when passed as &mut inside list comprehension"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Stats:
+    value: int
+
+@dataclass
+class Player:
+    score: int
+    period_stats: list[Stats]
+
+def make_stats(player: Player) -> Stats:
+    player.score = player.score + 1
+    return Stats(value=player.score)
+
+def init_player(player: Player, n: int) -> None:
+    player.period_stats = [make_stats(player) for _ in range(n)]
+'''
+
+rust = '''
+#[derive(Debug, Copy, Clone, PartialEq, Default)]
+pub struct Stats {
+    pub value: i32,
+}
+impl Stats {
+    pub fn new(value: i32) -> Self {
+        Self { value }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Player {
+    pub score: i32,
+    pub period_stats: Vec<Stats>,
+}
+impl Player {
+    pub fn new(score: i32, period_stats: Vec<Stats>) -> Self {
+        Self { score, period_stats }
+    }
+}
+pub fn make_stats(player: &mut Player) -> Stats {
+    player.score += 1;
+    return Stats::new(player.score);
+}
+pub fn init_player(player: &mut Player, n: i32) {
+    player.period_stats = (0..n).map(|_| make_stats(player)).collect::<Vec<_>>();
+}
+'''

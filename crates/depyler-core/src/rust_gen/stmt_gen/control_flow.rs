@@ -228,7 +228,7 @@ pub(crate) fn codegen_for_stmt(
     // If unused, prefix with _ to avoid unused variable warnings with -D warnings
 
     // Check if loop variable is mutated to determine if we need `mut` keyword
-    let needs_mut_pattern = does_loop_body_mutate_items(target, body);
+    let needs_mut_pattern = does_loop_body_mutate_items(target, body, &ctx.function_param_borrows);
 
     // Generate target pattern based on AssignTarget type
     let target_pattern: syn::Pat = match target {
@@ -302,7 +302,7 @@ pub(crate) fn codegen_for_stmt(
         if is_field {
             // This is a field access - we need borrowing
             // Determine if we need mutable or immutable borrow
-            let needs_mut_borrow = does_loop_body_mutate_items(target, body);
+            let needs_mut_borrow = does_loop_body_mutate_items(target, body, &ctx.function_param_borrows);
 
             // Check if this is a special function call (enumerate, reversed)
             let is_special = matches!(iter, HirExpr::Call { func, .. } if func == "enumerate" || func == "reversed");
@@ -1147,7 +1147,11 @@ pub(crate) fn is_field_access_iter(iter: &HirExpr) -> Option<(String, bool)> {
     }
 }
 
-pub(crate) fn does_loop_body_mutate_items(target: &AssignTarget, body: &[HirStmt]) -> bool {
+pub(crate) fn does_loop_body_mutate_items(
+    target: &AssignTarget,
+    body: &[HirStmt],
+    function_param_borrows: &std::collections::HashMap<String, Vec<crate::rust_gen::context::ParamBorrowInfo>>,
+) -> bool {
     // Get the loop variable name
     let loop_var = match target {
         AssignTarget::Symbol(name) => name,
@@ -1168,18 +1172,22 @@ pub(crate) fn does_loop_body_mutate_items(target: &AssignTarget, body: &[HirStmt
 
     // Check if the loop variable is mutated in the body
     for stmt in body {
-        if is_loop_var_mutated(loop_var, stmt) {
+        if is_loop_var_mutated(loop_var, stmt, function_param_borrows) {
             return true;
         }
     }
     false
 }
 
-pub(crate) fn is_loop_var_mutated(var_name: &str, stmt: &HirStmt) -> bool {
+pub(crate) fn is_loop_var_mutated(
+    var_name: &str,
+    stmt: &HirStmt,
+    function_param_borrows: &std::collections::HashMap<String, Vec<crate::rust_gen::context::ParamBorrowInfo>>,
+) -> bool {
     match stmt {
         // Direct assignment to loop variable or its fields
-        HirStmt::Assign { target, .. } => {
-            match target {
+        HirStmt::Assign { target, value, .. } => {
+            let target_mutated = match target {
                 AssignTarget::Symbol(name) if name == var_name => true,
                 AssignTarget::Attribute { value, .. } => {
                     // Check if assigning to var_name.field (including nested like var_name.a.b.c)
@@ -1190,7 +1198,16 @@ pub(crate) fn is_loop_var_mutated(var_name: &str, stmt: &HirStmt) -> bool {
                     crate::expr_utils::extract_root_var(base).is_some_and(|root| root == var_name)
                 }
                 _ => false,
-            }
+            };
+            target_mutated || is_var_passed_as_mut_in_expr(var_name, value, function_param_borrows)
+        }
+        // Check expression statements (e.g., bare function calls)
+        HirStmt::Expr(expr) => {
+            is_var_passed_as_mut_in_expr(var_name, expr, function_param_borrows)
+        }
+        // Check return statements
+        HirStmt::Return(Some(expr)) => {
+            is_var_passed_as_mut_in_expr(var_name, expr, function_param_borrows)
         }
         // Check nested statements
         HirStmt::If {
@@ -1198,13 +1215,56 @@ pub(crate) fn is_loop_var_mutated(var_name: &str, stmt: &HirStmt) -> bool {
             else_body,
             ..
         } => {
-            then_body.iter().any(|s| is_loop_var_mutated(var_name, s))
+            then_body.iter().any(|s| is_loop_var_mutated(var_name, s, function_param_borrows))
                 || else_body
                     .as_ref()
-                    .is_some_and(|body| body.iter().any(|s| is_loop_var_mutated(var_name, s)))
+                    .is_some_and(|body| body.iter().any(|s| is_loop_var_mutated(var_name, s, function_param_borrows)))
         }
         HirStmt::While { body, .. } | HirStmt::For { body, .. } => {
-            body.iter().any(|s| is_loop_var_mutated(var_name, s))
+            body.iter().any(|s| is_loop_var_mutated(var_name, s, function_param_borrows))
+        }
+        _ => false,
+    }
+}
+
+/// Check if a variable is passed as an argument to a function expecting `&mut`.
+fn is_var_passed_as_mut_in_expr(
+    var_name: &str,
+    expr: &HirExpr,
+    function_param_borrows: &std::collections::HashMap<String, Vec<crate::rust_gen::context::ParamBorrowInfo>>,
+) -> bool {
+    match expr {
+        HirExpr::Call { func, args, .. } => {
+            if let Some(borrows) = function_param_borrows.get(func.as_str()) {
+                for (idx, arg) in args.iter().enumerate() {
+                    if let HirExpr::Var(name) = arg {
+                        if name == var_name {
+                            if let Some(info) = borrows.get(idx) {
+                                if info.should_borrow && info.needs_mut {
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            // Recurse into all sub-expressions
+            args.iter().any(|a| is_var_passed_as_mut_in_expr(var_name, a, function_param_borrows))
+        }
+        HirExpr::ListComp { element, .. } => {
+            is_var_passed_as_mut_in_expr(var_name, element, function_param_borrows)
+        }
+        HirExpr::Binary { left, right, .. } => {
+            is_var_passed_as_mut_in_expr(var_name, left, function_param_borrows)
+                || is_var_passed_as_mut_in_expr(var_name, right, function_param_borrows)
+        }
+        HirExpr::Unary { operand, .. } => {
+            is_var_passed_as_mut_in_expr(var_name, operand, function_param_borrows)
+        }
+        HirExpr::IfExpr { test, body, orelse } => {
+            is_var_passed_as_mut_in_expr(var_name, test, function_param_borrows)
+                || is_var_passed_as_mut_in_expr(var_name, body, function_param_borrows)
+                || is_var_passed_as_mut_in_expr(var_name, orelse, function_param_borrows)
         }
         _ => false,
     }
