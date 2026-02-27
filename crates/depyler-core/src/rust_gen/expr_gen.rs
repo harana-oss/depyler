@@ -3489,17 +3489,14 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         }
                     }
 
-                    // Check if the parameter in the called function is declared as &mut reference
-                    // Note: function_param_muts tracks if parameter has `mut` keyword (e.g., `mut x: Vec<T>`)
-                    // but this does NOT mean we should pass `&mut` at call site - only if it's declared as `&mut Vec<T>`
-                    // We need to check current_func_mut_ref_params which tracks parameters declared as &mut references
-                    let param_expects_mut_ref = if let HirExpr::Var(var_name) = hir_arg {
-                        // Check if the called function has this parameter as &mut reference
-                        // This information is stored when the function signature is generated
-                        false // For now, don't automatically add &mut based on function_param_muts
-                    } else {
-                        false
-                    };
+                    // Check if the callee's parameter is declared as &mut reference
+                    let param_expects_mut_ref = self
+                        .ctx
+                        .function_param_borrows
+                        .get(func)
+                        .and_then(|borrows| borrows.get(param_idx))
+                        .map(|info| info.should_borrow && info.needs_mut)
+                        .unwrap_or(false);
 
                     let should_borrow = match hir_arg {
                         HirExpr::Var(var_name) => {

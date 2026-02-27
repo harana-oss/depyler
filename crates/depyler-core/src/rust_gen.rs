@@ -878,6 +878,126 @@ fn analyze_mutable_vars(stmts: &[HirStmt], ctx: &mut CodeGenContext, params: &[H
             &mut loop_var_origins,
         );
     }
+
+    // Mark variables as mutable when passed to functions expecting &mut parameters
+    mark_mut_ref_call_args(stmts, &mut ctx.mutable_vars, &ctx.function_param_borrows);
+}
+
+/// Recursively scan statements for function calls that pass variables to &mut parameters,
+/// and mark those variables as mutable.
+fn mark_mut_ref_call_args(
+    stmts: &[HirStmt],
+    mutable: &mut HashSet<String>,
+    function_param_borrows: &HashMap<String, Vec<context::ParamBorrowInfo>>,
+) {
+    for stmt in stmts {
+        mark_mut_ref_call_args_in_stmt(stmt, mutable, function_param_borrows);
+    }
+}
+
+fn mark_mut_ref_call_args_in_expr(
+    expr: &HirExpr,
+    mutable: &mut HashSet<String>,
+    function_param_borrows: &HashMap<String, Vec<context::ParamBorrowInfo>>,
+) {
+    match expr {
+        HirExpr::Call { func, args, .. } => {
+            if let Some(borrows) = function_param_borrows.get(func.as_str()) {
+                for (idx, arg) in args.iter().enumerate() {
+                    if let HirExpr::Var(var_name) = arg {
+                        if let Some(info) = borrows.get(idx) {
+                            if info.should_borrow && info.needs_mut {
+                                mutable.insert(var_name.clone());
+                            }
+                        }
+                    }
+                }
+            }
+            for arg in args {
+                mark_mut_ref_call_args_in_expr(arg, mutable, function_param_borrows);
+            }
+        }
+        HirExpr::MethodCall { object, args, .. } => {
+            mark_mut_ref_call_args_in_expr(object, mutable, function_param_borrows);
+            for arg in args {
+                mark_mut_ref_call_args_in_expr(arg, mutable, function_param_borrows);
+            }
+        }
+        HirExpr::Binary { left, right, .. } => {
+            mark_mut_ref_call_args_in_expr(left, mutable, function_param_borrows);
+            mark_mut_ref_call_args_in_expr(right, mutable, function_param_borrows);
+        }
+        HirExpr::Unary { operand, .. } => {
+            mark_mut_ref_call_args_in_expr(operand, mutable, function_param_borrows);
+        }
+        HirExpr::IfExpr { test, body, orelse } => {
+            mark_mut_ref_call_args_in_expr(test, mutable, function_param_borrows);
+            mark_mut_ref_call_args_in_expr(body, mutable, function_param_borrows);
+            mark_mut_ref_call_args_in_expr(orelse, mutable, function_param_borrows);
+        }
+        HirExpr::List(items)
+        | HirExpr::Tuple(items)
+        | HirExpr::Set(items)
+        | HirExpr::FrozenSet(items) => {
+            for item in items {
+                mark_mut_ref_call_args_in_expr(item, mutable, function_param_borrows);
+            }
+        }
+        HirExpr::Dict(pairs) => {
+            for (key, value) in pairs {
+                mark_mut_ref_call_args_in_expr(key, mutable, function_param_borrows);
+                mark_mut_ref_call_args_in_expr(value, mutable, function_param_borrows);
+            }
+        }
+        HirExpr::Index { base, index } => {
+            mark_mut_ref_call_args_in_expr(base, mutable, function_param_borrows);
+            mark_mut_ref_call_args_in_expr(index, mutable, function_param_borrows);
+        }
+        HirExpr::Attribute { value, .. } => {
+            mark_mut_ref_call_args_in_expr(value, mutable, function_param_borrows);
+        }
+        _ => {}
+    }
+}
+
+fn mark_mut_ref_call_args_in_stmt(
+    stmt: &HirStmt,
+    mutable: &mut HashSet<String>,
+    function_param_borrows: &HashMap<String, Vec<context::ParamBorrowInfo>>,
+) {
+    match stmt {
+        HirStmt::Assign { value, .. } => {
+            mark_mut_ref_call_args_in_expr(value, mutable, function_param_borrows);
+        }
+        HirStmt::Expr(expr) => {
+            mark_mut_ref_call_args_in_expr(expr, mutable, function_param_borrows);
+        }
+        HirStmt::Return(Some(expr)) => {
+            mark_mut_ref_call_args_in_expr(expr, mutable, function_param_borrows);
+        }
+        HirStmt::If {
+            condition,
+            then_body,
+            else_body,
+            ..
+        } => {
+            mark_mut_ref_call_args_in_expr(condition, mutable, function_param_borrows);
+            mark_mut_ref_call_args(then_body, mutable, function_param_borrows);
+            if let Some(else_stmts) = else_body {
+                mark_mut_ref_call_args(else_stmts, mutable, function_param_borrows);
+            }
+        }
+        HirStmt::While {
+            condition, body, ..
+        } => {
+            mark_mut_ref_call_args_in_expr(condition, mutable, function_param_borrows);
+            mark_mut_ref_call_args(body, mutable, function_param_borrows);
+        }
+        HirStmt::For { body, .. } => {
+            mark_mut_ref_call_args(body, mutable, function_param_borrows);
+        }
+        _ => {}
+    }
 }
 
 /// Convert Python classes to Rust structs

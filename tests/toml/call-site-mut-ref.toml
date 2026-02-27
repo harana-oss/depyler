@@ -1,0 +1,187 @@
+[metadata]
+name = "Call-Site Mutable Reference Tests"
+category = "ownership-mutability"
+description = "Tests that call sites pass &mut when callee expects &mut parameter"
+
+# =============================================================================
+# Caller passes struct to function that mutates it — call site must use &mut
+# =============================================================================
+
+[[test]]
+name = "call_site_passes_mut_ref_for_mutating_function"
+description = "When callee declares &mut param, caller must pass &mut"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Player:
+    score: int
+
+def add_score(player: Player, points: int) -> None:
+    player.score = player.score + points
+
+def main_game() -> int:
+    player = Player(score=0)
+    add_score(player, 10)
+    return player.score
+'''
+
+rust = '''
+#[derive(Debug, Copy, Clone, PartialEq, Default)]
+pub struct Player {
+    pub score: i32,
+}
+impl Player {
+    pub fn new(score: i32) -> Self {
+        Self { score }
+    }
+}
+pub fn add_score(player: &mut Player, points: i32) {
+    player.score += points;
+}
+pub fn main_game() -> i32 {
+    let mut player = Player::new(0);
+    add_score(&mut player, 10);
+    return player.score;
+}
+'''
+
+[[test]]
+name = "call_site_immutable_ref_for_read_only_function"
+description = "When callee only reads param, caller passes & not &mut"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Player:
+    score: int
+    name: str
+
+def get_score(player: Player) -> int:
+    return player.score
+
+def show_score() -> int:
+    player = Player(score=42, name="Alice")
+    return get_score(player)
+'''
+
+rust = '''
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Player {
+    pub score: i32,
+    pub name: String,
+}
+impl Player {
+    pub fn new(score: i32, name: String) -> Self {
+        Self { score, name }
+    }
+}
+pub fn get_score(player: &Player) -> i32 {
+    return player.score;
+}
+pub fn show_score() -> i32 {
+    let player = Player::new(42, "Alice".to_string());
+    return get_score(&player);
+}
+'''
+
+[[test]]
+name = "call_site_mut_ref_with_return_value"
+description = "Call site uses &mut and captures return value"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class PlayerStatistics:
+    total_score: int
+
+@dataclass
+class Player:
+    score: int
+    bonus: int
+
+def create_player_statistics(player: Player) -> PlayerStatistics:
+    player.score = player.score + player.bonus
+    return PlayerStatistics(total_score=player.score)
+
+def get_statistics() -> PlayerStatistics:
+    player = Player(score=10, bonus=5)
+    total_statistics = create_player_statistics(player)
+    return total_statistics
+'''
+
+rust = '''
+#[derive(Debug, Copy, Clone, PartialEq, Default)]
+pub struct PlayerStatistics {
+    pub total_score: i32,
+}
+impl PlayerStatistics {
+    pub fn new(total_score: i32) -> Self {
+        Self { total_score }
+    }
+}
+#[derive(Debug, Copy, Clone, PartialEq, Default)]
+pub struct Player {
+    pub score: i32,
+    pub bonus: i32,
+}
+impl Player {
+    pub fn new(score: i32, bonus: i32) -> Self {
+        Self { score, bonus }
+    }
+}
+pub fn create_player_statistics(player: &mut Player) -> PlayerStatistics {
+    player.score += player.bonus;
+    return PlayerStatistics::new(player.score);
+}
+pub fn get_statistics() -> PlayerStatistics {
+    let mut player = Player::new(10, 5);
+    let total_statistics = create_player_statistics(&mut player);
+    return total_statistics;
+}
+'''
+
+[[test]]
+name = "call_site_mut_ref_list_append"
+description = "Call site passes &mut for function that appends to a list"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Inventory:
+    items: list[str]
+
+def add_item(inventory: Inventory, item: str) -> None:
+    inventory.items.append(item)
+
+def build_inventory() -> int:
+    inv = Inventory(items=[])
+    add_item(inv, "sword")
+    add_item(inv, "shield")
+    return len(inv.items)
+'''
+
+rust = '''
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Inventory {
+    pub items: Vec<String>,
+}
+impl Inventory {
+    pub fn new(items: Vec<String>) -> Self {
+        Self { items }
+    }
+}
+pub fn add_item(inventory: &mut Inventory, item: String) {
+    inventory.items.push(item);
+}
+pub fn build_inventory() -> i32 {
+    let mut inv = Inventory::new(vec![]);
+    add_item(&mut inv, "sword".to_string());
+    add_item(&mut inv, "shield".to_string());
+    return inv.items.len() as i32 as i32;
+}
+'''
