@@ -185,3 +185,249 @@ pub fn build_inventory() -> i32 {
     return inv.items.len() as i32 as i32;
 }
 '''
+
+# =============================================================================
+# Mutating call inside an if-body — caller must still use let mut and &mut
+# =============================================================================
+
+[[test]]
+name = "call_site_mut_ref_inside_if_body"
+description = "Mutating function called conditionally still requires &mut at call site"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Counter:
+    value: int
+
+def increment(c: Counter) -> None:
+    c.value = c.value + 1
+
+def maybe_bump() -> int:
+    counter = Counter(value=0)
+    flag = True
+    if flag:
+        increment(counter)
+    return counter.value
+'''
+
+rust = '''
+#[derive(Debug, Copy, Clone, PartialEq, Default)]
+pub struct Counter {
+    pub value: i32,
+}
+impl Counter {
+    pub fn new(value: i32) -> Self {
+        Self { value }
+    }
+}
+pub fn increment(c: &mut Counter) {
+    c.value += 1;
+}
+pub fn maybe_bump() -> i32 {
+    let mut counter = Counter::new(0);
+    let flag = true;
+    if flag {
+        increment(&mut counter);
+    }
+    return counter.value;
+}
+'''
+
+# =============================================================================
+# Mutating call inside a for-loop body
+# =============================================================================
+
+[[test]]
+name = "call_site_mut_ref_inside_for_loop"
+description = "Mutating function called in a for-loop requires &mut at call site"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Tally:
+    count: int
+
+def add_to_tally(tally: Tally, amount: int) -> None:
+    tally.count = tally.count + amount
+
+def count_items(items: list[int]) -> int:
+    tally = Tally(count=0)
+    for item in items:
+        add_to_tally(tally, item)
+    return tally.count
+'''
+
+rust = '''
+#[derive(Debug, Copy, Clone, PartialEq, Default)]
+pub struct Tally {
+    pub count: i32,
+}
+impl Tally {
+    pub fn new(count: i32) -> Self {
+        Self { count }
+    }
+}
+pub fn add_to_tally(tally: &mut Tally, amount: i32) {
+    tally.count += amount;
+}
+pub fn count_items(items: &Vec<i32>) -> i32 {
+    let mut tally = Tally::new(0);
+    for item in items.iter().cloned() {
+        add_to_tally(&mut tally, item);
+    }
+    return tally.count;
+}
+'''
+
+# =============================================================================
+# Mutating call directly in return expression
+# =============================================================================
+
+[[test]]
+name = "call_site_mut_ref_in_return"
+description = "Mutating function called in return expression requires &mut"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class State:
+    count: int
+
+def process(state: State) -> int:
+    state.count = state.count + 1
+    return state.count
+
+def run_process() -> int:
+    s = State(count=0)
+    return process(s)
+'''
+
+rust = '''
+#[derive(Debug, Copy, Clone, PartialEq, Default)]
+pub struct State {
+    pub count: i32,
+}
+impl State {
+    pub fn new(count: i32) -> Self {
+        Self { count }
+    }
+}
+pub fn process(state: &mut State) -> i32 {
+    state.count += 1;
+    return state.count;
+}
+pub fn run_process() -> i32 {
+    let mut s = State::new(0);
+    return process(&mut s);
+}
+'''
+
+# =============================================================================
+# Multiple mutating calls on same variable
+# =============================================================================
+
+[[test]]
+name = "call_site_multiple_mut_calls_same_var"
+description = "Multiple mutating function calls on same local variable"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Config:
+    width: int
+    height: int
+
+def set_width(config: Config, w: int) -> None:
+    config.width = w
+
+def set_height(config: Config, h: int) -> None:
+    config.height = h
+
+def setup_default() -> int:
+    cfg = Config(width=0, height=0)
+    set_width(cfg, 800)
+    set_height(cfg, 600)
+    return cfg.width + cfg.height
+'''
+
+rust = '''
+#[derive(Debug, Copy, Clone, PartialEq, Default)]
+pub struct Config {
+    pub width: i32,
+    pub height: i32,
+}
+impl Config {
+    pub fn new(width: i32, height: i32) -> Self {
+        Self { width, height }
+    }
+}
+pub fn set_width(config: &mut Config, w: i32) {
+    config.width = w;
+}
+pub fn set_height(config: &mut Config, h: i32) {
+    config.height = h;
+}
+pub fn setup_default() -> i32 {
+    let mut cfg = Config::new(0, 0);
+    set_width(&mut cfg, 800);
+    set_height(&mut cfg, 600);
+    return cfg.width + cfg.height;
+}
+'''
+
+# =============================================================================
+# Chained mutating calls (A mutates, then calls B which also mutates)
+# =============================================================================
+
+[[test]]
+name = "call_site_chained_mut_calls"
+description = "Function that mutates then calls another mutating function"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Score:
+    points: int
+
+def double_score(score: Score) -> int:
+    score.points = score.points * 2
+    return score.points
+
+def triple_and_double(score: Score) -> int:
+    score.points = score.points * 3
+    return double_score(score)
+
+def compute() -> int:
+    s = Score(points=5)
+    return triple_and_double(s)
+'''
+
+rust = '''
+#[derive(Debug, Copy, Clone, PartialEq, Default)]
+pub struct Score {
+    pub points: i32,
+}
+impl Score {
+    pub fn new(points: i32) -> Self {
+        Self { points }
+    }
+}
+pub fn double_score(score: &mut Score) -> i32 {
+    score.points *= 2;
+    return score.points;
+}
+pub fn triple_and_double(score: &mut Score) -> i32 {
+    score.points *= 3;
+    return double_score(score);
+}
+pub fn compute() -> i32 {
+    let mut s = Score::new(5);
+    return triple_and_double(&mut s);
+}
+'''
