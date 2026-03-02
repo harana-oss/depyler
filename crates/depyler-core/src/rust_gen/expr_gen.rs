@@ -16044,6 +16044,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 } else {
                     true // Default to cloned for unknown variables (safe for non-Copy types)
                 }
+            } else if is_range {
+                false // range() yields i32/i64 which are Copy
             } else {
                 true // Default to cloned for non-variable iterators
             };
@@ -16084,13 +16086,21 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             };
 
             // Add filters for each condition
+            // .filter() always receives &Item, so for non-tuple targets we use |&x|
+            // destructuring for Copy types or deref the variable in the condition body.
+            let is_tuple_target = generator.target.starts_with('(');
             for cond in &generator.conditions {
-                let cond_expr = cond.to_rust_expr(self.ctx)?;
-                if !element_needs_clone {
-                    // Copy types: destructure the reference in filter closures so the
-                    // variable is owned (e.g., `|&idx|` instead of `|idx|` where idx would be &i32)
+                if is_tuple_target {
+                    let cond_expr = cond.to_rust_expr(self.ctx)?;
+                    chain = parse_quote! { #chain.filter(|#target_pat| #cond_expr) };
+                } else if !element_needs_clone {
+                    // Copy types: use |&x| destructuring so the body sees owned x
+                    let cond_expr = cond.to_rust_expr(self.ctx)?;
                     chain = parse_quote! { #chain.filter(|&#target_pat| #cond_expr) };
                 } else {
+                    // Non-Copy types: keep |x| (which is &T) and deref variable uses
+                    // in the condition body
+                    let cond_expr = self.add_deref_to_var_uses(cond, &generator.target)?;
                     chain = parse_quote! { #chain.filter(|#target_pat| #cond_expr) };
                 }
             }
