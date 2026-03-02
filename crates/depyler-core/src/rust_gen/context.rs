@@ -235,6 +235,10 @@ pub struct CodeGenContext<'a> {
 
     /// Total consuming (move) uses per variable, populated by analyze_move_consuming_uses.
     pub move_consume_totals: HashMap<String, usize>,
+
+    /// Variables that need automatic `*` dereference when transpiled.
+    /// Used inside `.filter()` closures where the iterator variable is `&T`.
+    pub filter_deref_vars: HashSet<String>,
 }
 
 impl<'a> CodeGenContext<'a> {

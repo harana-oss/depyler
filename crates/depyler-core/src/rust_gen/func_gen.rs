@@ -1368,7 +1368,11 @@ impl RustCodeGen for HirFunction {
                 if param_idx < self.params.len() {
                     // Skip Copy types — primitives and enums are cheap to pass by value
                     let param_rust_type = ctx.type_mapper.map_type(&self.params[param_idx].ty);
-                    if super::is_copy_rust_type(&param_rust_type, &ctx.enum_names, &ctx.copy_structs) {
+                    if super::is_copy_rust_type(
+                        &param_rust_type,
+                        &ctx.enum_names,
+                        &ctx.copy_structs,
+                    ) {
                         continue;
                     }
 

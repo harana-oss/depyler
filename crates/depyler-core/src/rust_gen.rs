@@ -214,7 +214,11 @@ fn populate_function_param_borrows(
                                         // Copy types are cheap to pass by value — no need for references
                                         let param_type = &func.params[param_idx].ty;
                                         let rust_type = ctx.type_mapper.map_type(param_type);
-                                        if is_copy_rust_type(&rust_type, &ctx.enum_names, &ctx.copy_structs) {
+                                        if is_copy_rust_type(
+                                            &rust_type,
+                                            &ctx.enum_names,
+                                            &ctx.copy_structs,
+                                        ) {
                                             // Copy type: leave as TakeOwnership (pass by value)
                                         } else if let Some(caller_borrows) =
                                             ctx.function_param_borrows.get_mut(&func.name)
@@ -235,7 +239,11 @@ fn populate_function_param_borrows(
                                         // Skip for Copy types — they don't need &mut
                                         let param_type = &func.params[param_idx].ty;
                                         let rust_type = ctx.type_mapper.map_type(param_type);
-                                        if !is_copy_rust_type(&rust_type, &ctx.enum_names, &ctx.copy_structs) {
+                                        if !is_copy_rust_type(
+                                            &rust_type,
+                                            &ctx.enum_names,
+                                            &ctx.copy_structs,
+                                        ) {
                                             // Already borrowed, but need to upgrade to &mut
                                             if let Some(caller_borrows) =
                                                 ctx.function_param_borrows.get_mut(&func.name)
@@ -256,7 +264,11 @@ fn populate_function_param_borrows(
                                         // Skip for Copy types — they don't need borrowing
                                         let param_type = &func.params[param_idx].ty;
                                         let rust_type = ctx.type_mapper.map_type(param_type);
-                                        if !is_copy_rust_type(&rust_type, &ctx.enum_names, &ctx.copy_structs) {
+                                        if !is_copy_rust_type(
+                                            &rust_type,
+                                            &ctx.enum_names,
+                                            &ctx.copy_structs,
+                                        ) {
                                             // The callee needs at least &, ensure we provide a borrow
                                             if let Some(caller_borrows) =
                                                 ctx.function_param_borrows.get_mut(&func.name)
@@ -353,8 +365,7 @@ fn is_derived_from_param(expr: &HirExpr, param_name: &str) -> bool {
             matches!(extract_root_var_from_expr(value), Some(name) if name == param_name)
         }
         HirExpr::IfExpr { body, orelse, .. } => {
-            is_derived_from_param(body, param_name)
-                && is_derived_from_param(orelse, param_name)
+            is_derived_from_param(body, param_name) && is_derived_from_param(orelse, param_name)
         }
         _ => false,
     }
@@ -871,7 +882,9 @@ fn analyze_mutable_vars(stmts: &[HirStmt], ctx: &mut CodeGenContext, params: &[H
 
                         // Track field-source origins: team_stats = state.field
                         // Also handles IfExpr: team_stats = state.x if cond else state.y
-                        if let Some(param_name) = extract_param_from_attribute_source(value, declared) {
+                        if let Some(param_name) =
+                            extract_param_from_attribute_source(value, declared)
+                        {
                             field_source_origins.insert(name.clone(), param_name);
                         }
 
@@ -1745,8 +1758,7 @@ fn generate_constant_tokens(
             }
         };
 
-        let use_static = matches!(&constant.value, HirExpr::List(_))
-            && !needs_lazy;
+        let use_static = matches!(&constant.value, HirExpr::List(_)) && !needs_lazy;
 
         if needs_lazy {
             ctx.needs_lazy_static = true;
@@ -1912,6 +1924,7 @@ pub fn generate_rust_file(
         function_param_muts: HashMap::new(),
         functions_with_mutated_return: HashSet::new(),
         functions_returning_refs: HashSet::new(),
+        filter_deref_vars: HashSet::new(),
     };
 
     // Analyze all functions first for string optimization
@@ -2025,8 +2038,7 @@ pub fn generate_rust_file(
                 .collect();
             ctx.function_param_names
                 .insert(format!("{}.{}", class.name, method.name), params.clone());
-            ctx.function_param_names
-                .insert(method.name.clone(), params);
+            ctx.function_param_names.insert(method.name.clone(), params);
         }
     }
 
@@ -2254,6 +2266,7 @@ mod tests {
             function_param_muts: HashMap::new(),
             functions_with_mutated_return: HashSet::new(),
             functions_returning_refs: HashSet::new(),
+            filter_deref_vars: HashSet::new(),
         }
     }
 

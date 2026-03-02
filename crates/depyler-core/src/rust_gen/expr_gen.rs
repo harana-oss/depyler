@@ -14060,13 +14060,16 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         let is_tuple_target = target.starts_with('(');
 
         if let Some(cond) = condition {
-            // Filter closures receive owned T after .iter().cloned()
-            // So we need to generate *x for variable uses in the condition
-            // Skip deref for tuple patterns as the unpacking handles it
-            let cond_with_deref = if is_tuple_target {
+            // Filter closures receive &T. For range iterators, we use |&x| destructuring
+            // so no deref is needed. For other iterators using |x| (after .iter().cloned()),
+            // we need to deref variable uses in the condition body via context flag.
+            let cond_with_deref = if is_tuple_target || is_range {
                 cond.to_rust_expr(self.ctx)?
             } else {
-                self.add_deref_to_var_uses(cond, target)?
+                self.ctx.filter_deref_vars.insert(target.to_string());
+                let expr = cond.to_rust_expr(self.ctx)?;
+                self.ctx.filter_deref_vars.remove(target);
+                expr
             };
 
             if is_range {
@@ -14378,7 +14381,9 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             iter.to_rust_expr(self.ctx)?
         };
 
-        let cond_with_deref = self.add_deref_to_var_uses(condition, target)?;
+        self.ctx.filter_deref_vars.insert(target.to_string());
+        let cond_with_deref = condition.to_rust_expr(self.ctx)?;
+        self.ctx.filter_deref_vars.remove(target);
 
         // Check if element is just the target variable (identity mapping)
         let is_identity_map = Self::is_identity_element(element, target);
@@ -16099,8 +16104,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     chain = parse_quote! { #chain.filter(|&#target_pat| #cond_expr) };
                 } else {
                     // Non-Copy types: keep |x| (which is &T) and deref variable uses
-                    // in the condition body
-                    let cond_expr = self.add_deref_to_var_uses(cond, &generator.target)?;
+                    // in the condition body via context flag
+                    self.ctx.filter_deref_vars.insert(generator.target.clone());
+                    let cond_expr = cond.to_rust_expr(self.ctx)?;
+                    self.ctx.filter_deref_vars.remove(&generator.target);
                     chain = parse_quote! { #chain.filter(|#target_pat| #cond_expr) };
                 }
             }
@@ -16309,6 +16316,10 @@ impl ToRustExpr for HirExpr {
             }
             HirExpr::Var(name) => {
                 let base_expr = converter.convert_variable(name)?;
+                // Inside filter closures, iterator variables are &T — dereference to get T
+                if ctx.filter_deref_vars.contains(name.as_str()) {
+                    return Ok(parse_quote! { *#base_expr });
+                }
                 // lazy_static constants have unique wrapper types - clone to get actual type
                 // BUT: skip clone if prevent_clone is set (e.g., when used as base for .get())
                 // because .get().cloned() already handles element cloning

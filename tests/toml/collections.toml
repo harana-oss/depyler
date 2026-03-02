@@ -1424,3 +1424,52 @@ pub fn get_positive_doubled(items: &Vec<i32>) -> Vec<i32> {
     return positives.into_iter().map(|x| x * 2).collect::<Vec<_>>();
 }
 '''
+
+[[test]]
+name = "next_generator_with_index_var_in_subscript"
+description = "next() with generator that uses the iterator variable as a subscript index"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Player:
+    position: int
+    time_on_field: float
+
+def find_player_by_position(players: list[Player], indices: list[int], position: int) -> float:
+    candidate = next(players[idx] for idx in indices if players[idx].position == position)
+    return candidate.time_on_field
+'''
+
+rust = '''
+#[derive(Debug, Copy, Clone, PartialEq, Default)]
+pub struct Player {
+    pub position: i32,
+    pub time_on_field: f64,
+}
+impl Player {
+    pub fn new(position: i32, time_on_field: f64) -> Self {
+        Self {
+            position,
+            time_on_field,
+        }
+    }
+}
+pub fn find_player_by_position(
+    players: &Vec<Player>,
+    indices: &Vec<i32>,
+    position: i32,
+) -> f64 {
+    let candidate = indices
+        .iter()
+        .copied()
+        .filter(|&idx| {
+            players.get(idx as usize).cloned().unwrap().position == position
+        })
+        .map(|idx| players.get(idx as usize).cloned().unwrap())
+        .next()
+        .expect("StopIteration: iterator is empty");
+    return candidate.time_on_field;
+}
+'''
