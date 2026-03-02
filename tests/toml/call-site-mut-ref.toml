@@ -1049,3 +1049,118 @@ pub fn build_team_stats(player: &mut Player) -> TeamStats {
     return team_stats;
 }
 '''
+
+# =============================================================================
+# Transitive &mut through field-access aliases
+# =============================================================================
+
+[[test]]
+name = "call_site_mut_ref_transitive_via_alias"
+description = "Caller gets &mut when callee mutates param through a field-access alias"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Inner:
+    value: int
+
+@dataclass
+class State:
+    data: Inner
+
+def mutate_via_alias(state: State) -> None:
+    alias = state.data
+    alias.value = 42
+
+def caller(state: State) -> None:
+    mutate_via_alias(state)
+'''
+
+rust = '''
+#[derive(Debug, Copy, Clone, PartialEq, Default)]
+pub struct Inner {
+    pub value: i32,
+}
+impl Inner {
+    pub fn new(value: i32) -> Self {
+        Self { value }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct State {
+    pub data: Inner,
+}
+impl State {
+    pub fn new(data: Inner) -> Self {
+        Self { data }
+    }
+}
+pub fn mutate_via_alias(state: &mut State) {
+    let alias = state.data;
+    alias.value = 42;
+}
+pub fn caller(state: &mut State) {
+    mutate_via_alias(state);
+}
+'''
+
+[[test]]
+name = "call_site_mut_ref_transitive_via_conditional_alias"
+description = "Caller gets &mut when callee mutates param through a conditional field-access alias"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Stats:
+    value: int
+
+@dataclass
+class State:
+    home_stats: Stats
+    away_stats: Stats
+
+def update_stats(state: State, is_home: bool) -> None:
+    stats = state.home_stats if is_home else state.away_stats
+    stats.value = 42
+
+def run_update(state: State) -> None:
+    update_stats(state, True)
+'''
+
+rust = '''
+#[derive(Debug, Copy, Clone, PartialEq, Default)]
+pub struct Stats {
+    pub value: i32,
+}
+impl Stats {
+    pub fn new(value: i32) -> Self {
+        Self { value }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct State {
+    pub home_stats: Stats,
+    pub away_stats: Stats,
+}
+impl State {
+    pub fn new(home_stats: Stats, away_stats: Stats) -> Self {
+        Self {
+            home_stats,
+            away_stats,
+        }
+    }
+}
+pub fn update_stats(state: &mut State, is_home: bool) {
+    let stats = if is_home {
+        state.home_stats
+    } else {
+        state.away_stats
+    };
+    stats.value = 42;
+}
+pub fn run_update(state: &mut State) {
+    update_stats(state, true);
+}
+'''

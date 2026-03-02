@@ -128,6 +128,19 @@ fn populate_function_param_borrows(
             param_strategies.push(strategy);
         }
 
+        // Upgrade needs_mut for params whose mutation is detected by body analysis
+        // (e.g., through field-access aliases like `alias = param.field; alias.x = val`)
+        // This mirrors the DEPYLER-0330 upgrade in codegen_single_param so that
+        // Phase 2 can propagate the requirement to callers.
+        for (idx, param) in func.params.iter().enumerate() {
+            if param_borrows[idx].should_borrow
+                && !param_borrows[idx].needs_mut
+                && parameter_has_field_mutations(func, &param.name)
+            {
+                param_borrows[idx].needs_mut = true;
+            }
+        }
+
         ctx.function_param_borrows
             .insert(func.name.clone(), param_borrows);
         ctx.function_param_strategies
@@ -279,86 +292,152 @@ fn is_copy_rust_type(rust_type: &crate::type_mapper::RustType) -> bool {
 }
 
 /// Helper: Check if a parameter is mutated in the function body
-/// Detects: field assignments, method calls that mutate, index assignments
+/// Detects: field assignments, method calls that mutate, index assignments.
+/// Also tracks field-access aliases (e.g., `alias = param.field; alias.x = val`).
 fn parameter_has_field_mutations(func: &HirFunction, param_name: &str) -> bool {
-    fn check_stmts(stmts: &[HirStmt], param_name: &str) -> bool {
-        stmts.iter().any(|stmt| check_stmt(stmt, param_name))
-    }
+    let mut aliases: HashSet<String> = HashSet::new();
+    aliases.insert(param_name.to_string());
+    collect_param_aliases(&func.body, param_name, &mut aliases);
+    check_stmts_for_alias_mutation(&func.body, &aliases)
+}
 
-    fn check_stmt(stmt: &HirStmt, param_name: &str) -> bool {
+/// Collect variables that are aliases of a parameter via field access.
+/// Handles direct (`alias = param.field`) and conditional
+/// (`alias = param.x if cond else param.y`) patterns.
+fn collect_param_aliases(stmts: &[HirStmt], param_name: &str, aliases: &mut HashSet<String>) {
+    for stmt in stmts {
         match stmt {
-            HirStmt::Assign { target, .. } => {
-                // Check if assigning to a field or index of the parameter
-                match target {
-                    AssignTarget::Attribute { value, .. } => {
-                        matches!(value.as_ref(), HirExpr::Var(name) if name == param_name)
-                    }
-                    AssignTarget::Index { base, .. } => {
-                        matches!(base.as_ref(), HirExpr::Var(name) if name == param_name)
-                    }
-                    _ => false,
+            HirStmt::Assign {
+                target: AssignTarget::Symbol(name),
+                value,
+                ..
+            } => {
+                if is_derived_from_param(value, param_name) {
+                    aliases.insert(name.clone());
                 }
             }
-            HirStmt::Expr(expr) => check_expr_for_mutation(expr, param_name),
             HirStmt::If {
                 then_body,
                 else_body,
                 ..
             } => {
-                check_stmts(then_body, param_name)
-                    || else_body
-                        .as_ref()
-                        .map(|body| check_stmts(body, param_name))
-                        .unwrap_or(false)
+                collect_param_aliases(then_body, param_name, aliases);
+                if let Some(else_body) = else_body {
+                    collect_param_aliases(else_body, param_name, aliases);
+                }
             }
             HirStmt::While { body, .. } | HirStmt::For { body, .. } => {
-                check_stmts(body, param_name)
+                collect_param_aliases(body, param_name, aliases);
             }
-            _ => false,
+            _ => {}
         }
     }
+}
 
-    fn check_expr_for_mutation(expr: &HirExpr, param_name: &str) -> bool {
-        match expr {
-            // Method calls on the parameter that are known to mutate
-            HirExpr::MethodCall { object, method, .. } => {
-                if let HirExpr::Var(obj_name) = object.as_ref() {
-                    if obj_name == param_name {
-                        // List of mutating methods
-                        return matches!(
-                            method.as_str(),
-                            "append"
-                                | "extend"
-                                | "insert"
-                                | "remove"
-                                | "pop"
-                                | "clear"
-                                | "sort"
-                                | "reverse"
-                                | "update"
-                                | "add"
-                                | "discard"
-                                | "setdefault"
-                                | "popitem"
-                        );
-                    }
+/// Check if an expression is a field access (possibly conditional) rooted at `param_name`.
+fn is_derived_from_param(expr: &HirExpr, param_name: &str) -> bool {
+    match expr {
+        HirExpr::Attribute { value, .. } => {
+            matches!(extract_root_var_from_expr(value), Some(name) if name == param_name)
+        }
+        HirExpr::IfExpr { body, orelse, .. } => {
+            is_derived_from_param(body, param_name)
+                && is_derived_from_param(orelse, param_name)
+        }
+        _ => false,
+    }
+}
+
+fn extract_root_var_from_expr(expr: &HirExpr) -> Option<String> {
+    match expr {
+        HirExpr::Var(name) => Some(name.clone()),
+        HirExpr::Attribute { value, .. } | HirExpr::Index { base: value, .. } => {
+            extract_root_var_from_expr(value)
+        }
+        _ => None,
+    }
+}
+
+/// Check whether any variable in `aliases` is mutated.
+fn check_stmts_for_alias_mutation(stmts: &[HirStmt], aliases: &HashSet<String>) -> bool {
+    stmts
+        .iter()
+        .any(|stmt| check_stmt_for_alias_mutation(stmt, aliases))
+}
+
+fn check_stmt_for_alias_mutation(stmt: &HirStmt, aliases: &HashSet<String>) -> bool {
+    match stmt {
+        HirStmt::Assign { target, .. } => match target {
+            AssignTarget::Attribute { value, .. }
+            | AssignTarget::Index { base: value, .. }
+            | AssignTarget::Slice { base: value, .. } => {
+                matches!(extract_root_var_from_expr(value), Some(name) if aliases.contains(&name))
+            }
+            _ => false,
+        },
+        HirStmt::Expr(expr) => check_expr_for_alias_mutation(expr, aliases),
+        HirStmt::If {
+            then_body,
+            else_body,
+            ..
+        } => {
+            check_stmts_for_alias_mutation(then_body, aliases)
+                || else_body
+                    .as_ref()
+                    .map(|body| check_stmts_for_alias_mutation(body, aliases))
+                    .unwrap_or(false)
+        }
+        HirStmt::While { body, .. } | HirStmt::For { body, .. } => {
+            check_stmts_for_alias_mutation(body, aliases)
+        }
+        _ => false,
+    }
+}
+
+fn check_expr_for_alias_mutation(expr: &HirExpr, aliases: &HashSet<String>) -> bool {
+    match expr {
+        HirExpr::MethodCall { object, method, .. } => {
+            if is_known_mutating_method(method) {
+                if let Some(root) = extract_root_var_from_expr(object) {
+                    return aliases.contains(&root);
                 }
-                false
             }
-            // Recursively check nested expressions
-            HirExpr::Binary { left, right, .. } => {
-                check_expr_for_mutation(left, param_name)
-                    || check_expr_for_mutation(right, param_name)
-            }
-            HirExpr::Unary { operand, .. } => check_expr_for_mutation(operand, param_name),
-            HirExpr::Call { args, .. } => args
-                .iter()
-                .any(|arg| check_expr_for_mutation(arg, param_name)),
-            _ => false,
+            false
         }
+        HirExpr::Binary { left, right, .. } => {
+            check_expr_for_alias_mutation(left, aliases)
+                || check_expr_for_alias_mutation(right, aliases)
+        }
+        HirExpr::Unary { operand, .. } => check_expr_for_alias_mutation(operand, aliases),
+        HirExpr::Call { args, .. } => args
+            .iter()
+            .any(|arg| check_expr_for_alias_mutation(arg, aliases)),
+        _ => false,
     }
+}
 
-    check_stmts(&func.body, param_name)
+fn is_known_mutating_method(method: &str) -> bool {
+    matches!(
+        method,
+        "append"
+            | "extend"
+            | "insert"
+            | "remove"
+            | "pop"
+            | "clear"
+            | "sort"
+            | "reverse"
+            | "update"
+            | "add"
+            | "discard"
+            | "setdefault"
+            | "popitem"
+            | "push"
+            | "push_front"
+            | "pop_front"
+            | "push_back"
+            | "pop_back"
+    )
 }
 
 /// Helper: Find all function calls in a list of statements
