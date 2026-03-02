@@ -13687,7 +13687,19 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 // Set prevent_clone to avoid cloning the base variable
                 let was_prevent_clone = self.ctx.prevent_clone;
                 self.ctx.prevent_clone = true;
+                // Suppress filter_deref_vars for the base variable since Rust
+                // auto-deref handles .field access on &T without explicit *
+                let suppressed = if let HirExpr::Var(name) = value.as_ref() {
+                    self.ctx.filter_deref_vars.remove(name.as_str())
+                } else {
+                    false
+                };
                 let expr = value.to_rust_expr(self.ctx)?;
+                if suppressed {
+                    if let HirExpr::Var(name) = value.as_ref() {
+                        self.ctx.filter_deref_vars.insert(name.clone());
+                    }
+                }
                 self.ctx.prevent_clone = was_prevent_clone;
                 expr
             };
@@ -14060,9 +14072,6 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         let is_tuple_target = target.starts_with('(');
 
         if let Some(cond) = condition {
-            // Filter closures receive &T. For range iterators, we use |&x| destructuring
-            // so no deref is needed. For other iterators using |x| (after .iter().cloned()),
-            // we need to deref variable uses in the condition body via context flag.
             let cond_with_deref = if is_tuple_target || is_range {
                 cond.to_rust_expr(self.ctx)?
             } else {
@@ -16298,6 +16307,21 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
 
 impl ToRustExpr for HirExpr {
     fn to_rust_expr(&self, ctx: &mut CodeGenContext) -> Result<syn::Expr> {
+        // Rust auto-deref handles .field and .method() on &T. When inside a filter
+        // closure, suppress the deref for the direct object of Attribute/MethodCall access.
+        match self {
+            HirExpr::Attribute { value, .. } | HirExpr::MethodCall { object: value, .. } => {
+                if let HirExpr::Var(name) = &**value {
+                    if ctx.filter_deref_vars.remove(name.as_str()) {
+                        let result = self.to_rust_expr(ctx);
+                        ctx.filter_deref_vars.insert(name.clone());
+                        return result;
+                    }
+                }
+            }
+            _ => {}
+        }
+
         let mut converter = ExpressionConverter::new(ctx);
 
         match self {
@@ -16316,7 +16340,7 @@ impl ToRustExpr for HirExpr {
             }
             HirExpr::Var(name) => {
                 let base_expr = converter.convert_variable(name)?;
-                // Inside filter closures, iterator variables are &T — dereference to get T
+                // Inside filter closures, standalone variable uses need *deref
                 if ctx.filter_deref_vars.contains(name.as_str()) {
                     return Ok(parse_quote! { *#base_expr });
                 }

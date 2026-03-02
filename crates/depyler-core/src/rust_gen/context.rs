@@ -236,8 +236,9 @@ pub struct CodeGenContext<'a> {
     /// Total consuming (move) uses per variable, populated by analyze_move_consuming_uses.
     pub move_consume_totals: HashMap<String, usize>,
 
-    /// Variables that need automatic `*` dereference when transpiled.
-    /// Used inside `.filter()` closures where the iterator variable is `&T`.
+    /// Variables that need automatic `*` dereference when used standalone.
+    /// Set inside `.filter()` closures where the iterator variable is `&T`.
+    /// NOT applied for `.field` or `.method()` access (Rust auto-deref handles those).
     pub filter_deref_vars: HashSet<String>,
 }
 
