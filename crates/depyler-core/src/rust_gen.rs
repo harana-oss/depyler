@@ -361,7 +361,7 @@ fn collect_param_aliases(stmts: &[HirStmt], param_name: &str, aliases: &mut Hash
 /// Check if an expression is a field access (possibly conditional) rooted at `param_name`.
 fn is_derived_from_param(expr: &HirExpr, param_name: &str) -> bool {
     match expr {
-        HirExpr::Attribute { value, .. } => {
+        HirExpr::Attribute { value, .. } | HirExpr::Index { base: value, .. } => {
             matches!(extract_root_var_from_expr(value), Some(name) if name == param_name)
         }
         HirExpr::IfExpr { body, orelse, .. } => {

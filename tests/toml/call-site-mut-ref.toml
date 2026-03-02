@@ -1220,3 +1220,65 @@ pub fn describe_team(team: Team) -> String {
     return name;
 }
 '''
+
+# =============================================================================
+# Mutation through indexed field access alias — param must be &mut
+# =============================================================================
+
+[[test]]
+name = "mut_ref_via_local_alias_from_index"
+description = "Local var aliased from param.field[idx] should propagate &mut to param"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Stats:
+    time_on_field: float
+
+@dataclass
+class Player:
+    stats: Stats
+
+@dataclass
+class GameState:
+    players: list[Player]
+
+def update_player_time(state: GameState, idx: int, seconds: float) -> None:
+    player = state.players[idx]
+    player.stats.time_on_field = player.stats.time_on_field + seconds
+'''
+
+rust = '''
+#[derive(Debug, Copy, Clone, PartialEq, Default)]
+pub struct Stats {
+    pub time_on_field: f64,
+}
+impl Stats {
+    pub fn new(time_on_field: f64) -> Self {
+        Self { time_on_field }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Player {
+    pub stats: Stats,
+}
+impl Player {
+    pub fn new(stats: Stats) -> Self {
+        Self { stats }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct GameState {
+    pub players: Vec<Player>,
+}
+impl GameState {
+    pub fn new(players: Vec<Player>) -> Self {
+        Self { players }
+    }
+}
+pub fn update_player_time(state: &mut GameState, idx: i32, seconds: f64) {
+    let player = &mut state.players[idx as usize];
+    player.stats.time_on_field = ((player.stats.time_on_field) as f64) + seconds;
+}
+'''

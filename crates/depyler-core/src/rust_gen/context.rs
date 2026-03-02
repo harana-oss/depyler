@@ -1008,6 +1008,7 @@ impl<'a> CodeGenContext<'a> {
         use crate::hir::HirExpr;
         match expr {
             HirExpr::Attribute { .. } => true,
+            HirExpr::Index { base, .. } => self.is_attribute_sourced(base),
             HirExpr::IfExpr { body, orelse, .. } => {
                 self.is_attribute_sourced(body) && self.is_attribute_sourced(orelse)
             }
@@ -1054,6 +1055,7 @@ impl<'a> CodeGenContext<'a> {
         use crate::hir::HirExpr;
         match expr {
             HirExpr::Attribute { value, .. } => self.is_mut_ref_base(value),
+            HirExpr::Index { base, .. } => self.is_mut_ref_attribute_sourced(base),
             HirExpr::IfExpr { body, orelse, .. } => {
                 self.is_mut_ref_attribute_sourced(body) && self.is_mut_ref_attribute_sourced(orelse)
             }
@@ -1066,7 +1068,9 @@ impl<'a> CodeGenContext<'a> {
         use crate::hir::HirExpr;
         match expr {
             HirExpr::Var(name) => self.current_func_mut_ref_params.contains(name),
-            HirExpr::Attribute { value, .. } => self.is_mut_ref_base(value),
+            HirExpr::Attribute { value, .. } | HirExpr::Index { base: value, .. } => {
+                self.is_mut_ref_base(value)
+            }
             _ => false,
         }
     }

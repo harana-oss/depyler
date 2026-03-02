@@ -1,3 +1,4 @@
+use crate::expr_utils::extract_root_var;
 use crate::hir::{AssignTarget, HirExpr, HirFunction, HirStmt, Type};
 use std::collections::{HashMap, HashSet};
 
@@ -15,6 +16,9 @@ pub struct BorrowingContext {
     /// Maps loop variables to the parameter they originate from
     /// e.g., "item" -> "state" when iterating over state.items
     loop_var_origins: HashMap<String, String>,
+    /// Maps local variables to the parameter they are derived from
+    /// e.g., "player" -> "state" when assigned from state.players[idx]
+    local_var_origins: HashMap<String, String>,
 }
 
 /// Analysis result for a single parameter
@@ -105,29 +109,43 @@ impl BorrowingContext {
                 if self.read_only_params.contains(symbol) {
                     self.mutated_params.insert(symbol.clone());
                 }
+                // Track local variable aliases: player = state.players[idx]
+                if let Some(root_param) = self.extract_param_from_expr(value) {
+                    self.local_var_origins
+                        .insert(symbol.clone(), root_param);
+                }
             }
             AssignTarget::Attribute { value: obj, .. } => {
-                // Check if we're mutating an attribute of a loop variable
-                // e.g., item.value = ... where item comes from state.items
-                if let HirExpr::Var(var_name) = obj.as_ref() {
-                    if let Some(param_name) = self.loop_var_origins.get(var_name) {
-                        // Mark the original parameter as mutated
-                        self.mutated_params.insert(param_name.clone());
-                    }
-                }
+                // Use extract_root_var for deeply nested access like
+                // player.period_statistics[idx].time_on_field
+                self.mark_root_as_mutated(obj);
             }
             AssignTarget::Index { base, .. } => {
-                // Similarly handle index assignments through loop variables
-                if let HirExpr::Var(var_name) = base.as_ref() {
-                    if let Some(param_name) = self.loop_var_origins.get(var_name) {
-                        self.mutated_params.insert(param_name.clone());
-                    }
-                }
+                self.mark_root_as_mutated(base);
             }
             _ => {}
         }
         self.check_escaping_expr(value);
         self.analyze_expr(value);
+    }
+
+    /// Given an expression that is being mutated (via attribute or index assignment),
+    /// extract its root variable and mark the originating parameter as mutated.
+    fn mark_root_as_mutated(&mut self, expr: &HirExpr) {
+        if let Some(root_var) = extract_root_var(expr) {
+            // Check loop variable origins (for s in state.items → s originates from state)
+            if let Some(param_name) = self.loop_var_origins.get(&root_var).cloned() {
+                self.mutated_params.insert(param_name);
+            // Check local variable origins (player = state.players[idx] → player from state)
+            } else if let Some(param_name) = self.local_var_origins.get(&root_var).cloned() {
+                self.mutated_params.insert(param_name);
+            // Check if the root is itself a parameter
+            } else if self.read_only_params.contains(&root_var)
+                || self.mutated_params.contains(&root_var)
+            {
+                self.mutated_params.insert(root_var);
+            }
+        }
     }
 
     fn analyze_return(&mut self, expr: &HirExpr) {
@@ -309,7 +327,8 @@ impl BorrowingContext {
                 {
                     Some(name.clone())
                 } else {
-                    None
+                    // Check if it's a local variable derived from a param
+                    self.local_var_origins.get(name).cloned()
                 }
             }
             HirExpr::Attribute { value, .. } => {
@@ -320,6 +339,22 @@ impl BorrowingContext {
                 // Index access like state[0] - extract the base
                 self.extract_param_from_expr(base)
             }
+            HirExpr::IfExpr { body, orelse, .. } => {
+                // Ternary: state.home if cond else state.away — both branches
+                let body_param = self.extract_param_from_expr(body);
+                let orelse_param = self.extract_param_from_expr(orelse);
+                match (body_param, orelse_param) {
+                    (Some(a), Some(b)) if a == b => Some(a),
+                    (Some(a), _) | (_, Some(a)) => Some(a),
+                    _ => None,
+                }
+            }
+            HirExpr::Slice {
+                base,
+                start: _,
+                stop: _,
+                step: _,
+            } => self.extract_param_from_expr(base),
             _ => None,
         }
     }

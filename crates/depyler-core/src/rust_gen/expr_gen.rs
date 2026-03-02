@@ -12263,6 +12263,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             // Vec/List access with numeric index
             let index_expr = index.to_rust_expr(self.ctx)?;
 
+            // When the caller wants a reference (&mut or &), use direct indexing
+            // instead of .get().cloned() so the reference points to the actual element
+            let wants_ref = !is_lhs && (self.ctx.generate_mut_borrow || self.ctx.generate_borrow);
+
             // Check if index is a negative literal
             if let HirExpr::Unary {
                 op: UnaryOp::Neg,
@@ -12297,11 +12301,12 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             // This avoids unnecessary temporary variables and runtime checks
             if let HirExpr::Literal(Literal::Int(n)) = index {
                 let idx_value = *n as usize;
-                // Use .get_mut().unwrap() for LHS, .get().cloned().unwrap() for RHS
                 if is_lhs {
                     return Ok(parse_quote! {
                         #base_expr.get_mut(#idx_value).unwrap()
                     });
+                } else if wants_ref {
+                    return Ok(parse_quote! { #base_expr[#idx_value] });
                 } else {
                     return Ok(parse_quote! {
                         #base_expr.get(#idx_value).cloned().unwrap()
@@ -12317,12 +12322,12 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             let is_simple_expr = matches!(index, HirExpr::Var(_) | HirExpr::Call { .. });
 
             if is_simple_expr {
-                // Simple variable index - use inline expression (works in range contexts)
-                // This avoids block expressions that break in `for j in 0..matrix[i].len()`
                 if is_lhs {
                     Ok(parse_quote! {
                         #base_expr.get_mut(#index_expr as usize).unwrap()
                     })
+                } else if wants_ref {
+                    Ok(parse_quote! { #base_expr[#index_expr as usize] })
                 } else {
                     Ok(parse_quote! {
                         #base_expr.get(#index_expr as usize).cloned().unwrap()

@@ -87,6 +87,7 @@ pub(crate) fn build_expr_no_clone(expr: &HirExpr) -> syn::Expr {
 pub(crate) fn is_attribute_sourced_expr(expr: &HirExpr) -> bool {
     match expr {
         HirExpr::Attribute { .. } => true,
+        HirExpr::Index { base, .. } => is_attribute_sourced_expr(base),
         HirExpr::IfExpr { body, orelse, .. } => {
             is_attribute_sourced_expr(body) && is_attribute_sourced_expr(orelse)
         }
