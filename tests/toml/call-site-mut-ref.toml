@@ -1282,3 +1282,100 @@ pub fn update_player_time(state: &mut GameState, idx: i32, seconds: f64) {
     player.stats.time_on_field = ((player.stats.time_on_field) as f64) + seconds;
 }
 '''
+
+[[test]]
+name = "mut_ref_via_conditional_sliced_field_iter"
+description = "Iterating over a sliced conditional field access uses &mut and iter_mut"
+
+python = '''
+from dataclasses import dataclass
+from typing import List
+from enum import Enum
+
+class Team(Enum):
+    Home = 0
+    Away = 1
+
+@dataclass
+class PlayerStatistics:
+    time_on_field: float
+
+@dataclass
+class TeamStatistics:
+    player_statistics: List[PlayerStatistics]
+
+@dataclass
+class State:
+    home_statistics: TeamStatistics
+    away_statistics: TeamStatistics
+
+def apply_time(state: State, team: Team, seconds: float, count: int) -> None:
+    for s in (state.home_statistics if team == Team.Home else state.away_statistics).player_statistics[:count]:
+        s.time_on_field += seconds
+'''
+
+rust = '''
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum Team {
+    #[default]
+    Home = 0,
+    Away = 1,
+}
+impl Team {
+    pub fn from_i32(value: i32) -> Option<Self> {
+        match value {
+            0 => Some(Self::Home),
+            1 => Some(Self::Away),
+            _ => None,
+        }
+    }
+    pub fn from_i32_or_default(value: i32) -> Self {
+        Self::from_i32(value).unwrap_or(Self::Home)
+    }
+}
+#[derive(Debug, Copy, Clone, PartialEq, Default)]
+pub struct PlayerStatistics {
+    pub time_on_field: f64,
+}
+impl PlayerStatistics {
+    pub fn new(time_on_field: f64) -> Self {
+        Self { time_on_field }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct TeamStatistics {
+    pub player_statistics: Vec<PlayerStatistics>,
+}
+impl TeamStatistics {
+    pub fn new(player_statistics: Vec<PlayerStatistics>) -> Self {
+        Self { player_statistics }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct State {
+    pub home_statistics: TeamStatistics,
+    pub away_statistics: TeamStatistics,
+}
+impl State {
+    pub fn new(home_statistics: TeamStatistics, away_statistics: TeamStatistics) -> Self {
+        Self {
+            home_statistics,
+            away_statistics,
+        }
+    }
+}
+pub fn apply_time(state: &mut State, team: Team, seconds: f64, count: i32) {
+    for mut s in {
+        let __ref = if team == Team::Home {
+            &mut state.home_statistics
+        } else {
+            &mut state.away_statistics
+        };
+        let __len = __ref.player_statistics.len();
+        let stop = (count).max(0) as usize;
+        __ref.player_statistics[..stop.min(__len)].iter_mut()
+    } {
+        s.time_on_field += seconds;
+    }
+}
+'''

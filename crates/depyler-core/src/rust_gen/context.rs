@@ -793,11 +793,7 @@ impl<'a> CodeGenContext<'a> {
         if !is_non_copy {
             return false;
         }
-        let total = self
-            .move_consume_totals
-            .get(var_name)
-            .copied()
-            .unwrap_or(1);
+        let total = self.move_consume_totals.get(var_name).copied().unwrap_or(1);
         let current = self
             .move_consume_current
             .entry(var_name.to_string())

@@ -7,7 +7,6 @@ use anyhow::{Result, bail};
 use quote::{ToTokens, format_ident, quote};
 use syn::{self, parse_quote};
 
-
 use super::*;
 pub(crate) fn extract_nested_indices_tokens(
     expr: &HirExpr,
@@ -445,4 +444,3 @@ pub(crate) fn exprs_are_equivalent(expr1: &HirExpr, expr2: &HirExpr) -> bool {
         _ => false,
     }
 }
-

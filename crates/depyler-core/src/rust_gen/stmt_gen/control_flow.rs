@@ -8,7 +8,6 @@ use anyhow::{Result, bail};
 use quote::{ToTokens, format_ident, quote};
 use syn::{self, parse_quote};
 
-
 use super::*;
 pub(crate) fn codegen_if_stmt(
     condition: &HirExpr,
@@ -302,7 +301,8 @@ pub(crate) fn codegen_for_stmt(
         if is_field {
             // This is a field access - we need borrowing
             // Determine if we need mutable or immutable borrow
-            let needs_mut_borrow = does_loop_body_mutate_items(target, body, &ctx.function_param_borrows);
+            let needs_mut_borrow =
+                does_loop_body_mutate_items(target, body, &ctx.function_param_borrows);
 
             // Check if this is a special function call (enumerate, reversed)
             let is_special = matches!(iter, HirExpr::Call { func, .. } if func == "enumerate" || func == "reversed");
@@ -458,6 +458,73 @@ pub(crate) fn codegen_for_stmt(
                         }
                     }
                     _ => {}
+                }
+            } else if let HirExpr::Slice {
+                base,
+                start,
+                stop,
+                step,
+            } = iter
+            {
+                // For conditional field access (e.g., (ternary).field[:N]), split at the IfExpr
+                // and bind it to a local so field access goes through a place expression.
+                if step.is_none() && expr_contains_ifexpr(base) {
+                    if let Some(result) =
+                        generate_ifexpr_slice_iter(base, start, stop, needs_mut, ctx)?
+                    {
+                        iter_expr = result;
+                    }
+                } else {
+                    // For sliced field access (e.g., state.items[:N]), generate iter_mut/iter on the slice
+                    let base_expr = if needs_mut {
+                        generate_field_access_mut_ref(base, ctx)?
+                    } else {
+                        generate_field_access_without_clone(base, ctx)?
+                    };
+                    let iter_method = if needs_mut {
+                        quote::quote! { iter_mut }
+                    } else {
+                        quote::quote! { iter }
+                    };
+                    match (start, stop, step) {
+                        (None, Some(stop_val), None) => {
+                            let stop_expr = stop_val.to_rust_expr(ctx)?;
+                            iter_expr = parse_quote! {{
+                                let base = &mut #base_expr;
+                                let stop = (#stop_expr).max(0) as usize;
+                                base[..stop.min(base.len())].#iter_method()
+                            }};
+                        }
+                        (Some(start_val), Some(stop_val), None) => {
+                            let start_expr = start_val.to_rust_expr(ctx)?;
+                            let stop_expr = stop_val.to_rust_expr(ctx)?;
+                            iter_expr = parse_quote! {{
+                                let base = &mut #base_expr;
+                                let start = (#start_expr).max(0) as usize;
+                                let stop = (#stop_expr).max(0) as usize;
+                                if start < base.len() { base[start..stop.min(base.len())].#iter_method() } else { [].#iter_method() }
+                            }};
+                        }
+                        (Some(start_val), None, None) => {
+                            let start_expr = start_val.to_rust_expr(ctx)?;
+                            iter_expr = parse_quote! {{
+                                let base = &mut #base_expr;
+                                let start = (#start_expr).max(0) as usize;
+                                if start < base.len() { base[start..].#iter_method() } else { [].#iter_method() }
+                            }};
+                        }
+                        (None, None, None) => {
+                            iter_expr = parse_quote! { #base_expr.#iter_method() };
+                        }
+                        _ => {
+                            // For complex step-based slices, fall back to wrapping
+                            if needs_mut {
+                                iter_expr = parse_quote! { &mut #iter_expr };
+                            } else {
+                                iter_expr = parse_quote! { &#iter_expr };
+                            }
+                        }
+                    }
                 }
             } else {
                 // For plain field access, just wrap with & or &mut
@@ -897,7 +964,8 @@ pub(crate) fn codegen_if_let_some(
     // Also narrow var_types: Optional<T> → T so field access doesn't add unwrap
     let saved_var_type = ctx.var_types.remove(&var_name);
     if let Some(Type::Optional(inner)) = &saved_var_type {
-        ctx.var_types.insert(var_name.clone(), inner.as_ref().clone());
+        ctx.var_types
+            .insert(var_name.clone(), inner.as_ref().clone());
     }
 
     ctx.enter_scope();
@@ -1092,9 +1160,26 @@ pub(crate) fn generate_field_access_without_clone(
     iter: &HirExpr,
     ctx: &mut CodeGenContext,
 ) -> Result<syn::Expr> {
+    generate_field_access_inner(iter, ctx, false)
+}
+
+/// Like `generate_field_access_without_clone` but wraps IfExpr branches
+/// in `&mut` to avoid moving out of mutable references.
+pub(crate) fn generate_field_access_mut_ref(
+    iter: &HirExpr,
+    ctx: &mut CodeGenContext,
+) -> Result<syn::Expr> {
+    generate_field_access_inner(iter, ctx, true)
+}
+
+fn generate_field_access_inner(
+    iter: &HirExpr,
+    ctx: &mut CodeGenContext,
+    mut_ref_branches: bool,
+) -> Result<syn::Expr> {
     match iter {
         HirExpr::Attribute { value, attr } => {
-            let value_expr = generate_field_access_without_clone(value, ctx)?;
+            let value_expr = generate_field_access_inner(value, ctx, mut_ref_branches)?;
             let attr_ident = syn::Ident::new(attr, proc_macro2::Span::call_site());
             Ok(parse_quote! { #value_expr.#attr_ident })
         }
@@ -1102,10 +1187,24 @@ pub(crate) fn generate_field_access_without_clone(
             let ident = safe_ident(name);
             Ok(parse_quote! { #ident })
         }
+        HirExpr::IfExpr {
+            test, body, orelse, ..
+        } => {
+            let test_expr = test.to_rust_expr(ctx)?;
+            let body_expr = generate_field_access_inner(body, ctx, mut_ref_branches)?;
+            let orelse_expr = generate_field_access_inner(orelse, ctx, mut_ref_branches)?;
+            if mut_ref_branches
+                && matches!(**body, HirExpr::Attribute { .. })
+                && matches!(**orelse, HirExpr::Attribute { .. })
+            {
+                Ok(parse_quote! { if #test_expr { &mut #body_expr } else { &mut #orelse_expr } })
+            } else {
+                Ok(parse_quote! { if #test_expr { #body_expr } else { #orelse_expr } })
+            }
+        }
         HirExpr::Call { func, args, .. } if func == "enumerate" || func == "reversed" => {
-            // Handle enumerate(field) and reversed(field)
             if !args.is_empty() {
-                let inner = generate_field_access_without_clone(&args[0], ctx)?;
+                let inner = generate_field_access_inner(&args[0], ctx, mut_ref_branches)?;
                 if func == "enumerate" {
                     Ok(parse_quote! { #inner.iter().enumerate() })
                 } else {
@@ -1119,29 +1218,135 @@ pub(crate) fn generate_field_access_without_clone(
     }
 }
 
+fn expr_contains_ifexpr(expr: &HirExpr) -> bool {
+    match expr {
+        HirExpr::IfExpr { .. } => true,
+        HirExpr::Attribute { value, .. } | HirExpr::Index { base: value, .. } => {
+            expr_contains_ifexpr(value)
+        }
+        _ => false,
+    }
+}
+
+/// Splits an expression like `(IfExpr).attr1.attr2` into the IfExpr parts and
+/// the remaining attribute chain. Returns `(test, body, orelse, attrs)` where
+/// `attrs` is the list of attribute names after the IfExpr.
+fn split_at_ifexpr<'a>(
+    expr: &'a HirExpr,
+    attrs: &mut Vec<String>,
+) -> Option<(&'a HirExpr, &'a HirExpr, &'a HirExpr)> {
+    match expr {
+        HirExpr::IfExpr {
+            test, body, orelse, ..
+        } => Some((test, body, orelse)),
+        HirExpr::Attribute { value, attr } => {
+            attrs.push(attr.clone());
+            split_at_ifexpr(value, attrs)
+        }
+        _ => None,
+    }
+}
+
+/// Generates a sliced iteration over a conditional field access.
+/// Produces: `{ let __ref = if cond { &mut body } else { &mut orelse }; let stop = ...; __ref.field[..stop].iter_mut() }`
+fn generate_ifexpr_slice_iter(
+    base: &HirExpr,
+    start: &Option<Box<HirExpr>>,
+    stop: &Option<Box<HirExpr>>,
+    needs_mut: bool,
+    ctx: &mut CodeGenContext,
+) -> Result<Option<syn::Expr>> {
+    let mut attrs = Vec::new();
+    let Some((test, body, orelse)) = split_at_ifexpr(base, &mut attrs) else {
+        return Ok(None);
+    };
+    // attrs were collected in reverse order (innermost first)
+    attrs.reverse();
+
+    let test_expr = test.to_rust_expr(ctx)?;
+    let body_expr = generate_field_access_without_clone(body, ctx)?;
+    let orelse_expr = generate_field_access_without_clone(orelse, ctx)?;
+
+    let attr_idents: Vec<syn::Ident> = attrs
+        .iter()
+        .map(|a| syn::Ident::new(a, proc_macro2::Span::call_site()))
+        .collect();
+
+    let iter_method = if needs_mut {
+        quote::quote! { iter_mut }
+    } else {
+        quote::quote! { iter }
+    };
+
+    // Build the field chain: __ref.attr1.attr2...
+    let field_chain = quote::quote! { __ref #(.#attr_idents)* };
+
+    let result = match (start, stop) {
+        (None, Some(stop_val)) => {
+            let stop_expr = stop_val.to_rust_expr(ctx)?;
+            parse_quote! {{
+                let __ref = if #test_expr { &mut #body_expr } else { &mut #orelse_expr };
+                let __len = #field_chain.len();
+                let stop = (#stop_expr).max(0) as usize;
+                #field_chain[..stop.min(__len)].#iter_method()
+            }}
+        }
+        (Some(start_val), Some(stop_val)) => {
+            let start_expr = start_val.to_rust_expr(ctx)?;
+            let stop_expr = stop_val.to_rust_expr(ctx)?;
+            parse_quote! {{
+                let __ref = if #test_expr { &mut #body_expr } else { &mut #orelse_expr };
+                let __len = #field_chain.len();
+                let start = (#start_expr).max(0) as usize;
+                let stop = (#stop_expr).max(0) as usize;
+                if start < __len { #field_chain[start..stop.min(__len)].#iter_method() } else { [].#iter_method() }
+            }}
+        }
+        (Some(start_val), None) => {
+            let start_expr = start_val.to_rust_expr(ctx)?;
+            parse_quote! {{
+                let __ref = if #test_expr { &mut #body_expr } else { &mut #orelse_expr };
+                let __len = #field_chain.len();
+                let start = (#start_expr).max(0) as usize;
+                if start < __len { #field_chain[start..].#iter_method() } else { [].#iter_method() }
+            }}
+        }
+        (None, None) => {
+            parse_quote! {{
+                let __ref = if #test_expr { &mut #body_expr } else { &mut #orelse_expr };
+                #field_chain.#iter_method()
+            }}
+        }
+    };
+    Ok(Some(result))
+}
+
 pub(crate) fn is_field_access_iter(iter: &HirExpr) -> Option<(String, bool)> {
     match iter {
-        // Direct field access: state.items
+        // Direct field access: state.items or (ternary).field
         HirExpr::Attribute { value, .. } => {
             if let Some(root_var) = crate::expr_utils::extract_root_var(value) {
                 Some((root_var, true))
             } else {
-                None
+                is_field_access_iter(value)
+            }
+        }
+        // Slice of a field access: state.items[:N] or (ternary).field[:N]
+        HirExpr::Slice { base, .. } => is_field_access_iter(base),
+        // Conditional field access: (state.home if cond else state.away)
+        HirExpr::IfExpr { body, orelse, .. } => {
+            let body_result = is_field_access_iter(body);
+            let orelse_result = is_field_access_iter(orelse);
+            match (body_result, orelse_result) {
+                (Some((_, true)), Some((_, true))) => Some((String::new(), true)),
+                _ => None,
             }
         }
         // enumerate(state.items) or reversed(state.items)
         HirExpr::Call { func, args, .. }
             if (func == "enumerate" || func == "reversed") && !args.is_empty() =>
         {
-            if let HirExpr::Attribute { value, .. } = &args[0] {
-                if let Some(root_var) = crate::expr_utils::extract_root_var(value) {
-                    Some((root_var, true))
-                } else {
-                    None
-                }
-            } else {
-                None
-            }
+            is_field_access_iter(&args[0])
         }
         _ => None,
     }
@@ -1150,7 +1355,10 @@ pub(crate) fn is_field_access_iter(iter: &HirExpr) -> Option<(String, bool)> {
 pub(crate) fn does_loop_body_mutate_items(
     target: &AssignTarget,
     body: &[HirStmt],
-    function_param_borrows: &std::collections::HashMap<String, Vec<crate::rust_gen::context::ParamBorrowInfo>>,
+    function_param_borrows: &std::collections::HashMap<
+        String,
+        Vec<crate::rust_gen::context::ParamBorrowInfo>,
+    >,
 ) -> bool {
     // Get the loop variable name
     let loop_var = match target {
@@ -1182,7 +1390,10 @@ pub(crate) fn does_loop_body_mutate_items(
 pub(crate) fn is_loop_var_mutated(
     var_name: &str,
     stmt: &HirStmt,
-    function_param_borrows: &std::collections::HashMap<String, Vec<crate::rust_gen::context::ParamBorrowInfo>>,
+    function_param_borrows: &std::collections::HashMap<
+        String,
+        Vec<crate::rust_gen::context::ParamBorrowInfo>,
+    >,
 ) -> bool {
     match stmt {
         // Direct assignment to loop variable or its fields
@@ -1202,9 +1413,7 @@ pub(crate) fn is_loop_var_mutated(
             target_mutated || is_var_passed_as_mut_in_expr(var_name, value, function_param_borrows)
         }
         // Check expression statements (e.g., bare function calls)
-        HirStmt::Expr(expr) => {
-            is_var_passed_as_mut_in_expr(var_name, expr, function_param_borrows)
-        }
+        HirStmt::Expr(expr) => is_var_passed_as_mut_in_expr(var_name, expr, function_param_borrows),
         // Check return statements
         HirStmt::Return(Some(expr)) => {
             is_var_passed_as_mut_in_expr(var_name, expr, function_param_borrows)
@@ -1215,14 +1424,17 @@ pub(crate) fn is_loop_var_mutated(
             else_body,
             ..
         } => {
-            then_body.iter().any(|s| is_loop_var_mutated(var_name, s, function_param_borrows))
-                || else_body
-                    .as_ref()
-                    .is_some_and(|body| body.iter().any(|s| is_loop_var_mutated(var_name, s, function_param_borrows)))
+            then_body
+                .iter()
+                .any(|s| is_loop_var_mutated(var_name, s, function_param_borrows))
+                || else_body.as_ref().is_some_and(|body| {
+                    body.iter()
+                        .any(|s| is_loop_var_mutated(var_name, s, function_param_borrows))
+                })
         }
-        HirStmt::While { body, .. } | HirStmt::For { body, .. } => {
-            body.iter().any(|s| is_loop_var_mutated(var_name, s, function_param_borrows))
-        }
+        HirStmt::While { body, .. } | HirStmt::For { body, .. } => body
+            .iter()
+            .any(|s| is_loop_var_mutated(var_name, s, function_param_borrows)),
         _ => false,
     }
 }
@@ -1231,7 +1443,10 @@ pub(crate) fn is_loop_var_mutated(
 fn is_var_passed_as_mut_in_expr(
     var_name: &str,
     expr: &HirExpr,
-    function_param_borrows: &std::collections::HashMap<String, Vec<crate::rust_gen::context::ParamBorrowInfo>>,
+    function_param_borrows: &std::collections::HashMap<
+        String,
+        Vec<crate::rust_gen::context::ParamBorrowInfo>,
+    >,
 ) -> bool {
     match expr {
         HirExpr::Call { func, args, .. } => {
@@ -1249,7 +1464,8 @@ fn is_var_passed_as_mut_in_expr(
                 }
             }
             // Recurse into all sub-expressions
-            args.iter().any(|a| is_var_passed_as_mut_in_expr(var_name, a, function_param_borrows))
+            args.iter()
+                .any(|a| is_var_passed_as_mut_in_expr(var_name, a, function_param_borrows))
         }
         HirExpr::ListComp { element, .. } => {
             is_var_passed_as_mut_in_expr(var_name, element, function_param_borrows)
@@ -1269,4 +1485,3 @@ fn is_var_passed_as_mut_in_expr(
         _ => false,
     }
 }
-

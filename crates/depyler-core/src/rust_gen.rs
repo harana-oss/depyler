@@ -350,7 +350,17 @@ fn collect_param_aliases(stmts: &[HirStmt], param_name: &str, aliases: &mut Hash
                     collect_param_aliases(else_body, param_name, aliases);
                 }
             }
-            HirStmt::While { body, .. } | HirStmt::For { body, .. } => {
+            HirStmt::While { body, .. } => {
+                collect_param_aliases(body, param_name, aliases);
+            }
+            HirStmt::For {
+                target, iter, body, ..
+            } => {
+                if let AssignTarget::Symbol(name) = target {
+                    if is_derived_from_param(iter, param_name) {
+                        aliases.insert(name.clone());
+                    }
+                }
                 collect_param_aliases(body, param_name, aliases);
             }
             _ => {}
@@ -363,10 +373,21 @@ fn is_derived_from_param(expr: &HirExpr, param_name: &str) -> bool {
     match expr {
         HirExpr::Attribute { value, .. } | HirExpr::Index { base: value, .. } => {
             matches!(extract_root_var_from_expr(value), Some(name) if name == param_name)
+                || is_derived_from_param(value, param_name)
         }
+        HirExpr::Slice { base, .. } => is_derived_from_param(base, param_name),
         HirExpr::IfExpr { body, orelse, .. } => {
             is_derived_from_param(body, param_name) && is_derived_from_param(orelse, param_name)
         }
+        HirExpr::Call { func, args, .. } => {
+            matches!(
+                func.as_str(),
+                "enumerate" | "reversed" | "sorted" | "iter" | "list"
+            ) && args
+                .first()
+                .map_or(false, |a| is_derived_from_param(a, param_name))
+        }
+        HirExpr::Var(name) => name == param_name,
         _ => false,
     }
 }

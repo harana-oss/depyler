@@ -910,27 +910,38 @@ def add_try_to_all(player_stats: list[PlayerStatistics]) -> None:
 
 rust = '''
 #[derive(Debug, Copy, Clone)]
-pub struct Scores {}
+pub struct Scores {
+    pub tries: i32,
+    pub total: i32,
+}
 impl Scores {
     pub fn new() -> Self {
-        Self {}
+        Self { tries: 0, total: 0 }
     }
 }
-#[derive(Debug, Copy, Clone)]
-pub struct MatchStats {}
+#[derive(Debug, Clone)]
+pub struct MatchStats {
+    pub scores: Scores,
+}
 impl MatchStats {
     pub fn new() -> Self {
-        Self {}
+        Self {
+            scores: Scores::new(),
+        }
     }
 }
-#[derive(Debug, Copy, Clone)]
-pub struct PlayerStatistics {}
+#[derive(Debug, Clone)]
+pub struct PlayerStatistics {
+    pub match_statistics: MatchStats,
+}
 impl PlayerStatistics {
     pub fn new() -> Self {
-        Self {}
+        Self {
+            match_statistics: MatchStats::new(),
+        }
     }
 }
-pub fn add_try_to_all(player_stats: &Vec<PlayerStatistics>) {
+pub fn add_try_to_all(player_stats: &mut Vec<PlayerStatistics>) {
     let TRY_POINTS = 4;
     for mut stats in player_stats.iter().cloned() {
         stats.match_statistics.scores.tries = stats.match_statistics.scores.tries + 1;
@@ -954,16 +965,20 @@ def print_player_names(players: list[Player]) -> None:
 '''
 
 rust = '''
-#[derive(Debug, Copy, Clone)]
-pub struct Player {}
+#[derive(Debug, Clone)]
+pub struct Player {
+    pub name: String,
+}
 impl Player {
     pub fn new() -> Self {
-        Self {}
+        Self {
+            name: "".to_string(),
+        }
     }
 }
 pub fn print_player_names(players: &Vec<Player>) {
     for p in players.iter().cloned() {
-        log::info!("{}", p.name);
+        log::info!("{}", p.name.clone());
     }
 }
 '''
@@ -983,14 +998,16 @@ def update_first_items(containers: list[Container], value: int) -> None:
 '''
 
 rust = '''
-#[derive(Debug, Copy, Clone)]
-pub struct Container {}
+#[derive(Debug, Clone)]
+pub struct Container {
+    pub items: Vec<i32>,
+}
 impl Container {
     pub fn new() -> Self {
-        Self {}
+        Self { items: vec![] }
     }
 }
-pub fn update_first_items(containers: &Vec<Container>, value: i32) {
+pub fn update_first_items(containers: &mut Vec<Container>, value: i32) {
     for mut c in containers.iter().cloned() {
         c.items[0 as usize] = value;
     }
