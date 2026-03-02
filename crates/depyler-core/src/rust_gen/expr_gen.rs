@@ -2912,14 +2912,14 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         }
 
         // Check if iter is enumerate(collection)
-        let collection_expr = if let HirExpr::Call {
+        let (collection_expr, collection_hir) = if let HirExpr::Call {
             func,
             args: call_args,
             ..
         } = &*comprehension.iter
         {
             if func == "enumerate" && call_args.len() == 1 {
-                call_args[0].to_rust_expr(self.ctx)?
+                (call_args[0].to_rust_expr(self.ctx)?, &call_args[0])
             } else {
                 return Ok(None);
             }
@@ -2932,14 +2932,37 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             return Ok(None);
         }
 
-        // Build the condition, using elem_var as the closure parameter
+        // Determine if the collection's element type is Copy
+        let element_needs_clone = if let HirExpr::Var(var_name) = collection_hir {
+            if let Some(var_type) = self.ctx.var_types.get(var_name) {
+                match var_type {
+                    Type::List(elem_type) | Type::Set(elem_type) => {
+                        self.type_needs_clone(elem_type)
+                    }
+                    _ => true,
+                }
+            } else {
+                true
+            }
+        } else {
+            true
+        };
+
+        // Build the condition, using elem_var as the closure parameter.
+        // .position() receives &T, so elem_var needs deref handling.
         let elem_ident = syn::Ident::new(&elem_var, proc_macro2::Span::call_site());
 
+        if element_needs_clone {
+            self.ctx.filter_deref_vars.insert(elem_var.clone());
+        }
         let conditions: Vec<syn::Expr> = comprehension
             .conditions
             .iter()
             .map(|c| c.to_rust_expr(self.ctx))
             .collect::<Result<Vec<_>>>()?;
+        if element_needs_clone {
+            self.ctx.filter_deref_vars.remove(&elem_var);
+        }
 
         let combined_condition: syn::Expr = if conditions.len() == 1 {
             conditions.into_iter().next().unwrap()
@@ -2951,8 +2974,15 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         };
 
         // Generate: collection.iter().position(|elem| cond).map(|i| i as i32)
-        let position_expr: syn::Expr = parse_quote! {
-            #collection_expr.iter().position(|#elem_ident| #combined_condition).map(|i| i as i32)
+        // For Copy types use |&elem| destructuring; for non-Copy use |elem| with deref in body.
+        let position_expr: syn::Expr = if element_needs_clone {
+            parse_quote! {
+                #collection_expr.iter().position(|#elem_ident| #combined_condition).map(|i| i as i32)
+            }
+        } else {
+            parse_quote! {
+                #collection_expr.iter().position(|&#elem_ident| #combined_condition).map(|i| i as i32)
+            }
         };
 
         // Handle default value

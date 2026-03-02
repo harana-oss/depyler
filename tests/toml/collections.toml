@@ -1473,3 +1473,52 @@ pub fn find_player_by_position(
     return candidate.time_on_field;
 }
 '''
+
+[[test]]
+name = "enumerate_position_deref_index_in_subscript"
+description = "next() with enumerate where element variable is used as subscript index in .position() closure"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Player:
+    player_index: int
+    name: str
+
+def find_player_position(players: list[int], state_players: list[Player], player_index: int) -> int:
+    player_list_idx = next((i for i, idx in enumerate(players) if state_players[idx].player_index == player_index), -1)
+    return player_list_idx
+'''
+
+rust = '''
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Player {
+    pub player_index: i32,
+    pub name: String,
+}
+impl Player {
+    pub fn new(player_index: i32, name: String) -> Self {
+        Self { player_index, name }
+    }
+}
+pub fn find_player_position(
+    players: Vec<i32>,
+    state_players: &Vec<Player>,
+    player_index: i32,
+) -> i32 {
+    let player_list_idx = players
+        .iter()
+        .position(|&idx| {
+            state_players
+                .get(idx as usize)
+                .cloned()
+                .unwrap()
+                .player_index
+                == player_index
+        })
+        .map(|i| i as i32)
+        .unwrap_or(-1);
+    return player_list_idx.unwrap();
+}
+'''
