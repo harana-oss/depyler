@@ -1,0 +1,121 @@
+[metadata]
+name = "Keyword Argument Call-Site Tests"
+category = "function-calls"
+description = "Tests that keyword arguments at call sites are reordered to match the function signature"
+
+# =============================================================================
+# Basic keyword argument reordering
+# =============================================================================
+
+[[test]]
+name = "kwargs_reordered_to_match_signature"
+description = "Keyword arguments must be reordered to match parameter order"
+
+python = '''
+def greet(name: str, age: int) -> str:
+    return name
+
+def main() -> str:
+    return greet(age=30, name="Alice")
+'''
+
+rust = '''
+pub fn greet(name: String, age: i32) -> String {
+    return name;
+}
+pub fn main() -> String {
+    return greet("Alice".to_string(), 30);
+}
+'''
+
+# =============================================================================
+# Mix of positional and keyword arguments
+# =============================================================================
+
+[[test]]
+name = "kwargs_mixed_positional_and_named"
+description = "Positional args fill first, then kwargs fill remaining by name"
+
+python = '''
+def configure(host: str, port: int, debug: bool) -> str:
+    return host
+
+def setup() -> str:
+    return configure("localhost", debug=True, port=8080)
+'''
+
+rust = '''
+pub fn configure(host: String, port: i32, debug: bool) -> String {
+    return host;
+}
+pub fn setup() -> String {
+    return configure("localhost".to_string(), 8080, true);
+}
+'''
+
+# =============================================================================
+# Kwargs with struct parameters (call-site passes by reference)
+# =============================================================================
+
+[[test]]
+name = "kwargs_with_struct_param"
+description = "Keyword arguments work with struct parameters passed by reference"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Player:
+    score: int
+
+def update_player(player: Player, bonus: int, multiplier: int) -> int:
+    return player.score + bonus * multiplier
+
+def run() -> int:
+    p = Player(score=10)
+    return update_player(p, multiplier=3, bonus=5)
+'''
+
+rust = '''
+#[derive(Debug, Copy, Clone, PartialEq, Default)]
+pub struct Player {
+    pub score: i32,
+}
+impl Player {
+    pub fn new(score: i32) -> Self {
+        Self { score }
+    }
+}
+pub fn update_player(player: &Player, bonus: i32, multiplier: i32) -> i32 {
+    return player.score + bonus * multiplier;
+}
+pub fn run() -> i32 {
+    let p = Player::new(10);
+    return update_player(&p, 5, 3);
+}
+'''
+
+# =============================================================================
+# All arguments passed as kwargs
+# =============================================================================
+
+[[test]]
+name = "kwargs_all_named"
+description = "All arguments passed by name in reversed order"
+
+python = '''
+def add(a: int, b: int, c: int) -> int:
+    return a + b + c
+
+def compute() -> int:
+    return add(c=3, b=2, a=1)
+'''
+
+rust = '''
+pub fn add(a: i32, b: i32, c: i32) -> i32 {
+    return a + b + c;
+}
+pub fn compute() -> i32 {
+    return add(1, 2, 3);
+}
+'''

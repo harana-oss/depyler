@@ -1855,6 +1855,26 @@ pub fn generate_rust_file(
             func.name.clone(),
             func.params.iter().map(|p| p.ty.clone()).collect(),
         );
+        ctx.function_param_names.insert(
+            func.name.clone(),
+            func.params.iter().map(|p| p.name.clone()).collect(),
+        );
+    }
+
+    // Pre-populate class method parameter names for keyword argument reordering
+    for class in &module.classes {
+        for method in &class.methods {
+            let params: Vec<String> = method
+                .params
+                .iter()
+                .filter(|p| p.name != "self")
+                .map(|p| p.name.clone())
+                .collect();
+            ctx.function_param_names
+                .insert(format!("{}.{}", class.name, method.name), params.clone());
+            ctx.function_param_names
+                .insert(method.name.clone(), params);
+        }
     }
 
     // Convert classes first (they might be used by functions)

@@ -1778,7 +1778,12 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             // Look up function parameter names for proper reordering
             // Clone to avoid borrowing ctx while we call to_rust_expr
             let maybe_param_names = self.ctx.function_param_names.get(func).cloned();
-            if let Some(param_names) = maybe_param_names {
+            let can_reorder = maybe_param_names
+                .as_ref()
+                .map(|p| p.len() >= args.len() + kwargs.len())
+                .unwrap_or(false);
+            if can_reorder {
+                let param_names = maybe_param_names.unwrap();
                 // Build argument list by matching kwargs to parameter positions
                 let mut reordered_args: Vec<syn::Expr> = Vec::with_capacity(param_names.len());
                 let mut reordered_hir_args: Vec<HirExpr> = Vec::with_capacity(param_names.len());
@@ -11455,7 +11460,13 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     .or_else(|| self.ctx.function_param_names.get(method))
                     .cloned();
 
-                if let Some(param_names) = maybe_param_names {
+                let can_reorder = maybe_param_names
+                    .as_ref()
+                    .map(|p| p.len() >= arg_exprs.len() + kwargs.len())
+                    .unwrap_or(false);
+
+                if can_reorder {
+                    let param_names = maybe_param_names.unwrap();
                     // Build reordered argument list
                     let kwarg_map: std::collections::HashMap<&str, &HirExpr> = kwargs
                         .iter()
@@ -11878,7 +11889,12 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         let all_args = if !kwargs.is_empty() {
             // Look up function parameter names for proper reordering
             let maybe_param_names = self.ctx.function_param_names.get(func).cloned();
-            if let Some(param_names) = maybe_param_names {
+            let can_reorder = maybe_param_names
+                .as_ref()
+                .map(|p| p.len() >= args.len() + kwargs.len())
+                .unwrap_or(false);
+            if can_reorder {
+                let param_names = maybe_param_names.unwrap();
                 // Build argument list by matching kwargs to parameter positions
                 let mut reordered_args: Vec<syn::Expr> = Vec::with_capacity(param_names.len());
 
