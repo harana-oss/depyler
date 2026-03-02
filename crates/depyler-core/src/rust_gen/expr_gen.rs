@@ -13887,8 +13887,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             Type::Int | Type::Float | Type::Bool | Type::None => false,
             // Non-Copy types - need clone
             Type::String | Type::List(_) | Type::Dict(_, _) | Type::Set(_) => true,
-            // Custom types: enums derive Copy, structs don't
-            Type::Custom(name) => !self.ctx.enum_names.contains(name),
+            // Custom types: enums and all-Copy-field structs are Copy
+            Type::Custom(name) => {
+                !self.ctx.enum_names.contains(name) && !self.ctx.copy_structs.contains(name)
+            },
             // Optional needs clone if inner type needs clone
             Type::Optional(inner) => self.type_needs_clone(inner),
             // Tuple needs clone if any element needs clone
@@ -14760,18 +14762,32 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             // Variables - check their type
             HirExpr::Var(name) => {
                 if let Some(ty) = self.ctx.var_types.get(name) {
-                    matches!(ty, Type::Int | Type::Float | Type::Bool)
+                    match ty {
+                        Type::Int | Type::Float | Type::Bool => true,
+                        Type::Custom(n) => {
+                            self.ctx.enum_names.contains(n)
+                                || self.ctx.copy_structs.contains(n)
+                        }
+                        _ => false,
+                    }
                 } else {
                     false
                 }
             }
 
             // Attribute access - check if the field type is a Copy type
-            // e.g., state.ball_location.y where y is i32
+            // e.g., state.ball_location.y where y is i32, or state.statistics where Statistics is Copy
             HirExpr::Attribute { value, attr } => {
                 // Try to get the field type from context
                 if let Some(ty) = self.ctx.get_attribute_field_type(value, attr) {
-                    matches!(ty, Type::Int | Type::Float | Type::Bool)
+                    match &ty {
+                        Type::Int | Type::Float | Type::Bool => true,
+                        Type::Custom(name) => {
+                            self.ctx.enum_names.contains(name)
+                                || self.ctx.copy_structs.contains(name)
+                        }
+                        _ => false,
+                    }
                 } else {
                     // Heuristic: check if the field name suggests a primitive type
                     let attr_str = attr.as_str();
@@ -15682,8 +15698,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
 
         // Skip cloning if:
         // 1. Both branches are attributes AND the base is not a reference parameter, OR
-        // 2. generate_borrow is set (caller has determined borrowing is safe)
-        let skip_clone = (both_attrs && !base_is_ref_param) || self.ctx.generate_borrow;
+        // 2. generate_borrow is set (caller has determined borrowing is safe), OR
+        // 3. Both branches produce Copy types (no clone needed for Copy)
+        let skip_clone =
+            (both_attrs && !base_is_ref_param) || self.ctx.generate_borrow || both_copy_types;
         let was_prevent_clone = self.ctx.prevent_clone;
         let was_clone_already_applied = self.ctx.clone_already_applied;
         if skip_clone {

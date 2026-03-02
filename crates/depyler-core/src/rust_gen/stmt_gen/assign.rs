@@ -778,6 +778,8 @@ pub(crate) fn codegen_assign_stmt(
         let is_attribute_sourced = is_attribute_sourced_expr(value);
         let is_copy_type = if let HirExpr::Attribute { value: base, attr } = value {
             ctx.is_attribute_copy_type(base, attr)
+        } else if let HirExpr::IfExpr { body, orelse, .. } = value {
+            is_copy_type_branch(body, ctx) && is_copy_type_branch(orelse, ctx)
         } else {
             false
         };

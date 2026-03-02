@@ -1,0 +1,166 @@
+[metadata]
+name = "Ternary Struct Field Clone Tests"
+category = "ownership-mutability"
+description = "Tests that ternary expressions selecting struct fields do not add unnecessary .clone()"
+
+# =============================================================================
+# Copy struct fields — no clone needed
+# =============================================================================
+
+[[test]]
+name = "ternary_copy_struct_field_no_clone"
+description = "Selecting between Copy struct fields should not clone"
+
+python = '''
+from dataclasses import dataclass
+from enum import Enum
+
+class Team(Enum):
+    Home = 0
+    Away = 1
+
+@dataclass
+class Statistics:
+    wins: int
+    losses: int
+
+@dataclass
+class GameState:
+    home_statistics: Statistics
+    away_statistics: Statistics
+
+def get_wins(state: GameState, team: Team) -> int:
+    team_stats = state.home_statistics if team == Team.Home else state.away_statistics
+    return team_stats.wins
+'''
+
+rust = '''
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum Team {
+    #[default]
+    Home = 0,
+    Away = 1,
+}
+impl Team {
+    pub fn from_i32(value: i32) -> Option<Self> {
+        match value {
+            0 => Some(Self::Home),
+            1 => Some(Self::Away),
+            _ => None,
+        }
+    }
+    pub fn from_i32_or_default(value: i32) -> Self {
+        Self::from_i32(value).unwrap_or(Self::Home)
+    }
+}
+#[derive(Debug, Copy, Clone, PartialEq, Default)]
+pub struct Statistics {
+    pub wins: i32,
+    pub losses: i32,
+}
+impl Statistics {
+    pub fn new(wins: i32, losses: i32) -> Self {
+        Self { wins, losses }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct GameState {
+    pub home_statistics: Statistics,
+    pub away_statistics: Statistics,
+}
+impl GameState {
+    pub fn new(home_statistics: Statistics, away_statistics: Statistics) -> Self {
+        Self {
+            home_statistics,
+            away_statistics,
+        }
+    }
+}
+pub fn get_wins(state: &GameState, team: &Team) -> i32 {
+    let team_stats = if *team == Team::Home {
+        state.home_statistics
+    } else {
+        state.away_statistics
+    };
+    return team_stats.wins;
+}
+'''
+
+[[test]]
+name = "ternary_non_copy_struct_field_clones"
+description = "Selecting between non-Copy struct fields correctly clones when needed"
+
+python = '''
+from dataclasses import dataclass
+from enum import Enum
+
+class Team(Enum):
+    Home = 0
+    Away = 1
+
+@dataclass
+class Stats:
+    name: str
+    wins: int
+
+@dataclass
+class GameState:
+    home_stats: Stats
+    away_stats: Stats
+
+def get_name(state: GameState, team: Team) -> str:
+    team_stats = state.home_stats if team == Team.Home else state.away_stats
+    return team_stats.name
+'''
+
+rust = '''
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum Team {
+    #[default]
+    Home = 0,
+    Away = 1,
+}
+impl Team {
+    pub fn from_i32(value: i32) -> Option<Self> {
+        match value {
+            0 => Some(Self::Home),
+            1 => Some(Self::Away),
+            _ => None,
+        }
+    }
+    pub fn from_i32_or_default(value: i32) -> Self {
+        Self::from_i32(value).unwrap_or(Self::Home)
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Stats {
+    pub name: String,
+    pub wins: i32,
+}
+impl Stats {
+    pub fn new(name: String, wins: i32) -> Self {
+        Self { name, wins }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct GameState {
+    pub home_stats: Stats,
+    pub away_stats: Stats,
+}
+impl GameState {
+    pub fn new(home_stats: Stats, away_stats: Stats) -> Self {
+        Self {
+            home_stats,
+            away_stats,
+        }
+    }
+}
+pub fn get_name(state: &GameState, team: &Team) -> String {
+    let team_stats = if *team == Team::Home {
+        state.home_stats.clone()
+    } else {
+        state.away_stats.clone()
+    };
+    return team_stats.name;
+}
+'''

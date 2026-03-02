@@ -94,6 +94,17 @@ pub(crate) fn is_attribute_sourced_expr(expr: &HirExpr) -> bool {
     }
 }
 
+/// Check if an IfExpr branch is a Copy-type attribute access.
+pub(crate) fn is_copy_type_branch(expr: &HirExpr, ctx: &CodeGenContext) -> bool {
+    match expr {
+        HirExpr::Attribute { value, attr } => ctx.is_attribute_copy_type(value, attr),
+        HirExpr::IfExpr { body, orelse, .. } => {
+            is_copy_type_branch(body, ctx) && is_copy_type_branch(orelse, ctx)
+        }
+        _ => false,
+    }
+}
+
 pub(crate) fn is_empty_collection_init_expr(expr: &HirExpr) -> bool {
     use crate::hir::Literal;
     match expr {

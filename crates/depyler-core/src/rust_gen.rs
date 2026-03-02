@@ -47,6 +47,17 @@ pub use type_gen::rust_type_to_syn;
 pub(crate) use func_gen::return_type_expects_float;
 
 /// Analyze functions for string optimization
+/// Check if a field type is Copy (for determining struct Copy derivation).
+fn is_field_copy_type(ty: &Type) -> bool {
+    match ty {
+        Type::Int | Type::Float | Type::Bool | Type::None => true,
+        Type::Optional(inner) | Type::Final(inner) => is_field_copy_type(inner),
+        Type::Tuple(elements) => elements.iter().all(|t| is_field_copy_type(t)),
+        Type::Array { element_type, .. } => is_field_copy_type(element_type),
+        _ => false,
+    }
+}
+
 ///
 /// Performs string optimization analysis on all functions.
 /// Complexity: 2 (well within ≤10 target)
@@ -1743,6 +1754,7 @@ pub fn generate_rust_file(
         needs_lazy_static: false,
         needs_complex: false,
         enum_names: HashSet::new(),
+        copy_structs: HashSet::new(),
         class_field_types: HashMap::new(),
         function_param_muts: HashMap::new(),
         functions_with_mutated_return: HashSet::new(),
@@ -1767,11 +1779,25 @@ pub fn generate_rust_file(
     }
 
     // Populate class_field_types so field_needs_clone() can determine when .clone() is needed
+    // Also populate copy_structs for structs where all fields are Copy types
     for class in &module.classes {
         if !class.is_enum && !class.is_intflag {
             let mut field_map = HashMap::new();
             for field in &class.fields {
                 field_map.insert(field.name.clone(), field.field_type.clone());
+            }
+            // Track structs that derive Copy (all instance fields are Copy types)
+            let has_drop_impl = class
+                .methods
+                .iter()
+                .any(|m| m.name == "__del__" || m.name == "close");
+            let all_fields_copyable = class
+                .fields
+                .iter()
+                .filter(|f| !f.is_class_var)
+                .all(|f| is_field_copy_type(&f.field_type));
+            if all_fields_copyable && !has_drop_impl {
+                ctx.copy_structs.insert(class.name.clone());
             }
             ctx.class_field_types.insert(class.name.clone(), field_map);
         }
@@ -2047,6 +2073,7 @@ mod tests {
             needs_lazy_static: false,
             needs_complex: false,
             enum_names: HashSet::new(),
+            copy_structs: HashSet::new(),
             class_field_types: HashMap::new(),
             function_param_muts: HashMap::new(),
             functions_with_mutated_return: HashSet::new(),

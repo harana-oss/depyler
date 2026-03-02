@@ -111,6 +111,8 @@ pub struct CodeGenContext<'a> {
     pub var_types: HashMap<String, Type>,
     pub class_names: HashSet<String>,
     pub enum_names: HashSet<String>,
+    /// Struct names that derive Copy (all fields are Copy types)
+    pub copy_structs: HashSet<String>,
     /// Map from class name to map of field name to field type
     pub class_field_types: HashMap<String, HashMap<String, Type>>,
     pub mutating_methods: HashMap<String, HashSet<String>>,
@@ -118,7 +120,8 @@ pub struct CodeGenContext<'a> {
     /// Track parameter borrow information for interprocedural analysis
     pub function_param_borrows: HashMap<String, Vec<ParamBorrowInfo>>,
     /// Track parameter borrow information for interprocedural analysis
-    pub function_param_strategies: HashMap<String, Vec<crate::borrowing_context::BorrowingStrategy>>,
+    pub function_param_strategies:
+        HashMap<String, Vec<crate::borrowing_context::BorrowingStrategy>>,
     /// Track current function parameter ownership
     pub current_function_param_ownership: HashMap<String, bool>,
     /// Track parameters that require cloning
@@ -666,8 +669,10 @@ impl<'a> CodeGenContext<'a> {
             Type::Int | Type::Float | Type::Bool | Type::None => false,
             // Non-Copy types - need clone
             Type::String | Type::List(_) | Type::Dict(_, _) | Type::Set(_) => true,
-            // Custom types: enums derive Copy, structs don't
-            Type::Custom(name) => !self.enum_names.contains(name),
+            // Custom types: enums and all-Copy-field structs are Copy
+            Type::Custom(name) => {
+                !self.enum_names.contains(name) && !self.copy_structs.contains(name)
+            }
             // Optional needs clone if inner type needs clone
             Type::Optional(inner) => self.type_needs_clone(inner),
             // Tuple needs clone if any element needs clone
