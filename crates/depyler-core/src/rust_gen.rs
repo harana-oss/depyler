@@ -94,12 +94,16 @@ fn populate_function_param_borrows(
                 func,
                 ctx.type_mapper,
                 ctx.interprocedural_analysis,
+                &ctx.enum_names,
+                &ctx.copy_structs,
             )
             .unwrap_or_else(|| {
                 lifetime_inference.analyze_function_with_interprocedural(
                     func,
                     ctx.type_mapper,
                     ctx.interprocedural_analysis,
+                    &ctx.enum_names,
+                    &ctx.copy_structs,
                 )
             });
 
@@ -206,11 +210,11 @@ fn populate_function_param_borrows(
                                         param_has_mutations || callee_info.needs_mut;
 
                                     if should_upgrade_to_borrow {
-                                        // Skip borrowing upgrade for Copy types (i32, f64, bool, etc.)
+                                        // Skip borrowing upgrade for Copy types (i32, f64, bool, enums)
                                         // Copy types are cheap to pass by value — no need for references
                                         let param_type = &func.params[param_idx].ty;
                                         let rust_type = ctx.type_mapper.map_type(param_type);
-                                        if is_copy_rust_type(&rust_type) {
+                                        if is_copy_rust_type(&rust_type, &ctx.enum_names, &ctx.copy_structs) {
                                             // Copy type: leave as TakeOwnership (pass by value)
                                         } else if let Some(caller_borrows) =
                                             ctx.function_param_borrows.get_mut(&func.name)
@@ -231,7 +235,7 @@ fn populate_function_param_borrows(
                                         // Skip for Copy types — they don't need &mut
                                         let param_type = &func.params[param_idx].ty;
                                         let rust_type = ctx.type_mapper.map_type(param_type);
-                                        if !is_copy_rust_type(&rust_type) {
+                                        if !is_copy_rust_type(&rust_type, &ctx.enum_names, &ctx.copy_structs) {
                                             // Already borrowed, but need to upgrade to &mut
                                             if let Some(caller_borrows) =
                                                 ctx.function_param_borrows.get_mut(&func.name)
@@ -252,7 +256,7 @@ fn populate_function_param_borrows(
                                         // Skip for Copy types — they don't need borrowing
                                         let param_type = &func.params[param_idx].ty;
                                         let rust_type = ctx.type_mapper.map_type(param_type);
-                                        if !is_copy_rust_type(&rust_type) {
+                                        if !is_copy_rust_type(&rust_type, &ctx.enum_names, &ctx.copy_structs) {
                                             // The callee needs at least &, ensure we provide a borrow
                                             if let Some(caller_borrows) =
                                                 ctx.function_param_borrows.get_mut(&func.name)
@@ -281,12 +285,20 @@ fn populate_function_param_borrows(
     Ok(())
 }
 
-/// Check if a RustType is Copy (primitives should not be borrowed).
-fn is_copy_rust_type(rust_type: &crate::type_mapper::RustType) -> bool {
+/// Check if a RustType is Copy (primitives and enums should not be borrowed).
+pub(crate) fn is_copy_rust_type(
+    rust_type: &crate::type_mapper::RustType,
+    enum_names: &HashSet<String>,
+    _copy_structs: &HashSet<String>,
+) -> bool {
     use crate::type_mapper::RustType;
     match rust_type {
         RustType::Primitive(_) | RustType::Unit => true,
-        RustType::Tuple(types) => types.iter().all(is_copy_rust_type),
+        RustType::Tuple(types) => types
+            .iter()
+            .all(|t| is_copy_rust_type(t, enum_names, _copy_structs)),
+        // Enums are immutable Copy values — always pass by value
+        RustType::Custom(name) => enum_names.contains(name),
         _ => false,
     }
 }

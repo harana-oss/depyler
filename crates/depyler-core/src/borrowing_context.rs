@@ -91,6 +91,10 @@ pub struct BorrowingContext {
     context_stack: Vec<AnalysisContext>,
     /// Function return type for escape analysis
     return_type: Option<PythonType>,
+    /// Known enum type names (Copy types)
+    enum_names: HashSet<String>,
+    /// Known Copy struct type names
+    copy_structs: HashSet<String>,
 }
 
 /// Detailed parameter usage pattern
@@ -212,7 +216,11 @@ pub enum BorrowingInsight {
 }
 
 impl BorrowingContext {
-    pub fn new(return_type: Option<PythonType>) -> Self {
+    pub fn new(
+        return_type: Option<PythonType>,
+        enum_names: HashSet<String>,
+        copy_structs: HashSet<String>,
+    ) -> Self {
         Self {
             param_usage: HashMap::new(),
             moved_vars: HashSet::new(),
@@ -220,6 +228,8 @@ impl BorrowingContext {
             immut_borrowed_vars: HashSet::new(),
             context_stack: vec![AnalysisContext::Function],
             return_type,
+            enum_names,
+            copy_structs,
         }
     }
 
@@ -1111,13 +1121,18 @@ impl BorrowingContext {
             RustType::Primitive(_) => true,
             RustType::Unit => true,
             RustType::Tuple(types) => types.iter().all(|t| self.is_copy_type(t)),
+            // Enums are immutable Copy values in Python — always pass by value
+            RustType::Custom(name) => self.enum_names.contains(name),
             _ => false,
         }
     }
 
     /// Check if a type is a struct/dataclass type that should prefer borrowing
     fn is_struct_type(&self, rust_type: &RustType) -> bool {
-        // Custom types (dataclasses, user-defined structs) should prefer borrowing
-        matches!(rust_type, RustType::Custom(_))
+        match rust_type {
+            // Enums are not structs — they're Copy values that don't need borrowing
+            RustType::Custom(name) => !self.enum_names.contains(name),
+            _ => false,
+        }
     }
 }

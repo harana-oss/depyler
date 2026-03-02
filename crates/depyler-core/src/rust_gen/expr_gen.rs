@@ -16052,17 +16052,28 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             let is_enumerate =
                 matches!(&*generator.iter, HirExpr::Call { func, .. } if func == "enumerate");
 
-            // When the iterator is a variable (likely a borrowed parameter like &Vec<i32>),
-            // use .iter().copied() for Copy types or .iter().cloned() for non-Copy types
-            // This prevents type mismatches like `&i32` vs `i32` in generator expressions
+            // When the iterator is a variable, decide between .into_iter() and .iter():
+            // - Borrowed parameters (&Vec<T>): must use .iter().copied()/.cloned()
+            // - Owned locals (e.g., result of a function call): use .into_iter()
+            let is_borrowed_param = if let HirExpr::Var(var_name) = &*generator.iter {
+                self.ctx.current_func_ref_params.contains(var_name)
+                    || self.ctx.current_func_mut_ref_params.contains(var_name)
+            } else {
+                false
+            };
+
             let mut chain: syn::Expr = if is_csv_reader {
                 self.ctx.needs_csv = true;
                 parse_quote! { #iter_expr.deserialize::<std::collections::HashMap<String, String>>().filter_map(|result| result.ok()) }
             } else if matches!(&*generator.iter, HirExpr::Var(_)) {
-                if element_needs_clone {
-                    parse_quote! { #iter_expr.iter().cloned() }
+                if is_borrowed_param {
+                    if element_needs_clone {
+                        parse_quote! { #iter_expr.iter().cloned() }
+                    } else {
+                        parse_quote! { #iter_expr.iter().copied() }
+                    }
                 } else {
-                    parse_quote! { #iter_expr.iter().copied() }
+                    parse_quote! { #iter_expr.into_iter() }
                 }
             } else if is_range || is_enumerate {
                 // Ranges and enumerate() already return iterators, don't need clone
@@ -16075,7 +16086,13 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             // Add filters for each condition
             for cond in &generator.conditions {
                 let cond_expr = cond.to_rust_expr(self.ctx)?;
-                chain = parse_quote! { #chain.filter(|#target_pat| #cond_expr) };
+                if !element_needs_clone {
+                    // Copy types: destructure the reference in filter closures so the
+                    // variable is owned (e.g., `|&idx|` instead of `|idx|` where idx would be &i32)
+                    chain = parse_quote! { #chain.filter(|&#target_pat| #cond_expr) };
+                } else {
+                    chain = parse_quote! { #chain.filter(|#target_pat| #cond_expr) };
+                }
             }
 
             // Add the map transformation only if it's not an identity map (element != target)

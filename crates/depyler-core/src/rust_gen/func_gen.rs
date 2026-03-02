@@ -1347,12 +1347,16 @@ impl RustCodeGen for HirFunction {
                 self,
                 ctx.type_mapper,
                 ctx.interprocedural_analysis,
+                &ctx.enum_names,
+                &ctx.copy_structs,
             )
             .unwrap_or_else(|| {
                 lifetime_inference.analyze_function_with_interprocedural(
                     self,
                     ctx.type_mapper,
                     ctx.interprocedural_analysis,
+                    &ctx.enum_names,
+                    &ctx.copy_structs,
                 )
             });
 
@@ -1362,9 +1366,9 @@ impl RustCodeGen for HirFunction {
         if let Some(param_borrows) = ctx.function_param_borrows.get(&self.name) {
             for (param_idx, borrow_info) in param_borrows.iter().enumerate() {
                 if param_idx < self.params.len() {
-                    // Skip Copy types — primitives are cheap to pass by value
+                    // Skip Copy types — primitives and enums are cheap to pass by value
                     let param_rust_type = ctx.type_mapper.map_type(&self.params[param_idx].ty);
-                    if super::is_copy_rust_type(&param_rust_type) {
+                    if super::is_copy_rust_type(&param_rust_type, &ctx.enum_names, &ctx.copy_structs) {
                         continue;
                     }
 

@@ -210,7 +210,13 @@ impl LifetimeInference {
         func: &HirFunction,
         type_mapper: &crate::type_mapper::TypeMapper,
     ) -> LifetimeResult {
-        self.analyze_function_with_interprocedural(func, type_mapper, None)
+        self.analyze_function_with_interprocedural(
+            func,
+            type_mapper,
+            None,
+            &HashSet::new(),
+            &HashSet::new(),
+        )
     }
 
     /// Analyze a function to infer parameter lifetimes with interprocedural context
@@ -219,9 +225,15 @@ impl LifetimeInference {
         func: &HirFunction,
         type_mapper: &crate::type_mapper::TypeMapper,
         interprocedural: Option<&crate::interprocedural::InterproceduralAnalysis>,
+        enum_names: &HashSet<String>,
+        copy_structs: &HashSet<String>,
     ) -> LifetimeResult {
         // Use enhanced borrowing context for comprehensive analysis
-        let mut borrowing_ctx = BorrowingContext::new(Some(func.ret_type.clone()));
+        let mut borrowing_ctx = BorrowingContext::new(
+            Some(func.ret_type.clone()),
+            enum_names.clone(),
+            copy_structs.clone(),
+        );
         let borrowing_result =
             borrowing_ctx.analyze_function_with_interprocedural(func, type_mapper, interprocedural);
 
@@ -882,7 +894,13 @@ impl LifetimeInference {
         func: &HirFunction,
         type_mapper: &crate::type_mapper::TypeMapper,
     ) -> Option<LifetimeResult> {
-        self.apply_elision_rules_with_interprocedural(func, type_mapper, None)
+        self.apply_elision_rules_with_interprocedural(
+            func,
+            type_mapper,
+            None,
+            &HashSet::new(),
+            &HashSet::new(),
+        )
     }
 
     /// Apply Rust's lifetime elision rules with interprocedural context
@@ -891,10 +909,17 @@ impl LifetimeInference {
         func: &HirFunction,
         type_mapper: &crate::type_mapper::TypeMapper,
         interprocedural: Option<&crate::interprocedural::InterproceduralAnalysis>,
+        enum_names: &HashSet<String>,
+        copy_structs: &HashSet<String>,
     ) -> Option<LifetimeResult> {
         // First, do the full analysis WITH interprocedural context
-        let full_result =
-            self.analyze_function_with_interprocedural(func, type_mapper, interprocedural);
+        let full_result = self.analyze_function_with_interprocedural(
+            func,
+            type_mapper,
+            interprocedural,
+            enum_names,
+            copy_structs,
+        );
 
         // Count reference parameters
         let ref_params: Vec<_> = full_result

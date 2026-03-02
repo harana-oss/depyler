@@ -1400,8 +1400,27 @@ pub fn get_doubled(items: &Vec<i32>) -> Vec<i32> {
     return items
         .iter()
         .copied()
-        .filter(|x| x > 0)
+        .filter(|&x| x > 0)
         .map(|x| x * 2)
         .collect::<Vec<_>>();
+}
+'''
+
+[[test]]
+name = "generator_filter_on_owned_local_uses_into_iter"
+description = "Generator over locally-owned variable uses into_iter and destructuring in filter"
+
+python = '''
+def get_positive_doubled(items: list[int]) -> list[int]:
+    positives = [i for i in range(len(items)) if items[i] > 0]
+    return list(x * 2 for x in positives)
+'''
+
+rust = '''
+pub fn get_positive_doubled(items: &Vec<i32>) -> Vec<i32> {
+    let positives = (0..items.len() as i32)
+        .filter(|&i| items.get(i as usize).cloned().unwrap() > 0)
+        .collect::<Vec<_>>();
+    return positives.into_iter().map(|x| x * 2).collect::<Vec<_>>();
 }
 '''

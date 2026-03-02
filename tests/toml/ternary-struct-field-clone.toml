@@ -76,8 +76,8 @@ impl GameState {
         }
     }
 }
-pub fn get_wins(state: &GameState, team: &Team) -> i32 {
-    let team_stats = if *team == Team::Home {
+pub fn get_wins(state: &GameState, team: Team) -> i32 {
+    let team_stats = if team == Team::Home {
         state.home_statistics
     } else {
         state.away_statistics
@@ -155,8 +155,8 @@ impl GameState {
         }
     }
 }
-pub fn get_name(state: &GameState, team: &Team) -> String {
-    let team_stats = if *team == Team::Home {
+pub fn get_name(state: &GameState, team: Team) -> String {
+    let team_stats = if team == Team::Home {
         state.home_stats.clone()
     } else {
         state.away_stats.clone()
@@ -264,8 +264,8 @@ impl GameState {
         }
     }
 }
-pub fn assign_try(state: &mut GameState, team: &Team, player_list_idx: i32) {
-    let team_stats = if *team == Team::Home {
+pub fn assign_try(state: &mut GameState, team: Team, player_list_idx: i32) {
+    let team_stats = if team == Team::Home {
         &mut state.home_statistics
     } else {
         &mut state.away_statistics

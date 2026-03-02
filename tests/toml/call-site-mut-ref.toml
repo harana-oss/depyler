@@ -1164,3 +1164,59 @@ pub fn run_update(state: &mut State) {
     update_stats(state, true);
 }
 '''
+
+# =============================================================================
+# Enum parameters should be passed by value (Copy), not by reference
+# =============================================================================
+
+[[test]]
+name = "enum_param_passed_by_value_in_interprocedural_call"
+description = "Enum params stay by-value even when passed interprocedurally"
+
+python = '''
+from enum import IntEnum
+
+class Team(IntEnum):
+    Home = 0
+    Away = 1
+
+def get_team_name(team: Team) -> str:
+    if team == Team.Home:
+        return "Home"
+    return "Away"
+
+def describe_team(team: Team) -> str:
+    name = get_team_name(team)
+    return name
+'''
+
+rust = '''
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum Team {
+    #[default]
+    Home = 0,
+    Away = 1,
+}
+impl Team {
+    pub fn from_i32(value: i32) -> Option<Self> {
+        match value {
+            0 => Some(Self::Home),
+            1 => Some(Self::Away),
+            _ => None,
+        }
+    }
+    pub fn from_i32_or_default(value: i32) -> Self {
+        Self::from_i32(value).unwrap_or(Self::Home)
+    }
+}
+pub fn get_team_name(team: Team) -> String {
+    if team == Team::Home {
+        return "Home".to_string();
+    }
+    return "Away".to_string();
+}
+pub fn describe_team(team: Team) -> String {
+    let name = get_team_name(team);
+    return name;
+}
+'''
