@@ -7,7 +7,6 @@ use anyhow::{Result, bail};
 use quote::{ToTokens, format_ident, quote};
 use syn::{self, parse_quote};
 
-
 use super::*;
 pub(crate) fn codegen_pass_stmt() -> Result<proc_macro2::TokenStream> {
     Ok(quote! {})
@@ -354,4 +353,3 @@ pub(crate) fn codegen_async_for_stmt(
         }
     })
 }
-

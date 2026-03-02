@@ -963,3 +963,89 @@ pub fn bump_score(player: &mut Player) -> Stats {
     return Stats::new(player.score);
 }
 '''
+
+# =============================================================================
+# Variable used in both attribute assignment and method call — needs clone
+# =============================================================================
+
+[[test]]
+name = "clone_var_used_in_attr_assign_and_push"
+description = "Variable assigned to struct field AND pushed to list needs .clone() on earlier use"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class PlayerStatistics:
+    total_score: int
+    label: str
+
+@dataclass
+class Player:
+    score: int
+    bonus: int
+    total_statistics: PlayerStatistics
+
+@dataclass
+class TeamStats:
+    player_statistics: list[PlayerStatistics]
+
+def _create_player_statistics(player: Player) -> PlayerStatistics:
+    return PlayerStatistics(total_score=player.score + player.bonus, label="total")
+
+def build_team_stats(player: Player) -> TeamStats:
+    team_stats = TeamStats(player_statistics=[])
+    total_statistics = _create_player_statistics(player)
+    player.total_statistics = total_statistics
+    team_stats.player_statistics.append(total_statistics)
+    return team_stats
+'''
+
+rust = '''
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct PlayerStatistics {
+    pub total_score: i32,
+    pub label: String,
+}
+impl PlayerStatistics {
+    pub fn new(total_score: i32, label: String) -> Self {
+        Self { total_score, label }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Player {
+    pub score: i32,
+    pub bonus: i32,
+    pub total_statistics: PlayerStatistics,
+}
+impl Player {
+    pub fn new(score: i32, bonus: i32, total_statistics: PlayerStatistics) -> Self {
+        Self {
+            score,
+            bonus,
+            total_statistics,
+        }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct TeamStats {
+    pub player_statistics: Vec<PlayerStatistics>,
+}
+impl TeamStats {
+    pub fn new(player_statistics: Vec<PlayerStatistics>) -> Self {
+        Self {
+            player_statistics,
+        }
+    }
+}
+pub fn _create_player_statistics(player: &Player) -> PlayerStatistics {
+    return PlayerStatistics::new(player.score + player.bonus, "total".to_string());
+}
+pub fn build_team_stats(player: &mut Player) -> TeamStats {
+    let team_stats = TeamStats::new(vec![]);
+    let total_statistics = _create_player_statistics(player);
+    player.total_statistics = total_statistics.clone();
+    team_stats.player_statistics.push(total_statistics);
+    return team_stats;
+}
+'''

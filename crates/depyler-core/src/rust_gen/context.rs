@@ -225,6 +225,16 @@ pub struct CodeGenContext<'a> {
     /// The immutable borrow in var1 would conflict with the mutable borrow for var2.
     /// Solution: clone var1 at assignment so the borrow ends immediately.
     pub vars_needing_clone_at_assign: HashSet<String>,
+
+    /// Variables that are consumed in multiple move positions (e.g., assigned to
+    /// a struct field AND passed to push/append). All uses except the last need .clone().
+    pub vars_needing_clone_for_move: HashSet<String>,
+
+    /// Counter tracking how many consuming (move) uses have been generated so far per variable.
+    pub move_consume_current: HashMap<String, usize>,
+
+    /// Total consuming (move) uses per variable, populated by analyze_move_consuming_uses.
+    pub move_consume_totals: HashMap<String, usize>,
 }
 
 impl<'a> CodeGenContext<'a> {
@@ -736,6 +746,173 @@ impl<'a> CodeGenContext<'a> {
             } else if self.can_var_borrow(stmts, var_name) {
                 self.borrowable_vars.insert(var_name.clone());
             }
+        }
+    }
+
+    /// Detect variables consumed in multiple move positions and mark them for cloning.
+    /// Consuming positions: attribute assignment RHS, push/append/extend args, return values,
+    /// and function call args where the callee takes ownership.
+    pub fn analyze_move_consuming_uses(&mut self, stmts: &[crate::hir::HirStmt]) {
+        self.vars_needing_clone_for_move.clear();
+        self.move_consume_current.clear();
+        self.move_consume_totals.clear();
+        let mut consuming_counts: HashMap<String, usize> = HashMap::new();
+        for stmt in stmts {
+            self.count_move_consuming_uses_in_stmt(stmt, &mut consuming_counts);
+        }
+        for (name, count) in &consuming_counts {
+            if *count > 1 {
+                // Don't clone borrowed function parameters (&T is Copy)
+                let is_borrowed_param = self
+                    .current_function_param_ownership
+                    .get(name)
+                    .is_some_and(|takes_ownership| !takes_ownership);
+                if !is_borrowed_param {
+                    self.vars_needing_clone_for_move.insert(name.clone());
+                }
+            }
+        }
+        self.move_consume_totals = consuming_counts;
+    }
+
+    /// Check if a variable at a consuming position needs .clone() (not the last move use).
+    pub fn should_clone_for_move(&mut self, var_name: &str) -> bool {
+        if !self.vars_needing_clone_for_move.contains(var_name) {
+            return false;
+        }
+        // Check type at codegen time (var_types populated by earlier assignments)
+        let is_non_copy = self
+            .var_types
+            .get(var_name)
+            .is_some_and(|t| self.type_needs_clone(t));
+        if !is_non_copy {
+            return false;
+        }
+        let total = self
+            .move_consume_totals
+            .get(var_name)
+            .copied()
+            .unwrap_or(1);
+        let current = self
+            .move_consume_current
+            .entry(var_name.to_string())
+            .or_insert(0);
+        *current += 1;
+        // Clone all uses except the last
+        *current < total
+    }
+
+    /// Count consuming (move) uses of variables in a statement.
+    fn count_move_consuming_uses_in_stmt(
+        &self,
+        stmt: &crate::hir::HirStmt,
+        counts: &mut HashMap<String, usize>,
+    ) {
+        use crate::hir::{AssignTarget, HirExpr, HirStmt};
+        match stmt {
+            HirStmt::Assign { target, value, .. } => {
+                match target {
+                    // obj.field = var → consumes var (moves into field)
+                    AssignTarget::Attribute { .. } => {
+                        self.collect_consuming_vars(value, counts);
+                    }
+                    // let x = var → consumes var (moves into binding)
+                    AssignTarget::Symbol(_) => {
+                        self.collect_consuming_vars(value, counts);
+                    }
+                    _ => {}
+                }
+            }
+            // Bare expression: e.g., list.append(var) or func(var)
+            HirStmt::Expr(expr) => {
+                if let HirExpr::MethodCall { args, .. } = expr {
+                    for arg in args {
+                        self.collect_consuming_vars(arg, counts);
+                    }
+                } else if let HirExpr::Call { args, .. } = expr {
+                    for arg in args {
+                        self.collect_consuming_vars(arg, counts);
+                    }
+                }
+            }
+            HirStmt::Return(Some(expr)) => {
+                self.collect_consuming_vars(expr, counts);
+            }
+            // Recurse into nested blocks
+            HirStmt::If {
+                then_body,
+                else_body,
+                ..
+            } => {
+                for s in then_body {
+                    self.count_move_consuming_uses_in_stmt(s, counts);
+                }
+                if let Some(else_stmts) = else_body {
+                    for s in else_stmts {
+                        self.count_move_consuming_uses_in_stmt(s, counts);
+                    }
+                }
+            }
+            HirStmt::While { body, .. } | HirStmt::For { body, .. } => {
+                for s in body {
+                    self.count_move_consuming_uses_in_stmt(s, counts);
+                }
+            }
+            HirStmt::Try {
+                body,
+                handlers,
+                orelse,
+                finalbody,
+            } => {
+                for s in body {
+                    self.count_move_consuming_uses_in_stmt(s, counts);
+                }
+                for handler in handlers {
+                    for s in &handler.body {
+                        self.count_move_consuming_uses_in_stmt(s, counts);
+                    }
+                }
+                if let Some(els) = orelse {
+                    for s in els {
+                        self.count_move_consuming_uses_in_stmt(s, counts);
+                    }
+                }
+                if let Some(fin) = finalbody {
+                    for s in fin {
+                        self.count_move_consuming_uses_in_stmt(s, counts);
+                    }
+                }
+            }
+            HirStmt::With { body, .. } => {
+                for s in body {
+                    self.count_move_consuming_uses_in_stmt(s, counts);
+                }
+            }
+            _ => {}
+        }
+    }
+
+    /// Collect top-level variable references that represent a consuming (move) use.
+    fn collect_consuming_vars(
+        &self,
+        expr: &crate::hir::HirExpr,
+        counts: &mut HashMap<String, usize>,
+    ) {
+        use crate::hir::HirExpr;
+        match expr {
+            HirExpr::Var(name) => {
+                *counts.entry(name.clone()).or_insert(0) += 1;
+            }
+            // Call args are consuming (the function receives ownership or the codegen
+            // will handle borrowing separately)
+            HirExpr::Call { args, .. } => {
+                for arg in args {
+                    if let HirExpr::Var(name) = arg {
+                        *counts.entry(name.clone()).or_insert(0) += 1;
+                    }
+                }
+            }
+            _ => {}
         }
     }
 

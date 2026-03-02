@@ -1017,6 +1017,14 @@ pub(crate) fn codegen_assign_stmt(
         }
     }
 
+    // Clone variables consumed in multiple move positions to prevent use-after-move.
+    // e.g., player.total_statistics = total_statistics; list.push(total_statistics);
+    if let HirExpr::Var(var_name) = value {
+        if ctx.should_clone_for_move(var_name) {
+            value_expr = parse_quote! { #value_expr.clone() };
+        }
+    }
+
     match target {
         AssignTarget::Symbol(symbol) => {
             codegen_assign_symbol(symbol, value_expr, type_annotation_tokens, is_final, ctx)

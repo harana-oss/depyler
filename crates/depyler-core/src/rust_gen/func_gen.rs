@@ -1440,6 +1440,10 @@ impl RustCodeGen for HirFunction {
         // (needs current_func_mut_ref_params populated by codegen_function_params)
         ctx.analyze_field_borrowing(&self.body);
 
+        // Detect variables consumed in multiple move positions (e.g., assigned to a struct
+        // field AND passed to push/append) so the earlier use gets .clone().
+        ctx.analyze_move_consuming_uses(&self.body);
+
         // Variables in mut_borrowable_vars will hold &mut references, so the binding
         // itself doesn't need `mut`. Remove them from mutable_vars to avoid `let mut`.
         for var_name in &ctx.mut_borrowable_vars {
