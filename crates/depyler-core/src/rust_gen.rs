@@ -593,6 +593,9 @@ fn scan_expr_for_validators(expr: &HirExpr, ctx: &mut CodeGenContext) {
 fn analyze_mutable_vars(stmts: &[HirStmt], ctx: &mut CodeGenContext, params: &[HirParam]) {
     let mut declared = HashSet::new();
     let mut loop_var_origins: HashMap<String, String> = HashMap::new();
+    // Track variables assigned from parameter field access (e.g., `team_stats = state.field`)
+    // so that mutations to team_stats also mark state as mutable.
+    let mut field_source_origins: HashMap<String, String> = HashMap::new();
 
     // DEPYLER-0312: Pre-populate declared with function parameters
     // This allows the reassignment detection logic below to catch parameter mutations
@@ -612,6 +615,46 @@ fn analyze_mutable_vars(stmts: &[HirStmt], ctx: &mut CodeGenContext, params: &[H
             }
             HirExpr::Attribute { value, .. } => extract_param_from_expr(value, declared),
             HirExpr::Index { base, .. } => extract_param_from_expr(base, declared),
+            _ => None,
+        }
+    }
+
+    /// Extract the root variable from a nested attribute/index chain.
+    /// e.g., `team_stats.player_statistics[idx].scores.tries` → `team_stats`
+    fn extract_root_var(expr: &HirExpr) -> Option<String> {
+        match expr {
+            HirExpr::Var(name) => Some(name.clone()),
+            HirExpr::Attribute { value, .. } => extract_root_var(value),
+            HirExpr::Index { base, .. } => extract_root_var(base),
+            _ => None,
+        }
+    }
+
+    /// Extract the source parameter from an attribute-sourced expression.
+    /// Handles direct attribute access (state.field) and conditional expressions
+    /// where both branches are attribute accesses from the same parameter.
+    fn extract_param_from_attribute_source(
+        expr: &HirExpr,
+        params: &HashSet<String>,
+    ) -> Option<String> {
+        match expr {
+            HirExpr::Attribute { value, .. } => {
+                if let Some(root) = extract_root_var(value) {
+                    if params.contains(&root) {
+                        return Some(root);
+                    }
+                }
+                None
+            }
+            HirExpr::IfExpr { body, orelse, .. } => {
+                let body_param = extract_param_from_attribute_source(body, params)?;
+                let orelse_param = extract_param_from_attribute_source(orelse, params)?;
+                if body_param == orelse_param {
+                    Some(body_param)
+                } else {
+                    None
+                }
+            }
             _ => None,
         }
     }
@@ -720,6 +763,7 @@ fn analyze_mutable_vars(stmts: &[HirStmt], ctx: &mut CodeGenContext, params: &[H
         var_types: &mut HashMap<String, String>,
         mutating_methods: &HashMap<String, HashSet<String>>,
         loop_var_origins: &mut HashMap<String, String>,
+        field_source_origins: &mut HashMap<String, String>,
     ) {
         match stmt {
             HirStmt::Assign { target, value, .. } => {
@@ -732,6 +776,12 @@ fn analyze_mutable_vars(stmts: &[HirStmt], ctx: &mut CodeGenContext, params: &[H
                         if let HirExpr::Call { func, .. } = value {
                             // Store the type (class name) for this variable
                             var_types.insert(name.clone(), func.clone());
+                        }
+
+                        // Track field-source origins: team_stats = state.field
+                        // Also handles IfExpr: team_stats = state.x if cond else state.y
+                        if let Some(param_name) = extract_param_from_attribute_source(value, declared) {
+                            field_source_origins.insert(name.clone(), param_name);
                         }
 
                         if declared.contains(name) {
@@ -758,40 +808,44 @@ fn analyze_mutable_vars(stmts: &[HirStmt], ctx: &mut CodeGenContext, params: &[H
                     }
                     AssignTarget::Attribute { value: obj, .. } => {
                         // DEPYLER-0235 FIX: Property writes require the base object to be mutable
-                        // e.g., `b.size = 20` requires `let mut b = ...`
-                        // Also check if this is a loop variable that traces back to a parameter
-                        if let HirExpr::Var(var_name) = obj.as_ref() {
-                            if let Some(param_name) = loop_var_origins.get(var_name) {
-                                // Mutating through a loop variable - mark the source parameter as mutable
+                        // Traverse nested attribute/index chains to find the root variable
+                        if let Some(var_name) = extract_root_var(obj) {
+                            if let Some(param_name) = loop_var_origins.get(&var_name) {
                                 mutable.insert(param_name.clone());
                             } else {
-                                // Direct variable mutation
                                 mutable.insert(var_name.clone());
+                            }
+                            // Also mark the source parameter as mutable for transitive mutation
+                            if let Some(source_param) = field_source_origins.get(&var_name) {
+                                mutable.insert(source_param.clone());
                             }
                         }
                     }
                     AssignTarget::Index { base, .. } => {
                         // DEPYLER-0235 FIX: Index assignments also require mutability
-                        // e.g., `arr[i] = value` requires `let mut arr = ...`
-                        // Also check if this is a loop variable that traces back to a parameter
-                        if let HirExpr::Var(var_name) = base.as_ref() {
-                            if let Some(param_name) = loop_var_origins.get(var_name) {
-                                // Mutating through a loop variable - mark the source parameter as mutable
+                        // Traverse nested chains to find the root variable
+                        if let Some(var_name) = extract_root_var(base) {
+                            if let Some(param_name) = loop_var_origins.get(&var_name) {
                                 mutable.insert(param_name.clone());
                             } else {
-                                // Direct variable mutation
                                 mutable.insert(var_name.clone());
+                            }
+                            if let Some(source_param) = field_source_origins.get(&var_name) {
+                                mutable.insert(source_param.clone());
                             }
                         }
                     }
                     AssignTarget::Slice { base, .. } => {
                         // Slice assignments require mutability
-                        // e.g., `arr[1:3] = [10, 20]` requires `let mut arr = ...`
-                        if let HirExpr::Var(var_name) = base.as_ref() {
-                            if let Some(param_name) = loop_var_origins.get(var_name) {
+                        // Traverse nested chains to find the root variable
+                        if let Some(var_name) = extract_root_var(base) {
+                            if let Some(param_name) = loop_var_origins.get(&var_name) {
                                 mutable.insert(param_name.clone());
                             } else {
                                 mutable.insert(var_name.clone());
+                            }
+                            if let Some(source_param) = field_source_origins.get(&var_name) {
+                                mutable.insert(source_param.clone());
                             }
                         }
                     }
@@ -824,6 +878,7 @@ fn analyze_mutable_vars(stmts: &[HirStmt], ctx: &mut CodeGenContext, params: &[H
                         var_types,
                         mutating_methods,
                         loop_var_origins,
+                        field_source_origins,
                     );
                 }
                 if let Some(else_stmts) = else_body {
@@ -835,6 +890,7 @@ fn analyze_mutable_vars(stmts: &[HirStmt], ctx: &mut CodeGenContext, params: &[H
                             var_types,
                             mutating_methods,
                             loop_var_origins,
+                            field_source_origins,
                         );
                     }
                 }
@@ -851,6 +907,7 @@ fn analyze_mutable_vars(stmts: &[HirStmt], ctx: &mut CodeGenContext, params: &[H
                         var_types,
                         mutating_methods,
                         loop_var_origins,
+                        field_source_origins,
                     );
                 }
             }
@@ -876,6 +933,7 @@ fn analyze_mutable_vars(stmts: &[HirStmt], ctx: &mut CodeGenContext, params: &[H
                         var_types,
                         mutating_methods,
                         loop_var_origins,
+                        field_source_origins,
                     );
                 }
             }
@@ -893,6 +951,7 @@ fn analyze_mutable_vars(stmts: &[HirStmt], ctx: &mut CodeGenContext, params: &[H
             &mut var_types,
             mutating_methods,
             &mut loop_var_origins,
+            &mut field_source_origins,
         );
     }
 

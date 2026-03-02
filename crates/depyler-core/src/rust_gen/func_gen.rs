@@ -1436,6 +1436,16 @@ impl RustCodeGen for HirFunction {
         // Convert parameters using lifetime analysis results
         let params = codegen_function_params(self, &lifetime_result, ctx)?;
 
+        // Analyze field-source variable borrowing AFTER params are generated
+        // (needs current_func_mut_ref_params populated by codegen_function_params)
+        ctx.analyze_field_borrowing(&self.body);
+
+        // Variables in mut_borrowable_vars will hold &mut references, so the binding
+        // itself doesn't need `mut`. Remove them from mutable_vars to avoid `let mut`.
+        for var_name in &ctx.mut_borrowable_vars {
+            ctx.mutable_vars.remove(var_name);
+        }
+
         // NOTE: function_param_borrows is now pre-populated in rust_gen.rs::populate_function_param_borrows()
         // before any functions are generated. This ensures call sites have complete information
         // about callee parameter signatures. The code below is kept for reference but not executed.

@@ -723,6 +723,22 @@ impl<'a> CodeGenContext<'a> {
         }
     }
 
+    /// Analyze only borrow eligibility for field-source variables without
+    /// resetting var_usage_counts (avoids side effects on clone decisions).
+    pub fn analyze_field_borrowing(&mut self, stmts: &[crate::hir::HirStmt]) {
+        self.borrowable_vars.clear();
+        self.mut_borrowable_vars.clear();
+
+        let field_source_vars = self.collect_field_source_vars(stmts);
+        for var_name in &field_source_vars {
+            if self.can_var_mut_borrow(stmts, var_name) {
+                self.mut_borrowable_vars.insert(var_name.clone());
+            } else if self.can_var_borrow(stmts, var_name) {
+                self.borrowable_vars.insert(var_name.clone());
+            }
+        }
+    }
+
     /// Collect variable names that are assigned from field access (e.g., `players = state.all_players`)
     fn collect_field_source_vars(&self, stmts: &[crate::hir::HirStmt]) -> Vec<String> {
         let mut result = Vec::new();
@@ -934,9 +950,57 @@ impl<'a> CodeGenContext<'a> {
     fn can_var_borrow(&self, stmts: &[crate::hir::HirStmt], var_name: &str) -> bool {
         // Only check for actual moves (returns), not function calls (passed by reference)
         !self.var_has_return_move(stmts, var_name)
+            && !self.var_field_access_returned(stmts, var_name)
             && !self.var_has_mut_use(stmts, var_name)
             && !self.var_captured_in_closure(stmts, var_name)
             && !self.var_has_non_attribute_assignment(stmts, var_name)
+    }
+
+    /// Check if a field of the variable is returned (e.g., `return team_stats.name`).
+    /// Borrowing the variable won't work if we need to return an owned field from it.
+    fn var_field_access_returned(&self, stmts: &[crate::hir::HirStmt], var_name: &str) -> bool {
+        for stmt in stmts {
+            if self.stmt_has_field_return(stmt, var_name) {
+                return true;
+            }
+        }
+        false
+    }
+
+    fn stmt_has_field_return(&self, stmt: &crate::hir::HirStmt, var_name: &str) -> bool {
+        use crate::hir::HirStmt;
+        match stmt {
+            HirStmt::Return(Some(expr)) => self.expr_accesses_var_field(expr, var_name),
+            HirStmt::If {
+                then_body,
+                else_body,
+                ..
+            } => {
+                self.var_field_access_returned(then_body, var_name)
+                    || else_body
+                        .as_ref()
+                        .is_some_and(|e| self.var_field_access_returned(e, var_name))
+            }
+            HirStmt::While { body, .. } | HirStmt::For { body, .. } => {
+                self.var_field_access_returned(body, var_name)
+            }
+            _ => false,
+        }
+    }
+
+    /// Check if an expression accesses a field on the given variable.
+    fn expr_accesses_var_field(&self, expr: &crate::hir::HirExpr, var_name: &str) -> bool {
+        use crate::hir::HirExpr;
+        match expr {
+            HirExpr::Attribute { value, .. } | HirExpr::Index { base: value, .. } => {
+                self.expr_is_or_contains_var(value, var_name)
+            }
+            HirExpr::IfExpr { body, orelse, .. } => {
+                self.expr_accesses_var_field(body, var_name)
+                    || self.expr_accesses_var_field(orelse, var_name)
+            }
+            _ => false,
+        }
     }
 
     /// Check if variable is returned (actual move), not including function call args
