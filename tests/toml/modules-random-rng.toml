@@ -316,8 +316,8 @@ use rand::seq::IndexedRandom;
 pub fn pick_from_filtered(items: &Vec<i32>, threshold: i32) -> i32 {
     let available = items
         .iter()
+        .filter(|&x| *x > threshold)
         .cloned()
-        .filter(|x| *x > threshold)
         .collect::<Vec<_>>();
     return DEPYLER_RNG.with(|rng| available.choose(&mut *rng.borrow_mut()).cloned().unwrap());
 }

@@ -14087,8 +14087,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
 
         // Strategy:
         // - Use .iter() to explicitly borrow elements
+        // - Place .cloned() AFTER .filter() so filter sees &T and only filtered items are cloned
         // - Use pattern matching |&x| in filter closure to dereference once
-        // - Then use .cloned() after filter to get owned values
         // - This avoids double-reference issues (&&T) in filter conditions
 
         let is_range = self.is_range_expr(&iter_expr);
@@ -14159,41 +14159,42 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 }
             } else if iter_is_optional {
                 // For Optional collections, .as_ref().unwrap() returns &Vec<T>
-                // Use .iter().cloned() to iterate and get owned values
+                // Place .cloned() AFTER .filter() so we only clone elements that pass
                 if is_identity_map {
                     Ok(parse_quote! {
                         #iter_expr
                             .iter()
+                            .filter(|&#target_pat| #cond_with_deref)
                             .cloned()
-                            .filter(|#target_pat| #cond_with_deref)
                             .collect::<Vec<_>>()
                     })
                 } else {
                     Ok(parse_quote! {
                         #iter_expr
                             .iter()
+                            .filter(|&#target_pat| #cond_with_deref)
                             .cloned()
-                            .filter(|#target_pat| #cond_with_deref)
                             .map(|#target_pat| #element_expr)
                             .collect::<Vec<_>>()
                     })
                 }
             } else {
-                // Filter closures still receive &T, so we deref in the condition
+                // Place .cloned() AFTER .filter() so we only clone elements that pass
+                // Use |&target| pattern to automatically dereference in filter closure
                 if is_identity_map {
                     Ok(parse_quote! {
                         #iter_expr
                             .iter()
+                            .filter(|&#target_pat| #cond_with_deref)
                             .cloned()
-                            .filter(|#target_pat| #cond_with_deref)
                             .collect::<Vec<_>>()
                     })
                 } else {
                     Ok(parse_quote! {
                         #iter_expr
                             .iter()
+                            .filter(|&#target_pat| #cond_with_deref)
                             .cloned()
-                            .filter(|#target_pat| #cond_with_deref)
                             .map(|#target_pat| #element_expr)
                             .collect::<Vec<_>>()
                     })

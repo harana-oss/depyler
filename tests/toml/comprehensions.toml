@@ -342,3 +342,22 @@ pub fn first_even(numbers: &Vec<i32>) -> i32 {
     return numbers.iter().find(|x| **x % 2 == 0).cloned().unwrap();
 }
 '''
+
+[[test]]
+name = "comprehension_filter_before_clone"
+description = "List comprehension filters before cloning for efficiency"
+
+python = '''
+def filter_list(items: list[int], threshold: int) -> list[int]:
+    return [x for x in items if x > threshold]
+'''
+
+rust = '''
+pub fn filter_list(items: &Vec<i32>, threshold: i32) -> Vec<i32> {
+    return items
+        .iter()
+        .filter(|&x| *x > threshold)
+        .cloned()
+        .collect::<Vec<_>>();
+}
+'''
