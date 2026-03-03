@@ -12205,7 +12205,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         // Static array constants use direct indexing instead of .get().cloned()
         if let HirExpr::Var(var_name) = base {
             if self.ctx.static_array_constants.contains(var_name) {
+                let was_pc = self.ctx.prevent_clone;
+                self.ctx.prevent_clone = false;
                 let index_expr = index.to_rust_expr(self.ctx)?;
+                self.ctx.prevent_clone = was_pc;
                 if let HirExpr::Literal(Literal::Int(n)) = index {
                     let idx_value = *n as usize;
                     return Ok(parse_quote! { #base_expr[#idx_value] });
@@ -12244,7 +12247,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 _ => {
                     // String variable - needs proper referencing
                     // HashMap.get() expects &K, so we need to borrow the key
+                    let was_pc = self.ctx.prevent_clone;
+                    self.ctx.prevent_clone = false;
                     let index_expr = index.to_rust_expr(self.ctx)?;
+                    self.ctx.prevent_clone = was_pc;
                     if is_lhs {
                         Ok(parse_quote! {
                             #base_expr.get_mut(&#index_expr).unwrap()
@@ -12262,7 +12268,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             }
         } else if is_string_base {
             // Strings cannot use .get(usize), must use .chars().nth()
+            let was_pc = self.ctx.prevent_clone;
+            self.ctx.prevent_clone = false;
             let index_expr = index.to_rust_expr(self.ctx)?;
+            self.ctx.prevent_clone = was_pc;
 
             // This returns Option<char>, then convert to String
             Ok(parse_quote! {
@@ -12279,7 +12288,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             })
         } else {
             // Vec/List access with numeric index
+            let was_pc = self.ctx.prevent_clone;
+            self.ctx.prevent_clone = false;
             let index_expr = index.to_rust_expr(self.ctx)?;
+            self.ctx.prevent_clone = was_pc;
 
             // When the caller wants a reference (&mut or &), use direct indexing
             // instead of .get().cloned() so the reference points to the actual element

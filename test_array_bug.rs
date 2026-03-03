@@ -2035,11 +2035,11 @@ pub fn first_to_score_tracking_event(state: &State) {
         points_confirmed_incidents = state
             .incidents
             .iter()
-            .cloned()
-            .filter(|incident| {
+            .filter(|&incident| {
                 (incident.has_points_confirmed)
-                    && (["Home", "Away"].contains(&*incident.points_scored_team.as_str()))
+                    && (["Home", "Away"].contains(&incident.points_scored_team.as_str()))
             })
+            .cloned()
             .collect::<Vec<_>>();
         log::info!(
             "{}",
@@ -2047,8 +2047,8 @@ pub fn first_to_score_tracking_event(state: &State) {
         );
         try_incidents = points_confirmed_incidents
             .iter()
+            .filter(|&incident| incident.points_confirmed_score_type == "Try")
             .cloned()
-            .filter(|incident| incident.points_confirmed_score_type == "Try")
             .collect::<Vec<_>>();
         log::info!(
             "{}",
@@ -2152,7 +2152,7 @@ pub fn minute_winner_tracking_event(state: &State) {
             "{}",
             "[Minute Winner Tracking Event] Track winner at each minute interval"
         );
-        for minute in minute_intervals.iter().cloned() {
+        for minute in minute_intervals.iter().copied() {
             log::info!(
                 "{}",
                 "[Minute Winner Tracking Event] Record minute winners when interval elapsed"
@@ -2217,39 +2217,39 @@ pub fn player_score_tracking_event(state: &State) {
         try_scorer_indices = state
             .incidents
             .iter()
-            .cloned()
-            .filter(|incident| {
+            .filter(|&incident| {
                 (incident.has_points_confirmed) && (incident.points_confirmed_score_type == "Try")
             })
+            .cloned()
             .map(|incident| incident.points_confirmed_player_index)
             .collect::<Vec<_>>();
         try_teams = state
             .incidents
             .iter()
-            .cloned()
-            .filter(|incident| {
+            .filter(|&incident| {
                 (incident.has_points_confirmed) && (incident.points_confirmed_score_type == "Try")
             })
+            .cloned()
             .map(|incident| incident.points_scored_team)
             .collect::<Vec<_>>();
         home_try_scorer_indices = state
             .incidents
             .iter()
-            .cloned()
-            .filter(|incident| {
+            .filter(|&incident| {
                 ((incident.has_points_confirmed) && (incident.points_confirmed_score_type == "Try"))
                     && (incident.points_scored_team == "Home")
             })
+            .cloned()
             .map(|incident| incident.points_confirmed_player_index)
             .collect::<Vec<_>>();
         away_try_scorer_indices = state
             .incidents
             .iter()
-            .cloned()
-            .filter(|incident| {
+            .filter(|&incident| {
                 ((incident.has_points_confirmed) && (incident.points_confirmed_score_type == "Try"))
                     && (incident.points_scored_team == "Away")
             })
+            .cloned()
             .map(|incident| incident.points_confirmed_player_index)
             .collect::<Vec<_>>();
         log::info!(
@@ -2258,24 +2258,24 @@ pub fn player_score_tracking_event(state: &State) {
         );
         first_try_jersey = {
             let base = &state.all_players;
-            let idx: i32 = try_scorer_indices.get(0usize).cloned().unwrap();
+            let idx: i32 = try_scorer_indices.get(0usize).unwrap();
             let actual_idx = if idx < 0 {
                 base.len().saturating_sub(idx.abs() as usize)
             } else {
                 idx as usize
             };
-            base.get(actual_idx).cloned().unwrap()
+            base.get(actual_idx).unwrap()
         }
         .jersey_number;
         home_first_try_jersey = {
             let base = &state.home_players;
-            let idx: i32 = home_try_scorer_indices.get(0usize).cloned().unwrap();
+            let idx: i32 = home_try_scorer_indices.get(0usize).unwrap();
             let actual_idx = if idx < 0 {
                 base.len().saturating_sub(idx.abs() as usize)
             } else {
                 idx as usize
             };
-            base.get(actual_idx).cloned().unwrap()
+            base.get(actual_idx).unwrap()
         }
         .jersey_number;
         last_try_jersey = {
@@ -2288,25 +2288,25 @@ pub fn player_score_tracking_event(state: &State) {
                 } else {
                     idx as usize
                 };
-                base.get(actual_idx).cloned().unwrap()
+                base.get(actual_idx).unwrap()
             };
             let actual_idx = if idx < 0 {
                 base.len().saturating_sub(idx.abs() as usize)
             } else {
                 idx as usize
             };
-            base.get(actual_idx).cloned().unwrap()
+            base.get(actual_idx).unwrap()
         }
         .jersey_number;
         away_first_try_jersey = {
             let base = &state.away_players;
-            let idx: i32 = away_try_scorer_indices.get(0usize).cloned().unwrap();
+            let idx: i32 = away_try_scorer_indices.get(0usize).unwrap();
             let actual_idx = if idx < 0 {
                 base.len().saturating_sub(idx.abs() as usize)
             } else {
                 idx as usize
             };
-            base.get(actual_idx).cloned().unwrap()
+            base.get(actual_idx).unwrap()
         }
         .jersey_number;
         log::info!(
@@ -2553,7 +2553,7 @@ pub fn race_to_points_tracking_event(state: &State) {
             "{}",
             "[Race To Points Tracking Event] Record unresolved race targets"
         );
-        for pending_target in remaining_targets.iter().cloned() {
+        for pending_target in remaining_targets.iter().copied() {
             log::info!("{}", "[Race To Points Tracking Event] Record");
             record_bool(format!("FirstToPoints{}A", pending_target), false);
             record_bool(format!("FirstToPoints{}B", pending_target), false);
@@ -2588,7 +2588,6 @@ pub fn add_conversion(state: &mut State) {
         .conversions = team_stats
         .period_statistics
         .get(period_idx as usize)
-        .cloned()
         .unwrap()
         .scores
         .conversions
@@ -2601,7 +2600,6 @@ pub fn add_conversion(state: &mut State) {
         .total = team_stats
         .period_statistics
         .get(period_idx as usize)
-        .cloned()
         .unwrap()
         .scores
         .total
@@ -2627,7 +2625,6 @@ pub fn add_conversion(state: &mut State) {
             .conversions = player
             .period_statistics
             .get(period_idx as usize)
-            .cloned()
             .unwrap()
             .scores
             .conversions
@@ -2640,7 +2637,6 @@ pub fn add_conversion(state: &mut State) {
             .total = player
             .period_statistics
             .get(period_idx as usize)
-            .cloned()
             .unwrap()
             .scores
             .total
@@ -2697,7 +2693,6 @@ pub fn add_field_goal(state: &mut State, is_two_pointer: bool) {
         .field_goals = team_stats
         .period_statistics
         .get(period_idx as usize)
-        .cloned()
         .unwrap()
         .scores
         .field_goals
@@ -2710,7 +2705,6 @@ pub fn add_field_goal(state: &mut State, is_two_pointer: bool) {
         .total = team_stats
         .period_statistics
         .get(period_idx as usize)
-        .cloned()
         .unwrap()
         .scores
         .total
@@ -2731,7 +2725,6 @@ pub fn add_field_goal(state: &mut State, is_two_pointer: bool) {
         .total = player
         .period_statistics
         .get(period_idx as usize)
-        .cloned()
         .unwrap()
         .scores
         .total
@@ -2769,7 +2762,7 @@ pub fn decrement_remaining_interchanges(state: &mut State, team: &str) {
 }
 pub fn _select_bench_player_index(players: &Vec<Player>, starters: i32) -> i32 {
     let available = (starters..players.len() as i32)
-        .filter(|&idx| !players.get(idx as usize).cloned().unwrap().is_injured)
+        .filter(|&idx| !players.get(idx as usize).unwrap().is_injured)
         .collect::<Vec<_>>();
     return DEPYLER_RNG.with(|rng| available.choose(&mut *rng.borrow_mut()).cloned().unwrap());
 }
@@ -2956,13 +2949,13 @@ pub fn softmax(logits: Vec<f64>) -> Vec<f64> {
     let max_logit = logits.iter().fold(f64::NEG_INFINITY, |a, &b| a.max(b));
     let exps = logits
         .iter()
-        .cloned()
+        .copied()
         .map(|x| (x - max_logit as f64).exp())
         .collect::<Vec<_>>();
     let total = exps.iter().sum::<f64>();
     return exps
         .iter()
-        .cloned()
+        .copied()
         .map(|e| (e as f64) / (total as f64))
         .collect::<Vec<_>>();
 }
@@ -2971,7 +2964,7 @@ pub fn normalize(values: Vec<f64>) -> Vec<f64> {
     let total = values.iter().sum::<f64>();
     return values
         .iter()
-        .cloned()
+        .copied()
         .map(|v| (v as f64) / (total as f64))
         .collect::<Vec<_>>();
 }
@@ -3005,7 +2998,6 @@ pub fn add_penalty(state: &mut State) {
         .penalties = team_stats
         .period_statistics
         .get(period_idx as usize)
-        .cloned()
         .unwrap()
         .scores
         .penalties
@@ -3018,7 +3010,6 @@ pub fn add_penalty(state: &mut State) {
         .total = team_stats
         .period_statistics
         .get(period_idx as usize)
-        .cloned()
         .unwrap()
         .scores
         .total
@@ -3038,7 +3029,6 @@ pub fn add_penalty(state: &mut State) {
         .conversions = player
         .period_statistics
         .get(period_idx as usize)
-        .cloned()
         .unwrap()
         .scores
         .conversions
@@ -3051,7 +3041,6 @@ pub fn add_penalty(state: &mut State) {
         .total = player
         .period_statistics
         .get(period_idx as usize)
-        .cloned()
         .unwrap()
         .scores
         .total
@@ -3247,8 +3236,8 @@ pub fn convert_field_position(
             d
         }
     };
-    let mut y_range;
     let mut x_range;
+    let mut y_range;
     if team == "Home" {
         x_range = X_VALUES[x_position as usize];
         y_range = Y_VALUES[y_position as usize];
@@ -3372,8 +3361,8 @@ pub fn rebuild_sin_bin_players(state: &mut State, team: String) {
         };
         let sin_bin_players = sin_bin_collection
             .iter()
+            .filter(|&player| player.sin_bin_status != "NotSet")
             .cloned()
-            .filter(|player| *player.sin_bin_status != "NotSet")
             .collect::<Vec<_>>();
         let team_stats = if team_name == "Home" {
             &mut state.home_statistics
@@ -3396,7 +3385,6 @@ pub fn record_tackle(state: &mut State) {
     team_stats.period_statistics[period_idx as usize].tackles = team_stats
         .period_statistics
         .get(period_idx as usize)
-        .cloned()
         .unwrap()
         .tackles
         + 1;
@@ -3491,7 +3479,6 @@ pub fn apply_time_on_ground(state: &State, team: &str, seconds: f64) {
         player.period_statistics[period_idx as usize].time_on_field = ((player
             .period_statistics
             .get(period_idx as usize)
-            .cloned()
             .unwrap()
             .time_on_field)
             as f64)
@@ -3541,7 +3528,6 @@ pub fn add_try(state: &mut State) {
             .home_statistics
             .period_statistics
             .get(period_idx as usize)
-            .cloned()
             .unwrap()
             .scores
             .tries
@@ -3556,7 +3542,6 @@ pub fn add_try(state: &mut State) {
             .home_statistics
             .period_statistics
             .get(period_idx as usize)
-            .cloned()
             .unwrap()
             .scores
             .total
@@ -3577,7 +3562,6 @@ pub fn add_try(state: &mut State) {
             .away_statistics
             .period_statistics
             .get(period_idx as usize)
-            .cloned()
             .unwrap()
             .scores
             .tries
@@ -3592,7 +3576,6 @@ pub fn add_try(state: &mut State) {
             .away_statistics
             .period_statistics
             .get(period_idx as usize)
-            .cloned()
             .unwrap()
             .scores
             .total
@@ -3621,7 +3604,6 @@ pub fn assign_try(state: &mut State, player_index: i32, team: String) {
     state
         .period_try_scorers
         .get(period_idx as usize)
-        .cloned()
         .unwrap()
         .push(player_list_idx);
     state.total_try_scorers.push(player_list_idx);
@@ -3629,7 +3611,6 @@ pub fn assign_try(state: &mut State, player_index: i32, team: String) {
         state
             .home_period_try_scorers
             .get(period_idx as usize)
-            .cloned()
             .unwrap()
             .push(player_list_idx);
         state.home_total_try_scorers.push(player_list_idx);
@@ -3637,7 +3618,6 @@ pub fn assign_try(state: &mut State, player_index: i32, team: String) {
         state
             .away_period_try_scorers
             .get(period_idx as usize)
-            .cloned()
             .unwrap()
             .push(player_list_idx);
         state.away_total_try_scorers.push(player_list_idx);
@@ -3650,7 +3630,6 @@ pub fn assign_try(state: &mut State, player_index: i32, team: String) {
         .tries = player
         .period_statistics
         .get(period_idx as usize)
-        .cloned()
         .unwrap()
         .scores
         .tries
@@ -3663,7 +3642,6 @@ pub fn assign_try(state: &mut State, player_index: i32, team: String) {
         .total = player
         .period_statistics
         .get(period_idx as usize)
-        .cloned()
         .unwrap()
         .scores
         .total
@@ -3683,7 +3661,6 @@ pub fn assign_try(state: &mut State, player_index: i32, team: String) {
         .tries = team_stats
         .player_statistics
         .get(player_list_idx as usize)
-        .cloned()
         .unwrap()
         .scores
         .tries
@@ -3696,7 +3673,6 @@ pub fn assign_try(state: &mut State, player_index: i32, team: String) {
         .total = team_stats
         .player_statistics
         .get(player_list_idx as usize)
-        .cloned()
         .unwrap()
         .scores
         .total
@@ -4321,7 +4297,7 @@ pub fn get_kickoff_model_result(state: &State) -> GetKickoffModelResultOutputs {
     execute_events(state);
     log::info!("{}", "[GetKickoffModelResult] Return result");
     return GetKickoffModelResultOutputs::new(
-        !KICKOFF_RETAIN_RESULTS.clone().contains(&kickoff_result),
+        !KICKOFF_RETAIN_RESULTS.contains(&kickoff_result),
         kickoff_result.to_string(),
     );
 }
@@ -4744,7 +4720,6 @@ pub fn player_of_the_match(state: &mut State, enabled: bool) -> PlayerOfTheMatch
     pom_player_index = state
         .all_players
         .get(sample_index as usize)
-        .cloned()
         .unwrap()
         .player_index;
     execute_events(state);
