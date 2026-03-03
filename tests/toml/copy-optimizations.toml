@@ -1,0 +1,344 @@
+[metadata]
+name = "Copy Optimization Tests"
+category = "copy-semantics"
+description = "Tests that Copy types use .copied(), *deref, and Copy derive instead of .cloned()/.clone()"
+
+# =============================================================================
+# Issue 1: Emit .copied() instead of .cloned() when element type is Copy
+# =============================================================================
+
+[[test]]
+name = "iter_copied_for_copy_struct_list"
+description = "Iterating over list of all-Copy-field struct should use .copied()"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Point:
+    x: int
+    y: int
+
+def sum_points(points: list[Point]) -> int:
+    total = 0
+    for p in points:
+        total = total + p.x + p.y
+    return total
+'''
+
+[test.assertions]
+contains = [".iter().copied()"]
+not_contains = [".iter().cloned()"]
+
+[[test]]
+name = "iter_copied_for_enum_list"
+description = "Iterating over list of enums should use .copied()"
+
+python = '''
+from enum import Enum
+
+class Color(Enum):
+    RED = 1
+    GREEN = 2
+
+def count_red(colors: list[Color]) -> int:
+    count = 0
+    for c in colors:
+        if c == Color.RED:
+            count = count + 1
+    return count
+'''
+
+[test.assertions]
+contains = [".iter().copied()"]
+not_contains = [".iter().cloned()"]
+
+# =============================================================================
+# Issue 2: Omit .clone() when passing Copy enum values
+# =============================================================================
+
+[[test]]
+name = "no_clone_for_copy_enum_multiple_use"
+description = "Copy enum used multiple times should not emit .clone()"
+
+python = '''
+from enum import Enum
+
+class Team(Enum):
+    RED = 1
+    BLUE = 2
+
+def use_team_twice(team: Team) -> int:
+    a = team
+    b = team
+    return 1
+'''
+
+[test.assertions]
+not_contains = [".clone()"]
+
+# =============================================================================
+# Issue 3: Add Copy derive for structs whose fields are all Copy
+# =============================================================================
+
+[[test]]
+name = "copy_derive_struct_with_copy_struct_field"
+description = "Struct with all-Copy-struct fields should derive Copy"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Point:
+    x: int
+    y: int
+
+@dataclass
+class Line:
+    start: Point
+    end: Point
+
+def line_length(line: Line) -> int:
+    return line.end.x - line.start.x
+'''
+
+rust = '''
+#[derive(Debug, Copy, Clone, PartialEq, Default)]
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+impl Point {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+}
+#[derive(Debug, Copy, Clone, PartialEq, Default)]
+pub struct Line {
+    pub start: Point,
+    pub end: Point,
+}
+impl Line {
+    pub fn new(start: Point, end: Point) -> Self {
+        Self { start, end }
+    }
+}
+pub fn line_length(line: &Line) -> i32 {
+    return line.end.x - line.start.x;
+}
+'''
+
+[[test]]
+name = "copy_derive_struct_with_enum_field"
+description = "Struct with enum and primitive fields should derive Copy"
+
+python = '''
+from dataclasses import dataclass
+from enum import Enum
+
+class Color(Enum):
+    RED = 1
+    BLUE = 2
+
+@dataclass
+class Pixel:
+    x: int
+    y: int
+    color: Color
+
+def get_x(pixel: Pixel) -> int:
+    return pixel.x
+'''
+
+[test.assertions]
+contains = ["#[derive(Debug, Copy, Clone, PartialEq, Default)]\npub struct Pixel"]
+not_contains = ["#[derive(Debug, Clone, PartialEq, Default)]\npub struct Pixel"]
+
+[[test]]
+name = "no_copy_derive_struct_with_string_field"
+description = "Struct with String field should NOT derive Copy"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Person:
+    name: str
+    age: int
+
+def get_name(person: Person) -> str:
+    return person.name
+'''
+
+[test.assertions]
+contains = ["#[derive(Debug, Clone, PartialEq, Default)]\npub struct Person"]
+
+# =============================================================================
+# Issue 4: Use *ref dereference instead of .clone() for Copy loop variables
+# =============================================================================
+
+[[test]]
+name = "deref_instead_of_clone_for_copy_loop_var"
+description = "Loop over field access of Copy struct should use *deref not .clone()"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Player:
+    score: int
+
+@dataclass
+class Game:
+    players: list[Player]
+
+def total_score(game: Game) -> int:
+    total = 0
+    for p in game.players:
+        total = total + p.score
+    return total
+'''
+
+[test.assertions]
+contains = ["let p = *p;"]
+not_contains = ["p.clone()"]
+
+[[test]]
+name = "deref_instead_of_clone_for_int_loop_var"
+description = "Loop over field access of int list should use *deref not .clone()"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Stats:
+    values: list[int]
+
+def sum_values(stats: Stats) -> int:
+    total = 0
+    for v in stats.values:
+        total = total + v
+    return total
+'''
+
+[test.assertions]
+contains = ["let v = *v;"]
+not_contains = ["v.clone()"]
+
+[[test]]
+name = "clone_kept_for_non_copy_loop_var"
+description = "Loop over field access of non-Copy type should keep .clone()"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Record:
+    names: list[str]
+
+def first_chars(record: Record) -> str:
+    result = ""
+    for name in record.names:
+        result = result + name
+    return result
+'''
+
+[test.assertions]
+contains = [".clone()"]
+
+# =============================================================================
+# Combined scenarios
+# =============================================================================
+
+[[test]]
+name = "copy_struct_with_enum_field_iter_copied"
+description = "Copy struct with enum field iterates with .copied()"
+
+python = '''
+from dataclasses import dataclass
+from enum import Enum
+
+class Color(Enum):
+    RED = 1
+    GREEN = 2
+    BLUE = 3
+
+@dataclass
+class Pixel:
+    x: int
+    y: int
+    color: Color
+
+def count_red(pixels: list[Pixel]) -> int:
+    count = 0
+    for pixel in pixels:
+        if pixel.color == Color.RED:
+            count = count + 1
+    return count
+'''
+
+[test.assertions]
+contains = [".iter().copied()"]
+not_contains = [".iter().cloned()"]
+
+[[test]]
+name = "nested_copy_struct_iter_copied"
+description = "Nested Copy struct list iterates with .copied()"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Point:
+    x: int
+    y: int
+
+@dataclass
+class Line:
+    start: Point
+    end: Point
+
+def total_x(lines: list[Line]) -> int:
+    total = 0
+    for line in lines:
+        total = total + line.start.x + line.end.x
+    return total
+'''
+
+[test.assertions]
+contains = [".iter().copied()"]
+not_contains = [".iter().cloned()"]
+
+[[test]]
+name = "copy_struct_field_access_loop_deref"
+description = "Loop over field access of Copy struct uses *deref and no .clone()"
+
+python = '''
+from dataclasses import dataclass
+from enum import Enum
+
+class Color(Enum):
+    RED = 1
+    BLUE = 2
+
+@dataclass
+class Pixel:
+    x: int
+    y: int
+    color: Color
+
+@dataclass
+class Canvas:
+    pixels: list[Pixel]
+
+def count_red(canvas: Canvas) -> int:
+    count = 0
+    for pixel in canvas.pixels:
+        if pixel.color == Color.RED:
+            count = count + 1
+    return count
+'''
+
+[test.assertions]
+contains = ["let pixel = *pixel;"]
+not_contains = ["pixel.clone()"]

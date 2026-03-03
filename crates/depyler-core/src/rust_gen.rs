@@ -46,14 +46,26 @@ pub use type_gen::rust_type_to_syn;
 // Internal re-exports for cross-module access
 pub(crate) use func_gen::return_type_expects_float;
 
-/// Analyze functions for string optimization
 /// Check if a field type is Copy (for determining struct Copy derivation).
-fn is_field_copy_type(ty: &Type) -> bool {
+fn is_field_copy_type(
+    ty: &Type,
+    enum_names: &std::collections::HashSet<String>,
+    copy_structs: &std::collections::HashSet<String>,
+) -> bool {
     match ty {
         Type::Int | Type::Float | Type::Bool | Type::None => true,
-        Type::Optional(inner) | Type::Final(inner) => is_field_copy_type(inner),
-        Type::Tuple(elements) => elements.iter().all(|t| is_field_copy_type(t)),
-        Type::Array { element_type, .. } => is_field_copy_type(element_type),
+        Type::Optional(inner) | Type::Final(inner) => {
+            is_field_copy_type(inner, enum_names, copy_structs)
+        }
+        Type::Tuple(elements) => elements
+            .iter()
+            .all(|t| is_field_copy_type(t, enum_names, copy_structs)),
+        Type::Array { element_type, .. } => {
+            is_field_copy_type(element_type, enum_names, copy_structs)
+        }
+        Type::Custom(name) => {
+            enum_names.contains(name) || copy_structs.contains(name)
+        }
         _ => false,
     }
 }
@@ -1344,6 +1356,8 @@ fn mark_mut_ref_call_args_in_stmt(
 fn convert_classes_to_rust(
     classes: &[HirClass],
     type_mapper: &crate::type_mapper::TypeMapper,
+    enum_names: &std::collections::HashSet<String>,
+    copy_structs: &std::collections::HashSet<String>,
 ) -> Result<Vec<proc_macro2::TokenStream>> {
     // Build abc_classes map for abstract base class lookup
     let mut abc_classes = HashMap::new();
@@ -1370,7 +1384,7 @@ fn convert_classes_to_rust(
             }
         } else {
             let items =
-                crate::direct_rules::convert_class_to_struct(class, type_mapper, &abc_classes)?;
+                crate::direct_rules::convert_class_to_struct(class, type_mapper, &abc_classes, enum_names, copy_structs)?;
             for item in items {
                 let tokens = item.to_token_stream();
                 class_items.push(tokens);
@@ -2058,15 +2072,20 @@ pub fn generate_rust_file(
         }
     }
 
-    // Populate class_field_types so field_needs_clone() can determine when .clone() is needed
-    // Also populate copy_structs for structs where all fields are Copy types
+    // Populate class_field_types and copy_structs.
+    // Two-pass approach: first pass resolves primitives, second resolves Custom-type fields.
     for class in &module.classes {
         if !class.is_enum && !class.is_intflag {
             let mut field_map = HashMap::new();
             for field in &class.fields {
                 field_map.insert(field.name.clone(), field.field_type.clone());
             }
-            // Track structs that derive Copy (all instance fields are Copy types)
+            ctx.class_field_types.insert(class.name.clone(), field_map);
+        }
+    }
+    // First pass: identify structs whose fields are Copy without Custom type resolution
+    for class in &module.classes {
+        if !class.is_enum && !class.is_intflag {
             let has_drop_impl = class
                 .methods
                 .iter()
@@ -2075,11 +2094,31 @@ pub fn generate_rust_file(
                 .fields
                 .iter()
                 .filter(|f| !f.is_class_var)
-                .all(|f| is_field_copy_type(&f.field_type));
+                .all(|f| {
+                    is_field_copy_type(&f.field_type, &ctx.enum_names, &ctx.copy_structs)
+                });
             if all_fields_copyable && !has_drop_impl {
                 ctx.copy_structs.insert(class.name.clone());
             }
-            ctx.class_field_types.insert(class.name.clone(), field_map);
+        }
+    }
+    // Second pass: now that first-pass copy_structs are known, re-check remaining structs
+    for class in &module.classes {
+        if !class.is_enum && !class.is_intflag && !ctx.copy_structs.contains(&class.name) {
+            let has_drop_impl = class
+                .methods
+                .iter()
+                .any(|m| m.name == "__del__" || m.name == "close");
+            let all_fields_copyable = class
+                .fields
+                .iter()
+                .filter(|f| !f.is_class_var)
+                .all(|f| {
+                    is_field_copy_type(&f.field_type, &ctx.enum_names, &ctx.copy_structs)
+                });
+            if all_fields_copyable && !has_drop_impl {
+                ctx.copy_structs.insert(class.name.clone());
+            }
         }
     }
 
@@ -2157,7 +2196,7 @@ pub fn generate_rust_file(
     }
 
     // Convert classes first (they might be used by functions)
-    let classes = convert_classes_to_rust(&module.classes, ctx.type_mapper)?;
+    let classes = convert_classes_to_rust(&module.classes, ctx.type_mapper, &ctx.enum_names, &ctx.copy_structs)?;
 
     // Convert all functions to detect what imports we need
     let functions = convert_functions_to_rust(&module.functions, &mut ctx)?;

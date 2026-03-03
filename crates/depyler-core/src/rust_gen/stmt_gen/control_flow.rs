@@ -625,6 +625,15 @@ pub(crate) fn codegen_for_stmt(
                 None
             }
         }
+        HirExpr::Attribute { value, attr } => {
+            // Field access: for x in obj.field — resolve field type
+            ctx.get_attribute_field_type(value, attr).and_then(|t| match t {
+                Type::List(elem_t) => Some(*elem_t),
+                Type::Set(elem_t) => Some(*elem_t),
+                Type::Dict(key_t, _) => Some(*key_t),
+                _ => None,
+            })
+        }
         _ => None,
     };
 
@@ -754,14 +763,22 @@ pub(crate) fn codegen_for_stmt(
                 let is_index_used = body.iter().any(|stmt| is_var_used_in_stmt(index_var, stmt));
 
                 // Also check if there's a value variable (second element) that needs dereferencing
-                // Use .clone() instead of * because it works for both Copy and non-Copy types
+                // Use *deref for Copy types, .clone() for non-Copy types
                 let value_deref_stmt = if needs_deref && targets.len() >= 2 {
                     if let Some(AssignTarget::Symbol(value_var)) = targets.get(1) {
                         let is_value_used =
                             body.iter().any(|stmt| is_var_used_in_stmt(value_var, stmt));
                         if is_value_used {
                             let value_ident = safe_ident(value_var);
-                            Some(quote! { let #value_ident = #value_ident.clone(); })
+                            let is_copy = ctx
+                                .var_types
+                                .get(value_var)
+                                .is_some_and(|t| !ctx.type_needs_clone(t));
+                            if is_copy {
+                                Some(quote! { let #value_ident = *#value_ident; })
+                            } else {
+                                Some(quote! { let #value_ident = #value_ident.clone(); })
+                            }
                         } else {
                             None
                         }
@@ -867,9 +884,19 @@ pub(crate) fn codegen_for_stmt(
             let is_used = body.iter().any(|stmt| is_var_used_in_stmt(var_name, stmt));
             if is_used {
                 let var_ident = safe_ident(var_name);
+                // Use *deref for Copy types, .clone() for non-Copy types
+                let is_copy = ctx
+                    .var_types
+                    .get(var_name)
+                    .is_some_and(|t| !ctx.type_needs_clone(t));
+                let deref_stmt = if is_copy {
+                    quote! { let #var_ident = *#var_ident; }
+                } else {
+                    quote! { let #var_ident = #var_ident.clone(); }
+                };
                 Ok(quote! {
                     for #target_pattern in #iter_expr {
-                        let #var_ident = #var_ident.clone();
+                        #deref_stmt
                         #(#body_stmts)*
                     }
                 })

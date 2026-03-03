@@ -2,7 +2,7 @@ use crate::hir::*;
 use crate::type_mapper::{RustType, TypeMapper};
 use anyhow::{Result, bail};
 use quote::quote;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use syn::{self, parse_quote};
 
 /// Check if a name is a Rust keyword that requires raw identifier syntax
@@ -189,7 +189,7 @@ pub fn apply_rules(module: &HirModule, type_mapper: &TypeMapper) -> Result<syn::
                 let enum_items = convert_class_to_enum(class)?;
                 items.extend(enum_items);
             } else {
-                let struct_items = convert_class_to_struct(class, type_mapper, &abc_classes)?;
+                let struct_items = convert_class_to_struct(class, type_mapper, &abc_classes, &HashSet::new(), &HashSet::new())?;
                 items.extend(struct_items);
             }
         }
@@ -378,19 +378,31 @@ fn convert_abc_method_to_trait_method(
 }
 
 /// Check if a type can implement Copy trait.
-fn is_copy_type(ty: &Type) -> bool {
+fn is_copy_type(
+    ty: &Type,
+    enum_names: &HashSet<String>,
+    copy_structs: &HashSet<String>,
+) -> bool {
     match ty {
         Type::Int | Type::Float | Type::Bool | Type::None => true,
-        Type::Optional(inner) | Type::Final(inner) => is_copy_type(inner),
-        Type::Tuple(elements) => elements.iter().all(is_copy_type),
-        Type::Array { element_type, .. } => is_copy_type(element_type),
+        Type::Optional(inner) | Type::Final(inner) => {
+            is_copy_type(inner, enum_names, copy_structs)
+        }
+        Type::Tuple(elements) => elements
+            .iter()
+            .all(|t| is_copy_type(t, enum_names, copy_structs)),
+        Type::Array { element_type, .. } => {
+            is_copy_type(element_type, enum_names, copy_structs)
+        }
+        Type::Custom(name) => {
+            enum_names.contains(name) || copy_structs.contains(name)
+        }
         // These types are not Copy in Rust
         Type::String
         | Type::List(_)
         | Type::Dict(_, _)
         | Type::Set(_)
         | Type::Function { .. }
-        | Type::Custom(_)
         | Type::TypeVar(_)
         | Type::Generic { .. }
         | Type::Union(_)
@@ -399,7 +411,11 @@ fn is_copy_type(ty: &Type) -> bool {
 }
 
 /// Build derive attributes for a struct, combining default derives with additional derives from annotations.
-fn build_derive_attributes(class: &HirClass) -> Vec<syn::Attribute> {
+fn build_derive_attributes(
+    class: &HirClass,
+    enum_names: &HashSet<String>,
+    copy_structs: &HashSet<String>,
+) -> Vec<syn::Attribute> {
     // Check if the struct has no instance fields (only class constants)
     let has_instance_fields = class.fields.iter().any(|f| !f.is_class_var);
 
@@ -415,7 +431,7 @@ fn build_derive_attributes(class: &HirClass) -> Vec<syn::Attribute> {
         .fields
         .iter()
         .filter(|f| !f.is_class_var)
-        .all(|f| is_copy_type(&f.field_type));
+        .all(|f| is_copy_type(&f.field_type, enum_names, copy_structs));
 
     // Start with base derives depending on whether it's a dataclass
     let mut derives: Vec<String> = if class.is_dataclass {
@@ -516,6 +532,8 @@ pub fn convert_class_to_struct(
     class: &HirClass,
     type_mapper: &TypeMapper,
     abc_classes: &HashMap<String, &HirClass>,
+    enum_names: &HashSet<String>,
+    copy_structs: &HashSet<String>,
 ) -> Result<Vec<syn::Item>> {
     let mut items = Vec::new();
     let struct_name = syn::Ident::new(&class.name, proc_macro2::Span::call_site());
@@ -549,7 +567,7 @@ pub fn convert_class_to_struct(
     }
 
     // Build derive attributes including any additional derives from annotations
-    let derive_attrs = build_derive_attributes(class);
+    let derive_attrs = build_derive_attributes(class, enum_names, copy_structs);
 
     // Create the struct
     let struct_item = syn::Item::Struct(syn::ItemStruct {
