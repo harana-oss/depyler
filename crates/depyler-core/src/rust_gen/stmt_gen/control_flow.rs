@@ -576,12 +576,21 @@ pub(crate) fn codegen_for_stmt(
                 // For strings, use .chars() to iterate over characters
                 iter_expr = parse_quote! { #iter_expr.chars() };
             } else {
-                // For collections, use .iter().cloned()
-                // This handles both Copy types (int, float, bool) and Clone types (String, Vec, etc.)
-                // For Copy types, .cloned() is optimized to a simple bit-copy by the compiler.
-                // For Clone types, it calls .clone() which is correct for Rust.
-                // This matches Python semantics where loop variables are values, not references.
-                iter_expr = parse_quote! { #iter_expr.iter().cloned() };
+                // Determine element type to choose .copied() (Copy) vs .cloned() (Clone)
+                let element_needs_clone = ctx
+                    .var_types
+                    .get(var_name)
+                    .map(|t| match t {
+                        Type::List(elem_t) => ctx.type_needs_clone(elem_t),
+                        Type::Set(elem_t) => ctx.type_needs_clone(elem_t),
+                        _ => true,
+                    })
+                    .unwrap_or(true);
+                if element_needs_clone {
+                    iter_expr = parse_quote! { #iter_expr.iter().cloned() };
+                } else {
+                    iter_expr = parse_quote! { #iter_expr.iter().copied() };
+                }
             }
         }
     }

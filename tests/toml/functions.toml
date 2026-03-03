@@ -1018,7 +1018,7 @@ def main():
 rust = '''
 #[doc = "Calculate nth Fibonacci number."]
 pub fn fibonacci_iterative(n: i32) -> i32 {
-        if n <= 1 {
+    if n <= 1 {
         return n;
     }
     let mut a = 0;
@@ -1033,7 +1033,7 @@ pub fn fibonacci_iterative(n: i32) -> i32 {
 #[doc = "Run benchmark - NO RETURN TYPE."]
 pub fn main() {
     let limits = vec![25, 30, 35];
-    for limit in limits.iter().cloned() {
+    for limit in limits.iter().copied() {
         let result = fibonacci_iterative(limit);
         log::info!("{}", result);
     }
@@ -1715,7 +1715,7 @@ def sum_list(numbers: List[int]) -> int:
 rust = '''
 pub fn sum_list(numbers: &Vec<i32>) -> i32 {
     let mut total: i32 = 0;
-    for n in numbers.iter().cloned() {
+    for n in numbers.iter().copied() {
         total += n;
     }
     return total;

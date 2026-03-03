@@ -26,13 +26,13 @@ pub fn softmax(logits: Vec<f64>) -> Vec<f64> {
     let max_logit = logits.iter().fold(f64::NEG_INFINITY, |a, &b| a.max(b));
     let exps = logits
         .iter()
-        .cloned()
+        .copied()
         .map(|x| (x - max_logit as f64).exp())
         .collect::<Vec<_>>();
     let total = exps.iter().sum::<f64>();
     return exps
         .iter()
-        .cloned()
+        .copied()
         .map(|e| (e as f64) / (total as f64))
         .collect::<Vec<_>>();
 }
@@ -54,7 +54,7 @@ use std::f64 as math;
 pub fn sum_sqrt(values: &Vec<f64>) -> f64 {
     return values
         .iter()
-        .cloned()
+        .copied()
         .map(|x| (x as f64).sqrt())
         .collect::<Vec<_>>()
         .iter()
@@ -78,7 +78,7 @@ use std::f64 as math;
 pub fn sum_log(values: &Vec<f64>) -> f64 {
     return values
         .iter()
-        .cloned()
+        .copied()
         .map(|x| (x as f64).ln())
         .collect::<Vec<_>>()
         .iter()
@@ -102,7 +102,7 @@ use std::f64 as math;
 pub fn sum_sin(angles: &Vec<f64>) -> f64 {
     return angles
         .iter()
-        .cloned()
+        .copied()
         .map(|x| (x as f64).sin())
         .collect::<Vec<_>>()
         .iter()

@@ -207,6 +207,13 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             // unwrap the final field itself
             let base_expr = self.convert_attribute_without_clone(right)?;
             parse_quote! { #base_expr.as_ref().unwrap() }
+        } else if matches!(op, BinOp::In | BinOp::NotIn) {
+            // .contains()/.contains_key() take &self, no need to clone the container
+            let was_prevent_clone = self.ctx.prevent_clone;
+            self.ctx.prevent_clone = true;
+            let expr = self.convert_with_optional_unwrap(right)?;
+            self.ctx.prevent_clone = was_prevent_clone;
+            expr
         } else {
             self.convert_with_optional_unwrap(right)?
         };
@@ -11871,6 +11878,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 | "index"
                 | "count"
                 | "get"
+                | "contains"
+                | "contains_key"
                 | "keys"
                 | "values"
                 | "items"
@@ -12221,6 +12230,11 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         Ok(parse_quote! {
                             #base_expr.get_mut(#s).unwrap()
                         })
+                    } else if self.ctx.prevent_clone {
+                        // Field access context: return &V reference, auto-deref handles field access
+                        Ok(parse_quote! {
+                            #base_expr.get(#s).unwrap()
+                        })
                     } else {
                         Ok(parse_quote! {
                             #base_expr.get(#s).cloned().unwrap()
@@ -12234,6 +12248,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     if is_lhs {
                         Ok(parse_quote! {
                             #base_expr.get_mut(&#index_expr).unwrap()
+                        })
+                    } else if self.ctx.prevent_clone {
+                        Ok(parse_quote! {
+                            #base_expr.get(&#index_expr).unwrap()
                         })
                     } else {
                         Ok(parse_quote! {
@@ -12280,6 +12298,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     if offset == 1 {
                         if is_lhs {
                             return Ok(parse_quote! { #base_expr.last_mut().unwrap() });
+                        } else if self.ctx.prevent_clone {
+                            return Ok(parse_quote! { #base_expr.last().unwrap() });
                         } else {
                             return Ok(parse_quote! { #base_expr.last().cloned().unwrap() });
                         }
@@ -12288,6 +12308,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     if is_lhs {
                         return Ok(parse_quote! {
                             #base_expr.get_mut(#base_expr.len().saturating_sub(#offset)).unwrap()
+                        });
+                    } else if self.ctx.prevent_clone {
+                        return Ok(parse_quote! {
+                            #base_expr.get(#base_expr.len().saturating_sub(#offset)).unwrap()
                         });
                     } else {
                         return Ok(parse_quote! {
@@ -12307,6 +12331,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     });
                 } else if wants_ref {
                     return Ok(parse_quote! { #base_expr[#idx_value] });
+                } else if self.ctx.prevent_clone {
+                    return Ok(parse_quote! {
+                        #base_expr.get(#idx_value).unwrap()
+                    });
                 } else {
                     return Ok(parse_quote! {
                         #base_expr.get(#idx_value).cloned().unwrap()
@@ -12328,6 +12356,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     })
                 } else if wants_ref {
                     Ok(parse_quote! { #base_expr[#index_expr as usize] })
+                } else if self.ctx.prevent_clone {
+                    Ok(parse_quote! {
+                        #base_expr.get(#index_expr as usize).unwrap()
+                    })
                 } else {
                     Ok(parse_quote! {
                         #base_expr.get(#index_expr as usize).cloned().unwrap()
@@ -12346,6 +12378,19 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                                 idx as usize
                             };
                             base.get_mut(actual_idx).unwrap()
+                        }
+                    })
+                } else if self.ctx.prevent_clone {
+                    Ok(parse_quote! {
+                        {
+                            let base = &#base_expr;
+                            let idx: i32 = #index_expr;
+                            let actual_idx = if idx < 0 {
+                                base.len().saturating_sub(idx.abs() as usize)
+                            } else {
+                                idx as usize
+                            };
+                            base.get(actual_idx).unwrap()
                         }
                     })
                 } else {
@@ -14106,6 +14151,28 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         // Check if target is a tuple pattern (for enumerate() style iteration)
         let is_tuple_target = target.starts_with('(');
 
+        // Determine if the element type needs clone (non-Copy) or can use copy
+        let element_needs_clone = if let HirExpr::Var(var_name) = iter {
+            if let Some(var_type) = self.ctx.var_types.get(var_name) {
+                match var_type {
+                    Type::List(elem_type) => self.type_needs_clone(elem_type),
+                    Type::Set(elem_type) => self.type_needs_clone(elem_type),
+                    _ => true,
+                }
+            } else {
+                true
+            }
+        } else {
+            true
+        };
+
+        // Use .copied() for Copy types, .cloned() for Clone types
+        let iter_clone_method = if element_needs_clone {
+            quote::format_ident!("cloned")
+        } else {
+            quote::format_ident!("copied")
+        };
+
         if let Some(cond) = condition {
             let cond_with_deref = if is_tuple_target || is_range {
                 cond.to_rust_expr(self.ctx)?
@@ -14159,13 +14226,12 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 }
             } else if iter_is_optional {
                 // For Optional collections, .as_ref().unwrap() returns &Vec<T>
-                // Place .cloned() AFTER .filter() so we only clone elements that pass
                 if is_identity_map {
                     Ok(parse_quote! {
                         #iter_expr
                             .iter()
                             .filter(|&#target_pat| #cond_with_deref)
-                            .cloned()
+                            .#iter_clone_method()
                             .collect::<Vec<_>>()
                     })
                 } else {
@@ -14173,20 +14239,19 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         #iter_expr
                             .iter()
                             .filter(|&#target_pat| #cond_with_deref)
-                            .cloned()
+                            .#iter_clone_method()
                             .map(|#target_pat| #element_expr)
                             .collect::<Vec<_>>()
                     })
                 }
             } else {
-                // Place .cloned() AFTER .filter() so we only clone elements that pass
                 // Use |&target| pattern to automatically dereference in filter closure
                 if is_identity_map {
                     Ok(parse_quote! {
                         #iter_expr
                             .iter()
                             .filter(|&#target_pat| #cond_with_deref)
-                            .cloned()
+                            .#iter_clone_method()
                             .collect::<Vec<_>>()
                     })
                 } else {
@@ -14194,7 +14259,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         #iter_expr
                             .iter()
                             .filter(|&#target_pat| #cond_with_deref)
-                            .cloned()
+                            .#iter_clone_method()
                             .map(|#target_pat| #element_expr)
                             .collect::<Vec<_>>()
                     })
@@ -14237,38 +14302,36 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 }
             } else if iter_is_optional {
                 // For Optional collections, .as_ref().unwrap() returns &Vec<T>
-                // Use .iter().cloned() to iterate and get owned values
                 if is_identity_map {
                     Ok(parse_quote! {
                         #iter_expr
                             .iter()
-                            .cloned()
+                            .#iter_clone_method()
                             .collect::<Vec<_>>()
                     })
                 } else {
                     Ok(parse_quote! {
                         #iter_expr
                             .iter()
-                            .cloned()
+                            .#iter_clone_method()
                             .map(|#target_pat| #element_expr)
                             .collect::<Vec<_>>()
                     })
                 }
             } else {
-                // Same fix needed for map-only comprehensions (no filter)
-                // Use .iter().cloned() to borrow and then clone elements
+                // Use .iter().copied()/.cloned() to borrow and then copy/clone elements
                 if is_identity_map {
                     Ok(parse_quote! {
                         #iter_expr
                             .iter()
-                            .cloned()
+                            .#iter_clone_method()
                             .collect::<Vec<_>>()
                     })
                 } else {
                     Ok(parse_quote! {
                         #iter_expr
                             .iter()
-                            .cloned()
+                            .#iter_clone_method()
                             .map(|#target_pat| #element_expr)
                             .collect::<Vec<_>>()
                     })
@@ -16131,8 +16194,12 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 // Ranges and enumerate() already return iterators, don't need clone
                 parse_quote! { #iter_expr }
             } else {
-                // Field access, method calls, etc. - use iter().cloned() to borrow and clone
-                parse_quote! { #iter_expr.iter().cloned() }
+                // Field access, method calls, etc.
+                if element_needs_clone {
+                    parse_quote! { #iter_expr.iter().cloned() }
+                } else {
+                    parse_quote! { #iter_expr.iter().copied() }
+                }
             };
 
             // Add filters for each condition

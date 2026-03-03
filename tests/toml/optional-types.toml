@@ -49,7 +49,7 @@ def find_item(items: list[int], target: int) -> Optional[int]:
 
 rust = '''
 pub fn find_item(items: &Vec<i32>, target: i32) -> Option<i32> {
-    for item in items.iter().cloned() {
+    for item in items.iter().copied() {
         if item == target {
             return Some(item);
         }

@@ -195,7 +195,7 @@ def modify_while_iterating(items: list[int]):
 
 rust = '''
 pub fn modify_while_iterating(items: &mut Vec<i32>) {
-    for item in items.iter().cloned() {
+    for item in items.iter().copied() {
         if item > 5 {
             if let Some(pos) = items.iter().position(|x| x == &item) {
                 items.remove(pos)

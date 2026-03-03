@@ -275,7 +275,7 @@ pub fn add_to_tally(tally: &mut Tally, amount: i32) {
 }
 pub fn count_items(items: &Vec<i32>) -> i32 {
     let mut tally = Tally::new(0);
-    for item in items.iter().cloned() {
+    for item in items.iter().copied() {
         add_to_tally(&mut tally, item);
     }
     return tally.count;
@@ -592,7 +592,7 @@ pub fn add_bonus(player: &mut Player) {
 }
 pub fn process_players(players: &Vec<Player>) -> i32 {
     let mut total: i32 = 0;
-    for mut player in players.iter().cloned() {
+    for mut player in players.iter().copied() {
         add_bonus(&mut player);
         total += player.score;
     }
@@ -691,7 +691,7 @@ pub fn add_bonus(player: &mut Player) {
     player.score += 10;
 }
 pub fn process(players: &Vec<Player>) {
-    for mut player in players.iter().cloned() {
+    for mut player in players.iter().copied() {
         add_bonus(&mut player);
     }
 }

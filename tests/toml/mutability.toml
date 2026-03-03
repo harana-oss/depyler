@@ -59,7 +59,7 @@ def accumulate(items: list[int]) -> int:
 rust = '''
 pub fn accumulate(items: &Vec<i32>) -> i32 {
     let mut total = 0;
-    for item in items.iter().cloned() {
+    for item in items.iter().copied() {
         total += item;
     }
     return total;
@@ -206,7 +206,7 @@ def print_items(items: list[int]) -> None:
 
 rust = '''
 pub fn print_items(items: &Vec<i32>) {
-    for item in items.iter().cloned() {
+    for item in items.iter().copied() {
         log::info!("{}", item);
     }
 }
@@ -228,7 +228,7 @@ def double_items(items: list[int]) -> list[int]:
 rust = '''
 pub fn double_items(items: &Vec<i32>) -> Vec<i32> {
     let mut result = vec![];
-    for item in items.iter().cloned() {
+    for item in items.iter().copied() {
         let doubled = item * 2;
         result.push(doubled);
     }

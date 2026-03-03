@@ -251,7 +251,7 @@ def find_first_positive(items: list[int]) -> int:
 
 rust = '''
 pub fn find_first_positive(items: &Vec<i32>) -> i32 {
-    for item in items.iter().cloned() {
+    for item in items.iter().copied() {
         if item > 0 {
             return item;
         }

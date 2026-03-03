@@ -357,7 +357,7 @@ pub fn filter_list(items: &Vec<i32>, threshold: i32) -> Vec<i32> {
     return items
         .iter()
         .filter(|&x| *x > threshold)
-        .cloned()
+        .copied()
         .collect::<Vec<_>>();
 }
 '''

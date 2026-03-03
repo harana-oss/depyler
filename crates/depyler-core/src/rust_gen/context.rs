@@ -684,7 +684,7 @@ impl<'a> CodeGenContext<'a> {
     }
 
     /// Check if a type needs clone (is not Copy)
-    fn type_needs_clone(&self, ty: &Type) -> bool {
+    pub fn type_needs_clone(&self, ty: &Type) -> bool {
         match ty {
             // Copy types - don't need clone
             Type::Int | Type::Float | Type::Bool | Type::None => false,

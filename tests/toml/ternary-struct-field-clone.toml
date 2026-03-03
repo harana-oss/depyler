@@ -246,9 +246,7 @@ pub struct Statistics {
 }
 impl Statistics {
     pub fn new(player_statistics: Vec<PlayerStatistics>) -> Self {
-        Self {
-            player_statistics,
-        }
+        Self { player_statistics }
     }
 }
 #[derive(Debug, Clone, PartialEq, Default)]
@@ -278,7 +276,6 @@ pub fn assign_try(state: &mut GameState, team: Team, player_list_idx: i32) {
         .tries = team_stats
         .player_statistics
         .get(player_list_idx as usize)
-        .cloned()
         .unwrap()
         .scores
         .tries

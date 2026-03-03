@@ -118,7 +118,7 @@ rust = '''
 pub fn sum_local() -> i32 {
     let items = vec![1, 2, 3];
     let mut total = 0;
-    for x in items.iter().cloned() {
+    for x in items.iter().copied() {
         total += x;
     }
     return total;

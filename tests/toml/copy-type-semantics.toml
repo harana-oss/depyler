@@ -117,3 +117,213 @@ pub fn swap_tuple(pair: (i32, i32)) -> (i32, i32) {
     return (pair.1, pair.0);
 }
 '''
+
+# ── .copied() vs .cloned() in for-loops ──────────────────
+
+[[test]]
+name = "for_loop_int_uses_copied"
+description = "For loop over list[int] emits .iter().copied()"
+
+python = '''
+def sum_ints(nums: list[int]) -> int:
+    total = 0
+    for n in nums:
+        total += n
+    return total
+'''
+
+rust = '''
+pub fn sum_ints(nums: &Vec<i32>) -> i32 {
+    let mut total = 0;
+    for n in nums.iter().copied() {
+        total += n;
+    }
+    return total;
+}
+'''
+
+[[test]]
+name = "for_loop_float_uses_copied"
+description = "For loop over list[float] emits .iter().copied()"
+
+python = '''
+def sum_floats(vals: list[float]) -> float:
+    total = 0.0
+    for v in vals:
+        total += v
+    return total
+'''
+
+rust = '''
+pub fn sum_floats(vals: &Vec<f64>) -> f64 {
+    let mut total = 0.0;
+    for v in vals.iter().copied() {
+        total += v;
+    }
+    return total;
+}
+'''
+
+[[test]]
+name = "for_loop_bool_uses_copied"
+description = "For loop over list[bool] emits .iter().copied()"
+
+python = '''
+def any_true(flags: list[bool]) -> bool:
+    for f in flags:
+        if f:
+            return True
+    return False
+'''
+
+rust = '''
+pub fn any_true(flags: &Vec<bool>) -> bool {
+    for f in flags.iter().copied() {
+        if f {
+            return true;
+        }
+    }
+    return false;
+}
+'''
+
+[[test]]
+name = "for_loop_string_uses_cloned"
+description = "For loop over list[str] emits .iter().cloned() since String is not Copy"
+
+python = '''
+def join_words(words: list[str]) -> str:
+    result = ""
+    for w in words:
+        result += w
+    return result
+'''
+
+rust = '''
+pub fn join_words(words: &Vec<String>) -> String {
+    let mut result = "".to_string();
+    for w in words.iter().cloned() {
+        result += w;
+    }
+    return result;
+}
+'''
+
+# ── .copied() vs .cloned() in comprehensions ─────────────
+
+[[test]]
+name = "list_comp_int_uses_copied"
+description = "List comprehension over list[int] emits .iter().copied()"
+
+python = '''
+def doubled(nums: list[int]) -> list[int]:
+    return [n * 2 for n in nums]
+'''
+
+rust = '''
+pub fn doubled(nums: &Vec<i32>) -> Vec<i32> {
+    return nums.iter().copied().map(|n| n * 2).collect::<Vec<_>>();
+}
+'''
+
+[[test]]
+name = "list_comp_filter_int_uses_copied"
+description = "Filtered list comprehension over list[int] emits .copied()"
+
+python = '''
+def positives(nums: list[int]) -> list[int]:
+    return [n for n in nums if n > 0]
+'''
+
+rust = '''
+pub fn positives(nums: &Vec<i32>) -> Vec<i32> {
+    return nums.iter().filter(|&n| *n > 0).copied().collect::<Vec<_>>();
+}
+'''
+
+[[test]]
+name = "list_comp_string_uses_cloned"
+description = "List comprehension over list[str] emits .iter().cloned()"
+
+python = '''
+def upper_names(names: list[str]) -> list[str]:
+    return [n.upper() for n in names]
+'''
+
+rust = '''
+pub fn upper_names(names: &Vec<String>) -> Vec<String> {
+    return names
+        .iter()
+        .cloned()
+        .map(|n| n.to_uppercase())
+        .collect::<Vec<_>>();
+}
+'''
+
+# ── No clone before &self methods ─────────────────────────
+
+[[test]]
+name = "in_operator_no_clone_on_list"
+description = "'in' operator does not clone the list since .contains() takes &self"
+
+python = '''
+def has_target(items: list[int], target: int) -> bool:
+    return target in items
+'''
+
+rust = '''
+pub fn has_target(items: &Vec<i32>, target: i32) -> bool {
+    return items.contains(&target);
+}
+'''
+
+[[test]]
+name = "not_in_operator_no_clone_on_list"
+description = "'not in' operator does not clone the list since .contains() takes &self"
+
+python = '''
+def missing(items: list[int], target: int) -> bool:
+    return target not in items
+'''
+
+rust = '''
+pub fn missing(items: &Vec<i32>, target: i32) -> bool {
+    return !items.contains(&target);
+}
+'''
+
+[[test]]
+name = "in_operator_no_clone_on_dict"
+description = "'in' operator does not clone the dict since .get() takes &self"
+
+python = '''
+def has_key(data: dict[str, int], key: str) -> bool:
+    return key in data
+'''
+
+rust = '''
+use std::collections::HashMap;
+pub fn has_key(data: &HashMap<String, i32>, key: String) -> bool {
+    return data.get(&key).is_some();
+}
+'''
+
+[[test]]
+name = "in_operator_no_clone_multi_use"
+description = "No clone on container used after 'in' check"
+
+python = '''
+def check_and_count(items: list[int], target: int) -> int:
+    if target in items:
+        return len(items)
+    return 0
+'''
+
+rust = '''
+pub fn check_and_count(items: &Vec<i32>, target: i32) -> i32 {
+    if items.contains(&target) {
+        return items.len() as i32 as i32;
+    }
+    return 0;
+}
+'''

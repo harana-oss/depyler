@@ -33,7 +33,7 @@ def sum_items(items: list[int]) -> int:
 rust = '''
 pub fn sum_items(items: &Vec<i32>) -> i32 {
     let mut total = 0;
-    for item in items.iter().cloned() {
+    for item in items.iter().copied() {
         total += item;
     }
     return total;

@@ -402,7 +402,7 @@ def sum_list(items: list[int]) -> int:
 rust = '''
 pub fn sum_list(items: &Vec<i32>) -> i32 {
     let mut total = 0;
-    for item in items.iter().cloned() {
+    for item in items.iter().copied() {
         total += item;
     }
     return total;
@@ -771,7 +771,7 @@ rust = '''
 pub fn test_array_iteration_with_fstring() -> String {
     let array = vec![10, 20, 30, 40, 50];
     let mut temp = "10".to_string();
-    for item in array.iter().cloned() {
+    for item in array.iter().copied() {
         temp = format!("{}", item);
     }
     return temp;

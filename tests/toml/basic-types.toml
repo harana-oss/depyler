@@ -330,7 +330,7 @@ pub fn process_items(items: &Vec<i32>) -> i32 {
         return 0;
     }
     let mut total = 0;
-    for item in items.iter().cloned() {
+    for item in items.iter().copied() {
         total += item;
     }
     return total;

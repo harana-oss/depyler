@@ -244,7 +244,7 @@ def double_all(nums: list[int]) -> list[int]:
 
 rust = '''
 pub fn double_all(nums: &Vec<i32>) -> Vec<i32> {
-    return nums.iter().cloned().map(|n| n * 2).collect::<Vec<_>>();
+    return nums.iter().copied().map(|n| n * 2).collect::<Vec<_>>();
 }
 '''
 

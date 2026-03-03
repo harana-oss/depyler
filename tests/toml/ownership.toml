@@ -296,7 +296,7 @@ def sum_items(items: list[int]) -> int:
 rust = '''
 pub fn sum_items(items: &Vec<i32>) -> i32 {
     let mut total = 0;
-    for item in items.iter().cloned() {
+    for item in items.iter().copied() {
         total += item;
     }
     return total;
@@ -702,12 +702,11 @@ pub fn main(items: &mut Vec<Item>) {
         .iter()
         .enumerate()
         .map(|(i, x)| (i as i32, x.clone()))
-        .filter(|(x, y)| y.val == items.get(0usize).cloned().unwrap().val)
+        .filter(|(x, y)| y.val == items.get(0usize).unwrap().val)
         .next()
         .expect("StopIteration: iterator is empty");
     items[0usize].val = idx;
 }
-
 '''
 
 [[test]]

@@ -75,7 +75,7 @@ def find_value(items: list[int], target: int) -> int | None:
 
 rust = '''
 pub fn find_value(items: &Vec<i32>, target: i32) -> Option<i32> {
-    for item in items.iter().cloned() {
+    for item in items.iter().copied() {
         if item == target {
             return Some(item);
         }
@@ -118,7 +118,7 @@ def first_positive(items: list[int]) -> int | None:
 
 rust = '''
 pub fn first_positive(items: &Vec<i32>) -> Option<i32> {
-    for item in items.iter().cloned() {
+    for item in items.iter().copied() {
         if item > 0 {
             return Some(item);
         }
@@ -606,7 +606,7 @@ def nested_search(matrix: list[list[int]], target: int) -> int | None:
 rust = '''
 pub fn nested_search(matrix: &Vec<Vec<i32>>, target: i32) -> Option<i32> {
     for row in matrix.iter().cloned() {
-        for val in row.iter().cloned() {
+        for val in row.iter().copied() {
             if val == target {
                 return Some(val);
             }

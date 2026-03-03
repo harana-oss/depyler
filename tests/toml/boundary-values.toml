@@ -136,7 +136,7 @@ rust = '''
 pub fn power_of_two_test() -> i32 {
     let powers = vec![1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024];
     let mut total = 0;
-    for power in powers.iter().cloned() {
+    for power in powers.iter().copied() {
         total += power;
     }
     return total;

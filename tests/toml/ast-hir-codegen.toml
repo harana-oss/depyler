@@ -137,7 +137,7 @@ def sum_list(nums: list[int]) -> int:
 rust = '''
 pub fn sum_list(nums: &Vec<i32>) -> i32 {
     let mut total = 0;
-    for n in nums.iter().cloned() {
+    for n in nums.iter().copied() {
         total += n;
     }
     return total;

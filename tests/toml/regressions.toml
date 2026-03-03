@@ -537,7 +537,7 @@ rust = '''
 #[doc = "Calculate the sum of a list of integers."]
 pub fn calculate_sum(numbers: &Vec<i32>) -> i32 {
     let mut total: i32 = 0;
-    for n in numbers.iter().cloned() {
+    for n in numbers.iter().copied() {
         total += n;
     }
     return total;

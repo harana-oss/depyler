@@ -523,7 +523,7 @@ pub fn typed_collections(
     maybe_name: Option<String>,
 ) -> Vec<String> {
     let mut result = vec![];
-    for num in numbers.iter().cloned() {
+    for num in numbers.iter().copied() {
         result.push(num.to_string());
     }
     return result;
@@ -1464,9 +1464,7 @@ pub fn find_player_by_position(
     let candidate = indices
         .iter()
         .copied()
-        .filter(|&idx| {
-            players.get(idx as usize).cloned().unwrap().position == position
-        })
+        .filter(|&idx| players.get(idx as usize).unwrap().position == position)
         .map(|idx| players.get(idx as usize).cloned().unwrap())
         .next()
         .expect("StopIteration: iterator is empty");
@@ -1509,14 +1507,7 @@ pub fn find_player_position(
 ) -> i32 {
     let player_list_idx = players
         .iter()
-        .position(|&idx| {
-            state_players
-                .get(idx as usize)
-                .cloned()
-                .unwrap()
-                .player_index
-                == player_index
-        })
+        .position(|&idx| state_players.get(idx as usize).unwrap().player_index == player_index)
         .map(|i| i as i32)
         .unwrap_or(-1);
     return player_list_idx.unwrap();

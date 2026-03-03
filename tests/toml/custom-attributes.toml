@@ -118,7 +118,7 @@ rust = '''
 #[inline]
 pub fn hot_path(items: &Vec<i32>) -> i32 {
     let mut total = 0;
-    for item in items.iter().cloned() {
+    for item in items.iter().copied() {
         total += item;
         total += item;
         total += item;
