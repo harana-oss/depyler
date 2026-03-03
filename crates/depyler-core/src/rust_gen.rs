@@ -769,6 +769,7 @@ fn analyze_mutable_vars(stmts: &[HirStmt], ctx: &mut CodeGenContext, params: &[H
                 }
                 None
             }
+            HirExpr::Index { base, .. } => extract_param_from_attribute_source(base, params),
             HirExpr::IfExpr { body, orelse, .. } => {
                 let body_param = extract_param_from_attribute_source(body, params)?;
                 let orelse_param = extract_param_from_attribute_source(orelse, params)?;
@@ -1082,6 +1083,97 @@ fn analyze_mutable_vars(stmts: &[HirStmt], ctx: &mut CodeGenContext, params: &[H
 
     // Mark variables as mutable when passed to functions expecting &mut parameters
     mark_mut_ref_call_args(stmts, &mut ctx.mutable_vars, &ctx.function_param_borrows);
+
+    // Detect variables assigned from subscript expressions that are later mutated
+    // through field access. These should use &mut references instead of cloning.
+    analyze_mut_ref_index_vars(stmts, ctx);
+}
+
+/// Detect variables assigned from subscript expressions (e.g., `player = state.players[idx]`)
+/// that are later mutated through field/index access (e.g., `player.score += 1`).
+/// These variables should be mutable references instead of clones.
+fn analyze_mut_ref_index_vars(stmts: &[HirStmt], ctx: &mut CodeGenContext) {
+    let mut index_source_vars = HashSet::new();
+    let mut field_mutated_vars = HashSet::new();
+    let mut reassigned_vars = HashSet::new();
+    let mut declared = HashSet::new();
+
+    fn extract_root_var(expr: &HirExpr) -> Option<String> {
+        match expr {
+            HirExpr::Var(name) => Some(name.clone()),
+            HirExpr::Attribute { value, .. } => extract_root_var(value),
+            HirExpr::Index { base, .. } => extract_root_var(base),
+            _ => None,
+        }
+    }
+
+    fn scan_stmts(
+        stmts: &[HirStmt],
+        index_source_vars: &mut HashSet<String>,
+        field_mutated_vars: &mut HashSet<String>,
+        reassigned_vars: &mut HashSet<String>,
+        declared: &mut HashSet<String>,
+    ) {
+        for stmt in stmts {
+            scan_stmt(stmt, index_source_vars, field_mutated_vars, reassigned_vars, declared);
+        }
+    }
+
+    fn scan_stmt(
+        stmt: &HirStmt,
+        index_source_vars: &mut HashSet<String>,
+        field_mutated_vars: &mut HashSet<String>,
+        reassigned_vars: &mut HashSet<String>,
+        declared: &mut HashSet<String>,
+    ) {
+        match stmt {
+            HirStmt::Assign { target, value, .. } => {
+                match target {
+                    AssignTarget::Symbol(name) => {
+                        if matches!(value, HirExpr::Index { .. }) {
+                            index_source_vars.insert(name.clone());
+                        }
+                        if declared.contains(name) {
+                            reassigned_vars.insert(name.clone());
+                        } else {
+                            declared.insert(name.clone());
+                        }
+                    }
+                    AssignTarget::Attribute { value: obj, .. } => {
+                        if let Some(root) = extract_root_var(obj) {
+                            field_mutated_vars.insert(root);
+                        }
+                    }
+                    AssignTarget::Index { base, .. } => {
+                        if let Some(root) = extract_root_var(base) {
+                            field_mutated_vars.insert(root);
+                        }
+                    }
+                    _ => {}
+                }
+            }
+            HirStmt::If { then_body, else_body, .. } => {
+                scan_stmts(then_body, index_source_vars, field_mutated_vars, reassigned_vars, declared);
+                if let Some(else_stmts) = else_body {
+                    scan_stmts(else_stmts, index_source_vars, field_mutated_vars, reassigned_vars, declared);
+                }
+            }
+            HirStmt::While { body, .. } => {
+                scan_stmts(body, index_source_vars, field_mutated_vars, reassigned_vars, declared);
+            }
+            HirStmt::For { body, .. } => {
+                scan_stmts(body, index_source_vars, field_mutated_vars, reassigned_vars, declared);
+            }
+            _ => {}
+        }
+    }
+
+    scan_stmts(stmts, &mut index_source_vars, &mut field_mutated_vars, &mut reassigned_vars, &mut declared);
+
+    ctx.mut_ref_index_vars = index_source_vars
+        .into_iter()
+        .filter(|v| field_mutated_vars.contains(v) && !reassigned_vars.contains(v))
+        .collect();
 }
 
 /// Recursively scan statements for function calls that pass variables to &mut parameters,
@@ -1946,6 +2038,7 @@ pub fn generate_rust_file(
         functions_with_mutated_return: HashSet::new(),
         functions_returning_refs: HashSet::new(),
         filter_deref_vars: HashSet::new(),
+        mut_ref_index_vars: HashSet::new(),
     };
 
     // Analyze all functions first for string optimization
@@ -2288,6 +2381,7 @@ mod tests {
             functions_with_mutated_return: HashSet::new(),
             functions_returning_refs: HashSet::new(),
             filter_deref_vars: HashSet::new(),
+            mut_ref_index_vars: HashSet::new(),
         }
     }
 

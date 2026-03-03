@@ -1418,6 +1418,7 @@ impl RustCodeGen for HirFunction {
         // DEPYLER-0312: Analyze mutability BEFORE generating parameters
         // Clear per-function mutable_vars to prevent leaking state from previous functions
         ctx.mutable_vars.clear();
+        ctx.mut_ref_index_vars.clear();
         // This populates ctx.mutable_vars which codegen_single_param uses to determine `mut` keyword
         analyze_mutable_vars(&self.body, ctx, &self.params);
 
@@ -1455,6 +1456,12 @@ impl RustCodeGen for HirFunction {
         // Variables in mut_borrowable_vars will hold &mut references, so the binding
         // itself doesn't need `mut`. Remove them from mutable_vars to avoid `let mut`.
         for var_name in &ctx.mut_borrowable_vars {
+            ctx.mutable_vars.remove(var_name);
+        }
+
+        // Variables in mut_ref_index_vars hold &mut references from subscript access,
+        // so the binding itself doesn't need `mut`.
+        for var_name in &ctx.mut_ref_index_vars.clone() {
             ctx.mutable_vars.remove(var_name);
         }
 

@@ -810,10 +810,25 @@ pub(crate) fn codegen_assign_stmt(
     // For type annotations, use the same borrow flags as for values
     let (type_should_borrow, type_should_mut_borrow) = (should_borrow, should_mut_borrow);
 
+    // Check if this variable should be a mutable reference from subscript access
+    // Pattern: `player = state.players[idx]` where player's fields are later mutated
+    let is_mut_ref_index = if let AssignTarget::Symbol(var_name) = target {
+        ctx.mut_ref_index_vars.contains(var_name) && matches!(value, HirExpr::Index { .. })
+    } else {
+        false
+    };
+
     // Convert the value expression unless it's an Uninitialized marker
     let mut value_expr = if is_uninitialized {
         // Placeholder; won't be used when is_uninitialized is true
         parse_quote! { () }
+    } else if is_mut_ref_index {
+        // Generate get_mut().unwrap() instead of get().cloned().unwrap()
+        let was_assignment_target = ctx.is_assignment_target;
+        ctx.is_assignment_target = true;
+        let expr = value.to_rust_expr(ctx)?;
+        ctx.is_assignment_target = was_assignment_target;
+        expr
     } else if should_mut_borrow {
         // Generate a mutable borrow for field access from &mut T source
         ctx.set_generate_borrow(true);

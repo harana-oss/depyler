@@ -1278,7 +1278,7 @@ impl GameState {
     }
 }
 pub fn update_player_time(state: &mut GameState, idx: i32, seconds: f64) {
-    let player = &mut state.players[idx as usize];
+    let player = state.players.get_mut(idx as usize).unwrap();
     player.stats.time_on_field = ((player.stats.time_on_field) as f64) + seconds;
 }
 '''
@@ -1377,5 +1377,41 @@ pub fn apply_time(state: &mut State, team: Team, seconds: f64, count: i32) {
     } {
         s.time_on_field += seconds;
     }
+}
+'''
+
+# =============================================================================
+# Subscript assignment followed by field mutation uses &mut ref, not clone
+# =============================================================================
+
+[[test]]
+name = "subscript_assign_with_field_mutation_uses_mut_ref"
+description = "player = state.players[idx] then player.score += points should use get_mut, not cloned"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Player:
+    score: int
+
+def update_player(players: list[Player], idx: int, points: int) -> None:
+    player = players[idx]
+    player.score += points
+'''
+
+rust = '''
+#[derive(Debug, Copy, Clone, PartialEq, Default)]
+pub struct Player {
+    pub score: i32,
+}
+impl Player {
+    pub fn new(score: i32) -> Self {
+        Self { score }
+    }
+}
+pub fn update_player(players: &mut Vec<Player>, idx: i32, points: i32) {
+    let player = players.get_mut(idx as usize).unwrap();
+    player.score += points;
 }
 '''

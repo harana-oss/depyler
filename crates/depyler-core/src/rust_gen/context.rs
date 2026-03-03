@@ -240,6 +240,12 @@ pub struct CodeGenContext<'a> {
     /// Set inside `.filter()` closures where the iterator variable is `&T`.
     /// NOT applied for `.field` or `.method()` access (Rust auto-deref handles those).
     pub filter_deref_vars: HashSet<String>,
+
+    /// Variables assigned from a subscript expression that are later mutated through
+    /// field access. These should be mutable references (`&mut T`) instead of clones.
+    /// Pattern: `player = state.players[idx]` then `player.field += value`
+    /// Generated as: `let player = state.players.get_mut(idx).unwrap()`
+    pub mut_ref_index_vars: HashSet<String>,
 }
 
 impl<'a> CodeGenContext<'a> {
