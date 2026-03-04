@@ -196,6 +196,10 @@ pub struct CodeGenContext<'a> {
     /// Flag to indicate the current function returns a reference (to avoid cloning in return expressions)
     pub returns_reference: bool,
 
+    /// Positions in a return tuple that should be references (from indexed field access
+    /// on borrowed parameters). E.g., `player = state.players[idx]` → `player: &Player`.
+    pub return_reference_positions: Vec<bool>,
+
     /// Flag to indicate the current function returns a mutable reference (&mut T)
     pub returns_mutable_reference: bool,
 

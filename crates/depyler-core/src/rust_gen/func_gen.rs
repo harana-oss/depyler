@@ -11,6 +11,7 @@ use crate::rust_gen::generator_gen::codegen_generator_function;
 use crate::rust_gen::type_gen::{rust_type_to_syn, update_import_needs};
 use anyhow::Result;
 use quote::quote;
+use std::collections::{HashMap, HashSet};
 use syn::{self, parse_quote};
 
 // Import analyze_mutable_vars from parent module
@@ -1342,6 +1343,211 @@ fn literal_to_type(lit: &Literal) -> Type {
     }
 }
 
+// ========== Indexed Field Return Reference Detection ==========
+
+/// Detect when return tuple elements hold references from indexed field access
+/// on borrowed parameters. E.g., `player = state.players[idx]` then `return (player, idx)`.
+/// Returns the reference positions for the return tuple.
+fn detect_indexed_field_return_refs(
+    func: &HirFunction,
+    lifetime_result: &crate::lifetime_analysis::LifetimeResult,
+    borrowable_vars: &HashSet<String>,
+) -> Vec<bool> {
+    let borrowed_params: HashSet<String> = lifetime_result
+        .param_lifetimes
+        .iter()
+        .filter(|(_, inf)| inf.should_borrow)
+        .map(|(name, _)| name.clone())
+        .collect();
+
+    if borrowed_params.is_empty() {
+        return vec![];
+    }
+
+    // Find variables assigned from indexed attribute access on borrowed params
+    let mut ref_var_sources: HashMap<String, String> = HashMap::new();
+    collect_indexed_field_vars(&func.body, &borrowed_params, &mut ref_var_sources);
+
+    // Only keep vars that are actually borrowable (the assignment codegen will add &)
+    ref_var_sources.retain(|var_name, _| borrowable_vars.contains(var_name));
+
+    if ref_var_sources.is_empty() {
+        return vec![];
+    }
+
+    // Find return tuple positions that reference these variables
+    let mut ref_positions = Vec::new();
+    find_ref_return_positions(&func.body, &ref_var_sources, &mut ref_positions);
+
+    ref_positions
+}
+
+/// Collect variables assigned from indexed field access on borrowed parameters.
+/// Maps variable name to the source parameter name.
+fn collect_indexed_field_vars(
+    stmts: &[HirStmt],
+    borrowed_params: &HashSet<String>,
+    ref_var_sources: &mut HashMap<String, String>,
+) {
+    for stmt in stmts {
+        match stmt {
+            HirStmt::Assign {
+                target: AssignTarget::Symbol(var_name),
+                value,
+                ..
+            } => {
+                if let Some(param_name) =
+                    get_indexed_field_source_param(value, borrowed_params)
+                {
+                    ref_var_sources.insert(var_name.clone(), param_name);
+                }
+            }
+            HirStmt::For { body, .. } | HirStmt::While { body, .. } => {
+                collect_indexed_field_vars(body, borrowed_params, ref_var_sources);
+            }
+            HirStmt::If {
+                then_body,
+                else_body,
+                ..
+            } => {
+                collect_indexed_field_vars(then_body, borrowed_params, ref_var_sources);
+                if let Some(else_stmts) = else_body {
+                    collect_indexed_field_vars(else_stmts, borrowed_params, ref_var_sources);
+                }
+            }
+            _ => {}
+        }
+    }
+}
+
+/// Check if an expression is an Index into an attribute chain rooted at a borrowed param.
+fn get_indexed_field_source_param(
+    expr: &HirExpr,
+    borrowed_params: &HashSet<String>,
+) -> Option<String> {
+    if let HirExpr::Index { base, .. } = expr {
+        get_attribute_chain_root_param(base, borrowed_params)
+    } else {
+        None
+    }
+}
+
+/// Walk an attribute/index chain to find a borrowed parameter root.
+fn get_attribute_chain_root_param(
+    expr: &HirExpr,
+    borrowed_params: &HashSet<String>,
+) -> Option<String> {
+    match expr {
+        HirExpr::Attribute { value, .. } => match value.as_ref() {
+            HirExpr::Var(name) if borrowed_params.contains(name) => Some(name.clone()),
+            _ => get_attribute_chain_root_param(value, borrowed_params),
+        },
+        HirExpr::Index { base, .. } => get_attribute_chain_root_param(base, borrowed_params),
+        _ => None,
+    }
+}
+
+/// Scan return statements for tuple elements that are reference variables.
+fn find_ref_return_positions(
+    stmts: &[HirStmt],
+    ref_var_sources: &HashMap<String, String>,
+    ref_positions: &mut Vec<bool>,
+) {
+    for stmt in stmts {
+        if !ref_positions.is_empty() {
+            return;
+        }
+        match stmt {
+            HirStmt::Return(Some(HirExpr::Tuple(elems))) => {
+                let pos: Vec<bool> = elems
+                    .iter()
+                    .map(|e| matches!(e, HirExpr::Var(name) if ref_var_sources.contains_key(name)))
+                    .collect();
+                if pos.iter().any(|b| *b) {
+                    *ref_positions = pos;
+                    return;
+                }
+            }
+            HirStmt::For { body, .. } | HirStmt::While { body, .. } => {
+                find_ref_return_positions(body, ref_var_sources, ref_positions);
+            }
+            HirStmt::If {
+                then_body,
+                else_body,
+                ..
+            } => {
+                find_ref_return_positions(then_body, ref_var_sources, ref_positions);
+                if let Some(else_stmts) = else_body {
+                    find_ref_return_positions(else_stmts, ref_var_sources, ref_positions);
+                }
+            }
+            _ => {}
+        }
+    }
+}
+
+/// Wrap the inner type of an Option or a plain type in a Reference.
+fn wrap_rust_type_with_reference(
+    rust_type: &crate::type_mapper::RustType,
+    lifetime: &Option<String>,
+) -> crate::type_mapper::RustType {
+    use crate::type_mapper::RustType;
+    match rust_type {
+        RustType::Option(inner) => RustType::Option(Box::new(RustType::Reference {
+            lifetime: lifetime.clone(),
+            mutable: false,
+            inner: inner.clone(),
+        })),
+        _ => RustType::Reference {
+            lifetime: lifetime.clone(),
+            mutable: false,
+            inner: Box::new(rust_type.clone()),
+        },
+    }
+}
+
+/// Update lifetime_result when indexed field return references are detected.
+fn apply_indexed_field_return_lifetimes(
+    func: &HirFunction,
+    lifetime_result: &mut crate::lifetime_analysis::LifetimeResult,
+    ref_var_sources: &HashMap<String, String>,
+) {
+    let source_params: HashSet<String> = ref_var_sources.values().cloned().collect();
+
+    for param in &source_params {
+        if !lifetime_result.params_with_field_return.contains(param) {
+            lifetime_result.params_with_field_return.push(param.clone());
+        }
+    }
+
+    let ref_param_count = lifetime_result
+        .param_lifetimes
+        .iter()
+        .filter(|(_, inf)| inf.should_borrow)
+        .count();
+
+    if ref_param_count > 1 {
+        // Multiple borrowed params: need explicit lifetime
+        let escaping_lifetime = "'a".to_string();
+        for (name, inf) in lifetime_result.param_lifetimes.iter_mut() {
+            if source_params.contains(name.as_str()) {
+                inf.lifetime = Some(escaping_lifetime.clone());
+            } else {
+                // Non-source params don't need explicit lifetimes
+                inf.lifetime = None;
+            }
+        }
+        lifetime_result.return_lifetime = Some(escaping_lifetime.clone());
+        if !lifetime_result.lifetime_params.contains(&escaping_lifetime) {
+            lifetime_result.lifetime_params.push(escaping_lifetime);
+        }
+    } else if ref_param_count == 1 {
+        // Single borrowed param: Rust lifetime elision handles it, but
+        // we still need to know we have references for the return type
+        let _ = func; // Intentional: single-param case uses elision
+    }
+}
+
 // ========== Phase 3b: Return Type Generation ==========
 
 /// Generate return type with Result wrapper and lifetime handling
@@ -1412,6 +1618,33 @@ pub(crate) fn codegen_return_type(
 
     // Update import needs based on return type
     update_import_needs(ctx, &rust_ret_type);
+
+    // Wrap tuple elements in references when they come from indexed field access
+    // on borrowed parameters (e.g., `player = state.players[idx]` → `&Player`)
+    let rust_ret_type = if !ctx.return_reference_positions.is_empty() {
+        if let crate::type_mapper::RustType::Tuple(ref elements) = rust_ret_type {
+            if ctx.return_reference_positions.len() == elements.len() {
+                let new_elements: Vec<crate::type_mapper::RustType> = elements
+                    .iter()
+                    .zip(ctx.return_reference_positions.iter())
+                    .map(|(elem, is_ref)| {
+                        if *is_ref {
+                            wrap_rust_type_with_reference(elem, &lifetime_result.return_lifetime)
+                        } else {
+                            elem.clone()
+                        }
+                    })
+                    .collect();
+                crate::type_mapper::RustType::Tuple(new_elements)
+            } else {
+                rust_ret_type
+            }
+        } else {
+            rust_ret_type
+        }
+    } else {
+        rust_ret_type
+    };
 
     // can_fail is always false — no Result wrapping
     let can_fail = false;
@@ -1600,6 +1833,30 @@ impl RustCodeGen for HirFunction {
                 }
             }
         }
+
+        // Detect indexed field returns (e.g., `player = state.players[idx]` then `return player, idx`)
+        // Run field borrowing analysis early to determine which vars will be borrowed
+        ctx.analyze_field_borrowing(&self.body);
+        let early_borrowable = ctx.borrowable_vars.clone();
+        ctx.borrowable_vars.clear();
+        ctx.mut_borrowable_vars.clear();
+
+        let return_ref_positions =
+            detect_indexed_field_return_refs(self, &lifetime_result, &early_borrowable);
+        if !return_ref_positions.is_empty() {
+            // Collect the source params from indexed field vars (re-derive for lifetime update)
+            let borrowed_params: HashSet<String> = lifetime_result
+                .param_lifetimes
+                .iter()
+                .filter(|(_, inf)| inf.should_borrow)
+                .map(|(name, _)| name.clone())
+                .collect();
+            let mut ref_var_sources: HashMap<String, String> = HashMap::new();
+            collect_indexed_field_vars(&self.body, &borrowed_params, &mut ref_var_sources);
+            ref_var_sources.retain(|var_name, _| early_borrowable.contains(var_name));
+            apply_indexed_field_return_lifetimes(self, &mut lifetime_result, &ref_var_sources);
+        }
+        ctx.return_reference_positions = return_ref_positions;
 
         // Generate combined generic parameters (lifetimes + type params)
         let generic_params = codegen_generic_params(&type_params, &lifetime_result.lifetime_params);

@@ -175,3 +175,115 @@ pub fn create_nested(v: i32) -> Outer {
     return Outer::new(Inner::new(v));
 }
 '''
+
+[[test]]
+name = "indexed_field_return_produces_reference"
+description = "Indexing into a borrowed param's collection returns a reference in tuple"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Player:
+    player_index: int
+    on_field: bool
+
+@dataclass
+class State:
+    players: list[Player]
+
+def resolve_player(state: State, player_indices: list[int], candidate_index: int) -> tuple:
+    for idx in player_indices:
+        player = state.players[idx]
+        if player.player_index == candidate_index:
+            return player, idx
+    return None, -1
+'''
+
+rust = '''
+#[derive(Debug, Copy, Clone, PartialEq, Default)]
+pub struct Player {
+    pub player_index: i32,
+    pub on_field: bool,
+}
+impl Player {
+    pub fn new(player_index: i32, on_field: bool) -> Self {
+        Self { player_index, on_field }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct State {
+    pub players: Vec<Player>,
+}
+impl State {
+    pub fn new(players: Vec<Player>) -> Self {
+        Self { players }
+    }
+}
+pub fn resolve_player<'a>(
+    state: &'a State,
+    player_indices: &Vec<i32>,
+    candidate_index: i32,
+) -> (Option<&'a Player>, i32) {
+    for idx in player_indices.iter().copied() {
+        let player = &state.players[idx as usize];
+        if player.player_index == candidate_index {
+            return (Some(player), idx);
+        }
+    }
+    return (None, -1);
+}
+'''
+
+[[test]]
+name = "indexed_field_return_single_borrowed_param_elides_lifetime"
+description = "Single borrowed param uses lifetime elision for reference return"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Item:
+    key: int
+
+@dataclass
+class Container:
+    items: list[Item]
+
+def find_item(container: Container, target: int) -> tuple:
+    for i in range(len(container.items)):
+        item = container.items[i]
+        if item.key == target:
+            return item, i
+    return None, -1
+'''
+
+rust = '''
+#[derive(Debug, Copy, Clone, PartialEq, Default)]
+pub struct Item {
+    pub key: i32,
+}
+impl Item {
+    pub fn new(key: i32) -> Self {
+        Self { key }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Container {
+    pub items: Vec<Item>,
+}
+impl Container {
+    pub fn new(items: Vec<Item>) -> Self {
+        Self { items }
+    }
+}
+pub fn find_item(container: &Container, target: i32) -> (Option<&Item>, i32) {
+    for i in 0..container.items.len() as i32 {
+        let item = &container.items[i as usize];
+        if item.key == target {
+            return (Some(item), i);
+        }
+    }
+    return (None, -1);
+}
+'''
