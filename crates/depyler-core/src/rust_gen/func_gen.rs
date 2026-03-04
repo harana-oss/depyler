@@ -618,7 +618,11 @@ pub(crate) fn return_type_expects_float(ty: &Type) -> bool {
 
 /// Infer return type from function body when no annotation is provided
 /// Returns None if type cannot be inferred or there are no return statements
-fn infer_return_type_from_body(body: &[HirStmt], params: &[crate::hir::HirParam]) -> Option<Type> {
+fn infer_return_type_from_body(
+    body: &[HirStmt],
+    params: &[crate::hir::HirParam],
+    class_field_types: &std::collections::HashMap<String, std::collections::HashMap<String, Type>>,
+) -> Option<Type> {
     // DEPYLER-0415: Build type environment from variable assignments
     let mut var_types: std::collections::HashMap<String, Type> = std::collections::HashMap::new();
 
@@ -629,15 +633,16 @@ fn infer_return_type_from_body(body: &[HirStmt], params: &[crate::hir::HirParam]
         }
     }
 
-    build_var_type_env(body, &mut var_types);
+    build_var_type_env(body, &mut var_types, class_field_types);
 
     let mut return_types = Vec::new();
-    collect_return_types_with_env(body, &mut return_types, &var_types);
+    collect_return_types_with_env(body, &mut return_types, &var_types, class_field_types);
 
     // DEPYLER-0412: Also check for trailing expression (implicit return)
     // If the last statement is an expression without return, it's an implicit return
     if let Some(HirStmt::Expr(expr)) = body.last() {
-        let trailing_type = infer_expr_type_with_env(expr, &var_types);
+        let trailing_type =
+            infer_expr_type_with_class_env(expr, &var_types, class_field_types);
         if !matches!(trailing_type, Type::Unknown) {
             return_types.push(trailing_type);
         }
@@ -756,7 +761,11 @@ fn unify_element_types(types: &[&Type]) -> Type {
 // ========== DEPYLER-0415: Variable Type Environment ==========
 
 /// Build a type environment by collecting variable assignments
-fn build_var_type_env(stmts: &[HirStmt], var_types: &mut std::collections::HashMap<String, Type>) {
+fn build_var_type_env(
+    stmts: &[HirStmt],
+    var_types: &mut std::collections::HashMap<String, Type>,
+    class_field_types: &std::collections::HashMap<String, std::collections::HashMap<String, Type>>,
+) {
     for stmt in stmts {
         match stmt {
             HirStmt::Assign {
@@ -764,8 +773,8 @@ fn build_var_type_env(stmts: &[HirStmt], var_types: &mut std::collections::HashM
                 value,
                 ..
             } => {
-                // DEPYLER-0415: Use the environment we're building for lookups
-                let value_type = infer_expr_type_with_env(value, var_types);
+                let value_type =
+                    infer_expr_type_with_class_env(value, var_types, class_field_types);
                 if !matches!(value_type, Type::Unknown) {
                     var_types.insert(name.clone(), value_type);
                 }
@@ -775,13 +784,33 @@ fn build_var_type_env(stmts: &[HirStmt], var_types: &mut std::collections::HashM
                 else_body,
                 ..
             } => {
-                build_var_type_env(then_body, var_types);
+                build_var_type_env(then_body, var_types, class_field_types);
                 if let Some(else_stmts) = else_body {
-                    build_var_type_env(else_stmts, var_types);
+                    build_var_type_env(else_stmts, var_types, class_field_types);
                 }
             }
-            HirStmt::While { body, .. } | HirStmt::For { body, .. } => {
-                build_var_type_env(body, var_types);
+            HirStmt::While { body, .. } => {
+                build_var_type_env(body, var_types, class_field_types);
+            }
+            HirStmt::For { target, iter, body } => {
+                // Infer loop variable type from iterator element type
+                let iter_type =
+                    infer_expr_type_with_class_env(iter, var_types, class_field_types);
+                let elem_type = match &iter_type {
+                    Type::List(elem) | Type::Set(elem) => Some(*elem.clone()),
+                    Type::Array { element_type, .. } => Some(*element_type.clone()),
+                    Type::Dict(key, _) => Some(*key.clone()),
+                    Type::String => Some(Type::String),
+                    _ => None,
+                };
+                if let (Some(elem_ty), crate::hir::AssignTarget::Symbol(name)) =
+                    (elem_type, target)
+                {
+                    if !matches!(elem_ty, Type::Unknown) {
+                        var_types.insert(name.clone(), elem_ty);
+                    }
+                }
+                build_var_type_env(body, var_types, class_field_types);
             }
             HirStmt::Try {
                 body,
@@ -789,19 +818,19 @@ fn build_var_type_env(stmts: &[HirStmt], var_types: &mut std::collections::HashM
                 orelse,
                 finalbody,
             } => {
-                build_var_type_env(body, var_types);
+                build_var_type_env(body, var_types, class_field_types);
                 for handler in handlers {
-                    build_var_type_env(&handler.body, var_types);
+                    build_var_type_env(&handler.body, var_types, class_field_types);
                 }
                 if let Some(orelse_stmts) = orelse {
-                    build_var_type_env(orelse_stmts, var_types);
+                    build_var_type_env(orelse_stmts, var_types, class_field_types);
                 }
                 if let Some(finally_stmts) = finalbody {
-                    build_var_type_env(finally_stmts, var_types);
+                    build_var_type_env(finally_stmts, var_types, class_field_types);
                 }
             }
             HirStmt::With { body, .. } => {
-                build_var_type_env(body, var_types);
+                build_var_type_env(body, var_types, class_field_types);
             }
             _ => {}
         }
@@ -813,11 +842,16 @@ fn collect_return_types_with_env(
     stmts: &[HirStmt],
     types: &mut Vec<Type>,
     var_types: &std::collections::HashMap<String, Type>,
+    class_field_types: &std::collections::HashMap<String, std::collections::HashMap<String, Type>>,
 ) {
     for stmt in stmts {
         match stmt {
             HirStmt::Return(Some(expr)) => {
-                types.push(infer_expr_type_with_env(expr, var_types));
+                types.push(infer_expr_type_with_class_env(
+                    expr,
+                    var_types,
+                    class_field_types,
+                ));
             }
             HirStmt::Return(None) => {
                 types.push(Type::None);
@@ -827,13 +861,13 @@ fn collect_return_types_with_env(
                 else_body,
                 ..
             } => {
-                collect_return_types_with_env(then_body, types, var_types);
+                collect_return_types_with_env(then_body, types, var_types, class_field_types);
                 if let Some(else_stmts) = else_body {
-                    collect_return_types_with_env(else_stmts, types, var_types);
+                    collect_return_types_with_env(else_stmts, types, var_types, class_field_types);
                 }
             }
             HirStmt::While { body, .. } | HirStmt::For { body, .. } => {
-                collect_return_types_with_env(body, types, var_types);
+                collect_return_types_with_env(body, types, var_types, class_field_types);
             }
             HirStmt::Try {
                 body,
@@ -841,22 +875,84 @@ fn collect_return_types_with_env(
                 orelse,
                 finalbody,
             } => {
-                collect_return_types_with_env(body, types, var_types);
+                collect_return_types_with_env(body, types, var_types, class_field_types);
                 for handler in handlers {
-                    collect_return_types_with_env(&handler.body, types, var_types);
+                    collect_return_types_with_env(
+                        &handler.body,
+                        types,
+                        var_types,
+                        class_field_types,
+                    );
                 }
                 if let Some(orelse_stmts) = orelse {
-                    collect_return_types_with_env(orelse_stmts, types, var_types);
+                    collect_return_types_with_env(
+                        orelse_stmts,
+                        types,
+                        var_types,
+                        class_field_types,
+                    );
                 }
                 if let Some(finally_stmts) = finalbody {
-                    collect_return_types_with_env(finally_stmts, types, var_types);
+                    collect_return_types_with_env(
+                        finally_stmts,
+                        types,
+                        var_types,
+                        class_field_types,
+                    );
                 }
             }
             HirStmt::With { body, .. } => {
-                collect_return_types_with_env(body, types, var_types);
+                collect_return_types_with_env(body, types, var_types, class_field_types);
             }
             _ => {}
         }
+    }
+}
+
+/// Infer expression type with class field type resolution.
+/// Used during return type inference where struct field types are needed.
+fn infer_expr_type_with_class_env(
+    expr: &HirExpr,
+    var_types: &std::collections::HashMap<String, Type>,
+    class_field_types: &std::collections::HashMap<String, std::collections::HashMap<String, Type>>,
+) -> Type {
+    match expr {
+        // Resolve attribute access via class field types (e.g., state.players → List(Player))
+        HirExpr::Attribute { value, attr } => {
+            if let HirExpr::Var(var_name) = value.as_ref() {
+                if let Some(Type::Custom(class_name)) = var_types.get(var_name) {
+                    if let Some(field_types) = class_field_types.get(class_name) {
+                        if let Some(ft) = field_types.get(attr.as_str()) {
+                            return ft.clone();
+                        }
+                    }
+                }
+            }
+            infer_expr_type_with_env(expr, var_types)
+        }
+        // Resolve index access using class-aware base type (e.g., state.players[idx])
+        HirExpr::Index { base, .. } => {
+            let base_type =
+                infer_expr_type_with_class_env(base, var_types, class_field_types);
+            match base_type {
+                Type::List(elem) => *elem,
+                Type::Tuple(elems) => elems.first().cloned().unwrap_or(Type::Unknown),
+                Type::Dict(_, val) => *val,
+                Type::String => Type::String,
+                Type::Array { element_type, .. } => *element_type,
+                _ => Type::Unknown,
+            }
+        }
+        // Resolve tuples element-wise with class context
+        HirExpr::Tuple(elems) => {
+            let elem_types: Vec<Type> = elems
+                .iter()
+                .map(|e| infer_expr_type_with_class_env(e, var_types, class_field_types))
+                .collect();
+            Type::Tuple(elem_types)
+        }
+        // All other expressions: delegate to the standard env-aware inference
+        _ => infer_expr_type_with_env(expr, var_types),
     }
 }
 
@@ -1138,8 +1234,9 @@ fn infer_expr_type_simple(expr: &HirExpr) -> Type {
                 Type::List(elem) => *elem,
                 Type::Tuple(elems) => elems.first().cloned().unwrap_or(Type::Unknown),
                 Type::Dict(_, val) => *val,
-                Type::String => Type::String, // string indexing returns char/string
-                _ => Type::Int,               // Default to Int for array-like indexing
+                Type::String => Type::String,
+                Type::Array { element_type, .. } => *element_type,
+                _ => Type::Unknown,
             }
         }
         // DEPYLER-0414: Add Slice expression type inference
@@ -1270,7 +1367,9 @@ pub(crate) fn codegen_return_type(
 
     let effective_ret_type = if should_infer {
         // Try to infer from return statements in body
-        if let Some(inferred) = infer_return_type_from_body(&func.body, &func.params) {
+        if let Some(inferred) =
+            infer_return_type_from_body(&func.body, &func.params, &ctx.class_field_types)
+        {
             inferred
         } else {
             func.ret_type.clone()
