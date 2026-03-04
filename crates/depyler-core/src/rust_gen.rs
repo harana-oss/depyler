@@ -1744,10 +1744,35 @@ fn generate_constant_tokens(
 
         // Determine type annotation and whether it needs lazy_static
         let (type_annotation, needs_lazy) = if let Some(ref ty) = constant.type_annotation {
-            let rust_type = ctx.type_mapper.map_type(ty);
-            let needs_lazy = is_heap_allocated_rust_type(&rust_type);
-            let syn_type = type_gen::rust_type_to_syn(&rust_type)?;
-            (quote! { : #syn_type }, needs_lazy)
+            // Typed list constants with const-safe elements → static array
+            if let (Type::List(_), HirExpr::List(elts)) = (ty, &constant.value) {
+                let elem_type = infer_list_element_type(elts);
+                let elem_type_str = elem_type.to_string();
+                if !elts.is_empty()
+                    && !elem_type_str.contains("serde_json")
+                    && elts.iter().all(is_const_safe_list_element)
+                {
+                    let len_lit = syn::LitInt::new(
+                        &elts.len().to_string(),
+                        proc_macro2::Span::call_site(),
+                    );
+                    let elem_exprs: Vec<syn::Expr> = elts
+                        .iter()
+                        .map(|e| e.to_rust_expr(ctx))
+                        .collect::<Result<Vec<_>>>()?;
+                    value_expr = syn::parse_quote! { [#(#elem_exprs),*] };
+                    (quote! { : [#elem_type; #len_lit] }, false)
+                } else {
+                    let rust_type = ctx.type_mapper.map_type(ty);
+                    let syn_type = type_gen::rust_type_to_syn(&rust_type)?;
+                    (quote! { : #syn_type }, true)
+                }
+            } else {
+                let rust_type = ctx.type_mapper.map_type(ty);
+                let needs_lazy = is_heap_allocated_rust_type(&rust_type);
+                let syn_type = type_gen::rust_type_to_syn(&rust_type)?;
+                (quote! { : #syn_type }, needs_lazy)
+            }
         } else {
             // DEPYLER-0448: Infer type from expression (not just literals)
             match &constant.value {
@@ -2144,15 +2169,23 @@ pub fn generate_rust_file(
             .next()
             .map_or(false, |c| c.is_uppercase())
         {
-            if let HirExpr::List(elts) = &constant.value {
-                let elem_type = infer_list_element_type(elts);
-                let elem_type_str = elem_type.to_string();
-                if !elts.is_empty()
-                    && !elem_type_str.contains("serde_json")
-                    && elts.iter().all(is_const_safe_list_element)
-                {
-                    ctx.static_array_constants.insert(constant.name.clone());
-                    continue;
+            // Check both typed (list[int]) and untyped list constants
+            let is_list_value = matches!(&constant.value, HirExpr::List(_));
+            let is_list_annotation = constant
+                .type_annotation
+                .as_ref()
+                .is_some_and(|ty| matches!(ty, Type::List(_)));
+            if is_list_value || is_list_annotation {
+                if let HirExpr::List(elts) = &constant.value {
+                    let elem_type = infer_list_element_type(elts);
+                    let elem_type_str = elem_type.to_string();
+                    if !elts.is_empty()
+                        && !elem_type_str.contains("serde_json")
+                        && elts.iter().all(is_const_safe_list_element)
+                    {
+                        ctx.static_array_constants.insert(constant.name.clone());
+                        continue;
+                    }
                 }
             }
             ctx.lazy_static_constants.insert(constant.name.clone());

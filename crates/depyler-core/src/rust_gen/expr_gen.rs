@@ -3924,13 +3924,26 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                                     }
                                 }
                             } else if let HirExpr::Var(var_name) = hir_arg {
-                                // No conflict - simple variable borrow
-                                let ident = format_ident!("{}", var_name);
-                                let result: syn::Expr = parse_quote! { &#ident };
-                                if needs_optional_unwrap {
-                                    parse_quote! { #result.unwrap() }
+                                // Static array constants need .to_vec() when
+                                // passed to functions expecting &Vec
+                                if self.ctx.static_array_constants.contains(var_name) {
+                                    let ident = format_ident!("{}", var_name);
+                                    let result: syn::Expr =
+                                        parse_quote! { &#ident.to_vec() };
+                                    if needs_optional_unwrap {
+                                        parse_quote! { #result.unwrap() }
+                                    } else {
+                                        result
+                                    }
                                 } else {
-                                    result
+                                    // No conflict - simple variable borrow
+                                    let ident = format_ident!("{}", var_name);
+                                    let result: syn::Expr = parse_quote! { &#ident };
+                                    if needs_optional_unwrap {
+                                        parse_quote! { #result.unwrap() }
+                                    } else {
+                                        result
+                                    }
                                 }
                             } else {
                                 let result: syn::Expr = parse_quote! { &#arg_expr };

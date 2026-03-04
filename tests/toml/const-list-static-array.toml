@@ -118,3 +118,79 @@ def get_first() -> int:
 [test.assertions]
 contains = ["SCORES[0usize]"]
 not_contains = ["SCORES.get("]
+
+[[test]]
+name = "typed_int_list_static_array"
+description = "Typed list[int] constant generates pub static array (not lazy_static)"
+
+python = '''
+VALUES: list[int] = [10, 20, 30]
+'''
+
+rust = '''
+pub static VALUES: [i32; 3] = [10, 20, 30];
+'''
+
+[[test]]
+name = "typed_float_list_static_array"
+description = "Typed list[float] constant generates pub static array (not lazy_static)"
+
+python = '''
+WEIGHTS: list[float] = [1.5, 2.5, 3.5]
+'''
+
+rust = '''
+pub static WEIGHTS: [f64; 3] = [1.5, 2.5, 3.5];
+'''
+
+[[test]]
+name = "typed_bool_list_static_array"
+description = "Typed list[bool] constant generates pub static array"
+
+python = '''
+MASK: list[bool] = [True, False, True]
+'''
+
+rust = '''
+pub static MASK: [bool; 3] = [true, false, true];
+'''
+
+[[test]]
+name = "static_array_to_vec_on_func_call"
+description = "Static array constant passed to function gets .to_vec()"
+
+python = '''
+ITEMS = [1, 2, 3]
+
+def process(items: list[int]) -> int:
+    total: int = 0
+    for x in items:
+        total = total + x
+    return total
+
+def main() -> int:
+    return process(ITEMS)
+'''
+
+[test.assertions]
+contains = ["pub static ITEMS: [i32; 3]", "&ITEMS.to_vec()"]
+
+[[test]]
+name = "typed_static_array_to_vec_on_func_call"
+description = "Typed static array constant passed to function gets .to_vec()"
+
+python = '''
+WEIGHTS: list[float] = [1.0, 2.0, 3.0]
+
+def total(w: list[float]) -> float:
+    s: float = 0.0
+    for x in w:
+        s = s + x
+    return s
+
+def main() -> float:
+    return total(WEIGHTS)
+'''
+
+[test.assertions]
+contains = ["pub static WEIGHTS: [f64; 3]", "&WEIGHTS.to_vec()"]
