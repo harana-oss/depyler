@@ -1048,6 +1048,32 @@ pub(crate) fn codegen_assign_stmt(
         }
     }
 
+    // Track optional_vars for tuple element variables when the RHS function returns
+    // a Tuple containing Optional elements (e.g., `player, idx = resolve(...)` where
+    // resolve returns Tuple[Optional[Player], int])
+    if let AssignTarget::Tuple(targets) = target {
+        let tuple_types = match value {
+            HirExpr::Call { func, .. } => ctx
+                .function_return_types
+                .get(func)
+                .and_then(|rt| match rt {
+                    Type::Tuple(types) => Some(types.clone()),
+                    _ => None,
+                }),
+            _ => None,
+        };
+        if let Some(types) = tuple_types {
+            for (tgt, ty) in targets.iter().zip(types.iter()) {
+                if let AssignTarget::Symbol(var_name) = tgt {
+                    if matches!(ty, Type::Optional(_)) {
+                        ctx.optional_vars.insert(var_name.clone());
+                        ctx.var_types.insert(var_name.clone(), ty.clone());
+                    }
+                }
+            }
+        }
+    }
+
     match target {
         AssignTarget::Symbol(symbol) => {
             codegen_assign_symbol(symbol, value_expr, type_annotation_tokens, is_final, ctx)

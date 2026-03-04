@@ -27,7 +27,10 @@ pub(crate) fn codegen_if_stmt(
 
     // Check for `if var is not None:` pattern - use `if let Some(var) = var` for type narrowing
     if let Some((var_name, is_not_none)) = extract_none_check(condition) {
-        if is_not_none && ctx.optional_vars.contains(&var_name) {
+        let is_known_optional = ctx.optional_vars.contains(&var_name)
+            || matches!(ctx.var_types.get(&var_name), Some(Type::Optional(_)))
+            || matches!(condition, HirExpr::MethodCall { method, .. } if method == "is_some");
+        if is_not_none && is_known_optional {
             return codegen_if_let_some(var_name, then_body, else_body, ctx);
         }
     }
