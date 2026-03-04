@@ -618,9 +618,20 @@ pub(crate) fn return_type_expects_float(ty: &Type) -> bool {
 
 /// Infer return type from function body when no annotation is provided
 /// Returns None if type cannot be inferred or there are no return statements
-fn infer_return_type_from_body(body: &[HirStmt]) -> Option<Type> {
+fn infer_return_type_from_body(
+    body: &[HirStmt],
+    params: &[crate::hir::HirParam],
+) -> Option<Type> {
     // DEPYLER-0415: Build type environment from variable assignments
     let mut var_types: std::collections::HashMap<String, Type> = std::collections::HashMap::new();
+
+    // Seed with function parameter types
+    for param in params {
+        if !matches!(param.ty, Type::Unknown) {
+            var_types.insert(param.name.clone(), param.ty.clone());
+        }
+    }
+
     build_var_type_env(body, &mut var_types);
 
     let mut return_types = Vec::new();
@@ -1178,12 +1189,12 @@ pub(crate) fn codegen_return_type(
     // DEPYLER-0410: Infer return type from body when annotation is Unknown
     // DEPYLER-0420: Also infer when tuple/list contains Unknown elements
     let should_infer = matches!(func.ret_type, Type::Unknown)
-        || matches!(&func.ret_type, Type::Tuple(elems) if elems.iter().any(|t| matches!(t, Type::Unknown)))
+        || matches!(&func.ret_type, Type::Tuple(elems) if elems.is_empty() || elems.iter().any(|t| matches!(t, Type::Unknown)))
         || matches!(&func.ret_type, Type::List(elem) if matches!(**elem, Type::Unknown));
 
     let effective_ret_type = if should_infer {
         // Try to infer from return statements in body
-        if let Some(inferred) = infer_return_type_from_body(&func.body) {
+        if let Some(inferred) = infer_return_type_from_body(&func.body, &func.params) {
             inferred
         } else {
             func.ret_type.clone()

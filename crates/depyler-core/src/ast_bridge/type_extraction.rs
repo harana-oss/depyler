@@ -134,6 +134,7 @@ impl TypeExtractor {
             "list" => Type::List(Box::new(Type::Unknown)),
             "dict" => Type::Dict(Box::new(Type::Unknown), Box::new(Type::Unknown)),
             "set" => Type::Set(Box::new(Type::Unknown)),
+            "tuple" => Type::Tuple(vec![]),
             _ => return None,
         })
     }

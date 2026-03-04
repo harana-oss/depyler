@@ -326,7 +326,7 @@ def combining_length() -> tuple:
 '''
 
 rust = '''
-pub fn combining_length() -> () {
+pub fn combining_length() -> (i32, i32) {
     let composed = "é".to_string();
     let decomposed = "e\u{301}".to_string();
     return (composed.len() as i32, decomposed.len() as i32);

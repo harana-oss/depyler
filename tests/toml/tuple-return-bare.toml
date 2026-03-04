@@ -1,0 +1,63 @@
+[[test]]
+name = "bare_tuple_return_ints"
+description = "Bare -> tuple annotation infers element types from return"
+
+python = '''
+def swap(a: int, b: int) -> tuple:
+    return b, a
+'''
+
+rust = '''
+pub fn swap(a: i32, b: i32) -> (i32, i32) {
+    return (b, a);
+}
+'''
+
+[[test]]
+name = "bare_tuple_return_mixed"
+description = "Bare -> tuple annotation with mixed int and float"
+
+python = '''
+def compute(x: int) -> tuple:
+    return x, x * 1.5
+'''
+
+rust = '''
+pub fn compute(x: i32) -> (i32, f64) {
+    return (x, ((x) as f64) * 1.5);
+}
+'''
+
+[[test]]
+name = "bare_tuple_return_strings"
+description = "Bare -> tuple annotation with string elements"
+
+python = '''
+def split_name(full: str) -> tuple:
+    first = "hello"
+    last = "world"
+    return first, last
+'''
+
+rust = '''
+pub fn split_name(full: String) -> (String, String) {
+    let first = "hello".to_string();
+    let last = "world".to_string();
+    return (first, last);
+}
+'''
+
+[[test]]
+name = "bare_tuple_return_divmod"
+description = "Bare -> tuple with divmod builtin"
+
+python = '''
+def div_and_mod(a: int, b: int) -> tuple:
+    return divmod(a, b)
+'''
+
+rust = '''
+pub fn div_and_mod(a: i32, b: i32) -> (i32, i32) {
+    return (a / b, a % b);
+}
+'''

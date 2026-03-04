@@ -212,8 +212,9 @@ def parse_url(url: str) -> tuple:
 '''
 
 rust = '''
+use serde_json;
 use url::Url::parse;
-pub fn parse_url(url: String) -> () {
+pub fn parse_url(url: String) -> (serde_json::Value, serde_json::Value, serde_json::Value) {
     let result = url::Url::parse(url);
     return (result.scheme, result.netloc, result.path);
 }
