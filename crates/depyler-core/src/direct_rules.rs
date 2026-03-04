@@ -189,7 +189,13 @@ pub fn apply_rules(module: &HirModule, type_mapper: &TypeMapper) -> Result<syn::
                 let enum_items = convert_class_to_enum(class)?;
                 items.extend(enum_items);
             } else {
-                let struct_items = convert_class_to_struct(class, type_mapper, &abc_classes, &HashSet::new(), &HashSet::new())?;
+                let struct_items = convert_class_to_struct(
+                    class,
+                    type_mapper,
+                    &abc_classes,
+                    &HashSet::new(),
+                    &HashSet::new(),
+                )?;
                 items.extend(struct_items);
             }
         }
@@ -378,25 +384,15 @@ fn convert_abc_method_to_trait_method(
 }
 
 /// Check if a type can implement Copy trait.
-fn is_copy_type(
-    ty: &Type,
-    enum_names: &HashSet<String>,
-    copy_structs: &HashSet<String>,
-) -> bool {
+fn is_copy_type(ty: &Type, enum_names: &HashSet<String>, copy_structs: &HashSet<String>) -> bool {
     match ty {
         Type::Int | Type::Float | Type::Bool | Type::None => true,
-        Type::Optional(inner) | Type::Final(inner) => {
-            is_copy_type(inner, enum_names, copy_structs)
-        }
+        Type::Optional(inner) | Type::Final(inner) => is_copy_type(inner, enum_names, copy_structs),
         Type::Tuple(elements) => elements
             .iter()
             .all(|t| is_copy_type(t, enum_names, copy_structs)),
-        Type::Array { element_type, .. } => {
-            is_copy_type(element_type, enum_names, copy_structs)
-        }
-        Type::Custom(name) => {
-            enum_names.contains(name) || copy_structs.contains(name)
-        }
+        Type::Array { element_type, .. } => is_copy_type(element_type, enum_names, copy_structs),
+        Type::Custom(name) => enum_names.contains(name) || copy_structs.contains(name),
         // These types are not Copy in Rust
         Type::String
         | Type::List(_)
@@ -3077,10 +3073,7 @@ fn convert_stmt_with_context(
                                 let extend_expr: syn::Expr = parse_quote! {
                                     #target_expr.extend(#right_expr)
                                 };
-                                return Ok(syn::Stmt::Expr(
-                                    extend_expr,
-                                    Some(Default::default()),
-                                ));
+                                return Ok(syn::Stmt::Expr(extend_expr, Some(Default::default())));
                             }
 
                             let assign_expr = parse_quote! {

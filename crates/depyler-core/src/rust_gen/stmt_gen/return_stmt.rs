@@ -7,13 +7,25 @@ use anyhow::{Result, bail};
 use quote::{ToTokens, format_ident, quote};
 use syn::{self, parse_quote};
 
-
 use super::*;
 pub(crate) fn codegen_return_stmt(
     expr: &Option<HirExpr>,
     ctx: &mut CodeGenContext,
 ) -> Result<proc_macro2::TokenStream> {
     if let Some(e) = expr {
+        // Handle tuple returns with element-level Optional wrapping
+        // When the return type is Tuple with Optional elements, wrap non-None values in Some()
+        if let HirExpr::Tuple(elems) = e {
+            if let Some(Type::Tuple(elem_types)) = &ctx.effective_return_type {
+                if elems.len() == elem_types.len()
+                    && elem_types.iter().any(|t| matches!(t, Type::Optional(_)))
+                {
+                    let elem_types = elem_types.clone();
+                    return codegen_tuple_return_with_optional(elems, &elem_types, ctx);
+                }
+            }
+        }
+
         let mut expr_tokens = e.to_rust_expr(ctx)?;
 
         // When function returns a reference, wrap the expression in &
@@ -186,6 +198,34 @@ pub(crate) fn expr_creates_owned_value(expr: &HirExpr) -> bool {
     }
 }
 
+/// Generate a return statement for a tuple where some elements are Optional.
+/// Wraps non-None, non-Optional values in Some() for the Optional element positions.
+fn codegen_tuple_return_with_optional(
+    elems: &[HirExpr],
+    elem_types: &[Type],
+    ctx: &mut CodeGenContext,
+) -> Result<proc_macro2::TokenStream> {
+    let mut elem_tokens: Vec<proc_macro2::TokenStream> = Vec::new();
+    for (elem, ty) in elems.iter().zip(elem_types.iter()) {
+        let tokens = elem.to_rust_expr(ctx)?;
+        match ty {
+            Type::Optional(_) => {
+                if matches!(elem, HirExpr::Literal(Literal::None)) {
+                    elem_tokens.push(quote! { None });
+                } else if expr_is_optional(elem, ctx) {
+                    elem_tokens.push(quote! { #tokens });
+                } else {
+                    elem_tokens.push(quote! { Some(#tokens) });
+                }
+            }
+            _ => {
+                elem_tokens.push(quote! { #tokens });
+            }
+        }
+    }
+    Ok(quote! { return (#(#elem_tokens),*); })
+}
+
 pub(crate) fn is_block_expr(expr: &syn::Expr) -> bool {
     matches!(
         expr,
@@ -199,4 +239,3 @@ pub(crate) fn is_block_expr(expr: &syn::Expr) -> bool {
             | syn::Expr::Async(_)
     )
 }
-

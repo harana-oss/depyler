@@ -97,6 +97,8 @@ pub struct CodeGenContext<'a> {
     pub current_function_can_fail: bool,
     pub current_function_name: Option<String>,
     pub current_return_type: Option<Type>,
+    /// The inferred effective return type (may differ from annotation when inference fills in details)
+    pub effective_return_type: Option<Type>,
     pub module_mapper: crate::module_mapper::ModuleMapper,
     pub imported_modules: std::collections::HashMap<String, crate::module_mapper::ModuleMapping>,
     pub imported_items: std::collections::HashMap<String, String>,

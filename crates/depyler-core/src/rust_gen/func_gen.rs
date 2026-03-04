@@ -618,10 +618,7 @@ pub(crate) fn return_type_expects_float(ty: &Type) -> bool {
 
 /// Infer return type from function body when no annotation is provided
 /// Returns None if type cannot be inferred or there are no return statements
-fn infer_return_type_from_body(
-    body: &[HirStmt],
-    params: &[crate::hir::HirParam],
-) -> Option<Type> {
+fn infer_return_type_from_body(body: &[HirStmt], params: &[crate::hir::HirParam]) -> Option<Type> {
     // DEPYLER-0415: Build type environment from variable assignments
     let mut var_types: std::collections::HashMap<String, Type> = std::collections::HashMap::new();
 
@@ -674,8 +671,86 @@ fn infer_return_type_from_body(
         return None;
     }
 
+    // Try element-level unification for tuple return types
+    // When multiple returns yield tuples of the same arity, merge per-element:
+    // if one path returns None and another returns a concrete type, wrap in Optional
+    if let Some(unified) = try_unify_tuple_return_types(&return_types) {
+        return Some(unified);
+    }
+
     // Mixed types - return the first known type
     first_known.cloned()
+}
+
+/// Attempt element-level unification of tuple return types.
+/// E.g. returns of `(Player, int)` and `(None, int)` unify to `(Optional(Player), int)`.
+fn try_unify_tuple_return_types(types: &[Type]) -> Option<Type> {
+    // All non-Unknown types must be tuples
+    let tuples: Vec<&Vec<Type>> = types
+        .iter()
+        .filter_map(|t| match t {
+            Type::Tuple(elems) => Some(elems),
+            Type::Unknown => None,
+            _ => return None, // non-tuple, non-Unknown → bail
+        })
+        .collect();
+
+    if tuples.len() < 2 {
+        return None;
+    }
+
+    // Ensure any non-Unknown, non-Tuple entry causes a bail
+    if types
+        .iter()
+        .any(|t| !matches!(t, Type::Tuple(_) | Type::Unknown))
+    {
+        return None;
+    }
+
+    let len = tuples[0].len();
+    if len == 0 || !tuples.iter().all(|t| t.len() == len) {
+        return None;
+    }
+
+    let mut result_elems = Vec::with_capacity(len);
+    for i in 0..len {
+        let elem_types: Vec<&Type> = tuples.iter().map(|t| &t[i]).collect();
+        result_elems.push(unify_element_types(&elem_types));
+    }
+
+    Some(Type::Tuple(result_elems))
+}
+
+/// Unify a single tuple element across return paths.
+/// If any path returns `None` and another returns a concrete type, wrap in `Optional`.
+fn unify_element_types(types: &[&Type]) -> Type {
+    let has_none = types.iter().any(|t| matches!(t, Type::None));
+    let concrete: Vec<&Type> = types
+        .iter()
+        .copied()
+        .filter(|t| !matches!(t, Type::Unknown | Type::None))
+        .collect();
+
+    if concrete.is_empty() {
+        if has_none {
+            Type::Optional(Box::new(Type::Unknown))
+        } else {
+            Type::Unknown
+        }
+    } else {
+        // Use the first concrete type as the base
+        let base = concrete[0].clone();
+        if has_none {
+            // Already Optional → don't double-wrap
+            if matches!(base, Type::Optional(_)) {
+                base
+            } else {
+                Type::Optional(Box::new(base))
+            }
+        } else {
+            base
+        }
+    }
 }
 
 // ========== DEPYLER-0415: Variable Type Environment ==========
@@ -1185,6 +1260,7 @@ pub(crate) fn codegen_return_type(
     crate::type_mapper::RustType,
     bool,
     Option<crate::rust_gen::context::ErrorType>,
+    Type,
 )> {
     // DEPYLER-0410: Infer return type from body when annotation is Unknown
     // DEPYLER-0420: Also infer when tuple/list contains Unknown elements
@@ -1323,7 +1399,13 @@ pub(crate) fn codegen_return_type(
         quote! { -> #ty }
     };
 
-    Ok((return_type, rust_ret_type, can_fail, error_type))
+    Ok((
+        return_type,
+        rust_ret_type,
+        can_fail,
+        error_type,
+        effective_ret_type,
+    ))
 }
 
 // ========== Phase 3c: Generator Implementation ==========
@@ -1494,8 +1576,12 @@ impl RustCodeGen for HirFunction {
         //     .insert(self.name.clone(), param_borrows);
 
         // Generate return type with Result wrapper and lifetime handling
-        let (return_type, rust_ret_type, can_fail, error_type) =
+        let (return_type, rust_ret_type, can_fail, error_type, effective_ret_type) =
             codegen_return_type(self, &lifetime_result, ctx)?;
+
+        // Store the effective (inferred) return type so codegen_return_stmt can
+        // perform element-level Optional wrapping for tuples.
+        ctx.effective_return_type = Some(effective_ret_type);
 
         // DEPYLER-0425: Analyze subcommand field access BEFORE generating body
         // This sets ctx.current_subcommand_fields so expression generation can rewrite args.field → field

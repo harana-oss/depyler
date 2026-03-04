@@ -61,3 +61,21 @@ pub fn div_and_mod(a: i32, b: i32) -> (i32, i32) {
     return (a / b, a % b);
 }
 '''
+
+[[test]]
+name = "bare_tuple_return_with_none"
+description = "Bare -> tuple with None in some return paths wraps elements in Option"
+
+python = '''
+def find_item(items: list[int], target: int) -> tuple:
+    for i in range(len(items)):
+        if items[i] == target:
+            return items[i], i
+    return None, -1
+'''
+
+rust_contains = [
+    "Option<i32>",
+    "return (Some(",
+    "return (None, -1",
+]
