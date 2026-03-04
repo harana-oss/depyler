@@ -194,3 +194,30 @@ def main() -> float:
 
 [test.assertions]
 contains = ["pub static WEIGHTS: [f64; 3]", "&WEIGHTS.to_vec()"]
+
+[[test]]
+name = "static_array_assigned_to_local_needs_to_vec"
+description = "Assigning a static array constant to a local variable adds .to_vec()"
+
+python = '''
+X_VALUES = [(0, 100), (100, 200), (200, 300)]
+X_VALUES_AWAY = [(0, 100), (100, 200), (200, 300)]
+
+def resolve_index(coordinate: int, ranges: list[tuple[int, int]]) -> int:
+    for index, range_bounds in enumerate(ranges):
+        lower, upper = range_bounds
+        if lower <= coordinate < upper:
+            return index
+    return -1
+
+def get_index(away: bool, coord: int) -> int:
+    if away:
+        x_ranges = X_VALUES_AWAY
+    else:
+        x_ranges = X_VALUES
+    return resolve_index(coord, x_ranges)
+'''
+
+[test.assertions]
+contains = ["pub static X_VALUES: [(i32, i32); 3]", "X_VALUES_AWAY.to_vec()", "X_VALUES.to_vec()"]
+not_contains = ["lazy_static"]

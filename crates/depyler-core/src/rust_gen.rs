@@ -63,9 +63,7 @@ fn is_field_copy_type(
         Type::Array { element_type, .. } => {
             is_field_copy_type(element_type, enum_names, copy_structs)
         }
-        Type::Custom(name) => {
-            enum_names.contains(name) || copy_structs.contains(name)
-        }
+        Type::Custom(name) => enum_names.contains(name) || copy_structs.contains(name),
         _ => false,
     }
 }
@@ -1127,7 +1125,13 @@ fn analyze_mut_ref_index_vars(stmts: &[HirStmt], ctx: &mut CodeGenContext) {
         declared: &mut HashSet<String>,
     ) {
         for stmt in stmts {
-            scan_stmt(stmt, index_source_vars, field_mutated_vars, reassigned_vars, declared);
+            scan_stmt(
+                stmt,
+                index_source_vars,
+                field_mutated_vars,
+                reassigned_vars,
+                declared,
+            );
         }
     }
 
@@ -1139,48 +1143,80 @@ fn analyze_mut_ref_index_vars(stmts: &[HirStmt], ctx: &mut CodeGenContext) {
         declared: &mut HashSet<String>,
     ) {
         match stmt {
-            HirStmt::Assign { target, value, .. } => {
-                match target {
-                    AssignTarget::Symbol(name) => {
-                        if matches!(value, HirExpr::Index { .. }) {
-                            index_source_vars.insert(name.clone());
-                        }
-                        if declared.contains(name) {
-                            reassigned_vars.insert(name.clone());
-                        } else {
-                            declared.insert(name.clone());
-                        }
+            HirStmt::Assign { target, value, .. } => match target {
+                AssignTarget::Symbol(name) => {
+                    if matches!(value, HirExpr::Index { .. }) {
+                        index_source_vars.insert(name.clone());
                     }
-                    AssignTarget::Attribute { value: obj, .. } => {
-                        if let Some(root) = extract_root_var(obj) {
-                            field_mutated_vars.insert(root);
-                        }
+                    if declared.contains(name) {
+                        reassigned_vars.insert(name.clone());
+                    } else {
+                        declared.insert(name.clone());
                     }
-                    AssignTarget::Index { base, .. } => {
-                        if let Some(root) = extract_root_var(base) {
-                            field_mutated_vars.insert(root);
-                        }
-                    }
-                    _ => {}
                 }
-            }
-            HirStmt::If { then_body, else_body, .. } => {
-                scan_stmts(then_body, index_source_vars, field_mutated_vars, reassigned_vars, declared);
+                AssignTarget::Attribute { value: obj, .. } => {
+                    if let Some(root) = extract_root_var(obj) {
+                        field_mutated_vars.insert(root);
+                    }
+                }
+                AssignTarget::Index { base, .. } => {
+                    if let Some(root) = extract_root_var(base) {
+                        field_mutated_vars.insert(root);
+                    }
+                }
+                _ => {}
+            },
+            HirStmt::If {
+                then_body,
+                else_body,
+                ..
+            } => {
+                scan_stmts(
+                    then_body,
+                    index_source_vars,
+                    field_mutated_vars,
+                    reassigned_vars,
+                    declared,
+                );
                 if let Some(else_stmts) = else_body {
-                    scan_stmts(else_stmts, index_source_vars, field_mutated_vars, reassigned_vars, declared);
+                    scan_stmts(
+                        else_stmts,
+                        index_source_vars,
+                        field_mutated_vars,
+                        reassigned_vars,
+                        declared,
+                    );
                 }
             }
             HirStmt::While { body, .. } => {
-                scan_stmts(body, index_source_vars, field_mutated_vars, reassigned_vars, declared);
+                scan_stmts(
+                    body,
+                    index_source_vars,
+                    field_mutated_vars,
+                    reassigned_vars,
+                    declared,
+                );
             }
             HirStmt::For { body, .. } => {
-                scan_stmts(body, index_source_vars, field_mutated_vars, reassigned_vars, declared);
+                scan_stmts(
+                    body,
+                    index_source_vars,
+                    field_mutated_vars,
+                    reassigned_vars,
+                    declared,
+                );
             }
             _ => {}
         }
     }
 
-    scan_stmts(stmts, &mut index_source_vars, &mut field_mutated_vars, &mut reassigned_vars, &mut declared);
+    scan_stmts(
+        stmts,
+        &mut index_source_vars,
+        &mut field_mutated_vars,
+        &mut reassigned_vars,
+        &mut declared,
+    );
 
     ctx.mut_ref_index_vars = index_source_vars
         .into_iter()
@@ -1383,8 +1419,13 @@ fn convert_classes_to_rust(
                 class_items.push(item.to_token_stream());
             }
         } else {
-            let items =
-                crate::direct_rules::convert_class_to_struct(class, type_mapper, &abc_classes, enum_names, copy_structs)?;
+            let items = crate::direct_rules::convert_class_to_struct(
+                class,
+                type_mapper,
+                &abc_classes,
+                enum_names,
+                copy_structs,
+            )?;
             for item in items {
                 let tokens = item.to_token_stream();
                 class_items.push(tokens);
@@ -1752,10 +1793,8 @@ fn generate_constant_tokens(
                     && !elem_type_str.contains("serde_json")
                     && elts.iter().all(is_const_safe_list_element)
                 {
-                    let len_lit = syn::LitInt::new(
-                        &elts.len().to_string(),
-                        proc_macro2::Span::call_site(),
-                    );
+                    let len_lit =
+                        syn::LitInt::new(&elts.len().to_string(), proc_macro2::Span::call_site());
                     let elem_exprs: Vec<syn::Expr> = elts
                         .iter()
                         .map(|e| e.to_rust_expr(ctx))
@@ -2119,9 +2158,7 @@ pub fn generate_rust_file(
                 .fields
                 .iter()
                 .filter(|f| !f.is_class_var)
-                .all(|f| {
-                    is_field_copy_type(&f.field_type, &ctx.enum_names, &ctx.copy_structs)
-                });
+                .all(|f| is_field_copy_type(&f.field_type, &ctx.enum_names, &ctx.copy_structs));
             if all_fields_copyable && !has_drop_impl {
                 ctx.copy_structs.insert(class.name.clone());
             }
@@ -2138,9 +2175,7 @@ pub fn generate_rust_file(
                 .fields
                 .iter()
                 .filter(|f| !f.is_class_var)
-                .all(|f| {
-                    is_field_copy_type(&f.field_type, &ctx.enum_names, &ctx.copy_structs)
-                });
+                .all(|f| is_field_copy_type(&f.field_type, &ctx.enum_names, &ctx.copy_structs));
             if all_fields_copyable && !has_drop_impl {
                 ctx.copy_structs.insert(class.name.clone());
             }
@@ -2229,7 +2264,12 @@ pub fn generate_rust_file(
     }
 
     // Convert classes first (they might be used by functions)
-    let classes = convert_classes_to_rust(&module.classes, ctx.type_mapper, &ctx.enum_names, &ctx.copy_structs)?;
+    let classes = convert_classes_to_rust(
+        &module.classes,
+        ctx.type_mapper,
+        &ctx.enum_names,
+        &ctx.copy_structs,
+    )?;
 
     // Convert all functions to detect what imports we need
     let functions = convert_functions_to_rust(&module.functions, &mut ctx)?;

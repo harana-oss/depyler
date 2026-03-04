@@ -859,6 +859,14 @@ pub(crate) fn codegen_assign_stmt(
         value.to_rust_expr(ctx)?
     };
 
+    // Static array constants need .to_vec() when assigned to local variables,
+    // since the local expects Vec<T> but the constant is [T; N].
+    if let HirExpr::Var(rhs_name) = value {
+        if ctx.static_array_constants.contains(rhs_name) {
+            value_expr = parse_quote! { #value_expr.to_vec() };
+        }
+    }
+
     // BORROW CONFLICT RESOLUTION:
     // If this variable is in vars_needing_clone_at_assign, it holds a reference
     // that would conflict with a later mutable borrow. Clone/to_vec to release
