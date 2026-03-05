@@ -2867,8 +2867,10 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     let is_borrowed_param = if let HirExpr::Var(var_name) = &*generator.iter {
                         self.ctx.current_func_ref_params.contains(var_name)
                             || self.ctx.current_func_mut_ref_params.contains(var_name)
+                            || self.ctx.borrowable_vars.contains(var_name)
+                            || self.ctx.mut_borrowable_vars.contains(var_name)
                     } else {
-                        false
+                        matches!(&*generator.iter, HirExpr::Attribute { .. })
                     };
 
                     if is_identity {
