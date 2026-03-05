@@ -3798,9 +3798,16 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
 
                     // Check if this is a field access on a &mut ref parameter
                     // In that case, we can't move the field out - we must clone
-                    let needs_clone_for_move = if let HirExpr::Attribute { value, .. } = hir_arg {
+                    // Exception: Copy types (enums, primitives) are implicitly copied
+                    let needs_clone_for_move = if let HirExpr::Attribute { value, attr } = hir_arg {
                         if let HirExpr::Var(base_var) = &**value {
-                            self.ctx.current_func_mut_ref_params.contains(base_var)
+                            if self.ctx.current_func_mut_ref_params.contains(base_var) {
+                                self.get_field_type(value, attr)
+                                    .map(|ty| self.type_needs_clone(&ty))
+                                    .unwrap_or(true)
+                            } else {
+                                false
+                            }
                         } else {
                             false
                         }
@@ -3825,12 +3832,16 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     // Check for attribute access (direct or through borrow)
                     // Also check for index access like state.items[0]
                     let (needs_clone_for_borrow_conflict, is_borrowed_attribute) =
-                        if let HirExpr::Attribute { .. } = hir_arg {
+                        if let HirExpr::Attribute { value, attr } = hir_arg {
                             // For state.field, get_base_var returns "state"
                             let has_conflict = get_base_var(hir_arg)
                                 .map(|base_var| mut_borrowed_vars.contains(base_var))
                                 .unwrap_or(false);
-                            (has_conflict, false)
+                            // Copy types (enums, primitives) don't need clone for borrow conflicts
+                            let field_is_copy = self.get_field_type(value, attr)
+                                .map(|ty| !self.type_needs_clone(&ty))
+                                .unwrap_or(false);
+                            (has_conflict && !field_is_copy, false)
                         } else if let HirExpr::Index { .. } = hir_arg {
                             // For state.items[0], get_base_var returns "state"
                             let has_conflict = get_base_var(hir_arg)
@@ -3843,7 +3854,15 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                                 .map(|base_var| mut_borrowed_vars.contains(base_var))
                                 .unwrap_or(false);
                             let is_attr = matches!(&**expr, HirExpr::Attribute { .. });
-                            (has_conflict, is_attr)
+                            // Copy types don't need clone for borrow conflicts
+                            let field_is_copy = if let HirExpr::Attribute { value, attr } = &**expr {
+                                self.get_field_type(value, attr)
+                                    .map(|ty| !self.type_needs_clone(&ty))
+                                    .unwrap_or(false)
+                            } else {
+                                false
+                            };
+                            (has_conflict && !field_is_copy, is_attr)
                         } else {
                             (false, false)
                         };
