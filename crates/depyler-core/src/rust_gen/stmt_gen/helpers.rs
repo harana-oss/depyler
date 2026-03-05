@@ -105,6 +105,24 @@ pub(crate) fn is_copy_type_branch(expr: &HirExpr, ctx: &CodeGenContext) -> bool 
     }
 }
 
+/// Like `is_empty_collection_init_expr` but excludes primitive literal defaults (0, false, "").
+/// Used to gate borrowing decisions — primitive defaults should not trigger reference types.
+pub(crate) fn is_empty_collection_init_no_primitives(expr: &HirExpr) -> bool {
+    match expr {
+        HirExpr::List(items) => items.is_empty(),
+        HirExpr::Dict(pairs) => pairs.is_empty(),
+        HirExpr::Set(items) => items.is_empty(),
+        HirExpr::Call { func, args, .. } => {
+            let is_empty_constructor = matches!(
+                func.as_str(),
+                "list" | "dict" | "set" | "Vec" | "HashMap" | "HashSet"
+            );
+            is_empty_constructor && args.is_empty()
+        }
+        _ => false,
+    }
+}
+
 pub(crate) fn is_empty_collection_init_expr(expr: &HirExpr) -> bool {
     use crate::hir::Literal;
     match expr {

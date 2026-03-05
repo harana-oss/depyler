@@ -792,7 +792,8 @@ pub(crate) fn codegen_assign_stmt(
         // Check if this is an empty collection initialization for a variable that will be
         // later assigned from an attribute source. In this case, we need to declare it
         // with a reference type even though the current value isn't attribute-sourced.
-        let is_empty_init_for_borrowable = is_empty_collection_init_expr(value)
+        // Only match actual collection types (list/dict/set), not primitive defaults like 0/false.
+        let is_empty_init_for_borrowable = is_empty_collection_init_no_primitives(value)
             && (ctx.should_borrow_var(var_name) || ctx.should_mut_borrow_var(var_name));
 
         if (is_attribute_sourced || is_empty_init_for_borrowable)
