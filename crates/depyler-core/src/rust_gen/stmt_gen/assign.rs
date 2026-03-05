@@ -2,7 +2,7 @@
 
 use crate::hir::*;
 use crate::rust_gen::context::{CodeGenContext, RustCodeGen, ToRustExpr};
-use crate::rust_gen::func_gen::infer_expr_type_with_env;
+use crate::rust_gen::func_gen::{infer_expr_type_with_env, infer_iter_element_type};
 use crate::rust_gen::keywords::safe_ident;
 use crate::rust_gen::type_gen::rust_type_to_syn;
 use anyhow::{Result, bail};
@@ -676,14 +676,30 @@ pub(crate) fn codegen_assign_stmt(
                 }
             }
             // Track list comprehensions: exps = [math.exp(x) for x in logits]
-            HirExpr::ListComp { element, .. } => {
-                let elem_type = infer_expr_type_with_env(element, &ctx.var_types);
+            HirExpr::ListComp { element, target, iter, .. } => {
+                let mut elem_type = infer_expr_type_with_env(element, &ctx.var_types);
+                // When element is just the target variable (identity: [x for x in ...]),
+                // infer element type from the iterator source
+                if matches!(elem_type, Type::Unknown) {
+                    if let HirExpr::Var(name) = element.as_ref() {
+                        if name == target {
+                            elem_type = infer_iter_element_type(iter, &ctx.var_types);
+                        }
+                    }
+                }
                 ctx.var_types
                     .insert(var_name.clone(), Type::List(Box::new(elem_type)));
             }
             // Track set comprehensions: unique = {x.lower() for x in words}
-            HirExpr::SetComp { element, .. } => {
-                let elem_type = infer_expr_type_with_env(element, &ctx.var_types);
+            HirExpr::SetComp { element, target, iter, .. } => {
+                let mut elem_type = infer_expr_type_with_env(element, &ctx.var_types);
+                if matches!(elem_type, Type::Unknown) {
+                    if let HirExpr::Var(name) = element.as_ref() {
+                        if name == target {
+                            elem_type = infer_iter_element_type(iter, &ctx.var_types);
+                        }
+                    }
+                }
                 ctx.var_types
                     .insert(var_name.clone(), Type::Set(Box::new(elem_type)));
             }

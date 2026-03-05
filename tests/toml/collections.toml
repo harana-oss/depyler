@@ -1426,6 +1426,20 @@ pub fn get_positive_doubled(items: &Vec<i32>) -> Vec<i32> {
 '''
 
 [[test]]
+name = "generator_filter_on_owned_local_int_list"
+description = "Generator filter on locally-owned list[int] uses |&x| destructuring not |x| with *x"
+
+python = '''
+def filter_positive(items: list[int]) -> list[int]:
+    local = [i for i in range(len(items)) if items[i] > 0]
+    return list(x * 2 for x in local if x > 0)
+'''
+
+[test.assertions]
+contains = ["into_iter()", ".filter(|&x|"]
+not_contains = [".filter(|x| *x"]
+
+[[test]]
 name = "next_generator_with_index_var_in_subscript"
 description = "next() with generator that uses the iterator variable as a subscript index"
 
@@ -1513,3 +1527,27 @@ pub fn find_player_position(
     return player_list_idx.unwrap();
 }
 '''
+
+[[test]]
+name = "generator_filter_local_int_list_uses_ref_pattern"
+description = "Generator over locally-owned list[int] uses |&x| destructuring in filter, not |x| with *x"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Player:
+    player_index: int
+    time_on_field: float
+
+def find_player(players: list[Player], player_index: int) -> float:
+    indices = [i for i in range(len(players)) if players[i].player_index == player_index]
+    player = next((players[idx] for idx in indices if players[idx].player_index == player_index), None)
+    if player is not None:
+        return player.time_on_field
+    return 0.0
+'''
+
+[test.assertions]
+contains = [".filter(|&idx|"]
+not_contains = [".filter(|idx| *idx", ".filter(|idx| players.get(*idx"]

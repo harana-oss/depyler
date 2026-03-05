@@ -957,6 +957,28 @@ fn infer_expr_type_with_class_env(
     }
 }
 
+/// Infer the element type yielded by an iterator expression.
+/// For `range(...)` → Int, for a variable with `List(T)` type → T, etc.
+pub(crate) fn infer_iter_element_type(
+    iter: &HirExpr,
+    var_types: &std::collections::HashMap<String, Type>,
+) -> Type {
+    match iter {
+        HirExpr::Call { func, .. } if func == "range" => Type::Int,
+        HirExpr::Var(name) => {
+            if let Some(var_type) = var_types.get(name) {
+                match var_type {
+                    Type::List(elem) | Type::Set(elem) => *elem.clone(),
+                    _ => Type::Unknown,
+                }
+            } else {
+                Type::Unknown
+            }
+        }
+        _ => Type::Unknown,
+    }
+}
+
 /// Infer expression type with access to variable type environment
 pub(crate) fn infer_expr_type_with_env(
     expr: &HirExpr,
