@@ -307,6 +307,109 @@ fn populate_function_param_borrows(
     Ok(())
 }
 
+/// Detect functions that should NOT use the reference-return optimization.
+///
+/// When function G takes `&T` and returns a reference from indexed field access,
+/// but callers pass `&mut T` for that parameter, the returned reference creates
+/// a cross-statement borrow conflict. This function identifies such cases so
+/// `detect_indexed_field_return_refs` can skip the optimization.
+fn compute_functions_suppress_ref_return(
+    functions: &[HirFunction],
+    ctx: &mut CodeGenContext,
+) {
+    use crate::hir::HirExpr;
+    use crate::rust_gen::func_gen::collect_indexed_field_vars;
+
+    // Phase 1: For each function, check if it has indexed field access on borrowed params
+    // Map: function_name -> set of param names that have indexed field patterns
+    let mut funcs_with_indexed_params: HashMap<String, HashSet<String>> = HashMap::new();
+    for func in functions {
+        let borrows = match ctx.function_param_borrows.get(&func.name) {
+            Some(b) => b,
+            None => continue,
+        };
+        let borrowed_params: HashSet<String> = func
+            .params
+            .iter()
+            .enumerate()
+            .filter(|(i, _)| {
+                borrows
+                    .get(*i)
+                    .map(|b| b.should_borrow && !b.needs_mut)
+                    .unwrap_or(false)
+            })
+            .map(|(_, p)| p.name.clone())
+            .collect();
+        if borrowed_params.is_empty() {
+            continue;
+        }
+        let mut ref_var_sources: HashMap<String, String> = HashMap::new();
+        collect_indexed_field_vars(&func.body, &borrowed_params, &mut ref_var_sources);
+        if !ref_var_sources.is_empty() {
+            let source_params: HashSet<String> = ref_var_sources.values().cloned().collect();
+            funcs_with_indexed_params.insert(func.name.clone(), source_params);
+        }
+    }
+
+    // Phase 2: For each caller, check if it passes a &mut param to a function
+    // that has indexed field access on that parameter position
+    for caller in functions {
+        let caller_borrows = match ctx.function_param_borrows.get(&caller.name) {
+            Some(b) => b.clone(),
+            None => continue,
+        };
+        // Collect caller's &mut parameters
+        let mut_params: HashSet<String> = caller
+            .params
+            .iter()
+            .enumerate()
+            .filter(|(i, _)| {
+                caller_borrows
+                    .get(*i)
+                    .map(|b| b.should_borrow && b.needs_mut)
+                    .unwrap_or(false)
+            })
+            .map(|(_, p)| p.name.clone())
+            .collect();
+        if mut_params.is_empty() {
+            continue;
+        }
+
+        let calls = find_function_calls(&caller.body);
+        for (callee_name, args) in &calls {
+            let indexed_params = match funcs_with_indexed_params.get(callee_name) {
+                Some(p) => p,
+                None => continue,
+            };
+            let callee_borrows = match ctx.function_param_borrows.get(callee_name) {
+                Some(b) => b,
+                None => continue,
+            };
+            let callee_func = match functions.iter().find(|f| &f.name == callee_name) {
+                Some(f) => f,
+                None => continue,
+            };
+            // Check each argument: if caller passes a &mut variable to callee's &T param
+            // that is the source of indexed field access
+            for (arg_idx, arg_expr) in args.iter().enumerate() {
+                if let HirExpr::Var(var_name) = arg_expr {
+                    if !mut_params.contains(var_name) {
+                        continue;
+                    }
+                    let callee_param_name = match callee_func.params.get(arg_idx) {
+                        Some(p) => &p.name,
+                        None => continue,
+                    };
+                    if indexed_params.contains(callee_param_name) {
+                        ctx.functions_suppress_ref_return
+                            .insert(callee_name.clone());
+                    }
+                }
+            }
+        }
+    }
+}
+
 /// Check if a RustType is Copy (primitives and enums should not be borrowed).
 pub(crate) fn is_copy_rust_type(
     rust_type: &crate::type_mapper::RustType,
@@ -2117,6 +2220,7 @@ pub fn generate_rust_file(
         function_param_muts: HashMap::new(),
         functions_with_mutated_return: HashSet::new(),
         functions_returning_refs: HashSet::new(),
+        functions_suppress_ref_return: HashSet::new(),
         filter_deref_vars: HashSet::new(),
         mut_ref_index_vars: HashSet::new(),
     };
@@ -2234,6 +2338,10 @@ pub fn generate_rust_file(
     // even if B hasn't been generated yet. Fixes issue where call sites default to
     // immutable borrow when they should use mutable borrow or pass by value.
     populate_function_param_borrows(&module.functions, &mut ctx)?;
+
+    // Detect functions that should not use reference-return optimization because
+    // callers pass &mut for the indexed-field source parameter.
+    compute_functions_suppress_ref_return(&module.functions, &mut ctx);
 
     // Pre-populate function signatures so forward-declared functions' types
     // are available when earlier functions are generated.
@@ -2496,6 +2604,7 @@ mod tests {
             function_param_muts: HashMap::new(),
             functions_with_mutated_return: HashSet::new(),
             functions_returning_refs: HashSet::new(),
+            functions_suppress_ref_return: HashSet::new(),
             filter_deref_vars: HashSet::new(),
             mut_ref_index_vars: HashSet::new(),
         }

@@ -135,6 +135,9 @@ pub struct CodeGenContext<'a> {
     /// Track functions that return references (have params_with_field_return non-empty)
     /// These are functions like _get_players that return &Vec<T> borrowing from a param
     pub functions_returning_refs: HashSet<String>,
+    /// Functions that should NOT use reference return optimization because callers
+    /// pass `&mut` for the source parameter, creating cross-statement borrow conflicts.
+    pub functions_suppress_ref_return: HashSet<String>,
     pub tuple_iter_vars: HashSet<String>,
     pub is_final_statement: bool,
     pub result_bool_functions: HashSet<String>,

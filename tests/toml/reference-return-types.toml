@@ -287,3 +287,82 @@ pub fn find_item(container: &Container, target: i32) -> (Option<&Item>, i32) {
     return (None, -1);
 }
 '''
+
+[[test]]
+name = "indexed_field_return_suppressed_when_caller_passes_mut"
+description = "When a caller passes &mut to a function returning indexed field refs, suppress reference return to avoid E0502"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Player:
+    player_index: int
+    on_field: bool
+
+@dataclass
+class State:
+    players: list[Player]
+    sin_bin: list[int]
+
+def resolve_player(state: State, player_indices: list[int], candidate_index: int) -> tuple:
+    for idx in player_indices:
+        player = state.players[idx]
+        if player.player_index == candidate_index:
+            return player, idx
+    return None, -1
+
+def record_sin_bin(state: State, player_index: int) -> None:
+    player_indices = [0, 1, 2]
+    player, resolved_idx = resolve_player(state, player_indices, player_index)
+    if player is not None:
+        if resolved_idx not in state.sin_bin:
+            state.sin_bin.append(resolved_idx)
+        player.on_field = False
+'''
+
+rust = '''
+#[derive(Debug, Copy, Clone, PartialEq, Default)]
+pub struct Player {
+    pub player_index: i32,
+    pub on_field: bool,
+}
+impl Player {
+    pub fn new(player_index: i32, on_field: bool) -> Self {
+        Self { player_index, on_field }
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct State {
+    pub players: Vec<Player>,
+    pub sin_bin: Vec<i32>,
+}
+impl State {
+    pub fn new(players: Vec<Player>, sin_bin: Vec<i32>) -> Self {
+        Self { players, sin_bin }
+    }
+}
+pub fn resolve_player(
+    state: &State,
+    player_indices: &Vec<i32>,
+    candidate_index: i32,
+) -> (Option<Player>, i32) {
+    for idx in player_indices.iter().copied() {
+        let player = state.players.get(idx as usize).cloned().unwrap();
+        if player.player_index == candidate_index {
+            return (Some(player), idx);
+        }
+    }
+    return (None, -1);
+}
+pub fn record_sin_bin(state: &mut State, player_index: i32) {
+    let player_indices = vec![0, 1, 2];
+    let (mut player, resolved_idx) = resolve_player(state, &player_indices, player_index);
+    if let Some(mut player) = player {
+        if !state.sin_bin.contains(&resolved_idx) {
+            state.sin_bin.push(resolved_idx);
+        }
+        player.on_field = false;
+    }
+}
+'''

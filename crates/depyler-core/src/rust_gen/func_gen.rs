@@ -1384,7 +1384,7 @@ fn detect_indexed_field_return_refs(
 
 /// Collect variables assigned from indexed field access on borrowed parameters.
 /// Maps variable name to the source parameter name.
-fn collect_indexed_field_vars(
+pub fn collect_indexed_field_vars(
     stmts: &[HirStmt],
     borrowed_params: &HashSet<String>,
     ref_var_sources: &mut HashMap<String, String>,
@@ -1421,7 +1421,7 @@ fn collect_indexed_field_vars(
 }
 
 /// Check if an expression is an Index into an attribute chain rooted at a borrowed param.
-fn get_indexed_field_source_param(
+pub fn get_indexed_field_source_param(
     expr: &HirExpr,
     borrowed_params: &HashSet<String>,
 ) -> Option<String> {
@@ -1841,8 +1841,14 @@ impl RustCodeGen for HirFunction {
         ctx.borrowable_vars.clear();
         ctx.mut_borrowable_vars.clear();
 
+        // Skip reference-return optimization if callers pass &mut for the source parameter,
+        // which would create cross-statement borrow conflicts at call sites.
         let return_ref_positions =
-            detect_indexed_field_return_refs(self, &lifetime_result, &early_borrowable);
+            if ctx.functions_suppress_ref_return.contains(&self.name) {
+                vec![]
+            } else {
+                detect_indexed_field_return_refs(self, &lifetime_result, &early_borrowable)
+            };
         if !return_ref_positions.is_empty() {
             // Collect the source params from indexed field vars (re-derive for lifetime update)
             let borrowed_params: HashSet<String> = lifetime_result
@@ -1897,6 +1903,23 @@ impl RustCodeGen for HirFunction {
         // Analyze field-source variable borrowing AFTER params are generated
         // (needs current_func_mut_ref_params populated by codegen_function_params)
         ctx.analyze_field_borrowing(&self.body);
+
+        // When reference returns are suppressed, remove indexed-field variables from
+        // borrowable_vars so assignments generate .get().cloned() instead of &ref.
+        if ctx.functions_suppress_ref_return.contains(&self.name) {
+            let borrowed_params: HashSet<String> = lifetime_result
+                .param_lifetimes
+                .iter()
+                .filter(|(_, inf)| inf.should_borrow)
+                .map(|(name, _)| name.clone())
+                .collect();
+            let mut ref_var_sources: HashMap<String, String> = HashMap::new();
+            collect_indexed_field_vars(&self.body, &borrowed_params, &mut ref_var_sources);
+            for var_name in ref_var_sources.keys() {
+                ctx.borrowable_vars.remove(var_name);
+                ctx.mut_borrowable_vars.remove(var_name);
+            }
+        }
 
         // Detect variables consumed in multiple move positions (e.g., assigned to a struct
         // field AND passed to push/append) so the earlier use gets .clone().
