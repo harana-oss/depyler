@@ -13631,10 +13631,14 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
 
         // If the base variable itself is Optional<T>, unwrap it before accessing the field
         // Use as_mut() for assignment targets to allow mutation
-        // Check both var_types (resolved type) and optional_vars (declared Optional tracking)
+        // Prefer var_types (resolved type) over optional_vars: if var_types has a known
+        // non-Optional type, trust it even if optional_vars contains the variable (stale entry).
         if let HirExpr::Var(var_name) = value {
-            let is_optional = matches!(self.ctx.var_types.get(var_name), Some(Type::Optional(_)))
-                || self.ctx.optional_vars.contains(var_name);
+            let is_optional = match self.ctx.var_types.get(var_name) {
+                Some(Type::Optional(_)) => true,
+                Some(_) => false,
+                None => self.ctx.optional_vars.contains(var_name),
+            };
             if is_optional {
                 if self.ctx.is_assignment_target {
                     value_expr = parse_quote! { #value_expr.as_mut().unwrap() };

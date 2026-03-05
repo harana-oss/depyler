@@ -740,7 +740,10 @@ pub(crate) fn codegen_assign_stmt(
             // Track index access types: x = arr[i] where arr is List<T> means x is T
             HirExpr::Index { base, .. } => {
                 if !ctx.var_types.contains_key(var_name) {
-                    let base_type = infer_expr_type_with_env(base, &ctx.var_types);
+                    // Use get_expr_type first to resolve Attribute bases through class field
+                    // types (e.g., state.players[idx] resolves state.players via class fields)
+                    let base_type = ctx.get_expr_type(base)
+                        .unwrap_or_else(|| infer_expr_type_with_env(base, &ctx.var_types));
                     let elem_type = match base_type {
                         Type::List(elem) => Some(*elem),
                         Type::Tuple(elems) => elems.first().cloned(),
