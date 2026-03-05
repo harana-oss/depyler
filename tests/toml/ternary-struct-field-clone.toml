@@ -282,3 +282,73 @@ pub fn assign_try(state: &mut GameState, team: Team, player_list_idx: i32) {
         + 1;
 }
 '''
+
+# =============================================================================
+# Annotated empty init followed by conditional attribute assignment — borrow
+# =============================================================================
+
+[[test]]
+name = "ternary_annotated_empty_init_borrows"
+description = "Annotated empty list init followed by conditional field assignment should borrow"
+
+python = '''
+from dataclasses import dataclass
+from enum import Enum
+
+class Team(Enum):
+    Home = 0
+    Away = 1
+
+@dataclass
+class State:
+    home_players: list[int]
+    away_players: list[int]
+
+def get_players(state: State, team: Team) -> None:
+    players: list[int] = list()
+    players = state.home_players if team == Team.Home else state.away_players
+    print(len(players))
+'''
+
+rust = '''
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum Team {
+    #[default]
+    Home = 0,
+    Away = 1,
+}
+impl Team {
+    pub fn from_i32(value: i32) -> Option<Self> {
+        match value {
+            0 => Some(Self::Home),
+            1 => Some(Self::Away),
+            _ => None,
+        }
+    }
+    pub fn from_i32_or_default(value: i32) -> Self {
+        Self::from_i32(value).unwrap_or(Self::Home)
+    }
+}
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct State {
+    pub home_players: Vec<i32>,
+    pub away_players: Vec<i32>,
+}
+impl State {
+    pub fn new(home_players: Vec<i32>, away_players: Vec<i32>) -> Self {
+        Self {
+            home_players,
+            away_players,
+        }
+    }
+}
+pub fn get_players(state: &State, team: Team) {
+    let mut players: &Vec<i32> = &Vec::new();
+    players = if team == Team::Home {
+        &state.home_players
+    } else {
+        &state.away_players
+    };
+    log::info!("{}", players.len() as i32);
+}
+'''

@@ -795,7 +795,10 @@ pub(crate) fn codegen_assign_stmt(
         let is_empty_init_for_borrowable = is_empty_collection_init_expr(value)
             && (ctx.should_borrow_var(var_name) || ctx.should_mut_borrow_var(var_name));
 
-        if is_attribute_sourced && !is_copy_type && !is_enum_variant {
+        if (is_attribute_sourced || is_empty_init_for_borrowable)
+            && !is_copy_type
+            && !is_enum_variant
+        {
             if ctx.should_mut_borrow_var(var_name) {
                 (false, true)
             } else if ctx.should_borrow_var(var_name) {

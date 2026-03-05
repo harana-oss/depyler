@@ -1276,18 +1276,18 @@ impl<'a> CodeGenContext<'a> {
             HirStmt::Assign {
                 target,
                 value,
-                type_annotation,
+                type_annotation: _,
             } => {
                 if let AssignTarget::Symbol(name) = target {
-                    // Skip empty collection initializations WITHOUT type annotations
-                    // Pattern: `players = list()` followed by `players = state.home_players`
-                    // But DON'T skip if there's a type annotation like `players: list[Player] = list()`
-                    // because that fixes the type and we can't later assign a reference
-                    let is_empty_init_without_annotation =
-                        Self::is_empty_collection_init(value) && type_annotation.is_none();
+                    // Skip empty collection initializations (with or without type annotations).
+                    // Pattern: `players: list[int] = list()` followed by
+                    // `players = state.home_players if cond else state.away_players`
+                    // The type annotation is correctly wrapped in &/&mut by the codegen
+                    // when borrowing is active, so it doesn't prevent borrowing.
+                    let is_empty_init = Self::is_empty_collection_init(value);
                     if name == var_name
                         && !self.is_attribute_sourced(value)
-                        && !is_empty_init_without_annotation
+                        && !is_empty_init
                     {
                         return true;
                     }
