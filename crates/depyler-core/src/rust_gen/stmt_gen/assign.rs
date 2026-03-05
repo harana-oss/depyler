@@ -341,9 +341,7 @@ pub(crate) fn codegen_assign_stmt(
                 if !matches!(target_expr, syn::Expr::Verbatim(_)) {
                     // List concatenation: x = x + [elem] => x.extend(vec![elem])
                     // Vec doesn't implement AddAssign, so use .extend() instead
-                    if matches!(op, BinOp::Add)
-                        && is_list_concat_augassign(target, right, ctx)
-                    {
+                    if matches!(op, BinOp::Add) && is_list_concat_augassign(target, right, ctx) {
                         let right_expr = right.to_rust_expr(ctx)?;
                         return Ok(quote! {
                             #target_expr.extend(#right_expr);
@@ -389,7 +387,10 @@ pub(crate) fn codegen_assign_stmt(
         // Also track Optional types for proper Some() wrapping in reassignments
         if let Some(annot_type) = type_annotation {
             match annot_type {
-                Type::List(_) | Type::Dict(_, _) | Type::Set(_) | Type::Optional(_)
+                Type::List(_)
+                | Type::Dict(_, _)
+                | Type::Set(_)
+                | Type::Optional(_)
                 | Type::Tuple(_) => {
                     ctx.var_types.insert(var_name.clone(), annot_type.clone());
                     // Track variables declared as Option<T> for proper unwrapping in field access
@@ -498,10 +499,8 @@ pub(crate) fn codegen_assign_stmt(
                 }
                 // Track divmod() as returning a tuple of (int, int)
                 else if func == "divmod" {
-                    ctx.var_types.insert(
-                        var_name.clone(),
-                        Type::Tuple(vec![Type::Int, Type::Int]),
-                    );
+                    ctx.var_types
+                        .insert(var_name.clone(), Type::Tuple(vec![Type::Int, Type::Int]));
                 }
             }
             HirExpr::Tuple(elements) => {
@@ -573,7 +572,12 @@ pub(crate) fn codegen_assign_stmt(
                     .insert(var_name.clone(), Type::List(Box::new(elem_type)));
             }
             // E.g., value_str = data.get(...) where data: Vec<String> → value_str: String
-            HirExpr::MethodCall { object, method, args, .. } => {
+            HirExpr::MethodCall {
+                object,
+                method,
+                args,
+                ..
+            } => {
                 // Track .get() return type: Option for 1-arg, unwrapped for 2-arg
                 if method == "get" {
                     if let HirExpr::Var(obj_var) = object.as_ref() {
@@ -676,7 +680,12 @@ pub(crate) fn codegen_assign_stmt(
                 }
             }
             // Track list comprehensions: exps = [math.exp(x) for x in logits]
-            HirExpr::ListComp { element, target, iter, .. } => {
+            HirExpr::ListComp {
+                element,
+                target,
+                iter,
+                ..
+            } => {
                 let mut elem_type = infer_expr_type_with_env(element, &ctx.var_types);
                 // When element is just the target variable (identity: [x for x in ...]),
                 // infer element type from the iterator source
@@ -691,7 +700,12 @@ pub(crate) fn codegen_assign_stmt(
                     .insert(var_name.clone(), Type::List(Box::new(elem_type)));
             }
             // Track set comprehensions: unique = {x.lower() for x in words}
-            HirExpr::SetComp { element, target, iter, .. } => {
+            HirExpr::SetComp {
+                element,
+                target,
+                iter,
+                ..
+            } => {
                 let mut elem_type = infer_expr_type_with_env(element, &ctx.var_types);
                 if matches!(elem_type, Type::Unknown) {
                     if let HirExpr::Var(name) = element.as_ref() {
@@ -758,7 +772,8 @@ pub(crate) fn codegen_assign_stmt(
                 if !ctx.var_types.contains_key(var_name) {
                     // Use get_expr_type first to resolve Attribute bases through class field
                     // types (e.g., state.players[idx] resolves state.players via class fields)
-                    let base_type = ctx.get_expr_type(base)
+                    let base_type = ctx
+                        .get_expr_type(base)
                         .unwrap_or_else(|| infer_expr_type_with_env(base, &ctx.var_types));
                     let elem_type = match base_type {
                         Type::List(elem) => Some(*elem),
@@ -1076,13 +1091,12 @@ pub(crate) fn codegen_assign_stmt(
     // resolve returns Tuple[Optional[Player], int])
     if let AssignTarget::Tuple(targets) = target {
         let tuple_types = match value {
-            HirExpr::Call { func, .. } => ctx
-                .function_return_types
-                .get(func)
-                .and_then(|rt| match rt {
+            HirExpr::Call { func, .. } => {
+                ctx.function_return_types.get(func).and_then(|rt| match rt {
                     Type::Tuple(types) => Some(types.clone()),
                     _ => None,
-                }),
+                })
+            }
             _ => None,
         };
         if let Some(types) = tuple_types {
@@ -1774,7 +1788,11 @@ pub(crate) fn build_unpack_pattern(
     Ok((quote! { #(#pattern_parts),* }, target_temps))
 }
 
-pub(crate) fn is_dict_augassign_pattern(target: &AssignTarget, value: &HirExpr, ctx: &CodeGenContext) -> bool {
+pub(crate) fn is_dict_augassign_pattern(
+    target: &AssignTarget,
+    value: &HirExpr,
+    ctx: &CodeGenContext,
+) -> bool {
     if let AssignTarget::Index {
         base: target_base,
         index: target_index,
@@ -1883,11 +1901,7 @@ pub(crate) fn is_optional_var_augassign_pattern(
 
 /// Detect if an augmented assignment involves list concatenation.
 /// Vec doesn't implement AddAssign, so we need .extend() instead of +=.
-fn is_list_concat_augassign(
-    target: &AssignTarget,
-    right: &HirExpr,
-    ctx: &CodeGenContext,
-) -> bool {
+fn is_list_concat_augassign(target: &AssignTarget, right: &HirExpr, ctx: &CodeGenContext) -> bool {
     if matches!(right, HirExpr::List(_)) {
         return true;
     }
@@ -2002,4 +2016,3 @@ pub(crate) fn is_augassign_pattern(target: &AssignTarget, value: &HirExpr) -> Op
         None
     }
 }
-

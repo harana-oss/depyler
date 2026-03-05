@@ -412,7 +412,7 @@ def nested_operations(data: list[int]) -> int:
 rust = '''
 pub fn nested_operations(data: &Vec<i32>) -> i32 {
     {
-        let value = data.get(0usize).cloned().unwrap();
+        let value = data.get(0usize).copied().unwrap();
         if value == 0 {
             return -1;
         } else {

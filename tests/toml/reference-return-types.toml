@@ -348,7 +348,7 @@ pub fn resolve_player(
     candidate_index: i32,
 ) -> (Option<Player>, i32) {
     for idx in player_indices.iter().copied() {
-        let player = state.players.get(idx as usize).cloned().unwrap();
+        let player = state.players.get(idx as usize).copied().unwrap();
         if player.player_index == candidate_index {
             return (Some(player), idx);
         }

@@ -1419,7 +1419,7 @@ def get_positive_doubled(items: list[int]) -> list[int]:
 rust = '''
 pub fn get_positive_doubled(items: &Vec<i32>) -> Vec<i32> {
     let positives = (0..items.len() as i32)
-        .filter(|&i| items.get(i as usize).cloned().unwrap() > 0)
+        .filter(|&i| items.get(i as usize).copied().unwrap() > 0)
         .collect::<Vec<_>>();
     return positives.into_iter().map(|x| x * 2).collect::<Vec<_>>();
 }
@@ -1479,7 +1479,7 @@ pub fn find_player_by_position(
         .iter()
         .copied()
         .filter(|&idx| players.get(idx as usize).unwrap().position == position)
-        .map(|idx| players.get(idx as usize).cloned().unwrap())
+        .map(|idx| players.get(idx as usize).copied().unwrap())
         .next()
         .expect("StopIteration: iterator is empty");
     return candidate.time_on_field;

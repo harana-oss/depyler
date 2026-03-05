@@ -12238,6 +12238,20 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         // Discriminate between HashMap and Vec access based on base type or index type
         let is_string_key = self.is_string_index(base, index)?;
 
+        // Use .copied() for Copy element types, .cloned() otherwise
+        let elem_is_copy = self.ctx.get_expr_type(base).is_some_and(|base_type| {
+            match &base_type {
+                Type::List(elem) | Type::Set(elem) => !self.type_needs_clone(elem),
+                Type::Dict(_, val) => !self.type_needs_clone(val),
+                _ => false,
+            }
+        });
+        let clone_method = if elem_is_copy {
+            quote::format_ident!("copied")
+        } else {
+            quote::format_ident!("cloned")
+        };
+
         // DEPYLER-FIX: When used as assignment target (LHS), use get_mut() instead of get().cloned()
         // This allows modifying the element in place rather than modifying a clone
         let is_lhs = self.ctx.is_assignment_target;
@@ -12258,7 +12272,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         })
                     } else {
                         Ok(parse_quote! {
-                            #base_expr.get(#s).cloned().unwrap()
+                            #base_expr.get(#s).#clone_method().unwrap()
                         })
                     }
                 }
@@ -12279,7 +12293,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         })
                     } else {
                         Ok(parse_quote! {
-                            #base_expr.get(&#index_expr).cloned().unwrap()
+                            #base_expr.get(&#index_expr).#clone_method().unwrap()
                         })
                     }
                 }
@@ -12331,7 +12345,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         } else if self.ctx.prevent_clone {
                             return Ok(parse_quote! { #base_expr.last().unwrap() });
                         } else {
-                            return Ok(parse_quote! { #base_expr.last().cloned().unwrap() });
+                            return Ok(parse_quote! { #base_expr.last().#clone_method().unwrap() });
                         }
                     }
                     // For other negative indices, use .get() or .get_mut()
@@ -12345,7 +12359,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                         });
                     } else {
                         return Ok(parse_quote! {
-                            #base_expr.get(#base_expr.len().saturating_sub(#offset)).cloned().unwrap()
+                            #base_expr.get(#base_expr.len().saturating_sub(#offset)).#clone_method().unwrap()
                         });
                     }
                 }
@@ -12367,7 +12381,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     });
                 } else {
                     return Ok(parse_quote! {
-                        #base_expr.get(#idx_value).cloned().unwrap()
+                        #base_expr.get(#idx_value).#clone_method().unwrap()
                     });
                 }
             }
@@ -12392,7 +12406,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     })
                 } else {
                     Ok(parse_quote! {
-                        #base_expr.get(#index_expr as usize).cloned().unwrap()
+                        #base_expr.get(#index_expr as usize).#clone_method().unwrap()
                     })
                 }
             } else {
@@ -12433,7 +12447,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                             } else {
                                 idx as usize
                             };
-                            base.get(actual_idx).cloned().unwrap()
+                            base.get(actual_idx).#clone_method().unwrap()
                         }
                     })
                 }

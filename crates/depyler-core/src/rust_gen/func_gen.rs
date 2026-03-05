@@ -642,8 +642,7 @@ fn infer_return_type_from_body(
     // DEPYLER-0412: Also check for trailing expression (implicit return)
     // If the last statement is an expression without return, it's an implicit return
     if let Some(HirStmt::Expr(expr)) = body.last() {
-        let trailing_type =
-            infer_expr_type_with_class_env(expr, &var_types, class_field_types);
+        let trailing_type = infer_expr_type_with_class_env(expr, &var_types, class_field_types);
         if !matches!(trailing_type, Type::Unknown) {
             return_types.push(trailing_type);
         }
@@ -795,8 +794,7 @@ fn build_var_type_env(
             }
             HirStmt::For { target, iter, body } => {
                 // Infer loop variable type from iterator element type
-                let iter_type =
-                    infer_expr_type_with_class_env(iter, var_types, class_field_types);
+                let iter_type = infer_expr_type_with_class_env(iter, var_types, class_field_types);
                 let elem_type = match &iter_type {
                     Type::List(elem) | Type::Set(elem) => Some(*elem.clone()),
                     Type::Array { element_type, .. } => Some(*element_type.clone()),
@@ -804,8 +802,7 @@ fn build_var_type_env(
                     Type::String => Some(Type::String),
                     _ => None,
                 };
-                if let (Some(elem_ty), crate::hir::AssignTarget::Symbol(name)) =
-                    (elem_type, target)
+                if let (Some(elem_ty), crate::hir::AssignTarget::Symbol(name)) = (elem_type, target)
                 {
                     if !matches!(elem_ty, Type::Unknown) {
                         var_types.insert(name.clone(), elem_ty);
@@ -933,8 +930,7 @@ fn infer_expr_type_with_class_env(
         }
         // Resolve index access using class-aware base type (e.g., state.players[idx])
         HirExpr::Index { base, .. } => {
-            let base_type =
-                infer_expr_type_with_class_env(base, var_types, class_field_types);
+            let base_type = infer_expr_type_with_class_env(base, var_types, class_field_types);
             match base_type {
                 Type::List(elem) => *elem,
                 Type::Tuple(elems) => elems.first().cloned().unwrap_or(Type::Unknown),
@@ -1418,9 +1414,7 @@ pub fn collect_indexed_field_vars(
                 value,
                 ..
             } => {
-                if let Some(param_name) =
-                    get_indexed_field_source_param(value, borrowed_params)
-                {
+                if let Some(param_name) = get_indexed_field_source_param(value, borrowed_params) {
                     ref_var_sources.insert(var_name.clone(), param_name);
                 }
             }
@@ -1865,12 +1859,11 @@ impl RustCodeGen for HirFunction {
 
         // Skip reference-return optimization if callers pass &mut for the source parameter,
         // which would create cross-statement borrow conflicts at call sites.
-        let return_ref_positions =
-            if ctx.functions_suppress_ref_return.contains(&self.name) {
-                vec![]
-            } else {
-                detect_indexed_field_return_refs(self, &lifetime_result, &early_borrowable)
-            };
+        let return_ref_positions = if ctx.functions_suppress_ref_return.contains(&self.name) {
+            vec![]
+        } else {
+            detect_indexed_field_return_refs(self, &lifetime_result, &early_borrowable)
+        };
         if !return_ref_positions.is_empty() {
             // Collect the source params from indexed field vars (re-derive for lifetime update)
             let borrowed_params: HashSet<String> = lifetime_result
