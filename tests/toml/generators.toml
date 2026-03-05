@@ -348,7 +348,7 @@ def sum_even_squares(n: int) -> int:
 
 rust = '''
 pub fn sum_even_squares(n: i32) -> i32 {
-    return 0..n.filter(|&x| x % 2 == 0).map(|x| x * x).sum::<i32>();
+    return 0..n.filter(|x| *x % 2 == 0).map(|x| x * x).sum::<i32>();
 }
 '''
 

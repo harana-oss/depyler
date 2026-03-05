@@ -2959,17 +2959,13 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         // .position() receives &T, so elem_var needs deref handling.
         let elem_ident = syn::Ident::new(&elem_var, proc_macro2::Span::call_site());
 
-        if element_needs_clone {
-            self.ctx.filter_deref_vars.insert(elem_var.clone());
-        }
+        self.ctx.filter_deref_vars.insert(elem_var.clone());
         let conditions: Vec<syn::Expr> = comprehension
             .conditions
             .iter()
             .map(|c| c.to_rust_expr(self.ctx))
             .collect::<Result<Vec<_>>>()?;
-        if element_needs_clone {
-            self.ctx.filter_deref_vars.remove(&elem_var);
-        }
+        self.ctx.filter_deref_vars.remove(&elem_var);
 
         let combined_condition: syn::Expr = if conditions.len() == 1 {
             conditions.into_iter().next().unwrap()
@@ -2981,15 +2977,8 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         };
 
         // Generate: collection.iter().position(|elem| cond).map(|i| i as i32)
-        // For Copy types use |&elem| destructuring; for non-Copy use |elem| with deref in body.
-        let position_expr: syn::Expr = if element_needs_clone {
-            parse_quote! {
-                #collection_expr.iter().position(|#elem_ident| #combined_condition).map(|i| i as i32)
-            }
-        } else {
-            parse_quote! {
-                #collection_expr.iter().position(|&#elem_ident| #combined_condition).map(|i| i as i32)
-            }
+        let position_expr: syn::Expr = parse_quote! {
+            #collection_expr.iter().position(|#elem_ident| #combined_condition).map(|i| i as i32)
         };
 
         // Handle default value
@@ -14226,7 +14215,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         };
 
         if let Some(cond) = condition {
-            let cond_with_deref = if is_tuple_target || is_range {
+            let cond_with_deref = if is_tuple_target {
                 cond.to_rust_expr(self.ctx)?
             } else {
                 self.ctx.filter_deref_vars.insert(target.to_string());
@@ -14238,17 +14227,16 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             if is_range {
                 // Ranges are already iterators, don't call .iter()
                 // Range items are owned (i32, etc.), filter receives &i32
-                // Use pattern matching |&x| to dereference for the condition
                 if is_identity_map {
                     Ok(parse_quote! {
                         (#iter_expr)
-                            .filter(|&#target_pat| #cond_with_deref)
+                            .filter(|#target_pat| #cond_with_deref)
                             .collect::<Vec<_>>()
                     })
                 } else {
                     Ok(parse_quote! {
                         (#iter_expr)
-                            .filter(|&#target_pat| #cond_with_deref)
+                            .filter(|#target_pat| #cond_with_deref)
                             .map(|#target_pat| #element_expr)
                             .collect::<Vec<_>>()
                     })
@@ -16255,20 +16243,13 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             };
 
             // Add filters for each condition
-            // .filter() always receives &Item, so for non-tuple targets we use |&x|
-            // destructuring for Copy types or deref the variable in the condition body.
+            // .filter() always receives &Item — use |x| and deref in the body.
             let is_tuple_target = generator.target.starts_with('(');
             for cond in &generator.conditions {
                 if is_tuple_target {
                     let cond_expr = cond.to_rust_expr(self.ctx)?;
                     chain = parse_quote! { #chain.filter(|#target_pat| #cond_expr) };
-                } else if !element_needs_clone {
-                    // Copy types: use |&x| destructuring so the body sees owned x
-                    let cond_expr = cond.to_rust_expr(self.ctx)?;
-                    chain = parse_quote! { #chain.filter(|&#target_pat| #cond_expr) };
                 } else {
-                    // Non-Copy types: keep |x| (which is &T) and deref variable uses
-                    // in the condition body via context flag
                     self.ctx.filter_deref_vars.insert(generator.target.clone());
                     let cond_expr = cond.to_rust_expr(self.ctx)?;
                     self.ctx.filter_deref_vars.remove(&generator.target);

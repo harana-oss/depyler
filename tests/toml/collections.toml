@@ -1400,7 +1400,7 @@ pub fn get_doubled(items: &Vec<i32>) -> Vec<i32> {
     return items
         .iter()
         .copied()
-        .filter(|&x| x > 0)
+        .filter(|x| *x > 0)
         .map(|x| x * 2)
         .collect::<Vec<_>>();
 }
@@ -1419,7 +1419,7 @@ def get_positive_doubled(items: list[int]) -> list[int]:
 rust = '''
 pub fn get_positive_doubled(items: &Vec<i32>) -> Vec<i32> {
     let positives = (0..items.len() as i32)
-        .filter(|&i| items.get(i as usize).copied().unwrap() > 0)
+        .filter(|i| items.get(*i as usize).copied().unwrap() > 0)
         .collect::<Vec<_>>();
     return positives.into_iter().map(|x| x * 2).collect::<Vec<_>>();
 }
@@ -1436,8 +1436,8 @@ def filter_positive(items: list[int]) -> list[int]:
 '''
 
 [test.assertions]
-contains = ["into_iter()", ".filter(|&x|"]
-not_contains = [".filter(|x| *x"]
+contains = ["into_iter()", ".filter(|x| *x"]
+not_contains = [".filter(|&x|"]
 
 [[test]]
 name = "next_generator_with_index_var_in_subscript"
@@ -1478,7 +1478,7 @@ pub fn find_player_by_position(
     let candidate = indices
         .iter()
         .copied()
-        .filter(|&idx| players.get(idx as usize).unwrap().position == position)
+        .filter(|idx| players.get(*idx as usize).unwrap().position == position)
         .map(|idx| players.get(idx as usize).copied().unwrap())
         .next()
         .expect("StopIteration: iterator is empty");
@@ -1521,7 +1521,7 @@ pub fn find_player_position(
 ) -> i32 {
     let player_list_idx = players
         .iter()
-        .position(|&idx| state_players.get(idx as usize).unwrap().player_index == player_index)
+        .position(|idx| state_players.get(*idx as usize).unwrap().player_index == player_index)
         .map(|i| i as i32)
         .unwrap_or(-1);
     return player_list_idx.unwrap();
@@ -1549,5 +1549,5 @@ def find_player(players: list[Player], player_index: int) -> float:
 '''
 
 [test.assertions]
-contains = [".filter(|&idx|"]
-not_contains = [".filter(|idx| *idx", ".filter(|idx| players.get(*idx"]
+contains = [".filter(|idx| players.get(*idx"]
+not_contains = [".filter(|&idx|"]
