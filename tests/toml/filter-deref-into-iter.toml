@@ -1,0 +1,23 @@
+[[test]]
+name = "generator_into_iter_filter_map_no_star_in_map"
+description = "next() with non-identity generator should use .find().map() instead of .filter().map().next()"
+
+python = '''
+from dataclasses import dataclass
+
+@dataclass
+class Player:
+    player_index: int
+    time_on_field: float
+
+def find_player(state_players: list[Player], indices: list[int], player_index: int) -> float:
+    players = [i for i in indices]
+    player = next((state_players[idx] for idx in players if state_players[idx].player_index == player_index), None)
+    if player is not None:
+        return player.time_on_field
+    return 0.0
+'''
+
+[test.assertions]
+contains = [".find(", ".map(|idx|"]
+not_contains = [".filter(", ".next()"]

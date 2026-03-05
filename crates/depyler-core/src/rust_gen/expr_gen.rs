@@ -2814,17 +2814,46 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 let is_identity =
                     matches!(&**element, HirExpr::Var(name) if name == &generator.target);
 
-                if is_identity && !generator.conditions.is_empty() {
-                    // This is a findable pattern: next((x for x in items if cond), default)
-                    let iter_expr = generator.iter.to_rust_expr(self.ctx)?;
+                if !generator.conditions.is_empty() {
+                    let iter_expr = if matches!(&*generator.iter, HirExpr::Attribute { .. }) {
+                        self.convert_attribute_without_clone(&generator.iter)?
+                    } else {
+                        generator.iter.to_rust_expr(self.ctx)?
+                    };
                     let target_pat = self.parse_target_pattern(&generator.target)?;
 
-                    // Build combined condition from all conditions
+                    // Determine if element type is Copy (doesn't need clone)
+                    let element_is_copy = if let HirExpr::Var(var_name) = &*generator.iter {
+                        if let Some(var_type) = self.ctx.var_types.get(var_name) {
+                            match var_type {
+                                crate::hir::Type::List(elem_type)
+                                | crate::hir::Type::Set(elem_type) => {
+                                    !self.type_needs_clone(elem_type)
+                                }
+                                _ => false,
+                            }
+                        } else {
+                            false
+                        }
+                    } else {
+                        false
+                    };
+
+                    // Build combined condition.
+                    // For Copy types, use |&target| pattern so no * dereference is needed.
+                    // For non-Copy types, use filter_deref_vars to add * in the body.
+                    let is_tuple_target = generator.target.starts_with('(');
+                    if !is_tuple_target && !element_is_copy {
+                        self.ctx.filter_deref_vars.insert(generator.target.clone());
+                    }
                     let conditions: Vec<syn::Expr> = generator
                         .conditions
                         .iter()
                         .map(|c| c.to_rust_expr(self.ctx))
                         .collect::<Result<Vec<_>>>()?;
+                    if !is_tuple_target && !element_is_copy {
+                        self.ctx.filter_deref_vars.remove(&generator.target);
+                    }
 
                     let combined_condition: syn::Expr = if conditions.len() == 1 {
                         conditions.into_iter().next().unwrap()
@@ -2835,41 +2864,65 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                             .unwrap()
                     };
 
-                    // Determine if the element type needs cloned() based on collection type
-                    let needs_cloned = if let HirExpr::Var(var_name) = &*generator.iter {
-                        if let Some(var_type) = self.ctx.var_types.get(var_name) {
-                            match var_type {
-                                crate::hir::Type::List(elem_type)
-                                | crate::hir::Type::Set(elem_type) => {
-                                    self.type_needs_clone(elem_type)
+                    let is_borrowed_param = if let HirExpr::Var(var_name) = &*generator.iter {
+                        self.ctx.current_func_ref_params.contains(var_name)
+                            || self.ctx.current_func_mut_ref_params.contains(var_name)
+                    } else {
+                        false
+                    };
+
+                    if is_identity {
+                        // Identity pattern: next((x for x in items if cond), default)
+                        // → items.iter().find(|x| cond).cloned()
+                        let find_expr: syn::Expr = if element_is_copy {
+                            // Copy types: .iter().copied() yields T, find(|&x|) destructures &T→T
+                            parse_quote! { #iter_expr.iter().copied().find(|&#target_pat| #combined_condition) }
+                        } else {
+                            let needs_cloned = if let HirExpr::Var(var_name) = &*generator.iter {
+                                if let Some(var_type) = self.ctx.var_types.get(var_name) {
+                                    match var_type {
+                                        crate::hir::Type::List(elem_type)
+                                        | crate::hir::Type::Set(elem_type) => {
+                                            self.type_needs_clone(elem_type)
+                                        }
+                                        _ => true,
+                                    }
+                                } else {
+                                    true
                                 }
-                                _ => true,
+                            } else {
+                                true
+                            };
+
+                            if needs_cloned {
+                                parse_quote! { #iter_expr.iter().find(|#target_pat| #combined_condition).cloned() }
+                            } else {
+                                parse_quote! { #iter_expr.iter().find(|#target_pat| #combined_condition).copied() }
                             }
-                        } else {
-                            true
-                        }
-                    } else {
-                        true
-                    };
+                        };
 
-                    let find_expr: syn::Expr = if needs_cloned {
-                        parse_quote! { #iter_expr.iter().find(|#target_pat| #combined_condition).cloned() }
+                        return self.wrap_find_with_default(find_expr, hir_args, args);
                     } else {
-                        parse_quote! { #iter_expr.iter().find(|#target_pat| #combined_condition).copied() }
-                    };
+                        // Non-identity pattern: next((f(x) for x in items if cond), default)
+                        // → items.into_iter().find(|x| cond).map(|x| f(x))
+                        let element_expr = element.to_rust_expr(self.ctx)?;
 
-                    // Handle default value
-                    if hir_args.len() == 2 {
-                        if matches!(&hir_args[1], HirExpr::Literal(crate::hir::Literal::None)) {
-                            return Ok(find_expr);
+                        let find_expr: syn::Expr = if element_is_copy {
+                            if is_borrowed_param {
+                                parse_quote! { #iter_expr.iter().copied().find(|&#target_pat| #combined_condition) }
+                            } else {
+                                parse_quote! { #iter_expr.into_iter().find(|&#target_pat| #combined_condition) }
+                            }
+                        } else if is_borrowed_param {
+                            parse_quote! { #iter_expr.iter().find(|#target_pat| #combined_condition) }
                         } else {
-                            let default = args[1].clone();
-                            return Ok(parse_quote! { #find_expr.unwrap_or(#default) });
-                        }
-                    } else {
-                        return Ok(
-                            parse_quote! { #find_expr.expect("StopIteration: iterator is empty") },
-                        );
+                            parse_quote! { #iter_expr.into_iter().find(|#target_pat| #combined_condition) }
+                        };
+
+                        let find_map_expr: syn::Expr =
+                            parse_quote! { #find_expr.map(|#target_pat| #element_expr) };
+
+                        return self.wrap_find_with_default(find_map_expr, hir_args, args);
                     }
                 }
             }
@@ -2886,6 +2939,24 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             }
         } else {
             Ok(parse_quote! { #iterator.next().expect("StopIteration: iterator is empty") })
+        }
+    }
+
+    fn wrap_find_with_default(
+        &self,
+        find_expr: syn::Expr,
+        hir_args: &[HirExpr],
+        args: &[syn::Expr],
+    ) -> Result<syn::Expr> {
+        if hir_args.len() == 2 {
+            if matches!(&hir_args[1], HirExpr::Literal(crate::hir::Literal::None)) {
+                Ok(find_expr)
+            } else {
+                let default = args[1].clone();
+                Ok(parse_quote! { #find_expr.unwrap_or(#default) })
+            }
+        } else {
+            Ok(parse_quote! { #find_expr.expect("StopIteration: iterator is empty") })
         }
     }
 
@@ -2956,16 +3027,22 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         };
 
         // Build the condition, using elem_var as the closure parameter.
-        // .position() receives &T, so elem_var needs deref handling.
+        // .position() receives the item type directly from the iterator.
+        // For Copy types, use |&elem| pattern to destructure the reference.
         let elem_ident = syn::Ident::new(&elem_var, proc_macro2::Span::call_site());
+        let element_is_copy = !element_needs_clone;
 
-        self.ctx.filter_deref_vars.insert(elem_var.clone());
+        if !element_is_copy {
+            self.ctx.filter_deref_vars.insert(elem_var.clone());
+        }
         let conditions: Vec<syn::Expr> = comprehension
             .conditions
             .iter()
             .map(|c| c.to_rust_expr(self.ctx))
             .collect::<Result<Vec<_>>>()?;
-        self.ctx.filter_deref_vars.remove(&elem_var);
+        if !element_is_copy {
+            self.ctx.filter_deref_vars.remove(&elem_var);
+        }
 
         let combined_condition: syn::Expr = if conditions.len() == 1 {
             conditions.into_iter().next().unwrap()
@@ -2977,8 +3054,14 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         };
 
         // Generate: collection.iter().position(|elem| cond).map(|i| i as i32)
-        let position_expr: syn::Expr = parse_quote! {
-            #collection_expr.iter().position(|#elem_ident| #combined_condition).map(|i| i as i32)
+        let position_expr: syn::Expr = if element_is_copy {
+            parse_quote! {
+                #collection_expr.iter().position(|&#elem_ident| #combined_condition).map(|i| i as i32)
+            }
+        } else {
+            parse_quote! {
+                #collection_expr.iter().position(|#elem_ident| #combined_condition).map(|i| i as i32)
+            }
         };
 
         // Handle default value
@@ -14215,6 +14298,29 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
         };
 
         if let Some(cond) = condition {
+            if is_range {
+                // Ranges yield Copy types — use |&target| pattern directly, no deref needed
+                let cond_expr = if is_tuple_target {
+                    cond.to_rust_expr(self.ctx)?
+                } else {
+                    cond.to_rust_expr(self.ctx)?
+                };
+
+                if is_identity_map {
+                    Ok(parse_quote! {
+                        (#iter_expr)
+                            .filter(|&#target_pat| #cond_expr)
+                            .collect::<Vec<_>>()
+                    })
+                } else {
+                    Ok(parse_quote! {
+                        (#iter_expr)
+                            .filter(|&#target_pat| #cond_expr)
+                            .map(|#target_pat| #element_expr)
+                            .collect::<Vec<_>>()
+                    })
+                }
+            } else {
             let cond_with_deref = if is_tuple_target {
                 cond.to_rust_expr(self.ctx)?
             } else {
@@ -14224,24 +14330,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                 expr
             };
 
-            if is_range {
-                // Ranges are already iterators, don't call .iter()
-                // Range items are owned (i32, etc.), filter receives &i32
-                if is_identity_map {
-                    Ok(parse_quote! {
-                        (#iter_expr)
-                            .filter(|#target_pat| #cond_with_deref)
-                            .collect::<Vec<_>>()
-                    })
-                } else {
-                    Ok(parse_quote! {
-                        (#iter_expr)
-                            .filter(|#target_pat| #cond_with_deref)
-                            .map(|#target_pat| #element_expr)
-                            .collect::<Vec<_>>()
-                    })
-                }
-            } else if is_csv_reader {
+            if is_csv_reader {
                 // Use .deserialize() instead of .into_iter()
                 // CSV DictReader yields HashMap<String, String>
                 self.ctx.needs_csv = true;
@@ -14305,6 +14394,7 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
                     })
                 }
             }
+            } // close the non-range else block
         } else {
             // Without condition: map-only comprehensions
             if is_range {
@@ -14529,32 +14619,71 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             iter.to_rust_expr(self.ctx)?
         };
 
-        self.ctx.filter_deref_vars.insert(target.to_string());
-        let cond_with_deref = condition.to_rust_expr(self.ctx)?;
-        self.ctx.filter_deref_vars.remove(target);
+        // Determine if the element type is Copy
+        let element_is_copy = if let HirExpr::Var(var_name) = iter {
+            if let Some(var_type) = self.ctx.var_types.get(var_name) {
+                match var_type {
+                    crate::hir::Type::List(elem_type)
+                    | crate::hir::Type::Set(elem_type) => !self.type_needs_clone(elem_type),
+                    _ => false,
+                }
+            } else {
+                false
+            }
+        } else {
+            false
+        };
 
         // Check if element is just the target variable (identity mapping)
         let is_identity_map = Self::is_identity_element(element, target);
 
-        if is_identity_map {
-            // Simple case: [x for x in iter if cond][0] → iter.iter().find(|x| cond).cloned().unwrap()
-            Ok(parse_quote! {
-                #iter_expr
-                    .iter()
-                    .find(|#target_ident| #cond_with_deref)
-                    .cloned()
-                    .unwrap()
-            })
+        if element_is_copy {
+            // Copy types: .iter().copied() yields T, find(|&x|) destructures &T→T
+            let cond = condition.to_rust_expr(self.ctx)?;
+            if is_identity_map {
+                Ok(parse_quote! {
+                    #iter_expr
+                        .iter()
+                        .copied()
+                        .find(|&#target_ident| #cond)
+                        .unwrap()
+                })
+            } else {
+                let element_expr = element.to_rust_expr(self.ctx)?;
+                Ok(parse_quote! {
+                    #iter_expr
+                        .iter()
+                        .copied()
+                        .find(|&#target_ident| #cond)
+                        .map(|#target_ident| #element_expr)
+                        .unwrap()
+                })
+            }
         } else {
-            // Mapped case: [f(x) for x in iter if cond][0] → iter.iter().find(|x| cond).map(|x| f(x)).unwrap()
-            let element_expr = element.to_rust_expr(self.ctx)?;
-            Ok(parse_quote! {
-                #iter_expr
-                    .iter()
-                    .find(|#target_ident| #cond_with_deref)
-                    .map(|#target_ident| #element_expr)
-                    .unwrap()
-            })
+            self.ctx.filter_deref_vars.insert(target.to_string());
+            let cond_with_deref = condition.to_rust_expr(self.ctx)?;
+            self.ctx.filter_deref_vars.remove(target);
+
+            if is_identity_map {
+                // Simple case: [x for x in iter if cond][0] → iter.iter().find(|x| cond).cloned().unwrap()
+                Ok(parse_quote! {
+                    #iter_expr
+                        .iter()
+                        .find(|#target_ident| #cond_with_deref)
+                        .cloned()
+                        .unwrap()
+                })
+            } else {
+                // Mapped case: [f(x) for x in iter if cond][0] → iter.iter().find(|x| cond).map(|x| f(x)).unwrap()
+                let element_expr = element.to_rust_expr(self.ctx)?;
+                Ok(parse_quote! {
+                    #iter_expr
+                        .iter()
+                        .find(|#target_ident| #cond_with_deref)
+                        .map(|#target_ident| #element_expr)
+                        .unwrap()
+                })
+            }
         }
     }
 
@@ -16243,12 +16372,18 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             };
 
             // Add filters for each condition
-            // .filter() always receives &Item — use |x| and deref in the body.
+            // .filter() always receives &Item.
+            // For Copy types, use |&x| pattern to destructure the reference directly.
+            // For non-Copy types, use |x| and deref in the body via filter_deref_vars.
             let is_tuple_target = generator.target.starts_with('(');
+            let element_is_copy = !element_needs_clone;
             for cond in &generator.conditions {
                 if is_tuple_target {
                     let cond_expr = cond.to_rust_expr(self.ctx)?;
                     chain = parse_quote! { #chain.filter(|#target_pat| #cond_expr) };
+                } else if element_is_copy {
+                    let cond_expr = cond.to_rust_expr(self.ctx)?;
+                    chain = parse_quote! { #chain.filter(|&#target_pat| #cond_expr) };
                 } else {
                     self.ctx.filter_deref_vars.insert(generator.target.clone());
                     let cond_expr = cond.to_rust_expr(self.ctx)?;
