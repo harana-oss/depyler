@@ -930,6 +930,12 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             BinOp::Mod => {
                 self.emit_arithmetic_with_mixed_cast(op, left, right, left_expr, right_expr)
             }
+            BinOp::Lt | BinOp::LtEq | BinOp::Gt | BinOp::GtEq => {
+                // Comparison between float and int requires casting the int operand to f64.
+                // Python: `state.time_elapsed > HALF_LENGTH_IN_SECONDS` (float > int)
+                // Rust: `state.time_elapsed > (HALF_LENGTH_IN_SECONDS as f64)`
+                self.emit_comparison_with_mixed_cast(op, left, right, left_expr, right_expr)
+            }
             _ => {
                 let rust_op = convert_binop(op)?;
                 Ok(syn::Expr::Binary(syn::ExprBinary {
@@ -1009,6 +1015,43 @@ impl<'a, 'b> ExpressionConverter<'a, 'b> {
             }))
         } else {
             let rust_op = convert_binop(op)?;
+            Ok(syn::Expr::Binary(syn::ExprBinary {
+                attrs: vec![],
+                left: Box::new(left_expr),
+                op: rust_op,
+                right: Box::new(right_expr),
+            }))
+        }
+    }
+
+    /// Emit a comparison expression, casting the int operand to f64 when mixed.
+    fn emit_comparison_with_mixed_cast(
+        &self,
+        op: BinOp,
+        left: &HirExpr,
+        right: &HirExpr,
+        left_expr: syn::Expr,
+        right_expr: syn::Expr,
+    ) -> Result<syn::Expr> {
+        let left_is_float = self.ctx.is_expr_float_type(left);
+        let right_is_float = self.ctx.is_expr_float_type(right);
+        let rust_op = convert_binop(op)?;
+
+        if left_is_float && !right_is_float {
+            Ok(syn::Expr::Binary(syn::ExprBinary {
+                attrs: vec![],
+                left: Box::new(left_expr),
+                op: rust_op,
+                right: Box::new(parse_quote! { (#right_expr as f64) }),
+            }))
+        } else if !left_is_float && right_is_float {
+            Ok(syn::Expr::Binary(syn::ExprBinary {
+                attrs: vec![],
+                left: Box::new(parse_quote! { (#left_expr as f64) }),
+                op: rust_op,
+                right: Box::new(right_expr),
+            }))
+        } else {
             Ok(syn::Expr::Binary(syn::ExprBinary {
                 attrs: vec![],
                 left: Box::new(left_expr),
