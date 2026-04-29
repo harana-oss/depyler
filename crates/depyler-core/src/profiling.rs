@@ -4,7 +4,7 @@
 //! of Python code and its transpiled Rust equivalent, helping developers understand
 //! performance improvements and bottlenecks.
 
-use crate::hir::{HirExpr, HirFunction, HirProgram, HirStmt};
+use crate::hir::{HirExpr, HirFunction, HirModule, HirStmt};
 use colored::Colorize;
 use std::collections::HashMap;
 
@@ -116,7 +116,7 @@ impl Profiler {
         }
     }
 
-    pub fn analyze_program(&mut self, program: &HirProgram) -> ProfilingReport {
+    pub fn analyze_program(&mut self, program: &HirModule) -> ProfilingReport {
         // Clear previous results
         self.metrics.clear();
         self.hot_paths.clear();
@@ -282,7 +282,7 @@ impl Profiler {
         analyze_expr_inner(expr)
     }
 
-    fn detect_hot_paths(&mut self, _program: &HirProgram) {
+    fn detect_hot_paths(&mut self, _program: &HirModule) {
         // Find functions that consume > 10% of time
         let hot_functions: Vec<_> = self
             .metrics
@@ -304,7 +304,7 @@ impl Profiler {
         }
     }
 
-    fn generate_predictions(&mut self, program: &HirProgram) {
+    fn generate_predictions(&mut self, program: &HirModule) {
         // Type system optimization prediction
         let type_checks_removed = self.count_type_checks(program);
         if type_checks_removed > 0 {
@@ -342,7 +342,7 @@ impl Profiler {
         });
     }
 
-    fn count_type_checks(&self, program: &HirProgram) -> usize {
+    fn count_type_checks(&self, program: &HirModule) -> usize {
         let mut count = 0;
         for func in &program.functions {
             for stmt in &func.body {
@@ -385,7 +385,7 @@ impl Profiler {
         }
     }
 
-    fn count_iterator_opportunities(&self, program: &HirProgram) -> usize {
+    fn count_iterator_opportunities(&self, program: &HirModule) -> usize {
         let mut count = 0;
         for func in &program.functions {
             for stmt in &func.body {

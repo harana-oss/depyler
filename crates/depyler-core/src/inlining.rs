@@ -1,5 +1,5 @@
 /// Function inlining heuristics and implementation for the optimizer
-use crate::hir::{HirExpr, HirFunction, HirProgram, HirStmt};
+use crate::hir::{HirExpr, HirFunction, HirModule, HirStmt};
 use std::collections::{HashMap, HashSet};
 
 /// Inlining analyzer that determines which functions should be inlined
@@ -111,7 +111,7 @@ impl InliningAnalyzer {
     }
 
     /// Analyze a program and determine which functions should be inlined
-    pub fn analyze_program(&mut self, program: &HirProgram) -> HashMap<String, InliningDecision> {
+    pub fn analyze_program(&mut self, program: &HirModule) -> HashMap<String, InliningDecision> {
         // Step 1: Build call graph
         self.build_call_graph(program);
 
@@ -128,9 +128,9 @@ impl InliningAnalyzer {
     /// Apply inlining decisions to transform the program
     pub fn apply_inlining(
         &self,
-        mut program: HirProgram,
+        mut program: HirModule,
         decisions: &HashMap<String, InliningDecision>,
-    ) -> HirProgram {
+    ) -> HirModule {
         // Create a map of functions for quick lookup
         let function_map: HashMap<String, HirFunction> = program
             .functions
@@ -183,7 +183,7 @@ impl InliningAnalyzer {
         program
     }
 
-    fn build_call_graph(&mut self, program: &HirProgram) {
+    fn build_call_graph(&mut self, program: &HirModule) {
         for func in &program.functions {
             let calls = self.extract_calls_from_function(func);
 
@@ -349,7 +349,7 @@ impl InliningAnalyzer {
         false
     }
 
-    fn calculate_metrics(&mut self, program: &HirProgram) {
+    fn calculate_metrics(&mut self, program: &HirModule) {
         for func in &program.functions {
             let size = self.calculate_function_size(func);
             let has_loops = self.contains_loops(&func.body);

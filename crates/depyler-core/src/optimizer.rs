@@ -1,7 +1,7 @@
 //! Optimization passes for generated Rust code
 
 use crate::hir::{
-    AssignTarget, BinOp, HirExpr, HirFunction, HirProgram, HirStmt, Literal, UnaryOp,
+    AssignTarget, BinOp, HirExpr, HirFunction, HirModule, HirStmt, Literal, UnaryOp,
 };
 use std::collections::{HashMap, HashSet};
 use std::hash::{Hash, Hasher};
@@ -39,7 +39,7 @@ impl Optimizer {
         Self { config }
     }
 
-    pub fn optimize_program(&mut self, mut program: HirProgram) -> HirProgram {
+    pub fn optimize_program(&mut self, mut program: HirModule) -> HirModule {
         if self.config.propagate_constants {
             program = self.propagate_constants_program(program);
         }
@@ -59,7 +59,7 @@ impl Optimizer {
         program
     }
 
-    fn propagate_constants_program(&self, mut program: HirProgram) -> HirProgram {
+    fn propagate_constants_program(&self, mut program: HirModule) -> HirModule {
         let mut constants = HashMap::new();
 
         let mut mutated_vars = HashSet::new();
@@ -455,7 +455,7 @@ impl Optimizer {
     }
 
     /// Eliminate dead code from the program
-    fn eliminate_dead_code_program(&self, mut program: HirProgram) -> HirProgram {
+    fn eliminate_dead_code_program(&self, mut program: HirModule) -> HirModule {
         for func in &mut program.functions {
             self.eliminate_dead_code_function(func);
         }
@@ -653,7 +653,7 @@ impl Optimizer {
     }
 
     /// Inline small functions using sophisticated heuristics
-    fn inline_functions_program(&self, program: HirProgram) -> HirProgram {
+    fn inline_functions_program(&self, program: HirModule) -> HirModule {
         use crate::inlining::{InliningAnalyzer, InliningConfig};
 
         // Configure inlining based on optimizer settings
@@ -685,7 +685,7 @@ impl Optimizer {
     }
 
     /// Eliminate common subexpressions
-    fn eliminate_common_subexpressions_program(&self, mut program: HirProgram) -> HirProgram {
+    fn eliminate_common_subexpressions_program(&self, mut program: HirModule) -> HirModule {
         for func in &mut program.functions {
             let mut cse_map: HashMap<u64, (HirExpr, String)> = HashMap::new();
             let mut temp_counter = 0;

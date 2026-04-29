@@ -1,5 +1,5 @@
 /// Migration suggestions for Python-to-Rust idiom transitions
-use crate::hir::{HirExpr, HirFunction, HirProgram, HirStmt, Type};
+use crate::hir::{HirExpr, HirFunction, HirModule, HirStmt, Type};
 use colored::Colorize;
 
 pub struct MigrationAnalyzer {
@@ -78,10 +78,10 @@ impl MigrationAnalyzer {
     /// # Example
     /// ```
     /// use depyler_core::migration_suggestions::{MigrationAnalyzer, MigrationConfig};
-    /// use depyler_core::hir::HirProgram;
+    /// use depyler_core::hir::HirModule;
     ///
     /// let mut analyzer = MigrationAnalyzer::new(MigrationConfig::default());
-    /// let program = HirProgram {
+    /// let program = HirModule {
     ///     imports: vec![],
     ///     functions: vec![],
     ///     classes: vec![],
@@ -89,7 +89,7 @@ impl MigrationAnalyzer {
     /// let suggestions = analyzer.analyze_program(&program);
     /// assert!(suggestions.is_empty());
     /// ```
-    pub fn analyze_program(&mut self, program: &HirProgram) -> Vec<MigrationSuggestion> {
+    pub fn analyze_program(&mut self, program: &HirModule) -> Vec<MigrationSuggestion> {
         self.suggestions.clear();
 
         for func in &program.functions {

@@ -1,5 +1,5 @@
 /// Performance warning system for identifying inefficient patterns
-use crate::hir::{BinOp, HirExpr, HirFunction, HirProgram, HirStmt, Type};
+use crate::hir::{BinOp, HirExpr, HirFunction, HirModule, HirStmt, Type};
 use colored::Colorize;
 
 /// Performance analyzer that identifies potentially inefficient patterns
@@ -115,7 +115,7 @@ impl PerformanceAnalyzer {
     }
 
     /// Analyze a program for performance issues
-    pub fn analyze_program(&mut self, program: &HirProgram) -> Vec<PerformanceWarning> {
+    pub fn analyze_program(&mut self, program: &HirModule) -> Vec<PerformanceWarning> {
         self.warnings.clear();
 
         for func in &program.functions {

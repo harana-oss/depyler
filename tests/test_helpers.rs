@@ -29,14 +29,7 @@ pub fn parse_to_hir(python_source: &str) -> HirModule {
 
 /// Transpiles Python source code and verifies expected Rust patterns are present,
 /// then compiles the output with rustc.
-///
-/// # Arguments
-/// * `python_source` - The Python source code to transpile
-/// * `expected_patterns` - List of strings that must appear in the generated Rust code
-///
-/// # Returns
-/// The transpile/compile result on success, or panics with detailed error info.
-pub fn transpile_and_compile(
+ fn transpile_and_compile(
     python_source: &str,
     expected_patterns: &[&str],
 ) -> TranspileCompileResult {

@@ -187,42 +187,6 @@ pub struct HirConstant {
     pub type_annotation: Option<Type>,
 }
 
-/// Simplified program representation for optimization passes
-///
-/// `HirProgram` is a streamlined version of `HirModule` used during optimization passes.
-/// It focuses on the core elements needed for analysis and transformation.
-///
-/// # Examples
-///
-/// ```rust
-/// use depyler_core::hir::{HirProgram, HirFunction, Type, FunctionProperties};
-/// use depyler_annotations::TranspilationAnnotations;
-/// use smallvec::smallvec;
-///
-/// let program = HirProgram {
-///     functions: vec![
-///         HirFunction {
-///             name: "main".to_string(),
-///             params: smallvec![],
-///             ret_type: Type::None,
-///             body: vec![],
-///             properties: FunctionProperties::default(),
-///             annotations: TranspilationAnnotations::default(),
-///             docstring: None,
-///         }
-///     ],
-///     classes: vec![],
-///     imports: vec![],
-/// };
-///
-/// assert_eq!(program.functions.len(), 1);
-/// ```
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct HirProgram {
-    pub functions: Vec<HirFunction>,
-    pub classes: Vec<HirClass>,
-    pub imports: Vec<Import>,
-}
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Import {

@@ -441,23 +441,16 @@ impl DepylerPipeline {
         // Apply optimization passes based on annotations
         optimization::optimize_module(&mut hir);
 
-        // Convert HirModule to HirProgram for the new optimizer
-        let hir_program = hir::HirProgram {
-            functions: hir.functions,
-            classes: hir.classes,
-            imports: hir.imports,
-        };
-
         // Apply the new general-purpose optimizer
         let mut optimizer = optimizer::Optimizer::new(optimizer::OptimizerConfig::default());
-        let optimized_program = optimizer.optimize_program(hir_program.clone());
+        let optimized_hir = optimizer.optimize_program(hir);
 
         // Run migration suggestions analysis
         if self.analyzer.metrics_enabled {
             let mut migration_analyzer = migration_suggestions::MigrationAnalyzer::new(
                 migration_suggestions::MigrationConfig::default(),
             );
-            let suggestions = migration_analyzer.analyze_program(&hir_program);
+            let suggestions = migration_analyzer.analyze_program(&optimized_hir);
             if !suggestions.is_empty() {
                 eprintln!("{}", migration_analyzer.format_suggestions(&suggestions));
             }
@@ -468,7 +461,7 @@ impl DepylerPipeline {
             let mut perf_analyzer = performance_warnings::PerformanceAnalyzer::new(
                 performance_warnings::PerformanceConfig::default(),
             );
-            let warnings = perf_analyzer.analyze_program(&hir_program);
+            let warnings = perf_analyzer.analyze_program(&optimized_hir);
             if !warnings.is_empty() {
                 eprintln!("{}", perf_analyzer.format_warnings(&warnings));
             }
@@ -477,22 +470,11 @@ impl DepylerPipeline {
         // Run profiling analysis if enabled
         if self.analyzer.metrics_enabled {
             let mut profiler = profiling::Profiler::new(profiling::ProfileConfig::default());
-            let profile_report = profiler.analyze_program(&hir_program);
+            let profile_report = profiler.analyze_program(&optimized_hir);
             if !profile_report.metrics.is_empty() {
                 eprintln!("{}", profile_report.format_report());
             }
         }
-
-        // Convert back to HirModule
-        let optimized_hir = hir::HirModule {
-            functions: optimized_program.functions,
-            imports: optimized_program.imports,
-            type_aliases: hir.type_aliases,
-            protocols: hir.protocols,
-            classes: optimized_program.classes,
-            constants: hir.constants,
-            statements: hir.statements,
-        };
 
         // Generate Rust code with dependencies
         rust_gen::generate_rust_file(&optimized_hir, &self.transpiler.type_mapper)
@@ -580,23 +562,16 @@ impl DepylerPipeline {
         // Apply optimization passes based on annotations
         optimization::optimize_module(&mut hir);
 
-        // Convert HirModule to HirProgram for the new optimizer
-        let hir_program = hir::HirProgram {
-            functions: hir.functions,
-            classes: hir.classes,
-            imports: hir.imports,
-        };
-
         // Apply the new general-purpose optimizer
         let mut optimizer = optimizer::Optimizer::new(optimizer::OptimizerConfig::default());
-        let optimized_program = optimizer.optimize_program(hir_program.clone());
+        let optimized_hir = optimizer.optimize_program(hir);
 
         // Run migration suggestions analysis
         if self.analyzer.metrics_enabled {
             let mut migration_analyzer = migration_suggestions::MigrationAnalyzer::new(
                 migration_suggestions::MigrationConfig::default(),
             );
-            let suggestions = migration_analyzer.analyze_program(&hir_program);
+            let suggestions = migration_analyzer.analyze_program(&optimized_hir);
             if !suggestions.is_empty() {
                 eprintln!("{}", migration_analyzer.format_suggestions(&suggestions));
             }
@@ -607,7 +582,7 @@ impl DepylerPipeline {
             let mut perf_analyzer = performance_warnings::PerformanceAnalyzer::new(
                 performance_warnings::PerformanceConfig::default(),
             );
-            let warnings = perf_analyzer.analyze_program(&hir_program);
+            let warnings = perf_analyzer.analyze_program(&optimized_hir);
             if !warnings.is_empty() {
                 eprintln!("{}", perf_analyzer.format_warnings(&warnings));
             }
@@ -616,22 +591,11 @@ impl DepylerPipeline {
         // Run profiling analysis if enabled
         if self.analyzer.metrics_enabled {
             let mut profiler = profiling::Profiler::new(profiling::ProfileConfig::default());
-            let profile_report = profiler.analyze_program(&hir_program);
+            let profile_report = profiler.analyze_program(&optimized_hir);
             if !profile_report.metrics.is_empty() {
                 eprintln!("{}", profile_report.format_report());
             }
         }
-
-        // Convert back to HirModule
-        let optimized_hir = hir::HirModule {
-            functions: optimized_program.functions,
-            imports: optimized_program.imports,
-            type_aliases: hir.type_aliases,
-            protocols: hir.protocols,
-            classes: optimized_program.classes,
-            constants: hir.constants,
-            statements: hir.statements,
-        };
 
         // Generate Rust code using the unified generation system
         let (rust_code, _dependencies) =
