@@ -2,49 +2,6 @@ import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 import { act, renderHook } from "@testing-library/react";
 import { usePlaygroundStore } from "../index";
 
-// Mock the WASM manager
-vi.mock("@/lib/wasm-manager", () => ({
-  transpileCode: vi.fn((code) => {
-    if (code.includes("syntax_error")) {
-      return Promise.resolve({
-        success: false,
-        rust_code: "",
-        errors: ["SyntaxError: invalid syntax"],
-        warnings: [],
-        transpile_time_ms: 10,
-        memory_usage_mb: 0,
-        energy_estimate: null,
-        quality_metrics: null,
-      });
-    }
-    return Promise.resolve({
-      success: true,
-      rust_code: "fn main() {}",
-      errors: [],
-      warnings: code.includes("deprecated") ? ["DeprecationWarning"] : [],
-      transpile_time_ms: 50,
-      memory_usage_mb: 1.2,
-      energy_estimate: {
-        joules: 0.5,
-        wattsAverage: 2.1,
-        co2Grams: 0.1,
-        breakdown: { cpu: 0.35, memory: 0.15 },
-        confidence: 0.9,
-        equivalentTo: "powering an LED for 1 second",
-      },
-      quality_metrics: {
-        pmat_score: 0.85,
-        productivity: 0.8,
-        maintainability: 0.9,
-        accessibility: 1.0,
-        testability: 0.8,
-        code_complexity: 2,
-        cyclomatic_complexity: 3,
-      },
-    });
-  }),
-}));
-
 // Mock the execution manager
 vi.mock("@/lib/execution-manager", () => ({
   executeComparison: vi.fn(() =>

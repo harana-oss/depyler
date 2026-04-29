@@ -68,7 +68,6 @@ class QualityGateValidator {
         },
         files: {
           "src/components/App.tsx": { lines: { pct: 95.0 } },
-          "src/lib/wasm-manager.ts": { lines: { pct: 92.3 } },
           "src/store/index.ts": { lines: { pct: 88.7 } },
         },
       };

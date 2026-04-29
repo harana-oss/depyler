@@ -30,17 +30,9 @@ colored.workspace = true
 
 [features]
 default = []
-wasm = ["web-time"]
 deterministic = []
 ruchy = []
 
-[dependencies.web-time]
-workspace = true
-optional = true
-
 [dev-dependencies]
-insta.workspace = true
-proptest.workspace = true
-quickcheck.workspace = true
 tempfile.workspace = true
 toml.workspace = true

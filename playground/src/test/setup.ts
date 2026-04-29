@@ -196,77 +196,9 @@ beforeAll(() => {
     removeEventListener: vi.fn(),
     terminate: vi.fn(),
   }));
-
-  // Mock WASM Manager
-  vi.mock("@/lib/wasm-manager", () => ({
-    transpileCode: vi.fn(() =>
-      Promise.resolve({
-        success: true,
-        rust_code: "fn test() {}",
-        errors: [],
-        warnings: [],
-        transpile_time_ms: 50,
-        memory_usage_mb: 1.2,
-        energy_estimate: {
-          joules: 0.5,
-          wattsAverage: 2.1,
-          co2Grams: 0.1,
-          breakdown: { cpu: 0.35, memory: 0.15 },
-          confidence: 0.9,
-          equivalentTo: "powering an LED for 1 second",
-        },
-        quality_metrics: {
-          pmat_score: 0.85,
-          productivity: 0.8,
-          maintainability: 0.9,
-          accessibility: 1.0,
-          testability: 0.8,
-          code_complexity: 2,
-          cyclomatic_complexity: 3,
-        },
-      })
-    ),
-    analyzeCode: vi.fn(() => Promise.resolve({})),
-    benchmarkCode: vi.fn(() => Promise.resolve({})),
-    preloadWasm: vi.fn(() => Promise.resolve()),
-    isWasmLoaded: vi.fn(() => true),
-    getWasmInstance: vi.fn(() => ({
-      transpile: vi.fn(() => "fn test() {}"),
-      analyze: vi.fn(() => ({})),
-    })),
-  }));
 });
 
 // Global test utilities
-export const mockWasmModule = {
-  transpile: vi.fn(() => ({
-    success: true,
-    rust_code: "fn add(a: i32, b: i32) -> i32 { a + b }",
-    parse_time_ms: 10,
-    transpile_time_ms: 25,
-    ast_nodes: 5,
-    complexity_score: 1,
-    energy_reduction: {
-      joules: 0.001,
-      wattsAverage: 1.0,
-      co2Grams: 0.000475,
-      breakdown: { cpu: 0.0008, memory: 0.0002 },
-      confidence: 0.8,
-      equivalentTo: "powering an LED for 1 second",
-    },
-  })),
-  analyze_code: vi.fn(() => ({
-    suggestions: [],
-    antiPatterns: [],
-  })),
-  benchmark: vi.fn(() => ({
-    iterations: 5,
-    average_ms: 25,
-    min_ms: 20,
-    max_ms: 30,
-  })),
-};
-
 export const createMockPlaygroundStore = () => ({
   pythonCode: "def add(a: int, b: int) -> int:\n    return a + b",
   rustCode: "fn add(a: i32, b: i32) -> i32 { a + b }",

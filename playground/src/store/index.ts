@@ -73,32 +73,7 @@ export const usePlaygroundStore = create<PlaygroundStore>((set, get) => ({
     set({ isTranspiling: true, errors: [], warnings: [] });
 
     try {
-      // Lazy load WASM module
-      const wasmModule = await import("@/lib/wasm-manager");
-      const result = await wasmModule.transpileCode(pythonCode, {
-        verify: true,
-        optimize: true,
-        emit_docs: false,
-        target_version: "1.83",
-      });
-
-      if (result.success) {
-        set({
-          rustCode: result.rust_code,
-          transpileResult: result,
-          errors: result.errors,
-          warnings: result.warnings,
-          isTranspiling: false,
-        });
-      } else {
-        set({
-          rustCode: "",
-          transpileResult: result,
-          errors: result.errors,
-          warnings: result.warnings,
-          isTranspiling: false,
-        });
-      }
+      throw new Error("Transpilation is not available in this build.");
     } catch (error) {
       set({
         errors: [error instanceof Error ? error.message : "Unknown transpilation error"],

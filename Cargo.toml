@@ -1,11 +1,7 @@
 [workspace]
 members = [
     "crates/depyler-core",
-    "crates/depyler-verify",
-    "crates/depyler-mcp",
     "crates/depyler-annotations",
-    "crates/depyler",
-    "crates/depyler-analysis",
     "tests"
 ]
 resolver = "2"
@@ -31,8 +27,6 @@ thiserror = "1.0"
 # Pin serde to version compatible with swc_common (used by pmat)
 serde = { version = ">=1.0.200, <1.0.220", features = ["derive"] }
 serde_json = "1.0"
-tracing = "0.1"
-tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 
 # Python parsing
 rustpython-parser = "0.4"
@@ -44,35 +38,15 @@ quote = "1.0"
 proc-macro2 = "1.0"
 
 # Analysis
-petgraph = "0.6"
 indexmap = "2.0"
 smallvec = { version = "1.0", features = ["serde"] }
-regex = "1.10"
 
 # Testing and verification
-quickcheck = "1.0"
-quickcheck_macros = "1.0"
-proptest = "1.0"
-insta = "1.0"
 tempfile = "3.14"
-rand = "0.8"
-md5 = "0.7"
 
-# CLI
-clap = { version = "4.0", features = ["derive", "cargo"] }
-indicatif = "0.17"
 colored = "2.0"
-dialoguer = "0.11"
 
-# Async (for MCP)
-tokio = { version = "1.0", features = ["full"] }
-tokio-util = "0.7"
-
-# MCP SDK
-pmcp = { version = "1.6.0", features = ["validation", "websocket", "http"] }
-pmat = { version = "2.3.0", features = ["rust-ast", "syn"] }
-async-trait = "0.1"
-web-time = "1.1"  # Replaces unmaintained `instant` crate
+# WASM dependencies
 toml = "0.8"
 
 [profile.release]
@@ -102,16 +76,6 @@ codegen-units = 16
 opt-level = 0
 debug = false
 incremental = true
-
-# WASM production build profile
-[profile.wasm-production]
-inherits = "release"
-opt-level = "z"          # Size optimization
-lto = "fat"              # Cross-crate inlining
-codegen-units = 1        # Single compilation unit
-strip = true             # Remove debug symbols
-panic = "abort"          # No unwinding
-incremental = false      # Deterministic builds
 
 # Optimize dependencies in all profiles
 [profile.release.package."*"]
