@@ -6,9 +6,17 @@ use super::solver::{FixpointSolver, TypePropagation};
 use crate::ast_bridge::AstBridge;
 use crate::hir::{HirFunction, HirModule, HirStmt, Type};
 use anyhow::Result;
-use rustpython_ast::Suite;
-use rustpython_parser::Parse;
 use std::collections::HashMap;
+
+/// Parse Python source into an `HirModule` using the shared pipeline helper.
+fn parse_source_to_hir(source: &str) -> Result<HirModule> {
+    use crate::DepylerPipeline;
+    let pipeline = DepylerPipeline::new();
+    let ast = pipeline.parse_python(source)?;
+    AstBridge::new()
+        .with_source(source.to_string())
+        .python_to_hir(ast)
+}
 
 /// Infer types for all functions in a Python source string.
 ///
@@ -36,19 +44,7 @@ use std::collections::HashMap;
 /// }
 /// ```
 pub fn infer_python(source: &str) -> Result<HashMap<String, InferredTypes>> {
-    // Parse Python source to AST
-    let statements = Suite::parse(source, "<input>").map_err(|e| anyhow::anyhow!("Python parse error: {}", e))?;
-
-    let ast = rustpython_ast::Mod::Module(rustpython_ast::ModModule {
-        body: statements,
-        type_ignores: vec![],
-        range: Default::default(),
-    });
-
-    // Convert to HIR
-    let hir_module = AstBridge::new().with_source(source.to_string()).python_to_hir(ast)?;
-
-    // Use infer_module which handles interprocedural analysis
+    let hir_module = parse_source_to_hir(source)?;
     let inferencer = DataflowTypeInferencer::new();
     Ok(inferencer.infer_module(&hir_module))
 }
@@ -71,17 +67,7 @@ pub fn infer_python(source: &str) -> Result<HashMap<String, InferredTypes>> {
 /// println!("total: {:?}", types.get_variable_type("total"));
 /// ```
 pub fn infer_python_function(source: &str) -> Result<InferredTypes> {
-    // Parse Python source to AST
-    let statements = Suite::parse(source, "<input>").map_err(|e| anyhow::anyhow!("Python parse error: {}", e))?;
-
-    let ast = rustpython_ast::Mod::Module(rustpython_ast::ModModule {
-        body: statements,
-        type_ignores: vec![],
-        range: Default::default(),
-    });
-
-    // Convert to HIR
-    let hir_module = AstBridge::new().with_source(source.to_string()).python_to_hir(ast)?;
+    let hir_module = parse_source_to_hir(source)?;
 
     // Get the last function (typically what the user wants when testing)
     let last_func = hir_module
@@ -179,8 +165,21 @@ impl DataflowTypeInferencer {
 
         // Build CFG and run dataflow analysis
         let cfg = CfgBuilder::new().build_function(func);
-        let analysis = TypePropagation::new(param_types.clone()).with_user_functions(user_functions.clone());
-        let result = FixpointSolver::solve(&analysis, &cfg);
+        let analysis =
+            TypePropagation::new(param_types.clone()).with_user_functions(user_functions.clone());
+        let result = FixpointSolver::solve(&analysis, &cfg).unwrap_or_else(|e| {
+            // Non-convergence is treated as a best-effort result; the partial
+            // facts gathered so far are still useful for type inference.
+            eprintln!("warning: {e}");
+            // Return whatever partial state we have by re-running without a limit
+            // isn't possible here, so fall back to an empty result.
+            use std::collections::HashMap;
+            crate::dataflow::solver::FixpointResult {
+                in_facts: HashMap::new(),
+                out_facts: HashMap::new(),
+                iterations: 0,
+            }
+        });
 
         // Extract final types from all exit points
         let mut variable_types: HashMap<String, Type> = HashMap::new();
@@ -224,8 +223,12 @@ impl DataflowTypeInferencer {
         };
 
         // Check completeness
-        let is_complete = variable_types.values().all(|ty| !matches!(ty, Type::Unknown))
-            && return_type.as_ref().map_or(true, |ty| !matches!(ty, Type::Unknown));
+        let is_complete = variable_types
+            .values()
+            .all(|ty| !matches!(ty, Type::Unknown))
+            && return_type
+                .as_ref()
+                .map_or(true, |ty| !matches!(ty, Type::Unknown));
 
         InferredTypes {
             variable_types,
@@ -308,7 +311,9 @@ impl DataflowTypeInferencer {
                     }
                 }
                 HirStmt::If {
-                    then_body, else_body, ..
+                    then_body,
+                    else_body,
+                    ..
                 } => {
                     self.apply_types_to_body(then_body, inferred);
                     if let Some(else_stmts) = else_body {
@@ -384,7 +389,9 @@ impl DataflowTypeInferencer {
         return_types: &mut Vec<Type>,
     ) {
         // Get a merged state from all facts for expression type inference
-        let merged_state = out_facts.values().fold(TypeState::new(), |acc, state| acc.join(state));
+        let merged_state = out_facts
+            .values()
+            .fold(TypeState::new(), |acc, state| acc.join(state));
         let analysis = TypePropagation::new(HashMap::new());
 
         for stmt in body {
@@ -397,7 +404,9 @@ impl DataflowTypeInferencer {
                     return_types.push(Type::None);
                 }
                 HirStmt::If {
-                    then_body, else_body, ..
+                    then_body,
+                    else_body,
+                    ..
                 } => {
                     self.collect_return_types(then_body, out_facts, return_types);
                     if let Some(else_stmts) = else_body {

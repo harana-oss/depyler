@@ -18,7 +18,7 @@ impl FunctionAnalyzer {
     }
 
     fn check_pure(body: &[HirStmt]) -> bool {
-        // V1: Conservative - only if no calls to unknown functions
+        // Only if no calls to unknown functions
         for stmt in body {
             if Self::has_side_effects(stmt) {
                 return false;
@@ -51,7 +51,7 @@ impl FunctionAnalyzer {
     }
 
     fn check_termination(body: &[HirStmt]) -> bool {
-        // V1: Only guarantee for simple cases
+        // Only guarantee for simple cases
         for stmt in body {
             if let HirStmt::While { .. } = stmt {
                 return false; // Can't guarantee termination with while loops
@@ -77,7 +77,7 @@ impl FunctionAnalyzer {
     }
 
     fn check_panic_free(body: &[HirStmt]) -> bool {
-        // V1: Check for obvious panic cases
+        // Check for obvious panic cases
         for stmt in body {
             if Self::has_panic_risk(stmt) {
                 return false;
@@ -233,7 +233,8 @@ impl FunctionAnalyzer {
             }
             HirStmt::With { context, body, .. } => {
                 // Check if context expression uses open() call
-                let context_uses_open = matches!(context, HirExpr::Call { func, .. } if func.as_str() == "open");
+                let context_uses_open =
+                    matches!(context, HirExpr::Call { func, .. } if func.as_str() == "open");
 
                 let (context_fail, context_errors) = Self::expr_can_fail(context);
                 let (body_fail, mut body_errors) = Self::check_can_fail(body);

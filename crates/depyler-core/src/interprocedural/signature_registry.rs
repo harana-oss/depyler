@@ -4,7 +4,7 @@
 //! including parameter types, borrowing strategies, and mutability information.
 
 use crate::hir::{HirFunction, HirModule, HirParam, Type as PythonType};
-use crate::type_mapper::RustType;
+use crate::types::type_mapper::RustType;
 use std::collections::HashMap;
 
 /// Registry of function signatures for interprocedural analysis

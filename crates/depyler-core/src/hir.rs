@@ -1,8 +1,16 @@
-use depyler_annotations::TranspilationAnnotations;
+use crate::annotations::TranspilationAnnotations;
 use serde::{Deserialize, Serialize};
 use smallvec::SmallVec;
 
-pub type Symbol = String;
+/// An interned, cheaply-cloneable identifier.
+///
+/// Backed by [`smol_str::SmolStr`]: strings of ≤ 22 bytes (covering virtually
+/// all Python identifiers) are stored inline — no heap allocation, clone is a
+/// word-copy.  Longer names fall back to a reference-counted heap string.
+/// This replaces the previous `pub type Symbol = String` definition which
+/// caused every use-site of a variable or function name to heap-allocate
+/// independently.
+pub type Symbol = smol_str::SmolStr;
 
 /// Source span tracking the original Python source location
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, Default)]
@@ -66,25 +74,25 @@ fn offset_to_line_col(source: &str, offset: u32) -> (usize, usize) {
 /// Wrapper that attaches a source span to any HIR node
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Spanned<T> {
-    pub node: T,
+    pub inner: T,
     pub span: Option<Span>,
 }
 
 impl<T> Spanned<T> {
-    pub fn new(node: T) -> Self {
-        Self { node, span: None }
+    pub fn new(inner: T) -> Self {
+        Self { inner, span: None }
     }
 
-    pub fn with_span(node: T, span: Span) -> Self {
+    pub fn with_span(inner: T, span: Span) -> Self {
         Self {
-            node,
+            inner,
             span: Some(span),
         }
     }
 
-    /// Get the inner node
+    /// Get the inner node, discarding span information.
     pub fn into_inner(self) -> T {
-        self.node
+        self.inner
     }
 }
 
@@ -92,20 +100,18 @@ impl<T> std::ops::Deref for Spanned<T> {
     type Target = T;
 
     fn deref(&self) -> &Self::Target {
-        &self.node
+        &self.inner
     }
 }
 
-impl<T> std::ops::DerefMut for Spanned<T> {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.node
-    }
-}
+// DerefMut intentionally omitted: mutation through the span wrapper silently
+// discards span information. Callers that need to mutate the inner value should
+// destructure the `Spanned` explicitly: `let Spanned { inner, span } = spanned;`
 
 impl<T: Default> Default for Spanned<T> {
     fn default() -> Self {
         Self {
-            node: T::default(),
+            inner: T::default(),
             span: None,
         }
     }
@@ -118,43 +124,6 @@ pub type SpannedStmt = Spanned<HirStmt>;
 pub type SpannedExpr = Spanned<HirExpr>;
 
 /// High-level Intermediate Representation of a Python module
-///
-/// `HirModule` represents a complete Python module after semantic analysis and type inference.
-/// It contains all the declarations (functions, classes, imports, etc.) in a form that's
-/// optimized for transpilation to Rust.
-///
-/// # Examples
-///
-/// Creating a HIR module manually:
-///
-/// ```rust
-/// use depyler_core::hir::{HirModule, HirFunction, HirParam, Type, FunctionProperties};
-/// use depyler_annotations::TranspilationAnnotations;
-/// use smallvec::smallvec;
-///
-/// let function = HirFunction {
-///     name: "example".to_string(),
-///     params: smallvec![HirParam::new("x".to_string(), Type::Int)],
-///     ret_type: Type::Int,
-///     body: vec![],
-///     properties: FunctionProperties::default(),
-///     annotations: TranspilationAnnotations::default(),
-///     docstring: Some("Example function".to_string()),
-/// };
-///
-/// let module = HirModule {
-///     functions: vec![function],
-///     imports: vec![],
-///     type_aliases: vec![],
-///     protocols: vec![],
-///     classes: vec![],
-///     constants: vec![],
-///     statements: vec![],
-/// };
-///
-/// assert_eq!(module.functions.len(), 1);
-/// assert_eq!(module.functions[0].name, "example");
-/// ```
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct HirModule {
     pub functions: Vec<HirFunction>,
@@ -169,24 +138,12 @@ pub struct HirModule {
 }
 
 /// Module-level constant declaration
-///
-/// Represents a constant value defined at module scope in Python,
-/// which will be transpiled to Rust `const` or `pub const` declarations.
-///
-/// # Examples
-///
-/// ```python
-/// MAX_SIZE = 100
-/// PI: float = 3.14159
-/// NAME = "MyApp"
-/// ```
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct HirConstant {
     pub name: String,
     pub value: HirExpr,
     pub type_annotation: Option<Type>,
 }
-
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Import {
@@ -263,27 +220,6 @@ pub struct HirField {
 }
 
 /// Function parameter with optional default value
-///
-/// Represents a single parameter in a function signature, including its name,
-/// type, and an optional default value expression.
-///
-/// # Examples
-///
-/// ```rust
-/// use depyler_core::hir::{HirParam, Type, HirExpr, Literal};
-///
-/// // Required parameter (no default)
-/// let param = HirParam::new("x".to_string(), Type::Int);
-/// assert_eq!(param.default, None);
-///
-/// // Parameter with default value
-/// let param_with_default = HirParam::with_default(
-///     "count".to_string(),
-///     Type::Int,
-///     HirExpr::Literal(Literal::Int(0)),
-/// );
-/// assert!(param_with_default.default.is_some());
-/// ```
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct HirParam {
     pub name: Symbol,
@@ -795,5 +731,29 @@ impl Type {
             self,
             Type::List(_) | Type::Dict(_, _) | Type::Tuple(_) | Type::Set(_) | Type::Array { .. }
         )
+    }
+
+    /// Returns `true` if this type implements `Copy` (i.e. does not need an
+    /// explicit `.clone()` when moved).  Primitive scalars and fixed-size
+    /// arrays / tuples whose elements are all `Copy` are considered `Copy`.
+    /// `Custom` types are conservatively considered non-`Copy` here; callers
+    /// that have access to struct/enum name sets should use the context-aware
+    /// `CodeGenContext::type_needs_clone` for those.
+    pub fn is_copy(&self) -> bool {
+        match self {
+            Type::Int | Type::Float | Type::Bool | Type::None => true,
+            Type::Optional(inner) | Type::Final(inner) => inner.is_copy(),
+            Type::Tuple(elements) => elements.iter().all(|t| t.is_copy()),
+            Type::Array { element_type, .. } => element_type.is_copy(),
+            _ => false,
+        }
+    }
+
+    /// Returns `true` if this HIR type is a reference / borrowed type.
+    /// The HIR `Type` enum currently has no explicit reference variant, so
+    /// this always returns `false`.  It exists as a stable, grep-able
+    /// predicate so that future reference variants can be handled in one place.
+    pub fn is_ref(&self) -> bool {
+        false
     }
 }

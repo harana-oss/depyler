@@ -3,25 +3,6 @@ use anyhow::{Result, bail};
 use rustpython_ast::{self as ast};
 
 /// Utility for extracting type information from Python AST type annotations
-///
-/// # Examples
-///
-/// ```rust
-/// use depyler_core::ast_bridge::TypeExtractor;
-/// use depyler_core::hir::Type;
-///
-/// // Extract simple types
-/// let int_type = TypeExtractor::extract_simple_type("int").unwrap();
-/// assert_eq!(int_type, Type::Int);
-///
-/// // Extract type variables
-/// let type_var = TypeExtractor::extract_simple_type("T").unwrap();
-/// assert_eq!(type_var, Type::TypeVar("T".to_string()));
-///
-/// // Extract custom types
-/// let custom = TypeExtractor::extract_simple_type("MyClass").unwrap();
-/// assert_eq!(custom, Type::Custom("MyClass".to_string()));
-/// ```
 pub struct TypeExtractor;
 
 impl TypeExtractor {

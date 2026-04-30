@@ -1,0 +1,1037 @@
+//! Lifetime analysis and inference for safe Rust code generation
+//!
+//! This module implements sophisticated lifetime inference to generate
+//! idiomatic Rust code with proper borrowing and ownership patterns.
+//!
+//! # Purpose
+//!
+//! Rust's borrow checker requires explicit lifetime annotations in many cases.
+//! This module automatically infers when lifetime parameters are needed and
+//! applies Rust's lifetime elision rules to minimize annotations.
+//!
+//! # Borrowing Analysis Pipeline
+//!
+//! The complete analysis flow is:
+//!
+//! ```text
+//! 1. InterproceduralAnalyzer::analyze() [in rust_generator.rs]
+//!    └─ Detects cross-function mutations via fixpoint iteration
+//!
+//! 2. LifetimeInference::apply_elision_rules_with_interprocedural()
+//!    ├─ Calls analyze_function_with_interprocedural()
+//!    └─ Applies Rust's elision rules to minimize annotations
+//!
+//! 3. BorrowingContext::analyze_function_with_interprocedural()
+//!    ├─ Intraprocedural: analyzes mutations within function
+//!    ├─ Interprocedural: consults InterproceduralAnalysis
+//!    └─ Returns borrowing strategies (&T, &mut T, T, Cow<T>)
+//!
+//! 4. LifetimeInference converts strategies to lifetime parameters
+//!    └─ Generates: fn foo<'a>(x: &'a T) -> &'a U
+//! ```
+//!
+//! # Lifetime Elision Rules
+//!
+//! Rust allows omitting lifetime annotations in common cases:
+//! - **Rule 1**: Each elided input lifetime gets a distinct parameter
+//! - **Rule 2**: If one input lifetime, assign it to all outputs
+//! - **Rule 3**: If `&self` or `&mut self`, assign its lifetime to outputs
+//!
+//! This module implements these rules to generate idiomatic code.
+//!
+//! # Example
+//!
+//! ```python
+//! def process(state: State, config: Config) -> None:
+//!     state.value = config.multiplier * 2
+//! ```
+//!
+//! Analysis result:
+//! - Interprocedural: No cross-function mutations detected
+//! - Intraprocedural: `state` is mutated, `config` is read
+//! - Borrowing strategies: `state` → `&mut State`, `config` → `&Config`
+//! - Lifetimes: Elided (no return value, so no annotations needed)
+//!
+//! Generated Rust:
+//! ```rust,ignore
+//! pub fn process(state: &mut State, config: &Config) {
+//!     state.value = config.multiplier * 2;
+//! }
+//! ```
+//!
+//! # Integration Point
+//!
+//! Called from `func_gen.rs`:
+//! ```rust,ignore
+//! let lifetime_result = lifetime_inference
+//!     .apply_elision_rules_with_interprocedural(
+//!         func,
+//!         type_mapper,
+//!         ctx.interprocedural_analysis  // ← passes interprocedural results
+//!     );
+//! ```
+
+use crate::analysis::borrowing_context::{BorrowingContext, BorrowingStrategy};
+use crate::ast_bridge::expr_utils::extract_root_var;
+use crate::hir::{AssignTarget, HirExpr, HirFunction, HirStmt};
+use crate::types::type_mapper::RustType;
+use indexmap::IndexMap;
+use std::collections::{HashMap, HashSet};
+
+/// Lifetime inference engine for function parameters and returns
+#[derive(Debug)]
+pub struct LifetimeInference {
+    /// Counter for generating unique lifetime names
+    lifetime_counter: usize,
+    /// Map from variable names to their lifetime information
+    variable_lifetimes: HashMap<String, LifetimeInfo>,
+    /// Lifetime relationships (from -> set of lifetimes it outlives)
+    lifetime_constraints: HashMap<String, HashSet<String>>,
+    /// Function parameter analysis results
+    param_analysis: HashMap<String, ParamUsage>,
+}
+
+#[derive(Debug, Clone)]
+pub struct LifetimeInfo {
+    pub name: String,
+    pub is_static: bool,
+    pub outlives: HashSet<String>,
+    pub source: LifetimeSource,
+}
+
+/// Source of a lifetime
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum LifetimeSource {
+    /// Function parameter
+    Parameter(String),
+    /// String literal
+    StaticLiteral,
+    /// Local variable
+    Local,
+    /// Return value
+    Return,
+    /// Struct field
+    Field(String),
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct ParamUsage {
+    pub is_mutated: bool,
+    pub is_moved: bool,
+    pub escapes: bool,
+    pub is_read_only: bool,
+    pub used_in_loop: bool,
+    pub has_nested_borrows: bool,
+    /// When a field of this param is returned (e.g., `return state.players`)
+    pub field_escapes_through_return: bool,
+}
+
+/// Constraint between two lifetimes
+#[derive(Debug, Clone)]
+pub enum LifetimeConstraint {
+    /// 'a: 'b (a outlives b)
+    Outlives,
+    /// 'a = 'b (same lifetime)
+    Equal,
+    /// 'a is at least as long as 'b
+    AtLeast,
+}
+
+#[derive(Debug, Clone)]
+pub struct LifetimeResult {
+    pub param_lifetimes: IndexMap<String, InferredParam>,
+    pub return_lifetime: Option<String>,
+    pub lifetime_params: Vec<String>,
+    pub lifetime_bounds: Vec<(String, String)>,
+    pub borrowing_strategies: IndexMap<String, BorrowingStrategy>,
+    /// Params whose fields are returned (e.g., `return state.players` where state is borrowed)
+    pub params_with_field_return: Vec<String>,
+}
+
+#[derive(Debug, Clone)]
+pub struct InferredParam {
+    pub should_borrow: bool,
+    pub needs_mut: bool,
+    pub lifetime: Option<String>,
+    pub rust_type: RustType,
+}
+
+/// Check if a method name represents a mutating operation
+fn is_mutating_method(method: &str) -> bool {
+    matches!(
+        method,
+        // List methods
+        "append" | "extend" | "insert" | "remove" | "pop" | "clear" | "reverse" | "sort" |
+        // Dict methods
+        "update" | "setdefault" | "popitem" |
+        // Set methods
+        "add" | "discard" | "difference_update" | "intersection_update" | "symmetric_difference_update" |
+        "union_update" |
+        // String methods (mutating in Python context, though strings are immutable in Rust)
+        // Other mutating methods
+        "push" | "pop_front" | "push_front" | "pop_back" | "push_back"
+    )
+}
+
+impl LifetimeInference {
+    pub fn new() -> Self {
+        Self {
+            lifetime_counter: 0,
+            variable_lifetimes: HashMap::new(),
+            lifetime_constraints: HashMap::new(),
+            param_analysis: HashMap::new(),
+        }
+    }
+
+    /// Generate a new unique lifetime name
+    fn next_lifetime(&mut self) -> String {
+        let name = match self.lifetime_counter {
+            0 => "'a".to_string(),
+            1 => "'b".to_string(),
+            2 => "'c".to_string(),
+            n => format!("'l{}", n - 2),
+        };
+        self.lifetime_counter += 1;
+        name
+    }
+
+    /// Add a lifetime constraint (from outlives to)
+    #[allow(dead_code)]
+    fn add_constraint(&mut self, from: &str, to: &str, _constraint: LifetimeConstraint) {
+        self.lifetime_constraints
+            .entry(from.to_string())
+            .or_default()
+            .insert(to.to_string());
+    }
+
+    /// Analyze a function to infer parameter lifetimes
+    pub fn analyze_function(
+        &mut self,
+        func: &HirFunction,
+        type_mapper: &crate::types::type_mapper::TypeMapper,
+    ) -> LifetimeResult {
+        self.analyze_function_with_interprocedural(
+            func,
+            type_mapper,
+            None,
+            &HashSet::new(),
+            &HashSet::new(),
+        )
+    }
+
+    /// Analyze a function to infer parameter lifetimes with interprocedural context
+    pub fn analyze_function_with_interprocedural(
+        &mut self,
+        func: &HirFunction,
+        type_mapper: &crate::types::type_mapper::TypeMapper,
+        interprocedural: Option<&crate::interprocedural::InterproceduralAnalysis>,
+        enum_names: &HashSet<String>,
+        copy_structs: &HashSet<String>,
+    ) -> LifetimeResult {
+        // Use enhanced borrowing context for comprehensive analysis
+        let mut borrowing_ctx = BorrowingContext::new(
+            Some(func.ret_type.clone()),
+            enum_names.clone(),
+            copy_structs.clone(),
+        );
+        let borrowing_result =
+            borrowing_ctx.analyze_function_with_interprocedural(func, type_mapper, interprocedural);
+
+        // Convert borrowing strategies to lifetime information
+        let mut param_lifetimes = IndexMap::new();
+        let mut lifetime_params = HashSet::new();
+
+        for param in &func.params {
+            let strategy = borrowing_result
+                .param_strategies
+                .get(&param.name)
+                .cloned()
+                .unwrap_or(BorrowingStrategy::TakeOwnership);
+
+            let rust_type = type_mapper.map_type(&param.ty);
+
+            let (should_borrow, needs_mut, lifetime) = match strategy {
+                BorrowingStrategy::BorrowImmutable { lifetime } => {
+                    let lt = lifetime.unwrap_or_else(|| self.next_lifetime());
+                    lifetime_params.insert(lt.clone());
+                    (true, false, Some(lt))
+                }
+                BorrowingStrategy::BorrowMutable { lifetime } => {
+                    let lt = lifetime.unwrap_or_else(|| self.next_lifetime());
+                    lifetime_params.insert(lt.clone());
+                    (true, true, Some(lt))
+                }
+                BorrowingStrategy::UseCow { lifetime } => {
+                    lifetime_params.insert(lifetime.clone());
+                    // Cow is not a borrow, it's a flexible ownership type
+                    (false, false, Some(lifetime))
+                }
+                _ => (false, false, None),
+            };
+
+            if let Some(ref lt) = lifetime {
+                self.variable_lifetimes.insert(
+                    param.name.clone(),
+                    LifetimeInfo {
+                        name: lt.clone(),
+                        is_static: lt == "'static",
+                        outlives: HashSet::new(),
+                        source: LifetimeSource::Parameter(param.name.clone()),
+                    },
+                );
+            }
+
+            param_lifetimes.insert(
+                param.name.clone(),
+                InferredParam {
+                    should_borrow,
+                    needs_mut,
+                    lifetime,
+                    rust_type,
+                },
+            );
+        }
+
+        // Analyze return type lifetime requirements
+        let return_lifetime = self.analyze_return_lifetime(func, type_mapper);
+        if let Some(ref lt) = return_lifetime {
+            lifetime_params.insert(lt.clone());
+        }
+
+        // Compute lifetime bounds from the constraint graph
+        let lifetime_bounds = self.compute_lifetime_bounds();
+
+        // Collect params whose fields escape through return from borrowing analysis
+        let params_with_field_return: Vec<String> = borrowing_result
+            .param_usage
+            .iter()
+            .filter(|(_, usage)| usage.field_escapes_through_return)
+            .map(|(name, _)| name.clone())
+            .collect();
+
+        LifetimeResult {
+            param_lifetimes,
+            return_lifetime,
+            lifetime_params: lifetime_params.into_iter().collect(),
+            lifetime_bounds,
+            borrowing_strategies: borrowing_result.param_strategies,
+            params_with_field_return,
+        }
+    }
+
+    /// Analyze how parameters are used in the function body
+    #[allow(dead_code)]
+    fn analyze_parameter_usage(&mut self, func: &HirFunction) {
+        for param in &func.params {
+            let mut usage = ParamUsage::default();
+            for stmt in &func.body {
+                self.analyze_stmt_for_param(&param.name, stmt, &mut usage, false);
+            }
+            self.param_analysis.insert(param.name.clone(), usage);
+        }
+    }
+
+    /// Recursively analyze statements for parameter usage
+    #[allow(dead_code)]
+    fn analyze_stmt_for_param(
+        &self,
+        param: &str,
+        stmt: &HirStmt,
+        usage: &mut ParamUsage,
+        in_loop: bool,
+    ) {
+        match stmt {
+            HirStmt::Expr(expr) => self.analyze_expr_for_param(param, expr, usage, in_loop, false),
+            HirStmt::Assign { target, value, .. } => {
+                // Check if we're assigning to the parameter or its attributes/elements
+                match target {
+                    AssignTarget::Symbol(symbol) => {
+                        if symbol == param {
+                            usage.is_mutated = true;
+                        }
+                    }
+                    AssignTarget::Attribute { value: obj, .. } => {
+                        // Assigning to parameter.field mutates the parameter
+                        if let HirExpr::Var(var_name) = obj.as_ref() {
+                            if var_name == param {
+                                usage.is_mutated = true;
+                            }
+                        }
+                    }
+                    AssignTarget::Index { base: obj, .. } => {
+                        // Assigning to parameter[index] mutates the parameter
+                        if let HirExpr::Var(var_name) = obj.as_ref() {
+                            if var_name == param {
+                                usage.is_mutated = true;
+                            }
+                        }
+                    }
+                    _ => {}
+                }
+                self.analyze_expr_for_param(param, value, usage, in_loop, false);
+            }
+            HirStmt::Return(value) => {
+                if let Some(expr) = value {
+                    self.analyze_expr_for_param(param, expr, usage, in_loop, true);
+                }
+            }
+            HirStmt::If {
+                condition,
+                then_body,
+                else_body,
+            } => {
+                self.analyze_expr_for_param(param, condition, usage, in_loop, false);
+                for stmt in then_body {
+                    self.analyze_stmt_for_param(param, stmt, usage, in_loop);
+                }
+                if let Some(else_stmts) = else_body {
+                    for stmt in else_stmts {
+                        self.analyze_stmt_for_param(param, stmt, usage, in_loop);
+                    }
+                }
+            }
+            HirStmt::While { condition, body } => {
+                self.analyze_expr_for_param(param, condition, usage, true, false);
+                for stmt in body {
+                    self.analyze_stmt_for_param(param, stmt, usage, true);
+                }
+            }
+            HirStmt::For { iter, body, .. } => {
+                self.analyze_expr_for_param(param, iter, usage, true, false);
+                for stmt in body {
+                    self.analyze_stmt_for_param(param, stmt, usage, true);
+                }
+            }
+            HirStmt::Raise { exception, cause } => {
+                if let Some(exc) = exception {
+                    self.analyze_expr_for_param(param, exc, usage, in_loop, false);
+                }
+                if let Some(c) = cause {
+                    self.analyze_expr_for_param(param, c, usage, in_loop, false);
+                }
+            }
+            HirStmt::Break { .. } | HirStmt::Continue { .. } | HirStmt::Pass => {
+                // Break, continue, and pass don't contain expressions to analyze
+            }
+            HirStmt::Assert { test, msg } => {
+                // Analyze the test expression and optional message
+                self.analyze_expr_for_param(param, test, usage, in_loop, false);
+                if let Some(message) = msg {
+                    self.analyze_expr_for_param(param, message, usage, in_loop, false);
+                }
+            }
+            HirStmt::With {
+                context,
+                target: _,
+                body,
+            } => {
+                // Analyze context expression
+                self.analyze_expr_for_param(param, context, usage, in_loop, false);
+
+                // Analyze body statements
+                for stmt in body {
+                    self.analyze_stmt_for_param(param, stmt, usage, in_loop);
+                }
+            }
+            HirStmt::Try {
+                body,
+                handlers,
+                orelse,
+                finalbody,
+            } => {
+                // Analyze try body
+                for stmt in body {
+                    self.analyze_stmt_for_param(param, stmt, usage, in_loop);
+                }
+
+                // Analyze except handlers
+                for handler in handlers {
+                    for stmt in &handler.body {
+                        self.analyze_stmt_for_param(param, stmt, usage, in_loop);
+                    }
+                }
+
+                // Analyze else clause
+                if let Some(else_stmts) = orelse {
+                    for stmt in else_stmts {
+                        self.analyze_stmt_for_param(param, stmt, usage, in_loop);
+                    }
+                }
+
+                // Analyze finally clause
+                if let Some(finally_stmts) = finalbody {
+                    for stmt in finally_stmts {
+                        self.analyze_stmt_for_param(param, stmt, usage, in_loop);
+                    }
+                }
+            }
+            // Analyze nested function body for parameter usage
+            HirStmt::FunctionDef { body, .. } => {
+                for stmt in body {
+                    self.analyze_stmt_for_param(param, stmt, usage, in_loop);
+                }
+            }
+            // Global and Nonlocal are declaration markers, no parameter usage
+            HirStmt::Global { .. } | HirStmt::Nonlocal { .. } => {}
+            // Import and ImportFrom are declaration markers, no parameter usage
+            HirStmt::Import { .. } | HirStmt::ImportFrom { .. } => {}
+            // AsyncFor - analyze iterator and body
+            HirStmt::AsyncFor { iter, body, .. } => {
+                self.analyze_expr_for_param(param, iter, usage, in_loop, false);
+                for stmt in body {
+                    self.analyze_stmt_for_param(param, stmt, usage, true);
+                }
+            }
+            // AsyncWith - analyze context and body
+            HirStmt::AsyncWith { context, body, .. } => {
+                self.analyze_expr_for_param(param, context, usage, in_loop, false);
+                for stmt in body {
+                    self.analyze_stmt_for_param(param, stmt, usage, in_loop);
+                }
+            }
+            // Delete - targets may be mutated (removed)
+            HirStmt::Delete { targets } => {
+                for target in targets {
+                    if let AssignTarget::Symbol(name) = target {
+                        if name == param {
+                            usage.is_read_only = false;
+                        }
+                    }
+                }
+            }
+            // AsyncFunctionDef - analyze body for parameter captures
+            HirStmt::AsyncFunctionDef { body, .. } => {
+                for stmt in body {
+                    self.analyze_stmt_for_param(param, stmt, usage, in_loop);
+                }
+            }
+            // Match - analyze subject and all case bodies
+            HirStmt::Match { subject, cases } => {
+                self.analyze_expr_for_param(param, subject, usage, in_loop, false);
+                for case in cases {
+                    if let Some(guard) = &case.guard {
+                        self.analyze_expr_for_param(param, guard, usage, in_loop, false);
+                    }
+                    for stmt in &case.body {
+                        self.analyze_stmt_for_param(param, stmt, usage, in_loop);
+                    }
+                }
+            }
+        }
+    }
+
+    /// Analyze expressions for parameter usage
+    #[allow(dead_code, clippy::only_used_in_recursion)]
+    fn analyze_expr_for_param(
+        &self,
+        param: &str,
+        expr: &HirExpr,
+        usage: &mut ParamUsage,
+        in_loop: bool,
+        in_return: bool,
+    ) {
+        match expr {
+            HirExpr::Var(id) => {
+                if id == param {
+                    usage.is_read_only = true;
+                    if in_return {
+                        usage.escapes = true;
+                    }
+                    if in_loop {
+                        usage.used_in_loop = true;
+                    }
+                }
+            }
+            HirExpr::Attribute { value, .. } => {
+                if let HirExpr::Var(id) = &**value {
+                    if id == param {
+                        usage.is_read_only = true;
+                        usage.has_nested_borrows = true;
+                        if in_return {
+                            usage.field_escapes_through_return = true;
+                        }
+                    }
+                }
+                self.analyze_expr_for_param(param, value, usage, in_loop, in_return);
+            }
+            HirExpr::Index { base, index } => {
+                self.analyze_expr_for_param(param, base, usage, in_loop, false);
+                self.analyze_expr_for_param(param, index, usage, in_loop, false);
+            }
+            HirExpr::Call { func: _, args, .. } => {
+                // Check if parameter is passed to a function (potential move)
+                for arg in args {
+                    if let HirExpr::Var(id) = arg {
+                        if id == param {
+                            // Conservative: assume moved unless we know the function borrows
+                            usage.is_moved = true;
+                        }
+                    }
+                }
+                // Note: func is a Symbol, not an expression in HirExpr
+                for arg in args {
+                    self.analyze_expr_for_param(param, arg, usage, in_loop, false);
+                }
+            }
+            HirExpr::List(elements) | HirExpr::Tuple(elements) => {
+                for elem in elements {
+                    self.analyze_expr_for_param(param, elem, usage, in_loop, in_return);
+                }
+            }
+            HirExpr::Dict(pairs) => {
+                for (k, v) in pairs {
+                    self.analyze_expr_for_param(param, k, usage, in_loop, false);
+                    self.analyze_expr_for_param(param, v, usage, in_loop, in_return);
+                }
+            }
+            HirExpr::Binary { left, right, .. } => {
+                self.analyze_expr_for_param(param, left, usage, in_loop, false);
+                self.analyze_expr_for_param(param, right, usage, in_loop, false);
+            }
+            HirExpr::Unary { operand, .. } => {
+                self.analyze_expr_for_param(param, operand, usage, in_loop, false);
+            }
+            HirExpr::Literal(_) => {}
+            HirExpr::MethodCall {
+                object,
+                method,
+                args,
+                ..
+            } => {
+                // Check if this is a mutating method call on our parameter
+                if is_mutating_method(method) {
+                    if let Some(root_var) = extract_root_var(object) {
+                        if root_var == param {
+                            usage.is_mutated = true;
+                            usage.is_read_only = false; // It's not read-only if we're mutating it
+                        }
+                    }
+                }
+                self.analyze_expr_for_param(param, object, usage, in_loop, in_return);
+                for arg in args {
+                    self.analyze_expr_for_param(param, arg, usage, in_loop, in_return);
+                }
+            }
+            HirExpr::Slice {
+                base,
+                start,
+                stop,
+                step,
+            } => {
+                self.analyze_expr_for_param(param, base, usage, in_loop, in_return);
+                if let Some(s) = start {
+                    self.analyze_expr_for_param(param, s, usage, in_loop, in_return);
+                }
+                if let Some(s) = stop {
+                    self.analyze_expr_for_param(param, s, usage, in_loop, in_return);
+                }
+                if let Some(s) = step {
+                    self.analyze_expr_for_param(param, s, usage, in_loop, in_return);
+                }
+            }
+            HirExpr::Borrow { expr, .. } => {
+                self.analyze_expr_for_param(param, expr, usage, in_loop, in_return);
+            }
+            HirExpr::ListComp {
+                element,
+                target,
+                iter,
+                condition,
+            } => {
+                // List comprehensions create a new scope, so the target variable
+                // shadows any outer variable with the same name
+                if target != param {
+                    // Only analyze if the comprehension target doesn't shadow our parameter
+                    self.analyze_expr_for_param(param, iter, usage, true, false);
+                    self.analyze_expr_for_param(param, element, usage, true, in_return);
+                    if let Some(cond) = condition {
+                        self.analyze_expr_for_param(param, cond, usage, true, false);
+                    }
+                }
+                // If target shadows param, we don't analyze element/condition
+                // since they would refer to the comprehension variable, not the parameter
+            }
+            HirExpr::FlattenedListComp {
+                element,
+                generators,
+            } => {
+                // Check if any generator target shadows the parameter
+                let shadows_param = generators.iter().any(|g| g.target == param);
+                if !shadows_param {
+                    for generator in generators {
+                        self.analyze_expr_for_param(param, &generator.iter, usage, true, false);
+                        for cond in &generator.conditions {
+                            self.analyze_expr_for_param(param, cond, usage, true, false);
+                        }
+                    }
+                    self.analyze_expr_for_param(param, element, usage, true, in_return);
+                }
+            }
+            HirExpr::Lambda { params: _, body } => {
+                // Lambda functions can capture parameters by reference
+                // Analyze the body for parameter usage
+                self.analyze_expr_for_param(param, body, usage, in_loop, in_return);
+            }
+            HirExpr::Set(elements) | HirExpr::FrozenSet(elements) => {
+                for elem in elements {
+                    self.analyze_expr_for_param(param, elem, usage, in_loop, in_return);
+                }
+            }
+            HirExpr::SetComp {
+                element,
+                target,
+                iter,
+                condition,
+            } => {
+                // Set comprehensions create a new scope, so the target variable
+                // shadows any outer variable with the same name
+                if target != param {
+                    // Only analyze if the comprehension target doesn't shadow our parameter
+                    self.analyze_expr_for_param(param, iter, usage, true, false);
+                    self.analyze_expr_for_param(param, element, usage, true, in_return);
+                    if let Some(cond) = condition {
+                        self.analyze_expr_for_param(param, cond, usage, true, false);
+                    }
+                }
+                // If target shadows param, we don't analyze element/condition
+                // since they would refer to the comprehension variable, not the parameter
+            }
+            HirExpr::DictComp {
+                key,
+                value,
+                target,
+                iter,
+                condition,
+            } => {
+                // Dict comprehensions create a new scope, so the target variable
+                // shadows any outer variable with the same name
+                if target != param {
+                    // Only analyze if the comprehension target doesn't shadow our parameter
+                    self.analyze_expr_for_param(param, iter, usage, true, false);
+                    self.analyze_expr_for_param(param, key, usage, true, in_return);
+                    self.analyze_expr_for_param(param, value, usage, true, in_return);
+                    if let Some(cond) = condition {
+                        self.analyze_expr_for_param(param, cond, usage, true, false);
+                    }
+                }
+                // If target shadows param, we don't analyze key/value/condition
+                // since they would refer to the comprehension variable, not the parameter
+            }
+            HirExpr::Await { value } => {
+                // Await expressions propagate parameter usage
+                self.analyze_expr_for_param(param, value, usage, in_loop, in_return);
+            }
+            HirExpr::Yield { value } => {
+                // Yield expressions pass values to iterator
+                if let Some(v) = value {
+                    self.analyze_expr_for_param(param, v, usage, in_loop, in_return);
+                }
+            }
+            HirExpr::FString { .. } => {
+                // FString support not yet implemented for lifetime analysis
+            }
+            HirExpr::IfExpr { test, body, orelse } => {
+                // Analyze all branches of the ternary expression
+                self.analyze_expr_for_param(param, test, usage, in_loop, in_return);
+                self.analyze_expr_for_param(param, body, usage, in_loop, in_return);
+                self.analyze_expr_for_param(param, orelse, usage, in_loop, in_return);
+            }
+            HirExpr::SortByKey {
+                iterable, key_body, ..
+            } => {
+                // Analyze the iterable and key lambda body
+                self.analyze_expr_for_param(param, iterable, usage, in_loop, in_return);
+                self.analyze_expr_for_param(param, key_body, usage, in_loop, in_return);
+            }
+            HirExpr::GeneratorExp {
+                element,
+                generators,
+            } => {
+                // Analyze element and all generator components
+                self.analyze_expr_for_param(param, element, usage, in_loop, in_return);
+                for generator in generators {
+                    self.analyze_expr_for_param(param, &generator.iter, usage, in_loop, in_return);
+                    for cond in &generator.conditions {
+                        self.analyze_expr_for_param(param, cond, usage, in_loop, in_return);
+                    }
+                }
+            }
+            HirExpr::NamedExpr { value, .. } => {
+                // Analyze the value expression
+                self.analyze_expr_for_param(param, value, usage, in_loop, in_return);
+            }
+            HirExpr::Uninitialized => {
+                // nothing to do
+            }
+        }
+    }
+
+    /// Infer parameter lifetimes based on usage analysis
+    #[allow(dead_code)]
+    fn infer_parameter_lifetimes(
+        &mut self,
+        func: &HirFunction,
+        type_mapper: &crate::types::type_mapper::TypeMapper,
+    ) -> IndexMap<String, InferredParam> {
+        let mut result = IndexMap::new();
+
+        for param in &func.params {
+            let usage = self
+                .param_analysis
+                .get(&param.name)
+                .cloned()
+                .unwrap_or_default();
+            let rust_type = type_mapper.map_type(&param.ty);
+
+            // Determine if we should borrow or take ownership
+            // If parameter escapes (returned) and it's the same type as return, it should be moved
+            let escapes_as_self =
+                usage.escapes && rust_type == type_mapper.map_return_type(&func.ret_type);
+            let should_borrow =
+                !usage.is_moved && !escapes_as_self && (usage.is_read_only || usage.is_mutated);
+            let needs_mut = usage.is_mutated;
+
+            let lifetime = if should_borrow {
+                let lt = self.next_lifetime();
+
+                // Add lifetime to our tracking
+                self.variable_lifetimes.insert(
+                    param.name.clone(),
+                    LifetimeInfo {
+                        name: lt.clone(),
+                        is_static: false,
+                        outlives: HashSet::new(),
+                        source: LifetimeSource::Parameter(param.name.clone()),
+                    },
+                );
+
+                // If parameter escapes, it needs to outlive the return
+                if usage.escapes {
+                    self.add_constraint(&lt, "'return", LifetimeConstraint::Outlives);
+                }
+
+                Some(lt)
+            } else {
+                None
+            };
+
+            result.insert(
+                param.name.clone(),
+                InferredParam {
+                    should_borrow,
+                    needs_mut,
+                    lifetime,
+                    rust_type,
+                },
+            );
+        }
+
+        result
+    }
+
+    /// Analyze return type lifetime requirements
+    fn analyze_return_lifetime(
+        &mut self,
+        func: &HirFunction,
+        type_mapper: &crate::types::type_mapper::TypeMapper,
+    ) -> Option<String> {
+        // Check if return type needs a lifetime
+        let return_rust_type = type_mapper.map_return_type(&func.ret_type);
+        if self.return_type_needs_lifetime(&return_rust_type) {
+            // Look for parameters that escape through return
+            for (param_name, usage) in &self.param_analysis {
+                if usage.escapes {
+                    if let Some(info) = self.variable_lifetimes.get(param_name) {
+                        return Some(info.name.clone());
+                    }
+                }
+            }
+
+            // If no escaping parameters, might need a new lifetime
+            Some(self.next_lifetime())
+        } else {
+            None
+        }
+    }
+
+    /// Check if a type needs lifetime parameters
+    #[allow(clippy::only_used_in_recursion)]
+    fn return_type_needs_lifetime(&self, rust_type: &RustType) -> bool {
+        match rust_type {
+            RustType::Str { .. } => true,
+            RustType::Reference { .. } => true,
+            RustType::Cow { .. } => true,
+            RustType::Vec(inner) | RustType::Option(inner) => {
+                self.return_type_needs_lifetime(inner)
+            }
+            RustType::Result(ok, err) => {
+                self.return_type_needs_lifetime(ok) || self.return_type_needs_lifetime(err)
+            }
+            RustType::Tuple(types) => types.iter().any(|t| self.return_type_needs_lifetime(t)),
+            _ => false,
+        }
+    }
+
+    /// Compute lifetime bounds from the constraints
+    fn compute_lifetime_bounds(&self) -> Vec<(String, String)> {
+        let mut bounds = Vec::new();
+
+        for (from, tos) in &self.lifetime_constraints {
+            for to in tos {
+                if to != "'return" {
+                    // Don't include internal markers
+                    bounds.push((from.clone(), to.clone()));
+                }
+            }
+        }
+
+        bounds
+    }
+
+    /// Apply Rust's lifetime elision rules
+    pub fn apply_elision_rules(
+        &mut self,
+        func: &HirFunction,
+        type_mapper: &crate::types::type_mapper::TypeMapper,
+    ) -> Option<LifetimeResult> {
+        self.apply_elision_rules_with_interprocedural(
+            func,
+            type_mapper,
+            None,
+            &HashSet::new(),
+            &HashSet::new(),
+        )
+    }
+
+    /// Apply Rust's lifetime elision rules with interprocedural context
+    pub fn apply_elision_rules_with_interprocedural(
+        &mut self,
+        func: &HirFunction,
+        type_mapper: &crate::types::type_mapper::TypeMapper,
+        interprocedural: Option<&crate::interprocedural::InterproceduralAnalysis>,
+        enum_names: &HashSet<String>,
+        copy_structs: &HashSet<String>,
+    ) -> Option<LifetimeResult> {
+        // First, do the full analysis WITH interprocedural context
+        let full_result = self.analyze_function_with_interprocedural(
+            func,
+            type_mapper,
+            interprocedural,
+            enum_names,
+            copy_structs,
+        );
+
+        // Count reference parameters
+        let ref_params: Vec<_> = full_result
+            .param_lifetimes
+            .iter()
+            .filter(|(_, param)| param.should_borrow)
+            .collect();
+
+        let return_needs_lifetime = full_result.return_lifetime.is_some();
+
+        // Apply elision rules
+        if ref_params.is_empty() {
+            // No references, no lifetimes needed
+            return Some(LifetimeResult {
+                param_lifetimes: full_result.param_lifetimes,
+                return_lifetime: None,
+                lifetime_params: vec![],
+                lifetime_bounds: vec![],
+                borrowing_strategies: full_result.borrowing_strategies,
+                params_with_field_return: full_result.params_with_field_return,
+            });
+        }
+
+        if ref_params.len() == 1 {
+            // Rule 2: Single input lifetime can be elided
+            // Rust's elision rules allow omitting explicit lifetime in single-param functions
+            return Some(LifetimeResult {
+                param_lifetimes: full_result.param_lifetimes,
+                return_lifetime: None,   // Elided
+                lifetime_params: vec![], // No explicit lifetimes needed
+                lifetime_bounds: vec![],
+                borrowing_strategies: full_result.borrowing_strategies,
+                params_with_field_return: full_result.params_with_field_return,
+            });
+        }
+
+        // Rule for multiple borrowed parameters with no return borrowing:
+        // If the function doesn't return a borrowed value (returns (), non-reference, etc.),
+        // then borrowed parameters don't need explicit lifetimes - they're independent
+        // EXCEPT: when a param's field escapes through return, we'll add & to the return type,
+        // so we DO need explicit lifetimes in that case
+        let has_field_escape = !full_result.params_with_field_return.is_empty();
+        if !return_needs_lifetime && !has_field_escape {
+            return Some(LifetimeResult {
+                param_lifetimes: full_result.param_lifetimes,
+                return_lifetime: None,
+                lifetime_params: vec![], // No explicit lifetimes needed
+                lifetime_bounds: vec![],
+                borrowing_strategies: full_result.borrowing_strategies,
+                params_with_field_return: full_result.params_with_field_return,
+            });
+        }
+
+        // When a field escapes through return with multiple borrowed params,
+        // we need explicit lifetimes to tie the return to the correct param
+        if has_field_escape && ref_params.len() > 1 {
+            // Find the escaping param and use its lifetime for the return
+            if let Some(escaping_param) = full_result.params_with_field_return.first() {
+                let escaping_lifetime = "'a".to_string();
+
+                // Update param lifetimes: escaping param gets 'a, others get elided (None)
+                let mut updated_param_lifetimes = full_result.param_lifetimes.clone();
+                for (name, inf) in updated_param_lifetimes.iter_mut() {
+                    if name == escaping_param {
+                        inf.lifetime = Some(escaping_lifetime.clone());
+                    } else {
+                        // Non-escaping borrowed params don't need explicit lifetime
+                        inf.lifetime = None;
+                    }
+                }
+
+                return Some(LifetimeResult {
+                    param_lifetimes: updated_param_lifetimes,
+                    return_lifetime: Some(escaping_lifetime.clone()),
+                    lifetime_params: vec![escaping_lifetime],
+                    lifetime_bounds: vec![],
+                    borrowing_strategies: full_result.borrowing_strategies,
+                    params_with_field_return: full_result.params_with_field_return,
+                });
+            }
+        }
+
+        // Rule 3: If there's a &self or &mut self parameter, use its lifetime for outputs
+        if let Some((_name, _)) = ref_params.iter().find(|(name, _)| *name == "self") {
+            if return_needs_lifetime {
+                return Some(LifetimeResult {
+                    param_lifetimes: full_result.param_lifetimes,
+                    return_lifetime: None, // Uses self's lifetime implicitly
+                    lifetime_params: vec![],
+                    lifetime_bounds: vec![],
+                    borrowing_strategies: full_result.borrowing_strategies,
+                    params_with_field_return: full_result.params_with_field_return,
+                });
+            }
+        }
+
+        // Cannot elide - return the full analysis
+        Some(full_result)
+    }
+
+    /// Check if a type is a reference type
+    #[allow(dead_code)]
+    fn is_reference_type(&self, rust_type: &RustType) -> bool {
+        matches!(
+            rust_type,
+            RustType::Str { .. } | RustType::Reference { .. } | RustType::Cow { .. }
+        )
+    }
+}
+
+impl Default for LifetimeInference {
+    fn default() -> Self {
+        Self::new()
+    }
+}

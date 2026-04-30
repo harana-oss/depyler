@@ -45,19 +45,51 @@ pub struct FixpointResult<F> {
     pub iterations: usize,
 }
 
+/// Error type for dataflow analysis failures
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum DataflowError {
+    /// The fixpoint solver did not converge within the iteration limit
+    DidNotConverge {
+        /// Number of iterations performed before bailing out
+        iterations: usize,
+    },
+}
+
+impl std::fmt::Display for DataflowError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            DataflowError::DidNotConverge { iterations } => write!(
+                f,
+                "dataflow fixpoint did not converge after {iterations} iterations"
+            ),
+        }
+    }
+}
+
+impl std::error::Error for DataflowError {}
+
 /// Worklist-based fixpoint solver
 pub struct FixpointSolver;
 
 impl FixpointSolver {
-    /// Compute fixpoint for a dataflow analysis
-    pub fn solve<A: DataflowAnalysis>(analysis: &A, cfg: &Cfg) -> FixpointResult<A::Fact> {
+    /// Compute fixpoint for a dataflow analysis.
+    ///
+    /// Returns `Err(DataflowError::DidNotConverge { iterations })` if the solver
+    /// exceeds `MAX_ITERATIONS` without reaching a fixpoint.
+    pub fn solve<A: DataflowAnalysis>(
+        analysis: &A,
+        cfg: &Cfg,
+    ) -> Result<FixpointResult<A::Fact>, DataflowError> {
         match analysis.direction() {
             DataflowDirection::Forward => Self::solve_forward(analysis, cfg),
             DataflowDirection::Backward => Self::solve_backward(analysis, cfg),
         }
     }
 
-    fn solve_forward<A: DataflowAnalysis>(analysis: &A, cfg: &Cfg) -> FixpointResult<A::Fact> {
+    fn solve_forward<A: DataflowAnalysis>(
+        analysis: &A,
+        cfg: &Cfg,
+    ) -> Result<FixpointResult<A::Fact>, DataflowError> {
         let mut in_facts: HashMap<BlockId, A::Fact> = HashMap::new();
         let mut out_facts: HashMap<BlockId, A::Fact> = HashMap::new();
 
@@ -82,7 +114,7 @@ impl FixpointSolver {
             iterations += 1;
 
             if iterations > MAX_ITERATIONS {
-                break; // Prevent infinite loops
+                return Err(DataflowError::DidNotConverge { iterations });
             }
 
             let block = match cfg.blocks.get(&block_id) {
@@ -128,14 +160,17 @@ impl FixpointSolver {
             }
         }
 
-        FixpointResult {
+        Ok(FixpointResult {
             in_facts,
             out_facts,
             iterations,
-        }
+        })
     }
 
-    fn solve_backward<A: DataflowAnalysis>(analysis: &A, cfg: &Cfg) -> FixpointResult<A::Fact> {
+    fn solve_backward<A: DataflowAnalysis>(
+        analysis: &A,
+        cfg: &Cfg,
+    ) -> Result<FixpointResult<A::Fact>, DataflowError> {
         let mut in_facts: HashMap<BlockId, A::Fact> = HashMap::new();
         let mut out_facts: HashMap<BlockId, A::Fact> = HashMap::new();
 
@@ -160,7 +195,7 @@ impl FixpointSolver {
             iterations += 1;
 
             if iterations > MAX_ITERATIONS {
-                break;
+                return Err(DataflowError::DidNotConverge { iterations });
             }
 
             let block = match cfg.blocks.get(&block_id) {
@@ -206,11 +241,11 @@ impl FixpointSolver {
             }
         }
 
-        FixpointResult {
+        Ok(FixpointResult {
             in_facts,
             out_facts,
             iterations,
-        }
+        })
     }
 }
 

@@ -50,7 +50,7 @@
 //! - `BorrowingContext::analyze_function_with_interprocedural()` - marks parameters as mutated
 //! - `LifetimeInference` - generates `&mut` instead of `&` for mutated parameters
 
-use crate::expr_utils::extract_root_var;
+use crate::ast_bridge::expr_utils::extract_root_var;
 use crate::hir::{AssignTarget, FStringPart, HirExpr, HirFunction, HirModule, HirStmt};
 use crate::interprocedural::call_graph::CallGraph;
 use crate::interprocedural::signature_registry::FunctionSignatureRegistry;

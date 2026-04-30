@@ -1,4 +1,4 @@
-use depyler_core::{hir::HirModule, DepylerPipeline};
+use depyler_core::{DepylerPipeline, hir::HirModule};
 use std::fs;
 use std::process::Command;
 use tempfile::TempDir;
@@ -27,16 +27,17 @@ pub fn parse_to_hir(python_source: &str) -> HirModule {
     })
 }
 
-/// Transpiles Python source code and verifies expected Rust patterns are present,
-/// then compiles the output with rustc.
- fn transpile_and_compile(
+/// Transpiles Python source, verifies expected patterns are present and absent patterns
+/// are absent, then compiles the output with `cargo build`.
+///
+/// Pass `&[]` for either slice when no checks of that kind are needed.
+pub fn verify_transpilation(
     python_source: &str,
     expected_patterns: &[&str],
-) -> TranspileCompileResult {
+    absent_patterns: &[&str],
+) -> String {
     let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python_source);
-
-    let rust_code = result.unwrap_or_else(|e| {
+    let rust_code = pipeline.transpile(python_source).unwrap_or_else(|e| {
         panic!("Transpilation failed:\n{e}\n\nPython source:\n{python_source}");
     });
 
@@ -46,52 +47,6 @@ pub fn parse_to_hir(python_source: &str) -> HirModule {
             "Expected pattern not found in generated Rust code.\nPattern: {pattern}\n\nGenerated code:\n{rust_code}"
         );
     }
-
-    let compile_result = compile_rust_code(&rust_code);
-
-    assert!(
-        compile_result.compilation_success,
-        "Rust compilation failed:\n{}\n\nGenerated code:\n{rust_code}",
-        compile_result.compilation_stderr
-    );
-
-    compile_result
-}
-
-/// Transpiles Python source, verifies expected patterns, and compiles the output.
-pub fn transpile_and_check(python_source: &str, expected_patterns: &[&str]) -> String {
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python_source);
-
-    let rust_code = result.unwrap_or_else(|e| {
-        panic!("Transpilation failed:\n{e}\n\nPython source:\n{python_source}");
-    });
-
-    for pattern in expected_patterns {
-        assert!(
-            rust_code.contains(pattern),
-            "Expected pattern not found in generated Rust code.\nPattern: {pattern}\n\nGenerated code:\n{rust_code}"
-        );
-    }
-
-    let compile_result = compile_rust_code(&rust_code);
-    assert!(
-        compile_result.compilation_success,
-        "Rust compilation failed:\n{}\n\nGenerated code:\n{rust_code}",
-        compile_result.compilation_stderr
-    );
-
-    rust_code
-}
-
-/// Transpiles Python source, verifies patterns are absent, and compiles the output.
-pub fn transpile_check_absent(python_source: &str, absent_patterns: &[&str]) -> String {
-    let pipeline = DepylerPipeline::new();
-    let result = pipeline.transpile(python_source);
-
-    let rust_code = result.unwrap_or_else(|e| {
-        panic!("Transpilation failed:\n{e}\n\nPython source:\n{python_source}");
-    });
 
     for pattern in absent_patterns {
         assert!(
@@ -174,8 +129,7 @@ mod tests {
 def add(x: int, y: int) -> int:
     return x + y
 "#;
-        let result = transpile_and_compile(python, &["fn add", "-> i32"]);
-        assert!(result.compilation_success);
+        verify_transpilation(python, &["fn add", "-> i32"], &[]);
     }
 
     #[test]
@@ -184,7 +138,7 @@ def add(x: int, y: int) -> int:
 def greet(name: str) -> str:
     return "Hello, " + name
 "#;
-        let rust_code = transpile_and_check(python, &["fn greet", "String"]);
+        let rust_code = verify_transpilation(python, &["fn greet", "String"], &[]);
         assert!(rust_code.contains("fn greet"));
     }
 
