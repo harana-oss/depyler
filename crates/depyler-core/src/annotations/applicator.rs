@@ -1,9 +1,8 @@
 use regex::Regex;
 
 use crate::annotations::types::{
-    BoundsChecking, ErrorStrategy, InteriorMutability, OptimizationLevel, OwnershipModel,
-    PanicBehavior, PerformanceHint, ServiceType, StringStrategy, ThreadSafety,
-    TranspilationAnnotations,
+    BoundsChecking, ErrorStrategy, InteriorMutability, OwnershipModel, PanicBehavior,
+    PerformanceHint, ServiceType, StringStrategy, ThreadSafety, TranspilationAnnotations,
 };
 
 // ---------------------------------------------------------------------------
@@ -46,14 +45,6 @@ impl AnnotationValidator {
             errors.push("Conflicting panic behavior and error strategy".to_string());
         }
 
-        if annotations.optimization_level == OptimizationLevel::Aggressive
-            && annotations.bounds_checking == BoundsChecking::Explicit
-        {
-            errors.push(
-                "Aggressive optimization may conflict with explicit bounds checking".to_string(),
-            );
-        }
-
         if errors.is_empty() {
             Ok(())
         } else {
@@ -67,12 +58,9 @@ impl AnnotationValidator {
         if annotations
             .performance_hints
             .contains(&PerformanceHint::PerformanceCritical)
-            && annotations.optimization_level != OptimizationLevel::Aggressive
         {
-            suggestions.push(
-                "Consider using optimization_level = \"aggressive\" for performance critical code"
-                    .to_string(),
-            );
+            suggestions
+                .push("Ensure all hot paths are covered for performance critical code".to_string());
         }
 
         if annotations.thread_safety == ThreadSafety::Required
@@ -142,7 +130,7 @@ impl AnnotationExtractor {
 
                     while j < i && (lines[j].trim().starts_with('#') || lines[j].trim().is_empty())
                     {
-                        if lines[j].contains("@depyler:") {
+                        if lines[j].contains("@quantsim:") {
                             annotations.push(lines[j]);
                         }
                         if j == 0 {
@@ -183,7 +171,7 @@ impl AnnotationExtractor {
                             || trimmed.is_empty()
                             || trimmed.starts_with('@')
                         {
-                            if trimmed.contains("@depyler:") {
+                            if trimmed.contains("@quantsim:") {
                                 annotations.push(lines[j]);
                             }
                             if j == 0 {

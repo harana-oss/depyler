@@ -172,7 +172,7 @@ impl ConstGenericInferencer {
     /// Converting `list[int]` to `[i32; 5]` based on return value inference
     /// violates user intent — if they wrote `list[int]`, they want `Vec<i32>`.
     ///
-    /// Re-enable only when the user opts in via `@depyler` annotations.
+    /// Re-enable only when the user opts in via `@quantsim` annotations.
     fn transform_function_types(&mut self, _function: &mut HirFunction) -> Result<()> {
         Ok(())
     }

@@ -603,5 +603,5 @@ pub(crate) fn collect_used_vars_expr_inner(expr: &HirExpr, used: &mut HashMap<St
     }
 }
 
-use crate::annotations::{OptimizationLevel, PerformanceHint};
+use crate::annotations::PerformanceHint;
 

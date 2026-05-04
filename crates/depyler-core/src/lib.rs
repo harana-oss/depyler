@@ -17,7 +17,7 @@ pub use errors::error::TranspileError;
 
 /// The main transpilation pipeline for converting Python code to multiple targets
 #[derive(Debug, Clone)]
-pub struct DepylerPipeline {
+pub struct QuantSimPipeline {
     analyzer: CoreAnalyzer,
     transpiler: DirectTranspiler,
     pub enable_verification: bool,
@@ -33,13 +33,13 @@ pub struct DirectTranspiler {
     pub type_mapper: types::type_mapper::TypeMapper,
 }
 
-impl Default for DepylerPipeline {
+impl Default for QuantSimPipeline {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl DepylerPipeline {
+impl QuantSimPipeline {
     /// Creates a new transpilation pipeline with default configuration
     pub fn new() -> Self {
         Self {
@@ -158,7 +158,7 @@ impl DepylerPipeline {
     }
 }
 
-impl DepylerPipeline {
+impl QuantSimPipeline {
     /// Creates a new transpilation pipeline with verification enabled.
     ///
     /// Verification is not yet wired into the pipeline; this is a

@@ -20,7 +20,7 @@ pub(crate) use converters::{
     extract_docstring_and_body, infer_parameter_types_from_classes,
 };
 
-/// Bridge between Python AST and quantsim HIR
+/// Bridge between Python AST and QuantSim HIR
 pub struct AstBridge {
     source_code: Option<String>,
     annotation_extractor: AnnotationExtractor,
@@ -49,7 +49,7 @@ impl AstBridge {
         self
     }
 
-    /// Converts a Python AST module to quantsim HIR
+    /// Converts a Python AST module to QuantSim HIR
     pub fn python_to_hir(&self, module: ast::Mod) -> Result<HirModule> {
         match module {
             ast::Mod::Module(m) => self.convert_module(m),

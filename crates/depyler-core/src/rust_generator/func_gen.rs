@@ -604,7 +604,7 @@ pub(crate) fn return_type_expects_float(ty: &Type) -> bool {
     }
 }
 
-// ========== DEPYLER-0410: Return Type Inference from Body ==========
+// ========== quantsim-0410: Return Type Inference from Body ==========
 
 /// Infer return type from function body when no annotation is provided
 /// Returns None if type cannot be inferred or there are no return statements
@@ -653,7 +653,7 @@ fn infer_return_type_from_body(
     // to be incorrectly typed as i32. Instead, return None and let the type mapper
     // handle the fallback (which will use serde_json::Value for complex types).
     //
-    // Previous behavior (DEPYLER-0422): Defaulted Unknown → Int for lambda returns
+    // Previous behavior (quantsim-0422): Defaulted Unknown → Int for lambda returns
     // Problem: This also affected dict/list returns, causing E0308 errors
     // New behavior: Return None for Unknown types, allowing proper Value fallback
     if return_types.iter().all(|t| matches!(t, Type::Unknown)) {
@@ -744,7 +744,7 @@ fn unify_element_types(types: &[&Type]) -> Type {
     }
 }
 
-// ========== DEPYLER-0415: Variable Type Environment ==========
+// ========== quantsim-0415: Variable Type Environment ==========
 
 /// Build a type environment by collecting variable assignments
 fn build_var_type_env(
@@ -1117,7 +1117,7 @@ pub(crate) fn infer_expr_type_with_env(
 }
 
 // NOTE: collect_return_types() removed - replaced by collect_return_types_with_env()
-// which provides better type inference using variable type environment (DEPYLER-0415)
+// which provides better type inference using variable type environment (quantsim-0415)
 
 /// Simple expression type inference without context
 /// Handles common cases like literals, comparisons, and arithmetic
@@ -1762,7 +1762,7 @@ impl RustCodeGen for HirFunction {
         let mut generic_registry = crate::types::type_inference::TypeVarRegistry::new();
         let type_params = generic_registry.infer_function_generics(self)?;
 
-        // Perform lifetime analysis with automatic elision (DEPYLER-0275)
+        // Perform lifetime analysis with automatic elision (quantsim-0275)
         let mut lifetime_inference = LifetimeInference::new();
         let mut lifetime_result = lifetime_inference
             .apply_elision_rules_with_interprocedural(

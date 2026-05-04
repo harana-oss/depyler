@@ -8,9 +8,8 @@ pub mod types;
 pub use applicator::{AnnotationExtractor, AnnotationValidator};
 pub use parser::AnnotationParser;
 pub use types::{
-    AnnotationError, Architecture, BoundsChecking, CompatibilityLayer, ErrorStrategy,
-    FallbackStrategy, GlobalStrategy, HashStrategy, InteriorMutability, LambdaAnnotations,
-    LambdaEventType, LambdaRuntime, MigrationStrategy, OptimizationLevel, OwnershipModel,
+    AnnotationError, BoundsChecking, CompatibilityLayer, ErrorStrategy, FallbackStrategy,
+    GlobalStrategy, HashStrategy, InteriorMutability, MigrationStrategy, OwnershipModel,
     PanicBehavior, PerformanceHint, SafetyLevel, ServiceType, StringStrategy, Termination,
     ThreadSafety, TranspilationAnnotations, TypeStrategy,
 };
@@ -23,8 +22,8 @@ mod tests {
     fn test_parse_basic_annotations() {
         let parser = AnnotationParser::new();
         let source = r#"
-# @depyler: type_strategy = "conservative"
-# @depyler: ownership = "borrowed"
+# @quantsim: type_strategy = "conservative"
+# @quantsim: ownership = "borrowed"
 def test_function():
     pass
         "#;
@@ -38,9 +37,9 @@ def test_function():
     fn test_parse_performance_annotations() {
         let parser = AnnotationParser::new();
         let source = r#"
-# @depyler: performance_critical = "true"
-# @depyler: vectorize = "true"
-# @depyler: unroll_loops = "4"
+# @quantsim: performance_critical = "true"
+# @quantsim: vectorize = "true"
+# @quantsim: unroll_loops = "4"
 def fast_function():
     pass
         "#;
@@ -51,16 +50,24 @@ def fast_function():
                 .performance_hints
                 .contains(&PerformanceHint::PerformanceCritical)
         );
-        assert!(annotations.performance_hints.contains(&PerformanceHint::Vectorize));
-        assert!(annotations.performance_hints.contains(&PerformanceHint::UnrollLoops(4)));
+        assert!(
+            annotations
+                .performance_hints
+                .contains(&PerformanceHint::Vectorize)
+        );
+        assert!(
+            annotations
+                .performance_hints
+                .contains(&PerformanceHint::UnrollLoops(4))
+        );
     }
 
     #[test]
     fn test_parse_safety_annotations() {
         let parser = AnnotationParser::new();
         let source = r#"
-# @depyler: safety_level = "unsafe_allowed"
-# @depyler: bounds_checking = "disabled"
+# @quantsim: safety_level = "unsafe_allowed"
+# @quantsim: bounds_checking = "disabled"
 def unsafe_function():
     pass
         "#;
@@ -74,7 +81,7 @@ def unsafe_function():
     fn test_parse_fallback_strategy() {
         let parser = AnnotationParser::new();
         let source = r#"
-# @depyler: fallback = "mcp"
+# @quantsim: fallback = "mcp"
 def complex_function():
     pass
         "#;
@@ -87,22 +94,25 @@ def complex_function():
     fn test_parse_thread_safety() {
         let parser = AnnotationParser::new();
         let source = r#"
-# @depyler: thread_safety = "required"
-# @depyler: interior_mutability = "arc_mutex"
+# @quantsim: thread_safety = "required"
+# @quantsim: interior_mutability = "arc_mutex"
 def thread_safe_function():
     pass
         "#;
 
         let annotations = parser.parse_annotations(source).unwrap();
         assert_eq!(annotations.thread_safety, ThreadSafety::Required);
-        assert_eq!(annotations.interior_mutability, InteriorMutability::ArcMutex);
+        assert_eq!(
+            annotations.interior_mutability,
+            InteriorMutability::ArcMutex
+        );
     }
 
     #[test]
     fn test_invalid_annotation_key() {
         let parser = AnnotationParser::new();
         let source = r#"
-# @depyler: invalid_key = "value"
+# @quantsim: invalid_key = "value"
 def test_function():
     pass
         "#;
@@ -115,7 +125,7 @@ def test_function():
     fn test_invalid_annotation_value() {
         let parser = AnnotationParser::new();
         let source = r#"
-# @depyler: type_strategy = "invalid_value"
+# @quantsim: type_strategy = "invalid_value"
 def test_function():
     pass
         "#;
@@ -137,23 +147,25 @@ def test_function():
     fn test_optimization_hints() {
         let parser = AnnotationParser::new();
         let source = r#"
-# @depyler: optimization_hint = "vectorize"
-# @depyler: optimization_level = "aggressive"
+# @quantsim: optimization_hint = "vectorize"
 def optimized_function():
     pass
         "#;
 
         let annotations = parser.parse_annotations(source).unwrap();
-        assert!(annotations.performance_hints.contains(&PerformanceHint::Vectorize));
-        assert_eq!(annotations.optimization_level, OptimizationLevel::Aggressive);
+        assert!(
+            annotations
+                .performance_hints
+                .contains(&PerformanceHint::Vectorize)
+        );
     }
 
     #[test]
     fn test_string_and_hash_strategies() {
         let parser = AnnotationParser::new();
         let source = r#"
-# @depyler: string_strategy = "zero_copy"
-# @depyler: hash_strategy = "fnv"
+# @quantsim: string_strategy = "zero_copy"
+# @quantsim: hash_strategy = "fnv"
 def string_function():
     pass
         "#;
@@ -167,8 +179,8 @@ def string_function():
     fn test_error_handling_annotations() {
         let parser = AnnotationParser::new();
         let source = r#"
-# @depyler: panic_behavior = "return_error"
-# @depyler: error_strategy = "result_type"
+# @quantsim: panic_behavior = "return_error"
+# @quantsim: error_strategy = "result_type"
 def error_function():
     pass
         "#;
@@ -182,33 +194,43 @@ def error_function():
     fn test_service_and_migration_annotations() {
         let parser = AnnotationParser::new();
         let source = r#"
-# @depyler: service_type = "web_api"
-# @depyler: migration_strategy = "incremental"
-# @depyler: compatibility_layer = "pyo3"
+# @quantsim: service_type = "web_api"
+# @quantsim: migration_strategy = "incremental"
+# @quantsim: compatibility_layer = "pyo3"
 def service_function():
     pass
         "#;
 
         let annotations = parser.parse_annotations(source).unwrap();
         assert_eq!(annotations.service_type, Some(ServiceType::WebApi));
-        assert_eq!(annotations.migration_strategy, Some(MigrationStrategy::Incremental));
-        assert_eq!(annotations.compatibility_layer, Some(CompatibilityLayer::PyO3));
+        assert_eq!(
+            annotations.migration_strategy,
+            Some(MigrationStrategy::Incremental)
+        );
+        assert_eq!(
+            annotations.compatibility_layer,
+            Some(CompatibilityLayer::PyO3)
+        );
     }
 
     #[test]
     fn test_verification_annotations() {
         let parser = AnnotationParser::new();
         let source = r#"
-# @depyler: termination = "proven"
-# @depyler: invariant = "left <= right"
-# @depyler: verify_bounds = "true"
+# @quantsim: termination = "proven"
+# @quantsim: invariant = "left <= right"
+# @quantsim: verify_bounds = "true"
 def verified_function():
     pass
         "#;
 
         let annotations = parser.parse_annotations(source).unwrap();
         assert_eq!(annotations.termination, Termination::Proven);
-        assert!(annotations.invariants.contains(&"left <= right".to_string()));
+        assert!(
+            annotations
+                .invariants
+                .contains(&"left <= right".to_string())
+        );
         assert!(annotations.verify_bounds);
     }
 
@@ -216,7 +238,7 @@ def verified_function():
     fn test_global_strategy() {
         let parser = AnnotationParser::new();
         let source = r#"
-# @depyler: global_strategy = "lazy_static"
+# @quantsim: global_strategy = "lazy_static"
 def global_function():
     pass
         "#;
@@ -226,121 +248,10 @@ def global_function():
     }
 
     #[test]
-    fn test_lambda_annotations_basic() {
-        let parser = AnnotationParser::new();
-        let source = r#"
-# @depyler: lambda_runtime = "provided.al2"
-# @depyler: event_type = "APIGatewayProxyRequest"
-# @depyler: cold_start_optimize = "true"
-def handler(event, context):
-    pass
-        "#;
-
-        let annotations = parser.parse_annotations(source).unwrap();
-        assert!(annotations.lambda_annotations.is_some());
-
-        let lambda_annotations = annotations.lambda_annotations.unwrap();
-        assert_eq!(lambda_annotations.runtime, LambdaRuntime::ProvidedAl2);
-        assert_eq!(
-            lambda_annotations.event_type,
-            Some(LambdaEventType::ApiGatewayProxyRequest)
-        );
-        assert!(lambda_annotations.cold_start_optimize);
-    }
-
-    #[test]
-    fn test_lambda_annotations_memory_and_architecture() {
-        let parser = AnnotationParser::new();
-        let source = r#"
-# @depyler: memory_size = "256"
-# @depyler: architecture = "arm64"
-# @depyler: timeout = "30"
-def handler(event, context):
-    pass
-        "#;
-
-        let annotations = parser.parse_annotations(source).unwrap();
-        let lambda_annotations = annotations.lambda_annotations.unwrap();
-        assert_eq!(lambda_annotations.memory_size, 256);
-        assert_eq!(lambda_annotations.architecture, Architecture::Arm64);
-        assert_eq!(lambda_annotations.timeout, Some(30));
-    }
-
-    #[test]
-    fn test_lambda_eventbridge_with_custom_type() {
-        let parser = AnnotationParser::new();
-        let source = r#"
-# @depyler: event_type = "EventBridgeEvent<OrderEvent>"
-# @depyler: custom_serialization = "true"
-def handler(event, context):
-    pass
-        "#;
-
-        let annotations = parser.parse_annotations(source).unwrap();
-        let lambda_annotations = annotations.lambda_annotations.unwrap();
-        assert_eq!(
-            lambda_annotations.event_type,
-            Some(LambdaEventType::EventBridgeEvent(Some("OrderEvent".to_string())))
-        );
-        assert!(lambda_annotations.custom_serialization);
-    }
-
-    #[test]
-    fn test_lambda_sqs_batch_processing() {
-        let parser = AnnotationParser::new();
-        let source = r#"
-# @depyler: event_type = "SqsEvent"
-# @depyler: batch_failure_reporting = "true"
-# @depyler: tracing = "Active"
-def handler(event, context):
-    pass
-        "#;
-
-        let annotations = parser.parse_annotations(source).unwrap();
-        let lambda_annotations = annotations.lambda_annotations.unwrap();
-        assert_eq!(lambda_annotations.event_type, Some(LambdaEventType::SqsEvent));
-        assert!(lambda_annotations.batch_failure_reporting);
-        assert!(lambda_annotations.tracing_enabled);
-    }
-
-    #[test]
-    fn test_lambda_auto_event_type() {
-        let parser = AnnotationParser::new();
-        let source = r#"
-# @depyler: event_type = "auto"
-# @depyler: cold_start_optimize = "true"
-def handler(event, context):
-    pass
-        "#;
-
-        let annotations = parser.parse_annotations(source).unwrap();
-        let lambda_annotations = annotations.lambda_annotations.unwrap();
-        assert_eq!(lambda_annotations.event_type, Some(LambdaEventType::Auto));
-        assert!(lambda_annotations.cold_start_optimize);
-    }
-
-    #[test]
-    fn test_lambda_custom_runtime() {
-        let parser = AnnotationParser::new();
-        let source = r#"
-# @depyler: lambda_runtime = "rust-runtime-1.0"
-def handler(event, context):
-    pass
-        "#;
-
-        let annotations = parser.parse_annotations(source).unwrap();
-        let lambda_annotations = annotations.lambda_annotations.unwrap();
-        assert_eq!(
-            lambda_annotations.runtime,
-            LambdaRuntime::Custom("rust-runtime-1.0".to_string())
-        );
-    }
-
-    #[test]
     fn test_custom_custom_attribute_single() {
         let parser = AnnotationParser::new();
         let source = r#"
-# @depyler: custom_attribute = "inline"
+# @quantsim: custom_attribute = "inline"
 def my_function():
     pass
         "#;
@@ -354,9 +265,9 @@ def my_function():
     fn test_custom_custom_attribute_multiple() {
         let parser = AnnotationParser::new();
         let source = r#"
-# @depyler: custom_attribute = "inline"
-# @depyler: custom_attribute = "must_use"
-# @depyler: custom_attribute = "cold"
+# @quantsim: custom_attribute = "inline"
+# @quantsim: custom_attribute = "must_use"
+# @quantsim: custom_attribute = "cold"
 def my_function():
     pass
         "#;
@@ -372,15 +283,13 @@ def my_function():
     fn test_custom_custom_attribute_with_other_annotations() {
         let parser = AnnotationParser::new();
         let source = r#"
-# @depyler: optimization_level = "aggressive"
-# @depyler: custom_attribute = "inline(always)"
-# @depyler: performance_critical = "true"
+# @quantsim: custom_attribute = "inline(always)"
+# @quantsim: performance_critical = "true"
 def hot_function():
     pass
         "#;
 
         let annotations = parser.parse_annotations(source).unwrap();
-        assert_eq!(annotations.optimization_level, OptimizationLevel::Aggressive);
         assert_eq!(annotations.custom_attributes.len(), 1);
         assert_eq!(annotations.custom_attributes[0], "inline(always)");
         assert!(
@@ -406,7 +315,7 @@ def my_function():
     fn test_additional_derives_single() {
         let parser = AnnotationParser::new();
         let source = r#"
-# @depyler: additional_derives = "Serialize"
+# @quantsim: additional_derives = "Serialize"
 class MyClass:
     pass
         "#;
@@ -420,7 +329,7 @@ class MyClass:
     fn test_additional_derives_comma_separated() {
         let parser = AnnotationParser::new();
         let source = r#"
-# @depyler: additional_derives = "Serialize, Deserialize, Hash"
+# @quantsim: additional_derives = "Serialize, Deserialize, Hash"
 class MyClass:
     pass
         "#;
@@ -436,8 +345,8 @@ class MyClass:
     fn test_additional_derives_multiple_lines() {
         let parser = AnnotationParser::new();
         let source = r#"
-# @depyler: additional_derives = "Serialize"
-# @depyler: additional_derives = "Deserialize"
+# @quantsim: additional_derives = "Serialize"
+# @quantsim: additional_derives = "Deserialize"
 class MyClass:
     pass
         "#;

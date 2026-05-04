@@ -4,13 +4,7 @@ use smallvec::SmallVec;
 
 /// An interned, cheaply-cloneable identifier.
 ///
-/// Backed by [`smol_str::SmolStr`]: strings of ≤ 22 bytes (covering virtually
-/// all Python identifiers) are stored inline — no heap allocation, clone is a
-/// word-copy.  Longer names fall back to a reference-counted heap string.
-/// This replaces the previous `pub type Symbol = String` definition which
-/// caused every use-site of a variable or function name to heap-allocate
-/// independently.
-pub type Symbol = smol_str::SmolStr;
+pub type Symbol = String;
 
 /// Source span tracking the original Python source location
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, Default)]

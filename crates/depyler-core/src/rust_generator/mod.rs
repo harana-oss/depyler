@@ -8,7 +8,7 @@ pub mod codegen;
 pub mod context;
 pub mod direct_rules;
 mod error_gen;
-mod expr_gen;
+mod expressions;
 mod format;
 mod func_gen;
 mod generator_gen;

@@ -1371,7 +1371,7 @@ fn expr_to_rust_tokens(expr: &HirExpr) -> Result<proc_macro2::TokenStream> {
             // Note: Generator expressions are fully implemented in rust_generator.rs.
             // This codegen.rs path is legacy HIR-to-Rust conversion, not used in main transpiler pipeline.
             bail!(
-                "Generator expressions require rust_generator.rs (use DepylerPipeline instead of direct codegen)"
+                "Generator expressions require rust_generator.rs (use QuantSimPipeline instead of direct codegen)"
             )
         }
         HirExpr::NamedExpr { target, value } => {

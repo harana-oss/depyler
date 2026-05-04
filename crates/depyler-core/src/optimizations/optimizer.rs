@@ -3,10 +3,11 @@
 //! The three main pass families live in [`passes`] submodules and extend
 //! [`Optimizer`] through separate `impl` blocks:
 //! - constant propagation → [`crate::optimizations::passes::constant_propagation`]
-//! - dead-code elimination → [`crate::optimizations::passes::dead_code`]
+//! - unused variable elimination → [`crate::optimizations::passes::unused_variable_elimination`]
+//! - unreachable code elimination → [`crate::optimizations::passes::unreachable_code_elimination`]
 //! - common subexpression elimination → [`crate::optimizations::passes::cse`]
 
-use crate::annotations::{OptimizationLevel, PerformanceHint};
+use crate::annotations::PerformanceHint;
 use crate::hir::{BinOp, HirExpr, HirFunction, HirModule, HirStmt};
 
 pub struct Optimizer {
@@ -53,7 +54,7 @@ impl Optimizer {
 }
 
 pub struct PerformanceOptimizer {
-    optimizations_applied: Vec<String>,
+    pub(crate) optimizations_applied: Vec<String>,
 }
 
 impl Default for PerformanceOptimizer {
@@ -69,19 +70,9 @@ impl PerformanceOptimizer {
         }
     }
 
-    /// Optimize a function based on its annotations
+    /// Optimize a function — all passes always run
     pub fn optimize_function(&mut self, func: &mut HirFunction) {
-        match func.annotations.optimization_level {
-            OptimizationLevel::Conservative => {
-                self.apply_conservative_optimizations(func);
-            }
-            OptimizationLevel::Standard => {
-                self.apply_standard_optimizations(func);
-            }
-            OptimizationLevel::Aggressive => {
-                self.apply_aggressive_optimizations(func);
-            }
-        }
+        self.apply_optimizations(func);
 
         let hints = func.annotations.performance_hints.clone();
         for hint in &hints {
@@ -89,19 +80,11 @@ impl PerformanceOptimizer {
         }
     }
 
-    fn apply_conservative_optimizations(&mut self, func: &mut HirFunction) {
+    fn apply_optimizations(&mut self, func: &mut HirFunction) {
         self.constant_folding(&mut func.body);
         self.dead_code_elimination(&mut func.body);
-    }
-
-    fn apply_standard_optimizations(&mut self, func: &mut HirFunction) {
-        self.apply_conservative_optimizations(func);
         self.common_subexpression_elimination(&mut func.body);
         self.strength_reduction(&mut func.body);
-    }
-
-    fn apply_aggressive_optimizations(&mut self, func: &mut HirFunction) {
-        self.apply_standard_optimizations(func);
         self.loop_unrolling(&mut func.body, 4);
         self.inline_small_functions(&mut func.body);
 
@@ -214,22 +197,6 @@ impl PerformanceOptimizer {
             (BinOp::Mul, Literal::Float(a), Literal::Float(b)) => Some(Literal::Float(a * b)),
             _ => None,
         }
-    }
-
-    fn dead_code_elimination(&mut self, stmts: &mut Vec<HirStmt>) {
-        let mut found_return = false;
-        stmts.retain(|stmt| {
-            if found_return {
-                false
-            } else {
-                if matches!(stmt, HirStmt::Return(_)) {
-                    found_return = true;
-                }
-                true
-            }
-        });
-        self.optimizations_applied
-            .push("dead_code_elimination".to_string());
     }
 
     fn common_subexpression_elimination(&mut self, _stmts: &mut [HirStmt]) {

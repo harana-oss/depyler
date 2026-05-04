@@ -1,4 +1,4 @@
-//! Dead code elimination pass.
+//! Unused variable elimination pass.
 //!
 //! Implements [`Optimizer`] methods for the `eliminate_dead_code` family.
 
@@ -203,5 +203,4 @@ impl Optimizer {
             }
         }
     }
-
 }

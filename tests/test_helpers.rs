@@ -1,4 +1,4 @@
-use depyler_core::{DepylerPipeline, hir::HirModule};
+use quantsim_core::{QuantSimPipeline, hir::HirModule};
 use std::fs;
 use std::process::Command;
 use tempfile::TempDir;
@@ -13,7 +13,7 @@ pub struct TranspileCompileResult {
 
 /// Transpiles Python source code to Rust. Panics on failure.
 pub fn transpile(python_source: &str) -> String {
-    let pipeline = DepylerPipeline::new();
+    let pipeline = QuantSimPipeline::new();
     pipeline.transpile(python_source).unwrap_or_else(|e| {
         panic!("Transpilation failed:\n{e}\n\nPython source:\n{python_source}");
     })
@@ -21,7 +21,7 @@ pub fn transpile(python_source: &str) -> String {
 
 /// Parses Python source to HIR. Panics on failure.
 pub fn parse_to_hir(python_source: &str) -> HirModule {
-    let pipeline = DepylerPipeline::new();
+    let pipeline = QuantSimPipeline::new();
     pipeline.parse_to_hir(python_source).unwrap_or_else(|e| {
         panic!("Failed to parse to HIR:\n{e}\n\nPython source:\n{python_source}");
     })
@@ -36,7 +36,7 @@ pub fn verify_transpilation(
     expected_patterns: &[&str],
     absent_patterns: &[&str],
 ) -> String {
-    let pipeline = DepylerPipeline::new();
+    let pipeline = QuantSimPipeline::new();
     let rust_code = pipeline.transpile(python_source).unwrap_or_else(|e| {
         panic!("Transpilation failed:\n{e}\n\nPython source:\n{python_source}");
     });
@@ -72,7 +72,7 @@ pub fn compile_rust_code(rust_code: &str) -> TranspileCompileResult {
     fs::create_dir(&src_dir).expect("Failed to create src directory");
 
     let cargo_toml = r#"[package]
-name = "depyler_test"
+name = "quantsim_test"
 version = "0.1.0"
 edition = "2024"
 

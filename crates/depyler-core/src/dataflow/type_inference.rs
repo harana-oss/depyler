@@ -10,8 +10,8 @@ use std::collections::HashMap;
 
 /// Parse Python source into an `HirModule` using the shared pipeline helper.
 fn parse_source_to_hir(source: &str) -> Result<HirModule> {
-    use crate::DepylerPipeline;
-    let pipeline = DepylerPipeline::new();
+    use crate::QuantSimPipeline;
+    let pipeline = QuantSimPipeline::new();
     let ast = pipeline.parse_python(source)?;
     AstBridge::new()
         .with_source(source.to_string())
@@ -25,7 +25,7 @@ fn parse_source_to_hir(source: &str) -> Result<HirModule> {
 ///
 /// # Example
 /// ```ignore
-/// use depyler_core::dataflow::infer_python;
+/// use quantsim_core::dataflow::infer_python;
 ///
 /// let result = infer_python(r#"
 /// def greet(name: str) -> str:
@@ -53,7 +53,7 @@ pub fn infer_python(source: &str) -> Result<HashMap<String, InferredTypes>> {
 ///
 /// # Example
 /// ```ignore
-/// use depyler_core::dataflow::infer_python_function;
+/// use quantsim_core::dataflow::infer_python_function;
 ///
 /// let types = infer_python_function(r#"
 /// def process(items: list[int]) -> int:

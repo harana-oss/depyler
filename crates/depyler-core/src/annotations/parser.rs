@@ -3,9 +3,9 @@ use std::collections::HashMap;
 use regex::Regex;
 
 use crate::annotations::types::{
-    AnnotationError, Architecture, BoundsChecking, CompatibilityLayer, ErrorStrategy,
-    FallbackStrategy, GlobalStrategy, HashStrategy, InteriorMutability, LambdaAnnotations,
-    LambdaEventType, LambdaRuntime, MigrationStrategy, OptimizationLevel, OwnershipModel,
+    AnnotationError, BoundsChecking, CompatibilityLayer, ErrorStrategy,
+    FallbackStrategy, GlobalStrategy, HashStrategy, InteriorMutability,
+    MigrationStrategy, OwnershipModel,
     PanicBehavior, PerformanceHint, SafetyLevel, ServiceType, StringStrategy, Termination,
     ThreadSafety, TranspilationAnnotations, TypeStrategy,
 };
@@ -29,8 +29,8 @@ impl AnnotationParser {
     pub fn new() -> Self {
         let pattern =
             // This regex is statically known to be valid
-            // Match both comment-style (# @depyler:) and docstring-style (@depyler:) annotations
-            Regex::new(r"(?:#\s*)?@depyler:\s*(\w+)\s*=\s*(.+)")
+            // Match both comment-style (# @quantsim:) and docstring-style (@quantsim:) annotations
+            Regex::new(r"(?:#\s*)?@quantsim:\s*(\w+)\s*=\s*(.+)")
                 .unwrap_or_else(|e| panic!("Failed to compile annotation regex: {e}"));
         Self { pattern }
     }
@@ -102,9 +102,8 @@ impl AnnotationParser {
                     self.apply_core_annotation(annotations, &key, &value)?;
                 }
 
-                // Optimization annotations (5)
-                "optimization_level"
-                | "performance_critical"
+                // Optimization annotations (4)
+                "performance_critical"
                 | "vectorize"
                 | "unroll_loops"
                 | "optimization_hint" => {
@@ -139,19 +138,6 @@ impl AnnotationParser {
                 // Service metadata (4)
                 "service_type" | "migration_strategy" | "compatibility_layer" | "pattern" => {
                     self.apply_service_metadata_annotation(annotations, &key, &value)?;
-                }
-
-                // Lambda-specific annotations (9)
-                "lambda_runtime"
-                | "event_type"
-                | "cold_start_optimize"
-                | "memory_size"
-                | "architecture"
-                | "batch_failure_reporting"
-                | "custom_serialization"
-                | "timeout"
-                | "tracing" => {
-                    self.apply_lambda_annotation(annotations, &key, &value)?;
                 }
 
                 _ => return Err(AnnotationError::UnknownKey(key)),
@@ -189,7 +175,7 @@ impl AnnotationParser {
         Ok(())
     }
 
-    /// Apply optimization annotation (optimization_level, performance_critical, vectorize, unroll_loops, optimization_hint)
+    /// Apply optimization annotation (performance_critical, vectorize, unroll_loops, optimization_hint)
     #[inline]
     fn apply_optimization_annotation(
         &self,
@@ -198,9 +184,6 @@ impl AnnotationParser {
         value: &str,
     ) -> Result<(), AnnotationError> {
         match key {
-            "optimization_level" => {
-                annotations.optimization_level = self.parse_optimization_level(value)?;
-            }
             "performance_critical" => {
                 if value == "true" {
                     annotations
@@ -382,112 +365,6 @@ impl AnnotationParser {
         Ok(())
     }
 
-    /// Apply lambda-specific annotation (9 lambda keys) - dispatcher with ≤10 complexity
-    #[inline]
-    fn apply_lambda_annotation(
-        &self,
-        annotations: &mut TranspilationAnnotations,
-        key: &str,
-        value: &str,
-    ) -> Result<(), AnnotationError> {
-        let lambda_annotations = annotations
-            .lambda_annotations
-            .get_or_insert_with(LambdaAnnotations::default);
-
-        match key {
-            "lambda_runtime" | "event_type" | "architecture" => {
-                self.apply_lambda_config(lambda_annotations, key, value)?;
-            }
-            "cold_start_optimize"
-            | "batch_failure_reporting"
-            | "custom_serialization"
-            | "tracing" => {
-                self.apply_lambda_flags(lambda_annotations, key, value);
-            }
-            "memory_size" | "timeout" => {
-                self.apply_lambda_numeric(lambda_annotations, key, value)?;
-            }
-            _ => unreachable!("apply_lambda_annotation called with non-lambda key"),
-        }
-        Ok(())
-    }
-
-    /// Apply lambda configuration (runtime, event_type, architecture)
-    #[inline]
-    fn apply_lambda_config(
-        &self,
-        lambda_annotations: &mut LambdaAnnotations,
-        key: &str,
-        value: &str,
-    ) -> Result<(), AnnotationError> {
-        match key {
-            "lambda_runtime" => {
-                lambda_annotations.runtime = self.parse_lambda_runtime(value)?;
-            }
-            "event_type" => {
-                lambda_annotations.event_type = Some(self.parse_lambda_event_type(value)?);
-            }
-            "architecture" => {
-                lambda_annotations.architecture = self.parse_architecture(value)?;
-            }
-            _ => unreachable!("apply_lambda_config called with non-config key"),
-        }
-        Ok(())
-    }
-
-    /// Apply lambda feature flags (cold_start_optimize, batch_failure_reporting, custom_serialization, tracing)
-    #[inline]
-    fn apply_lambda_flags(
-        &self,
-        lambda_annotations: &mut LambdaAnnotations,
-        key: &str,
-        value: &str,
-    ) {
-        match key {
-            "cold_start_optimize" => {
-                lambda_annotations.cold_start_optimize = value == "true";
-            }
-            "batch_failure_reporting" => {
-                lambda_annotations.batch_failure_reporting = value == "true";
-            }
-            "custom_serialization" => {
-                lambda_annotations.custom_serialization = value == "true";
-            }
-            "tracing" => {
-                lambda_annotations.tracing_enabled = value == "true" || value == "Active";
-            }
-            _ => unreachable!("apply_lambda_flags called with non-flag key"),
-        }
-    }
-
-    /// Apply lambda numeric settings (memory_size, timeout)
-    #[inline]
-    fn apply_lambda_numeric(
-        &self,
-        lambda_annotations: &mut LambdaAnnotations,
-        key: &str,
-        value: &str,
-    ) -> Result<(), AnnotationError> {
-        match key {
-            "memory_size" => {
-                lambda_annotations.memory_size =
-                    value.parse().map_err(|_| AnnotationError::InvalidValue {
-                        key: key.to_string(),
-                        value: value.to_string(),
-                    })?;
-            }
-            "timeout" => {
-                lambda_annotations.timeout =
-                    Some(value.parse().map_err(|_| AnnotationError::InvalidValue {
-                        key: key.to_string(),
-                        value: value.to_string(),
-                    })?);
-            }
-            _ => unreachable!("apply_lambda_numeric called with non-numeric key"),
-        }
-        Ok(())
-    }
-
     fn parse_type_strategy(&self, value: &str) -> Result<TypeStrategy, AnnotationError> {
         match value {
             "conservative" => Ok(TypeStrategy::Conservative),
@@ -543,18 +420,6 @@ impl AnnotationParser {
             "disabled" => Ok(BoundsChecking::Disabled),
             _ => Err(AnnotationError::InvalidValue {
                 key: "bounds_checking".to_string(),
-                value: value.to_string(),
-            }),
-        }
-    }
-
-    fn parse_optimization_level(&self, value: &str) -> Result<OptimizationLevel, AnnotationError> {
-        match value {
-            "standard" => Ok(OptimizationLevel::Standard),
-            "aggressive" => Ok(OptimizationLevel::Aggressive),
-            "conservative" => Ok(OptimizationLevel::Conservative),
-            _ => Err(AnnotationError::InvalidValue {
-                key: "optimization_level".to_string(),
                 value: value.to_string(),
             }),
         }
@@ -701,76 +566,6 @@ impl AnnotationParser {
             "none" => Ok(CompatibilityLayer::None),
             _ => Err(AnnotationError::InvalidValue {
                 key: "compatibility_layer".to_string(),
-                value: value.to_string(),
-            }),
-        }
-    }
-
-    fn parse_lambda_runtime(&self, value: &str) -> Result<LambdaRuntime, AnnotationError> {
-        match value {
-            "provided.al2" => Ok(LambdaRuntime::ProvidedAl2),
-            "provided.al2023" => Ok(LambdaRuntime::ProvidedAl2023),
-            _ => Ok(LambdaRuntime::Custom(value.to_string())),
-        }
-    }
-
-    fn parse_lambda_event_type(&self, value: &str) -> Result<LambdaEventType, AnnotationError> {
-        // Quick path for common types
-        let event_type = match value {
-            "auto" => LambdaEventType::Auto,
-            "S3Event" | "SqsEvent" | "SnsEvent" | "DynamodbEvent" | "CloudwatchEvent"
-            | "KinesisEvent" => self.parse_aws_service_event(value),
-            "APIGatewayProxyRequest" | "APIGatewayV2HttpRequest" => {
-                self.parse_api_gateway_event(value)
-            }
-            _ => self.parse_custom_event_type(value),
-        };
-        Ok(event_type)
-    }
-
-    /// Parse AWS service events (S3, SQS, SNS, DynamoDB, CloudWatch, Kinesis)
-    #[inline]
-    fn parse_aws_service_event(&self, value: &str) -> LambdaEventType {
-        match value {
-            "S3Event" => LambdaEventType::S3Event,
-            "SqsEvent" => LambdaEventType::SqsEvent,
-            "SnsEvent" => LambdaEventType::SnsEvent,
-            "DynamodbEvent" => LambdaEventType::DynamodbEvent,
-            "CloudwatchEvent" => LambdaEventType::CloudwatchEvent,
-            "KinesisEvent" => LambdaEventType::KinesisEvent,
-            _ => unreachable!("parse_aws_service_event called with non-AWS-service event"),
-        }
-    }
-
-    /// Parse API Gateway events (v1 and v2)
-    #[inline]
-    fn parse_api_gateway_event(&self, value: &str) -> LambdaEventType {
-        match value {
-            "APIGatewayProxyRequest" => LambdaEventType::ApiGatewayProxyRequest,
-            "APIGatewayV2HttpRequest" => LambdaEventType::ApiGatewayV2HttpRequest,
-            _ => unreachable!("parse_api_gateway_event called with non-API-Gateway event"),
-        }
-    }
-
-    /// Parse custom or EventBridge event types
-    #[inline]
-    fn parse_custom_event_type(&self, value: &str) -> LambdaEventType {
-        if value.starts_with("EventBridgeEvent<") && value.ends_with('>') {
-            let inner = &value[17..value.len() - 1];
-            LambdaEventType::EventBridgeEvent(Some(inner.to_string()))
-        } else if value == "EventBridgeEvent" {
-            LambdaEventType::EventBridgeEvent(None)
-        } else {
-            LambdaEventType::Custom(value.to_string())
-        }
-    }
-
-    fn parse_architecture(&self, value: &str) -> Result<Architecture, AnnotationError> {
-        match value {
-            "x86_64" | "x64" => Ok(Architecture::X86_64),
-            "arm64" | "aarch64" => Ok(Architecture::Arm64),
-            _ => Err(AnnotationError::InvalidValue {
-                key: "architecture".to_string(),
                 value: value.to_string(),
             }),
         }

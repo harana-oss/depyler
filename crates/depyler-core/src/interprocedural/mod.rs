@@ -18,8 +18,8 @@
 //! # Example
 //!
 //! ```rust,no_run
-//! use depyler_core::interprocedural::InterproceduralAnalyzer;
-//! use depyler_core::hir::HirModule;
+//! use quantsim_core::interprocedural::InterproceduralAnalyzer;
+//! use quantsim_core::hir::HirModule;
 //!
 //! let module = HirModule {
 //!     functions: vec![],
